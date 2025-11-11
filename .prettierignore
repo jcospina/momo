@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+pnpm-workspace.yaml
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Other files you don't want formatted
+*.md
+.env*
+
+# Cursor
+.cursor
+
+# VSCode
+.vscode
+
+# Public
+public/

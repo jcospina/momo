@@ -19,7 +19,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@actions/*": ["./src/lib/actions/*"],
+      "@supabase/*": ["./src/lib/supabase/*"],
+      "@auth/*": ["./src/lib/auth/*"]
     }
   },
   "include": [
