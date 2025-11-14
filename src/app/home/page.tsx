@@ -2,10 +2,18 @@ import { logout } from '@actions/logout';
 import { getCurrentUser } from '@auth/user';
 import { redirect } from 'next/navigation';
 
+import { getHouseholdMembershipForUser } from '@/lib/helpers/households';
+
 export default async function HomePage() {
   const user = await getCurrentUser();
   if (!user) {
     redirect('/');
+  }
+
+  const membership = await getHouseholdMembershipForUser(user.id);
+
+  if (!membership) {
+    redirect('/onboarding');
   }
   return (
     <div
