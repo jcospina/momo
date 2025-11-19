@@ -1,14 +1,65 @@
+import { createServerClient } from '@supabase/ssr';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 import { fetchHouseholdMembership } from '@helpers/households';
 import type { ProxyContext } from '@proxy/types';
-import { createSupabaseProxyClient } from '@supabase/server';
 
 export async function buildProxyContext(
   request: NextRequest,
 ): Promise<ProxyContext> {
-  const supabase = createSupabaseProxyClient(request);
+  // Start the response up front; supabase will mutate it through setAll when refreshing cookies.
+  let response = NextResponse.next({ request });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          response = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options),
+          );
+        },
+      },
+      cookieOptions: {
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
+  );
+
+  // Validate the JWT before any other logic.
+  const { data, error: claimsError } = await supabase.auth.getClaims();
+  if (claimsError) {
+    console.error('Proxy auth.getClaims failed', claimsError.message);
+  }
+
+  const jwtPayload = data?.claims ?? null;
+  const applyCookies = (res: NextResponse) => {
+    response.cookies.getAll().forEach(cookie => {
+      res.cookies.set(cookie);
+    });
+    return res;
+  };
+
+  if (!jwtPayload) {
+    return {
+      request,
+      pathname: request.nextUrl.pathname,
+      supabase,
+      user: null,
+      membership: null,
+      hasHousehold: false,
+      redirect: (path: string) =>
+        applyCookies(NextResponse.redirect(new URL(path, request.url))),
+      next: () => response,
+    };
+  }
+
   const {
     data: { user },
     error,
@@ -16,11 +67,6 @@ export async function buildProxyContext(
 
   if (error) {
     console.error('Proxy auth.getUser failed', error.message);
-  }
-
-  if (!user) {
-    const cookieNames = request.cookies.getAll().map(cookie => cookie.name);
-    console.info('Proxy did not find user, cookies present:', cookieNames);
   }
 
   const membership = user
@@ -35,7 +81,7 @@ export async function buildProxyContext(
     membership,
     hasHousehold: Boolean(membership),
     redirect: (path: string) =>
-      NextResponse.redirect(new URL(path, request.url)),
-    next: () => NextResponse.next(),
+      applyCookies(NextResponse.redirect(new URL(path, request.url))),
+    next: () => response,
   };
 }
