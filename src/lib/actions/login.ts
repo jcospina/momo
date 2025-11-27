@@ -14,6 +14,7 @@ export async function loginWithProvider(provider: Provider) {
   });
 
   if (error) {
+    console.error('Provider login failed', error);
     throw new Error(error.message);
   }
 

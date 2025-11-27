@@ -1,7 +1,7 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { createSupabaseServerClient } from '@supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-import type { HouseholdMembership } from '@lib-types/households';
+import type { Household, HouseholdMembership } from '@lib-types/households';
 
 export async function fetchHouseholdMembership(
   supabase: SupabaseClient,
@@ -25,4 +25,22 @@ export async function fetchHouseholdMembership(
 export async function getHouseholdMembershipForUser(userId: string) {
   const supabase = await createSupabaseServerClient();
   return fetchHouseholdMembership(supabase, userId);
+}
+
+export async function fetchHouseholdById(
+  supabase: SupabaseClient,
+  householdId: string,
+) {
+  const { data, error } = await supabase
+    .from('households')
+    .select('id, name, owner')
+    .eq('id', householdId)
+    .single();
+
+  if (error) {
+    console.error('Failed to load household', error);
+    return null;
+  }
+
+  return data as Household | null;
 }

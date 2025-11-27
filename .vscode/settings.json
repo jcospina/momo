@@ -30,5 +30,6 @@
     "editor.formatOnSave": true
   },
   "editor.formatOnPaste": true,
-  "files.autoSave": "afterDelay"
+  "files.autoSave": "afterDelay",
+  "chatgpt.commentCodeLensEnabled": false
 }

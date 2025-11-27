@@ -1,5 +1,6 @@
 import { getCurrentUser } from '@auth/user';
 import { getHouseholdMembershipForUser } from '@helpers/households';
+import { logout } from '@actions/logout';
 import { redirect } from 'next/navigation';
 import { HouseholdForm } from './household-form';
 
@@ -26,6 +27,14 @@ export default async function OnboardingPage() {
         <div className="mt-8">
           <HouseholdForm />
         </div>
+        <form className="mt-6">
+          <button
+            formAction={logout}
+            className="rounded-md border border-rust px-3 py-2 text-sm font-semibold text-foreground transition hover:bg-foreground/10"
+          >
+            Logout
+          </button>
+        </form>
       </div>
     </div>
   );

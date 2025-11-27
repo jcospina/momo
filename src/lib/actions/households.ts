@@ -33,7 +33,12 @@ export async function createHousehold(
     .single();
 
   if (createError || !household) {
-    return { error: 'Unable to create the household. Please try again.' };
+    console.error('Create household failed', createError);
+    return {
+      error:
+        createError?.message ??
+        'Unable to create the household. Please try again.',
+    };
   }
 
   const { error: memberError } = await supabase
@@ -45,7 +50,11 @@ export async function createHousehold(
     });
 
   if (memberError) {
-    return { error: 'Could not finish onboarding. Please try again.' };
+    console.error('Create household membership failed', memberError);
+    return {
+      error:
+        memberError.message ?? 'Could not finish onboarding. Please try again.',
+    };
   }
 
   redirect('/home');
