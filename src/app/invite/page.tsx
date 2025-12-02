@@ -122,7 +122,7 @@ export default async function InviteLandingPage({
     <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col justify-center px-4 py-12">
       <div className="rounded-lg border border-rust bg-background/60 px-6 py-8 shadow-sm">
         <p className="text-sm uppercase tracking-wide text-rust">Invite</p>
-        <h1 className="mt-2 font-cherry-bomb-one text-5xl text-gamboge">
+        <h1 className="mt-2 text-5xl text-gamboge">
           Join {invite.household_name}
         </h1>
         <p className="mt-4 text-lg text-foreground">

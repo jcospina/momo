@@ -1,43 +1,35 @@
 @import 'tailwindcss';
 
 :root {
-  --background: #fbf8ef;
-  --foreground: #001f29;
-  --auburn: #9b2226;
-  --rufous: #ae2012;
-  --rust: #bb3e03;
-  --cocoa-brown: #de7002;
-  --gamboge: #ee9b00;
-  --tiffany-blue: #8ccfb9;
-  --dark-cyan: #0a9396;
-  --midnight-green: #005f73;
+  /* Neobrutalism */
+  --sunbeam-yellow: #f5ed00;
+  --spring-green: #00ff75;
+  --mauve-magic: #cd76ea;
+  --amber-glow: #ffa51f;
+  --vibrant-coral: #ff7070;
+  --sky-aqua: #39dbff;
 }
 
 @theme inline {
   /* Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-auburn: var(--auburn);
-  --color-rufous: var(--rufous);
-  --color-rust: var(--rust);
-  --color-cocoa-brown: var(--cocoa-brown);
-  --color-gamboge: var(--gamboge);
-  --color-tiffany-blue: var(--tiffany-blue);
-  --color-dark-cyan: var(--dark-cyan);
-  --color-midnight-green: var(--midnight-green);
+  --color-sunbeam-yellow: var(--sunbeam-yellow);
+  --color-spring-green: var(--spring-green);
+  --color-mauve-magic: var(--mauve-magic);
+  --color-amber-glow: var(--amber-glow);
+  --color-vibrant-coral: var(--vibrant-coral);
+  --color-sky-aqua: var(--sky-aqua);
   /* Fonts */
+  --font-sans: var(--font-outfit);
+  --font-logo: var(--font-logo);
   /* Spacing */
   --spacing: 8px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #001f29;
-    --foreground: #fbf8ef;
-  }
-}
-
 body {
-  background: var(--background);
+  background-color: var(--color-sunbeam-yellow);
   color: var(--foreground);
+  min-height: 100vh;
+  position: relative;
 }

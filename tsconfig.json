@@ -25,6 +25,8 @@
       "@lib-types/*": ["./src/lib/types/*"],
       "@proxy/*": ["./src/lib/proxy/*"],
       "@helpers/*": ["./src/lib/helpers/*"],
+      "@components/*": ["./src/components/*"],
+      "@utils/*": ["./src/lib/utils/*"],
       "@/*": ["./src/*"]
     }
   },

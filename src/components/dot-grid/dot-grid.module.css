@@ -1,0 +1,32 @@
+/* Dot grid hover overlay */
+.dotGrid {
+  position: fixed;
+  inset: 0;
+  pointer-events: none; /* don't block interactions */
+  z-index: 0; /* content will be placed above via a wrapper z-index */
+}
+
+.hoverDot {
+  position: absolute;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition:
+    width 120ms ease,
+    height 120ms ease,
+    opacity 120ms ease,
+    transform 120ms ease;
+  will-change: width, height, transform, opacity;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dot {
+  position: absolute;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition:
+    transform 120ms ease,
+    opacity 120ms ease;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
