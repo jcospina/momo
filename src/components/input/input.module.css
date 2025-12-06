@@ -1,0 +1,36 @@
+.momo-input {
+  padding: calc(var(--spacing) * 1);
+  font-size: var(--font-size);
+  border: 2px solid var(--color-black);
+  will-change: box-shadow, transform;
+  transition:
+    transform 160ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    box-shadow 160ms cubic-bezier(0.2, 0.9, 0.2, 1);
+  transform: translate(0, 0);
+  box-shadow: none;
+}
+
+.momo-input:hover {
+  outline: none;
+  will-change: box-shadow, transform;
+  transition:
+    transform 160ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    box-shadow 160ms cubic-bezier(0.2, 0.9, 0.2, 1);
+  transform: translate(2px, -2px);
+  box-shadow: -2px 2px 0 var(--color-black);
+}
+.momo-input:focus {
+  outline: none;
+  will-change: box-shadow, transform;
+  transition:
+    transform 160ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    box-shadow 160ms cubic-bezier(0.2, 0.9, 0.2, 1);
+  transform: translate(6px, -6px);
+  box-shadow: -6px 6px 0 var(--color-black);
+}
+
+@media screen and (min-width: 768px) {
+  .momo-input {
+    font-size: calc(var(--font-size) * 1.25);
+  }
+}

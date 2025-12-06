@@ -20,12 +20,13 @@
     ],
     "paths": {
       "@actions/*": ["./src/lib/actions/*"],
-      "@supabase/*": ["./src/lib/supabase/*"],
       "@auth/*": ["./src/lib/auth/*"],
-      "@lib-types/*": ["./src/lib/types/*"],
-      "@proxy/*": ["./src/lib/proxy/*"],
-      "@helpers/*": ["./src/lib/helpers/*"],
       "@components/*": ["./src/components/*"],
+      "@helpers/*": ["./src/lib/helpers/*"],
+      "@lib-types/*": ["./src/lib/types/*"],
+      "@providers/*": ["./src/providers/*"],
+      "@proxy/*": ["./src/lib/proxy/*"],
+      "@supabase/*": ["./src/lib/supabase/*"],
       "@utils/*": ["./src/lib/utils/*"],
       "@/*": ["./src/*"]
     }

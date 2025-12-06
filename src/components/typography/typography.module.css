@@ -1,0 +1,41 @@
+.momo-typography {
+  font-family: var(--font-sans);
+}
+
+.momo-typography--xs {
+  font-size: 0.75rem;
+}
+.momo-typography--sm {
+  font-size: 0.875rem;
+}
+.momo-typography--md {
+  font-size: 1rem;
+}
+.momo-typography--lg {
+  font-size: 1.5rem;
+}
+.momo-typography--xl {
+  font-size: 2rem;
+}
+.momo-typography--light {
+  font-weight: 300;
+}
+.momo-typography--regular {
+  font-weight: 400;
+}
+.momo-typography--bold {
+  font-weight: 700;
+}
+
+.momo-typography--none {
+  text-transform: none;
+}
+.momo-typography--uppercase {
+  text-transform: uppercase;
+}
+.momo-typography--lowercase {
+  text-transform: lowercase;
+}
+.momo-typography--capitalize {
+  text-transform: capitalize;
+}

@@ -1,14 +1,8 @@
 .momo-button {
   box-shadow: -6px 6px 0 var(--color-black);
   border: 2px solid var(--color-black);
-}
-
-.momo-button:hover {
-  transform: translate(-3px);
-  box-shadow: -2px 2px 0 var(--color-black);
-}
-
-.momo-button {
+  padding: calc(var(--spacing) * 1) calc(var(--spacing) * 4);
+  font-size: calc(var(--font-size) * 1);
   transform: translateX(0);
   transition:
     transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -18,12 +12,86 @@
   will-change: transform, box-shadow;
 }
 
+.momo-button--link {
+  border: none;
+  box-shadow: none;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  transition: none;
+  padding: 0;
+}
+
+.momo-button:hover {
+  transform: translate(-3px);
+  box-shadow: -2px 2px 0 var(--color-black);
+}
+
+.momo-button.momo-button--link {
+  /* prepare for text-shadow animation */
+  text-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  transition:
+    text-decoration-thickness 150ms ease,
+    text-shadow 350ms ease;
+  will-change: text-shadow, text-decoration-thickness;
+}
+
+.momo-button.momo-button--link:hover {
+  transform: none;
+  box-shadow: none;
+  text-decoration-thickness: 3px;
+  animation: momo-link-text-shadow 800ms ease-in-out;
+  will-change: text-shadow;
+}
+
+@keyframes momo-link-text-shadow {
+  0% {
+    text-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+  50% {
+    text-shadow:
+      0 6px 12px rgba(0, 0, 0, 0.28),
+      0 0 8px rgba(0, 0, 0, 0.08);
+  }
+  100% {
+    text-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.18),
+      0 0 4px rgba(0, 0, 0, 0.06);
+  }
+}
+
 .momo-button--primary {
   background-color: var(--color-spring-green);
   color: var(--color-black);
 }
 
 .momo-button--secondary {
-  background-color: transparent;
+  background-color: var(--color-vibrant-coral);
   color: var(--color-black);
+}
+
+.momo-button--disabled {
+  background-color: var(--color-disabled);
+  cursor: not-allowed;
+  color: color-mix(in oklch, var(--color-dark), white 50%);
+}
+
+.momo-button--disabled:hover {
+  transform: none;
+  box-shadow: -6px 6px 0 var(--color-black);
+}
+
+@media screen and (min-width: 768px) {
+  .momo-button {
+    font-size: calc(var(--font-size) * 1.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-button.momo-button--link:hover {
+    animation: none;
+    text-shadow: none;
+  }
+  .momo-button {
+    transition: none;
+  }
 }

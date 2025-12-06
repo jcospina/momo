@@ -1,0 +1,9 @@
+.momo-navbar__logo {
+  font-size: 3rem;
+}
+
+@media screen and (min-width: 769px) {
+  .momo-navbar__logo {
+    font-size: 4rem;
+  }
+}

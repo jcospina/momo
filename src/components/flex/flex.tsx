@@ -1,14 +1,26 @@
+import { FlexProps } from '@components/flex/flex.types';
+import type { PropsWithClassName } from '@lib-types/common';
 import { cn } from '@utils/cn';
-import { PanelProps } from './panel.types';
-
 import { getSpacingStyles } from '@utils/spacing';
-import type { CSSProperties, ElementType } from 'react';
-import styles from './panel.module.css';
 
-export function Panel<T extends ElementType>({
-  className,
-  children,
+import { getGapStyles } from '@utils/gap';
+import type { CSSProperties, ElementType } from 'react';
+import styles from './flex.module.css';
+
+export function Flex<T extends ElementType>({
   as,
+  className,
+  direction = 'row',
+  gap,
+  gapX,
+  gapY,
+  justifyContent = 'flex-start',
+  alignItems = 'flex-start',
+  wrap = 'nowrap',
+  isInline = false,
+  isFullHeight,
+  isFullWidth,
+  children,
   style,
   padding,
   paddingX,
@@ -25,7 +37,7 @@ export function Panel<T extends ElementType>({
   marginTop,
   marginBottom,
   ...props
-}: PanelProps<T>) {
+}: PropsWithClassName<FlexProps<T>>) {
   const Component = as || 'div';
 
   const spacingStyles: CSSProperties = getSpacingStyles({
@@ -44,16 +56,32 @@ export function Panel<T extends ElementType>({
     marginTop,
     marginBottom,
   });
+
+  const gapStyles = getGapStyles(gap, gapX, gapY);
+
+  const flexStyles = {
+    flexDirection: direction,
+    justifyContent,
+    alignItems,
+    flexWrap: wrap,
+  } as CSSProperties;
   const inlineStyle = style as CSSProperties | undefined;
   const mergedStyle: CSSProperties = {
+    ...gapStyles,
+    ...flexStyles,
     ...spacingStyles,
     ...(inlineStyle || {}),
   };
-
   return (
     <Component
-      className={cn(styles['momo-panel'], className)}
       style={mergedStyle}
+      className={cn(
+        styles['momo-flex'],
+        isInline && styles['momo-flex--inline'],
+        isFullHeight && styles['momo-flex--full-h'],
+        isFullWidth && styles['momo-flex--full-w'],
+        className,
+      )}
       {...props}
     >
       {children}

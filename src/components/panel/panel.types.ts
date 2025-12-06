@@ -1,9 +1,13 @@
-import React, { PropsWithChildren } from 'react';
+import type { MarginProps, PaddingProps } from '@lib-types/common';
+import {
+  PropsWithChildren,
+  type ComponentPropsWithoutRef,
+  type ElementType,
+} from 'react';
 
-interface BasePanelProps extends PropsWithChildren {
-  className?: string;
-}
-export type PanelProps<T extends React.ElementType = 'div'> = {
+export type PanelProps<T extends ElementType = 'div'> = {
   as?: T;
-} & BasePanelProps &
-  Omit<React.ComponentPropsWithoutRef<T>, keyof BasePanelProps | 'as'>;
+} & PropsWithChildren &
+  Omit<ComponentPropsWithoutRef<T>, keyof PropsWithChildren | 'as'> &
+  PaddingProps &
+  MarginProps;

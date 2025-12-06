@@ -1,14 +1,15 @@
-import { cn } from '@utils/cn';
-import { PanelProps } from './panel.types';
-
+import type { FlexItemProps } from '@components/flex-item/flex-item.types';
 import { getSpacingStyles } from '@utils/spacing';
 import type { CSSProperties, ElementType } from 'react';
-import styles from './panel.module.css';
 
-export function Panel<T extends ElementType>({
+export function FlexItem<T extends ElementType>({
   className,
   children,
   as,
+  order,
+  grow,
+  shrink,
+  basis,
   style,
   padding,
   paddingX,
@@ -25,9 +26,8 @@ export function Panel<T extends ElementType>({
   marginTop,
   marginBottom,
   ...props
-}: PanelProps<T>) {
+}: FlexItemProps<T>) {
   const Component = as || 'div';
-
   const spacingStyles: CSSProperties = getSpacingStyles({
     padding,
     paddingX,
@@ -44,18 +44,20 @@ export function Panel<T extends ElementType>({
     marginTop,
     marginBottom,
   });
+  const flexItemStyles = {
+    flexGrow: grow || 0,
+    flexShrink: shrink || 1,
+    flexBasis: basis || 'auto',
+    order: order || 0,
+  } as CSSProperties;
   const inlineStyle = style as CSSProperties | undefined;
   const mergedStyle: CSSProperties = {
     ...spacingStyles,
+    ...flexItemStyles,
     ...(inlineStyle || {}),
   };
-
   return (
-    <Component
-      className={cn(styles['momo-panel'], className)}
-      style={mergedStyle}
-      {...props}
-    >
+    <Component style={mergedStyle} {...props} className={className}>
       {children}
     </Component>
   );
