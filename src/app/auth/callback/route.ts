@@ -1,7 +1,7 @@
 // app/auth/callback/route.ts
 import { fetchHouseholdMembership } from '@helpers/households';
+import { createUserProfile } from '@helpers/profiles';
 import { createSupabaseServerClient } from '@supabase/server';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -28,15 +28,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/?error=auth', url.origin));
   }
 
-  const membership = await fetchHouseholdMembership(supabase, user.id);
-  const cookieStore = await cookies();
-  const inviteToken = cookieStore.get('invite_token');
+  const profile = await createUserProfile(user);
 
-  const destination = membership
-    ? '/home'
-    : inviteToken
-      ? '/invite/accept'
-      : '/onboarding';
+  if (!profile) {
+    return NextResponse.redirect(new URL('/?error=auth', url.origin));
+  }
+
+  const membership = await fetchHouseholdMembership(supabase, user.id);
+
+  const destination = membership ? '/home' : '/onboarding';
 
   return NextResponse.redirect(new URL(destination, url.origin));
 }

@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from '@supabase/server';
+import { cache } from 'react';
 
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -12,4 +13,4 @@ export async function getCurrentUser() {
   }
 
   return user;
-}
+});

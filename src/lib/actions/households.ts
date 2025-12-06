@@ -57,5 +57,21 @@ export async function createHousehold(
     };
   }
 
+  // mark onboarding as completed for this user
+  const { error: prefsError } = await supabase
+    .from('user_prefs')
+    .upsert(
+      { user_id: user.id, onboarding_status: 'completed' },
+      { onConflict: 'user_id' },
+    );
+
+  if (prefsError) {
+    console.error('Mark onboarding completed failed', prefsError);
+    return {
+      error:
+        prefsError.message ?? 'Could not finish onboarding. Please try again.',
+    };
+  }
+
   redirect('/home');
 }

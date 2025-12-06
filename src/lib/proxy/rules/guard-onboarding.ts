@@ -6,7 +6,9 @@ export const guardOnboardingForCompleted: ProxyRule = ctx => {
     return;
   }
 
-  if (ctx.hasHousehold) {
+  // If user already has a household or they've already completed/skipped
+  // onboarding, send them to the app home.
+  if (ctx.hasHousehold || ctx.onboardingStatus !== 'unknown') {
     return ctx.redirect(HOME_PATH);
   }
 };

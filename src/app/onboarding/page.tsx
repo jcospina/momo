@@ -1,8 +1,16 @@
-import { getCurrentUser } from '@auth/user';
+import { setOnboardingStatus } from '@actions/user-prefs';
+import { Logo } from '@components/logo/logo';
+import { Panel } from '@components/panel/panel';
 import { getHouseholdMembershipForUser } from '@helpers/households';
-import { logout } from '@actions/logout';
+import { getCurrentUser } from '@helpers/user';
 import { redirect } from 'next/navigation';
 import { HouseholdForm } from './household-form';
+
+import { Button } from '@components/button/button';
+import { Flex } from '@components/flex/flex';
+import { Tooltip } from '@components/tooltip/tooltip';
+import { Typography } from '@components/typography/typography';
+import styles from './onboarding.module.css';
 
 export default async function OnboardingPage() {
   const user = await getCurrentUser();
@@ -18,24 +26,42 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
-      <div className="w-full max-w-lg rounded-xl border border-rust bg-foreground/5 p-8 shadow-lg">
-        <h1 className="font-cherry-bomb-one text-6xl text-gamboge">Welcome</h1>
-        <p className="mt-2 font-poppins text-lg text-foreground">
-          Let&apos;s set up your household so you can start tracking expenses.
-        </p>
-        <div className="mt-8">
+    <Flex
+      direction="column"
+      alignItems="center"
+      justifyContent="center"
+      className={styles['onboarding']}
+      padding={4}
+    >
+      <Panel padding={3} className={styles['onboarding__panel']}>
+        <Flex
+          direction="column"
+          justifyContent="space-around"
+          alignItems="center"
+          isFullHeight
+          isFullWidth
+        >
+          <Logo />
+          <Typography>
+            Let&apos;s set up your household so you can start tracking expenses
+            together with your loved ones.
+          </Typography>
           <HouseholdForm />
-        </div>
-        <form className="mt-6">
-          <button
-            formAction={logout}
-            className="rounded-md border border-rust px-3 py-2 text-sm font-semibold text-foreground transition hover:bg-foreground/10"
+          <Tooltip
+            className={styles['onboarding__skip-link']}
+            label="You don't want to share your spending habits with your family, I respect that and won't judge."
           >
-            Logout
-          </button>
-        </form>
-      </div>
-    </div>
+            <form>
+              <Button
+                variant="link"
+                formAction={setOnboardingStatus.bind(null, 'skipped')}
+              >
+                Skip household creation.
+              </Button>
+            </form>
+          </Tooltip>
+        </Flex>
+      </Panel>
+    </Flex>
   );
 }

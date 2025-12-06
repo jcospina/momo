@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Bungee_Shade, Outfit } from 'next/font/google';
 
 import { cn } from '@utils/cn';
+import type { ReactNode } from 'react';
 import DotGrid from '../components/dot-grid/dot-grid';
 import './globals.css';
 
@@ -97,7 +98,7 @@ export const viewport: Viewport = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="en">
@@ -105,7 +106,7 @@ export default function RootLayout({
         className={cn('antialiased', outfit.className, bungeeShade.variable)}
       >
         <DotGrid blastStrength={4} blastRadius={100} />
-        <div style={{ position: 'relative', zIndex: 1 }}>{children}</div>
+        <main style={{ position: 'relative', zIndex: 1 }}>{children}</main>
       </body>
     </html>
   );

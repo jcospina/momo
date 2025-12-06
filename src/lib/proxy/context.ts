@@ -54,6 +54,7 @@ export async function buildProxyContext(
       user: null,
       membership: null,
       hasHousehold: false,
+      onboardingStatus: 'unknown',
       redirect: (path: string) =>
         applyCookies(NextResponse.redirect(new URL(path, request.url))),
       next: () => response,
@@ -73,6 +74,24 @@ export async function buildProxyContext(
     ? await fetchHouseholdMembership(supabase, user.id)
     : null;
 
+  // fetch onboarding status from user_prefs; default to 'unknown' when missing
+  let onboardingStatus: 'unknown' | 'skipped' | 'completed' = 'unknown';
+  if (user) {
+    try {
+      const { data: pref, error: prefError } = await supabase
+        .from('user_prefs')
+        .select('onboarding_status')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!prefError && pref && pref.onboarding_status) {
+        onboardingStatus = pref.onboarding_status;
+      }
+    } catch {
+      // ignore and keep default
+    }
+  }
+
   return {
     request,
     pathname: request.nextUrl.pathname,
@@ -80,6 +99,7 @@ export async function buildProxyContext(
     user,
     membership,
     hasHousehold: Boolean(membership),
+    onboardingStatus,
     redirect: (path: string) =>
       applyCookies(NextResponse.redirect(new URL(path, request.url))),
     next: () => response,

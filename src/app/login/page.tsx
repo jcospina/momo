@@ -1,27 +1,49 @@
 import { loginWithProvider } from '@actions/login';
 import { Button } from '@components/button/button';
+import { Logo } from '@components/logo/logo';
 import { Panel } from '@components/panel/panel';
+import { Typography } from '@components/typography/typography';
+
+import { Flex } from '@components/flex/flex';
+import styles from './login.module.css';
 
 export default function Home() {
   return (
-    <div className="h-screen w-screen flex flex-col items-center justify-center">
-      <Panel className="flex flex-col gap-12 items-center justify-center py-12">
-        <div className="flex flex-col gap-1 p-3 items-center justify-center w-full">
-          <div className="text-4xl text-foreground">Welcome to</div>
-          <div className="font-logo font-extrabold text-7xl lg:text-9xl">
-            MoMo
-          </div>
-        </div>
-        <form>
-          <Button
-            variant="primary"
-            formAction={loginWithProvider.bind(null, 'google')}
-            className="text-2xl"
+    <Flex
+      direction="column"
+      alignItems="center"
+      justifyContent="center"
+      padding={4}
+      className={styles['login']}
+    >
+      <Panel padding={6} className={styles['login__panel']}>
+        <Flex
+          direction="column"
+          alignItems="center"
+          justifyContent="space-around"
+          gap={8}
+        >
+          <Flex
+            direction="column"
+            gap={0.5}
+            alignItems="center"
+            justifyContent="center"
+            className={styles['login__header']}
           >
-            Sign in with Google
-          </Button>
-        </form>
+            <Typography>Welcome to</Typography>
+            <Logo className={styles['login__logo']} />
+            <Typography>More money, More fun</Typography>
+          </Flex>
+          <form>
+            <Button
+              variant="primary"
+              formAction={loginWithProvider.bind(null, 'google')}
+            >
+              Sign in with Google
+            </Button>
+          </form>
+        </Flex>
       </Panel>
-    </div>
+    </Flex>
   );
 }

@@ -1,0 +1,23 @@
+.onboarding {
+  height: 100vh;
+  width: 100vw;
+}
+
+.onboarding__panel {
+  max-width: 700px;
+  height: 600px;
+}
+
+.onboarding__panel p {
+  font-size: calc(var(--font-size) * 1.25);
+}
+
+.onboarding__skip-link {
+  align-self: flex-start;
+}
+
+@media screen and (min-width: 768px) {
+  .onboarding__panel p {
+    font-size: calc(var(--font-size) * 1.5);
+  }
+}

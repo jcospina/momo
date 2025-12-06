@@ -10,6 +10,7 @@ export type ProxyContext = {
   user: User | null;
   membership: HouseholdMembership | null;
   hasHousehold: boolean;
+  onboardingStatus: 'unknown' | 'skipped' | 'completed';
   redirect: (path: string) => NextResponse;
   next: () => NextResponse;
 };
