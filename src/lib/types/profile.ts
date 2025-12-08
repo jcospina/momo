@@ -1,5 +1,6 @@
-export type UserProfile = {
+export type Profile = {
   user_id: string;
-  display_name: string | null;
+  display_name: string;
+  email: string;
   invite_token: string;
 };

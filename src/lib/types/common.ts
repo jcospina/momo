@@ -26,3 +26,11 @@ export type MarginProperty =
 export type MarginProps = {
   [K in MarginProperty]?: number | 'auto';
 };
+
+export type MomoColor =
+  | 'sunbeam-yellow'
+  | 'spring-green'
+  | 'mauve-magic'
+  | 'amber-glow'
+  | 'vibrant-coral'
+  | 'sky-aqua';

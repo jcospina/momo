@@ -1,35 +1,19 @@
-import Link from 'next/link';
-
-import { logout } from '@actions/logout';
-import { getCurrentUser } from '@auth/user';
+import { Flex } from '@components/flex/flex';
+import { Panel } from '@components/panel/panel';
+import { Typography } from '@components/typography/typography';
+import { getCurrentUser } from '@helpers/user';
 import { redirect } from 'next/navigation';
 
 export default async function HomePage() {
   const user = await getCurrentUser();
   if (!user) {
-    redirect('/');
+    redirect('/login');
   }
   return (
-    <div
-      className="h-screen w-screen flex flex-col items-center justify-center gap-3
-    "
-    >
-      <div className="font-cherry-bomb-one text-9xl text-accent">MoMo</div>
-      <div className="font-poppins">Hello {user.user_metadata?.name}</div>
-      <Link
-        href="/home/invite"
-        className="rounded-md border border-rust px-3 py-2 text-foreground transition hover:bg-foreground/10"
-      >
-        Invite household members
-      </Link>
-      <form>
-        <button
-          formAction={logout}
-          className="border border-rust rounded-md px-2 py-1 bg-rufous text-foreground"
-        >
-          Logout
-        </button>
-      </form>
-    </div>
+    <Panel padding={3}>
+      <Flex isFullWidth direction="column" gap={2} alignItems="center">
+        <Typography as="p">Hello {user.user_metadata?.name}</Typography>
+      </Flex>
+    </Panel>
   );
 }

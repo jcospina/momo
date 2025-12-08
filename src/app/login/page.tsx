@@ -16,7 +16,7 @@ export default function Home() {
       padding={4}
       className={styles['login']}
     >
-      <Panel padding={6} className={styles['login__panel']}>
+      <Panel padding={6}>
         <Flex
           direction="column"
           alignItems="center"

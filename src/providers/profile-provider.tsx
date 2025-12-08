@@ -1,12 +1,12 @@
 'use client';
 
-import type { UserProfile } from '@lib-types/profile';
+import type { Profile } from '@lib-types/profile';
 import { createContext, useContext, type PropsWithChildren } from 'react';
 
-const Context = createContext<UserProfile | null>(null);
+const Context = createContext<Profile | null>(null);
 
 interface ProfileProviderProps {
-  profile: UserProfile;
+  profile: Profile;
 }
 export function ProfileProvider({
   profile,

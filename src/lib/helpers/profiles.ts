@@ -1,4 +1,4 @@
-import type { UserProfile } from '@lib-types/profile';
+import type { Profile } from '@lib-types/profile';
 import { createSupabaseServerClient } from '@supabase/server';
 import type { AuthUser, User } from '@supabase/supabase-js';
 function getDisplayName(user: User) {
@@ -18,7 +18,7 @@ function getDisplayName(user: User) {
  */
 export async function createUserProfile(
   user: AuthUser,
-): Promise<UserProfile | null> {
+): Promise<Profile | null> {
   const supabase = await createSupabaseServerClient();
   const displayName = getDisplayName(user);
 
@@ -40,12 +40,10 @@ export async function createUserProfile(
   if (error) {
     return null;
   }
-  return data as UserProfile;
+  return data as Profile;
 }
 
-export async function getUserProfile(
-  userId: string,
-): Promise<UserProfile | null> {
+export async function getUserProfile(userId: string): Promise<Profile | null> {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from('user_profiles')
@@ -58,5 +56,5 @@ export async function getUserProfile(
     return null;
   }
 
-  return data as UserProfile;
+  return data as Profile;
 }

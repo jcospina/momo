@@ -4,10 +4,10 @@ import { Panel } from '@components/panel/panel';
 import { getHouseholdMembershipForUser } from '@helpers/households';
 import { getCurrentUser } from '@helpers/user';
 import { redirect } from 'next/navigation';
-import { HouseholdForm } from './household-form';
 
 import { Button } from '@components/button/button';
 import { Flex } from '@components/flex/flex';
+import { HouseholdForm } from '@components/household-form/household-form';
 import { Tooltip } from '@components/tooltip/tooltip';
 import { Typography } from '@components/typography/typography';
 import styles from './onboarding.module.css';
