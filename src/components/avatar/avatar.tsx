@@ -13,12 +13,19 @@ import styles from './avatar.module.css';
 import { AvatarProps } from './avatar.types';
 
 export function Avatar(props: PropsWithClassName<AvatarProps>) {
-  const { size = 'medium', displayName, className, variant } = props;
+  const {
+    size = 'medium',
+    displayName,
+    className,
+    variant,
+    color = 'sky-aqua',
+  } = props;
   const avatarStyles = {
     '--avatar-size': getAvatarSizeMultiplier(size),
     '--avatar-shadow': getAvatarShadow(size),
     '--avatar-font-size': getAvatarFontSize(size),
     '--avatar-border-width': getAvatarBorderWidth(size),
+    backgroundColor: `var(--color-${color})`,
   } as CSSProperties;
   return (
     <div

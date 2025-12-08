@@ -5,9 +5,12 @@ import {
   type ElementType,
 } from 'react';
 
+interface BasePanelProps extends PropsWithChildren {
+  shadowless?: boolean;
+}
 export type PanelProps<T extends ElementType = 'div'> = {
   as?: T;
-} & PropsWithChildren &
-  Omit<ComponentPropsWithoutRef<T>, keyof PropsWithChildren | 'as'> &
+} & BasePanelProps &
+  Omit<ComponentPropsWithoutRef<T>, keyof BasePanelProps | 'as'> &
   PaddingProps &
   MarginProps;

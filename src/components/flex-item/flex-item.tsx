@@ -10,6 +10,7 @@ export function FlexItem<T extends ElementType>({
   grow,
   shrink,
   basis,
+  align,
   style,
   padding,
   paddingX,
@@ -49,6 +50,7 @@ export function FlexItem<T extends ElementType>({
     flexShrink: shrink || 1,
     flexBasis: basis || 'auto',
     order: order || 0,
+    alignSelf: align,
   } as CSSProperties;
   const inlineStyle = style as CSSProperties | undefined;
   const mergedStyle: CSSProperties = {

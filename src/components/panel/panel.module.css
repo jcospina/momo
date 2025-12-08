@@ -5,6 +5,10 @@
   transform: translateX(6px);
 }
 
+.momo-panel--shadowless {
+  box-shadow: none;
+  transform: none;
+}
 @media screen and (min-width: 768px) {
   .momo-panel {
     box-shadow: -16px 16px 0 var(--color-black);

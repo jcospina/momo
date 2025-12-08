@@ -80,12 +80,6 @@
   box-shadow: -6px 6px 0 var(--color-black);
 }
 
-@media screen and (min-width: 768px) {
-  .momo-button {
-    font-size: calc(var(--font-size) * 1.25);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .momo-button.momo-button--link:hover {
     animation: none;

@@ -12,9 +12,12 @@
   font-size: 1rem;
 }
 .momo-typography--lg {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
 }
 .momo-typography--xl {
+  font-size: 1.5rem;
+}
+.momo-typography--xxl {
   font-size: 2rem;
 }
 .momo-typography--light {

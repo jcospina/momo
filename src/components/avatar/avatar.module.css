@@ -1,6 +1,5 @@
 .momo-avatar {
   border-radius: 50%;
-  background: var(--color-sky-aqua);
   color: var(--color-dark);
   display: inline-flex;
   align-items: center;

@@ -11,6 +11,8 @@ function getSizeProperty(
   values: Record<AvatarSize, number>,
 ): number {
   switch (size) {
+    case 'extra-small':
+      return values['extra-small'];
     case 'small':
       return values['small'];
     case 'large':
@@ -22,17 +24,37 @@ function getSizeProperty(
 }
 
 export function getAvatarSizeMultiplier(size: AvatarSize): number {
-  return getSizeProperty(size, { small: 3, medium: 4, large: 5 });
+  return getSizeProperty(size, {
+    'extra-small': 2,
+    small: 3,
+    medium: 4,
+    large: 5,
+  });
 }
 
 export function getAvatarShadow(size: AvatarSize): number {
-  return getSizeProperty(size, { small: 2, medium: 3, large: 4 });
+  return getSizeProperty(size, {
+    'extra-small': 1,
+    small: 2,
+    medium: 3,
+    large: 4,
+  });
 }
 
 export function getAvatarFontSize(size: AvatarSize): number {
-  return getSizeProperty(size, { small: 1.25, medium: 2, large: 3 });
+  return getSizeProperty(size, {
+    'extra-small': 1,
+    small: 1.25,
+    medium: 2,
+    large: 3,
+  });
 }
 
 export function getAvatarBorderWidth(size: AvatarSize): number {
-  return getSizeProperty(size, { small: 2, medium: 3, large: 4 });
+  return getSizeProperty(size, {
+    'extra-small': 1,
+    small: 2,
+    medium: 3,
+    large: 4,
+  });
 }

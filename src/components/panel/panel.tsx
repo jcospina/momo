@@ -24,6 +24,7 @@ export function Panel<T extends ElementType>({
   marginRight,
   marginTop,
   marginBottom,
+  shadowless,
   ...props
 }: PanelProps<T>) {
   const Component = as || 'div';
@@ -52,7 +53,11 @@ export function Panel<T extends ElementType>({
 
   return (
     <Component
-      className={cn(styles['momo-panel'], className)}
+      className={cn(
+        styles['momo-panel'],
+        shadowless && styles['momo-panel--shadowless'],
+        className,
+      )}
       style={mergedStyle}
       {...props}
     >

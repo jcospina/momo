@@ -3,7 +3,7 @@ import {
   type ComponentPropsWithoutRef,
   type ElementType,
 } from 'react';
-type Sizes = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+type Sizes = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 
 type Weight = 'light' | 'regular' | 'bold';
 

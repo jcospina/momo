@@ -6,11 +6,15 @@ import { useProfile } from '@providers/profile-provider';
 import { mq, useMediaQuery } from '@/hooks/use-media-query';
 import { FlexItem } from '@components/flex-item/flex-item';
 import { Logo } from '@components/logo/logo';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import styles from './navbar.module.css';
+
 export function Navbar() {
   const router = useRouter();
+  const pathName = usePathname();
   const profile = useProfile();
+
+  const isProfilePage = pathName === '/home/profile';
 
   const isSmallScreen = useMediaQuery(mq('(max-width: 768px)'));
 
@@ -28,13 +32,15 @@ export function Navbar() {
       <FlexItem margin="auto">
         <Logo className={styles['momo-navbar__logo']} />
       </FlexItem>
-      <Avatar
-        size={isSmallScreen ? 'small' : 'medium'}
-        variant="button"
-        onClick={goToProfile}
-        className={styles['momo-navbar__avatar']}
-        displayName={profile?.display_name || '?'}
-      />
+      {!isProfilePage && (
+        <Avatar
+          size={isSmallScreen ? 'small' : 'medium'}
+          variant="button"
+          onClick={goToProfile}
+          className={styles['momo-navbar__avatar']}
+          displayName={profile?.display_name || '?'}
+        />
+      )}
     </Flex>
   );
 }
