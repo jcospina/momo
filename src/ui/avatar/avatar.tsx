@@ -8,7 +8,7 @@ import {
   getAvatarShadow,
   getAvatarSizeMultiplier,
   getInitial,
-} from '@components/avatar/avatar.utils';
+} from '@/ui/avatar/avatar.utils';
 import styles from './avatar.module.css';
 import { AvatarProps } from './avatar.types';
 

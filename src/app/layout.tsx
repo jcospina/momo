@@ -3,7 +3,7 @@ import { Bungee_Shade, Outfit } from 'next/font/google';
 
 import { cn } from '@utils/cn';
 import type { ReactNode } from 'react';
-import DotGrid from '../components/dot-grid/dot-grid';
+import DotGrid from '../ui/dot-grid/dot-grid';
 import './globals.css';
 
 const metadataBase =
@@ -54,35 +54,29 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'MoMo',
-    description: 'Personal finances made easy.',
+    description: 'More Money, More Fun',
     url: '/',
     siteName: 'MoMo',
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: 'MoMo',
-    description: 'Personal finances made easy.',
+    description: 'More Money, More Fun',
   },
   robots: {
     index: true,
-    follow: true,
+    follow: false,
     googleBot: {
       index: true,
-      follow: true,
-      'max-snippet': -1,
-      'max-image-preview': 'large',
-      'max-video-preview': -1,
+      follow: false,
+      'max-image-preview': 'standard',
     },
   },
   category: 'finance',
-  creator: 'MoMo',
-  publisher: 'MoMo',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#fbf8ef' },
-    { media: '(prefers-color-scheme: dark)', color: '#001f29' },
-  ],
+  creator: 'Juan Ospina',
+  publisher: 'Juan Ospina',
   formatDetection: {
     telephone: false,
   },

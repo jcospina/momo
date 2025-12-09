@@ -1,4 +1,4 @@
-import type { FlexItemProps } from '@components/flex-item/flex-item.types';
+import type { FlexItemProps } from '@/ui/flex-item/flex-item.types';
 import { getSpacingStyles } from '@utils/spacing';
 import type { CSSProperties, ElementType } from 'react';
 

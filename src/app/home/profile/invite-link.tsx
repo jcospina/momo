@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 
-import { Button } from '@components/button/button';
+import { Button } from '@/ui/button/button';
 
-import { Flex } from '@components/flex/flex';
+import { Flex } from '@/ui/flex/flex';
 import styles from './profile.module.css';
 
 type InviteLinkProps = {

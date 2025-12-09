@@ -1,10 +1,10 @@
+import { Button } from '@/ui/button/button';
+import { Flex } from '@/ui/flex/flex';
+import { Logo } from '@/ui/logo/logo';
+import { Margin } from '@/ui/margin/margin';
+import { Panel } from '@/ui/panel/panel';
+import { Typography } from '@/ui/typography/typography';
 import { startInviteAcceptFlow } from '@actions/invites';
-import { Button } from '@components/button/button';
-import { Flex } from '@components/flex/flex';
-import { Logo } from '@components/logo/logo';
-import { Margin } from '@components/margin/margin';
-import { Panel } from '@components/panel/panel';
-import { Typography } from '@components/typography/typography';
 import { fetchInviteInfo } from '@helpers/invites';
 import { createSupabaseServiceRoleClient } from '@supabase/server';
 import { redirect } from 'next/navigation';

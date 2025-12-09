@@ -1,6 +1,6 @@
-import { Avatar } from '@components/avatar/avatar';
-import { Flex } from '@components/flex/flex';
-import { Typography } from '@components/typography/typography';
+import { Avatar } from '@/ui/avatar/avatar';
+import { Flex } from '@/ui/flex/flex';
+import { Typography } from '@/ui/typography/typography';
 import type { HouseholdMemberProfile } from '@lib-types/households';
 import { firstName } from '@utils/user';
 

@@ -1,4 +1,4 @@
-import { FlexProps } from '@components/flex/flex.types';
+import { FlexProps } from '@/ui/flex/flex.types';
 import type { PropsWithClassName } from '@lib-types/common';
 import { cn } from '@utils/cn';
 import { getSpacingStyles } from '@utils/spacing';

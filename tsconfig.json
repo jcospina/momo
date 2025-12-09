@@ -27,6 +27,7 @@
       "@providers/*": ["./src/providers/*"],
       "@proxy/*": ["./src/lib/proxy/*"],
       "@supabase/*": ["./src/lib/supabase/*"],
+      "@ui/*": ["./src/ui/*"],
       "@utils/*": ["./src/lib/utils/*"],
       "@/*": ["./src/*"]
     }

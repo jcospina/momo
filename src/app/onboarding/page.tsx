@@ -1,15 +1,15 @@
+import { Logo } from '@/ui/logo/logo';
+import { Panel } from '@/ui/panel/panel';
 import { setOnboardingStatus } from '@actions/user-prefs';
-import { Logo } from '@components/logo/logo';
-import { Panel } from '@components/panel/panel';
 import { getHouseholdMembershipForUser } from '@helpers/households';
 import { getCurrentUser } from '@helpers/user';
 import { redirect } from 'next/navigation';
 
-import { Button } from '@components/button/button';
-import { Flex } from '@components/flex/flex';
-import { HouseholdForm } from '@components/household-form/household-form';
-import { Tooltip } from '@components/tooltip/tooltip';
-import { Typography } from '@components/typography/typography';
+import { HouseholdForm } from '@/components/household-form/household-form';
+import { Button } from '@/ui/button/button';
+import { Flex } from '@/ui/flex/flex';
+import { Tooltip } from '@/ui/tooltip/tooltip';
+import { Typography } from '@/ui/typography/typography';
 import styles from './onboarding.module.css';
 
 export default async function OnboardingPage() {

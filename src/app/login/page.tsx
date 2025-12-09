@@ -1,10 +1,10 @@
+import { Button } from '@/ui/button/button';
+import { Logo } from '@/ui/logo/logo';
+import { Panel } from '@/ui/panel/panel';
+import { Typography } from '@/ui/typography/typography';
 import { loginWithProvider } from '@actions/login';
-import { Button } from '@components/button/button';
-import { Logo } from '@components/logo/logo';
-import { Panel } from '@components/panel/panel';
-import { Typography } from '@components/typography/typography';
 
-import { Flex } from '@components/flex/flex';
+import { Flex } from '@/ui/flex/flex';
 import styles from './login.module.css';
 
 export default function Home() {

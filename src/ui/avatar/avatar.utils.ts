@@ -1,4 +1,4 @@
-import type { AvatarSize } from '@components/avatar/avatar.types';
+import type { AvatarSize } from '@/ui/avatar/avatar.types';
 
 export function getInitial(displayName: string | null) {
   const source = displayName?.trim();

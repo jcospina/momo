@@ -3,10 +3,10 @@
 import { useActionState } from 'react';
 
 import { createHousehold } from '@actions/households';
-import { Button } from '@components/button/button';
-import { Flex } from '@components/flex/flex';
-import { Input } from '@components/input/input';
-import { Typography } from '@components/typography/typography';
+import { Button } from '@/ui/button/button';
+import { Flex } from '@/ui/flex/flex';
+import { Input } from '@/ui/input/input';
+import { Typography } from '@/ui/typography/typography';
 import type { PropsWithClassName } from '@lib-types/common';
 import type { CreateHouseholdState } from '@lib-types/households';
 

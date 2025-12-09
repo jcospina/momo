@@ -1,10 +1,10 @@
+import { Avatar } from '@/ui/avatar/avatar';
+import { Button } from '@/ui/button/button';
+import { FlexItem } from '@/ui/flex-item/flex-item';
+import { Flex } from '@/ui/flex/flex';
+import { Panel } from '@/ui/panel/panel';
+import { Typography } from '@/ui/typography/typography';
 import { logout } from '@actions/logout';
-import { Avatar } from '@components/avatar/avatar';
-import { Button } from '@components/button/button';
-import { FlexItem } from '@components/flex-item/flex-item';
-import { Flex } from '@components/flex/flex';
-import { Panel } from '@components/panel/panel';
-import { Typography } from '@components/typography/typography';
 import {
   fetchHouseholdMembers,
   getHouseholdForUser,
@@ -13,9 +13,9 @@ import { getUserProfile } from '@helpers/profiles';
 import { getCurrentUser } from '@helpers/user';
 import { redirect } from 'next/navigation';
 
+import { HouseholdForm } from '@/components/household-form/household-form';
+import { Divider } from '@/ui/divider/divider';
 import { createHouseholdInline } from '@actions/households';
-import { Divider } from '@components/divider/divider';
-import { HouseholdForm } from '@components/household-form/household-form';
 import { createSupabaseServerClient } from '@supabase/server';
 import { firstName } from '@utils/user';
 import { InviteLink } from './invite-link';

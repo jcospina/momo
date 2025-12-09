@@ -1,4 +1,4 @@
-import { Flex } from '@components/flex/flex';
+import { Flex } from '@/ui/flex/flex';
 
 import type { ReactNode } from 'react';
 import styles from './invite.module.css';

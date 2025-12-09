@@ -1,6 +1,6 @@
-import { Flex } from '@components/flex/flex';
-import { Panel } from '@components/panel/panel';
-import { Typography } from '@components/typography/typography';
+import { Flex } from '@/ui/flex/flex';
+import { Panel } from '@/ui/panel/panel';
+import { Typography } from '@/ui/typography/typography';
 import { getCurrentUser } from '@helpers/user';
 import { redirect } from 'next/navigation';
 
