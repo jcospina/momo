@@ -1,0 +1,22 @@
+.momo-toast {
+  border: 2px solid var(--color-dark);
+  box-shadow: -6px 6px 0 var(--color-dark);
+  transform: translateX(0);
+  transition:
+    transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 150ms ease,
+    color 150ms ease;
+  max-width: 400px;
+}
+
+.momo-toast:hover {
+  transform: translate(-3px);
+  box-shadow: -2px 2px 0 var(--color-black);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-avatar--button {
+    animation: none;
+  }
+}

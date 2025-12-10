@@ -2,6 +2,7 @@ import type { PaddingProps } from '@lib-types/common';
 import { getPaddingStyles } from '@utils/spacing';
 import type {
   ComponentPropsWithoutRef,
+  CSSProperties,
   ElementType,
   PropsWithChildren,
 } from 'react';
@@ -24,6 +25,7 @@ export function Padding<T extends ElementType>({
   paddingRight,
   paddingTop,
   paddingBottom,
+  style,
   ...props
 }: PaddingComponentProps<T>) {
   const Component = as || 'div';
@@ -36,8 +38,12 @@ export function Padding<T extends ElementType>({
     paddingTop,
     paddingBottom,
   });
+  const mergedStyle: CSSProperties = {
+    ...paddingStyles,
+    ...(style as CSSProperties),
+  };
   return (
-    <Component style={paddingStyles} {...props}>
+    <Component style={mergedStyle} {...props}>
       {children}
     </Component>
   );

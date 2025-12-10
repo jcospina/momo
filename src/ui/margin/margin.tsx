@@ -2,6 +2,7 @@ import type { MarginProps } from '@lib-types/common';
 import { getMarginStyles } from '@utils/spacing';
 import type {
   ComponentPropsWithoutRef,
+  CSSProperties,
   ElementType,
   PropsWithChildren,
 } from 'react';
@@ -24,6 +25,7 @@ export function Margin<T extends ElementType>({
   marginRight,
   marginTop,
   marginBottom,
+  style,
   ...props
 }: MarginComponentProps<T>) {
   const Component = as || 'div';
@@ -36,8 +38,12 @@ export function Margin<T extends ElementType>({
     marginTop,
     marginBottom,
   });
+  const mergedStyle: CSSProperties = {
+    ...marginStyles,
+    ...(style as CSSProperties),
+  };
   return (
-    <Component style={marginStyles} {...props}>
+    <Component style={mergedStyle} {...props}>
       {children}
     </Component>
   );

@@ -43,3 +43,7 @@ body {
   min-height: 100vh;
   position: relative;
 }
+
+.momo-error {
+  color: var(--color-vibrant-coral);
+}

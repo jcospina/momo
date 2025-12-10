@@ -11,23 +11,34 @@ import {
 } from '@helpers/households';
 import { getUserProfile } from '@helpers/profiles';
 import { getCurrentUser } from '@helpers/user';
+import { getUserPreferences } from '@helpers/user-prefs';
 import { redirect } from 'next/navigation';
 
+import { AIEnabled } from '@/app/home/profile/ai-enabled';
 import { HouseholdForm } from '@/components/household-form/household-form';
 import { Divider } from '@/ui/divider/divider';
 import { createHouseholdInline } from '@actions/households';
 import { createSupabaseServerClient } from '@supabase/server';
 import { firstName } from '@utils/user';
+import { CurrencySelect } from './currency-select';
 import { InviteLink } from './invite-link';
 import { MemberList } from './member-list';
 
+import { ERROR_MESSAGES } from '@/lib/constants/errors';
+import type { MomoError } from '@lib-types/errors';
 import styles from './profile.module.css';
+
 function buildShareUrl(token: string) {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? '';
   return `${base}/invite/${token}`;
 }
 
-export default async function ProfilePage() {
+type ProfilePageProps = {
+  searchParams: Promise<{ error?: MomoError }>;
+};
+
+export default async function ProfilePage({ searchParams }: ProfilePageProps) {
+  const { error } = await searchParams;
   const user = await getCurrentUser();
   if (!user) {
     redirect('/');
@@ -38,6 +49,8 @@ export default async function ProfilePage() {
   if (!profile) {
     redirect('/');
   }
+
+  const prefs = await getUserPreferences(user.id);
 
   const displayName = profile.display_name;
   const shareUrl = buildShareUrl(profile.invite_token);
@@ -79,7 +92,7 @@ export default async function ProfilePage() {
             gap={2}
           >
             <Typography size="lg" weight="bold">
-              Household members
+              {household.name}
             </Typography>
             <MemberList userEmail={profile.email} members={members} />
             {isOwner && !isFull ? <InviteLink url={shareUrl} /> : null}
@@ -112,12 +125,25 @@ export default async function ProfilePage() {
         </>
       )}
       <Divider />
-      <Flex padding={3}>
+      <Flex direction="column" padding={3} gap={2}>
+        <Typography size="lg" weight="bold">
+          Settings
+        </Typography>
+        <CurrencySelect value={prefs?.currency ?? null} />
+        <AIEnabled value={prefs?.ai_enabled || false} />
+      </Flex>
+      <Divider />
+      <Flex padding={3} direction="column" gap={2}>
         <form>
           <Button variant="secondary" formAction={logout}>
             Logout
           </Button>
         </form>
+        {error && (
+          <Typography size="sm" className="momo-error">
+            {ERROR_MESSAGES[error]}
+          </Typography>
+        )}
       </Flex>
     </Panel>
   );

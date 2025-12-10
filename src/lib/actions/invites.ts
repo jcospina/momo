@@ -3,11 +3,11 @@
 import { cookies } from 'next/headers';
 
 import { loginWithProvider } from '@actions/login';
+import { redirectWithError } from '@utils/redirect-with-error';
 
-export async function startInviteAcceptFlow(formData: FormData) {
-  const token = formData.get('token');
+export async function startInviteAcceptFlow(token: string) {
   if (typeof token !== 'string' || !token) {
-    throw new Error('Missing invite token');
+    redirectWithError('/login', 'household_invalid');
   }
 
   const cookieStore = await cookies();

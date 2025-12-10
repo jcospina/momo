@@ -6,18 +6,29 @@ import { getCurrentUser } from '@helpers/user';
 import { redirect } from 'next/navigation';
 
 import { HouseholdForm } from '@/components/household-form/household-form';
+import { ERROR_MESSAGES } from '@/lib/constants/errors';
 import { Button } from '@/ui/button/button';
 import { Flex } from '@/ui/flex/flex';
 import { Tooltip } from '@/ui/tooltip/tooltip';
 import { Typography } from '@/ui/typography/typography';
+import { Toast } from '@components/toast/toast';
+import type { MomoError } from '@lib-types/errors';
 import styles from './onboarding.module.css';
 
-export default async function OnboardingPage() {
+type OnboardingPageProps = {
+  searchParams: Promise<{ error?: MomoError }>;
+};
+
+export default async function OnboardingPage({
+  searchParams,
+}: OnboardingPageProps) {
   const user = await getCurrentUser();
 
   if (!user) {
     redirect('/');
   }
+
+  const { error } = await searchParams;
 
   const membership = await getHouseholdMembershipForUser(user.id);
 
@@ -32,6 +43,7 @@ export default async function OnboardingPage() {
       justifyContent="center"
       className={styles['onboarding']}
       padding={4}
+      gap={4}
     >
       <Panel padding={3} className={styles['onboarding__panel']}>
         <Flex
@@ -62,6 +74,7 @@ export default async function OnboardingPage() {
           </Tooltip>
         </Flex>
       </Panel>
+      {error && <Toast variant="error">{ERROR_MESSAGES[error]}</Toast>}
     </Flex>
   );
 }

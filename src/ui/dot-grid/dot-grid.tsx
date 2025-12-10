@@ -11,7 +11,7 @@ type DotGridProps = {
   baseOpacity?: number; // 0..1
   hoverOpacity?: number; // 0..1
   density?: number; // multiplier for dot density (1 = normal)
-  disabled?: boolean; // disable rendering on small screens
+  disableHover?: boolean; // disable hover animation
 };
 
 export default function DotGrid({
@@ -23,15 +23,13 @@ export default function DotGrid({
   baseOpacity = 0.6,
   hoverOpacity = 0.95,
   density = 1,
-  disabled = false,
+  disableHover = false,
 }: DotGridProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
   const mouseRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
-    if (disabled) return;
-
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -65,11 +63,13 @@ export default function DotGrid({
     }
 
     function onMove(e: MouseEvent) {
+      if (disableHover) return;
       mouseRef.current = { x: e.clientX, y: e.clientY };
       scheduleDraw();
     }
 
     function onLeave() {
+      if (disableHover) return;
       mouseRef.current = null;
       scheduleDraw();
     }
@@ -95,7 +95,7 @@ export default function DotGrid({
           let diameter = dotRadius * 2;
           let opacity = baseOpacity;
 
-          if (mouse) {
+          if (mouse && !disableHover) {
             const dx = mouse.x - x;
             const dy = mouse.y - y;
             const dist = Math.sqrt(dx * dx + dy * dy);
@@ -136,7 +136,7 @@ export default function DotGrid({
     baseOpacity,
     hoverOpacity,
     density,
-    disabled,
+    disableHover,
   ]);
 
   return (

@@ -15,5 +15,6 @@ export type HouseholdMemberProfile = {
 };
 
 export type CreateHouseholdState = {
+  errorCode?: string;
   error?: string;
 };

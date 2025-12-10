@@ -4,11 +4,16 @@ import { Typography } from '@/ui/typography/typography';
 import { getCurrentUser } from '@helpers/user';
 import { redirect } from 'next/navigation';
 
+// type HomePageProps = {
+//   searchParams: Promise<{ error?: string }>;
+// };
+
 export default async function HomePage() {
   const user = await getCurrentUser();
   if (!user) {
     redirect('/login');
   }
+  // const { error } = await searchParams;
   return (
     <Panel padding={3}>
       <Flex isFullWidth direction="column" gap={2} alignItems="center">

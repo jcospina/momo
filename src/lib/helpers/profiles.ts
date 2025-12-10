@@ -1,6 +1,6 @@
 import type { Profile } from '@lib-types/profile';
 import { createSupabaseServerClient } from '@supabase/server';
-import type { AuthUser, User } from '@supabase/supabase-js';
+import type { AuthUser, PostgrestError, User } from '@supabase/supabase-js';
 function getDisplayName(user: User) {
   const nameFromMetadata = user.user_metadata?.name;
   if (typeof nameFromMetadata === 'string' && nameFromMetadata.trim()) {
@@ -18,29 +18,21 @@ function getDisplayName(user: User) {
  */
 export async function createUserProfile(
   user: AuthUser,
-): Promise<Profile | null> {
+): Promise<PostgrestError | null> {
   const supabase = await createSupabaseServerClient();
   const displayName = getDisplayName(user);
 
-  const { data, error } = await supabase
-    .from('user_profiles')
-    .upsert(
-      {
-        user_id: user.id,
-        display_name: displayName,
-        email: user.email,
-      },
-      {
-        ignoreDuplicates: true,
-      },
-    )
-    .select()
-    .maybeSingle();
-
-  if (error) {
-    return null;
-  }
-  return data as Profile;
+  const { error } = await supabase.from('user_profiles').upsert(
+    {
+      user_id: user.id,
+      display_name: displayName,
+      email: user.email,
+    },
+    {
+      ignoreDuplicates: true,
+    },
+  );
+  return error;
 }
 
 export async function getUserProfile(userId: string): Promise<Profile | null> {

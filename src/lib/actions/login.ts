@@ -2,6 +2,7 @@
 
 import { createSupabaseServerClient } from '@supabase/server';
 import type { Provider } from '@supabase/supabase-js';
+import { redirectWithError } from '@utils/redirect-with-error';
 import { redirect } from 'next/navigation';
 
 export async function loginWithProvider(provider: Provider) {
@@ -15,11 +16,11 @@ export async function loginWithProvider(provider: Provider) {
 
   if (error) {
     console.error('Provider login failed', error);
-    throw new Error(error.message);
+    return redirectWithError('/login', 'auth_provider_failed');
   }
 
   if (!data.url) {
-    throw new Error('No URL returned from provider login');
+    redirectWithError('/login', 'auth_provider_failed');
   }
   redirect(data.url);
 }

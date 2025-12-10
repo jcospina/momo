@@ -1,5 +1,6 @@
 'use server';
 import { createSupabaseServerClient } from '@supabase/server';
+import { redirectWithError } from '@utils/redirect-with-error';
 import { redirect } from 'next/navigation';
 
 export async function logout() {
@@ -7,7 +8,7 @@ export async function logout() {
   const { error } = await supabase.auth.signOut();
   if (error) {
     console.error('Logout failed', error);
-    throw new Error(error.message);
+    redirectWithError('/home/profile', 'logout_failed');
   }
   redirect('/');
 }

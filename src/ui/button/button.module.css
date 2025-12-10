@@ -9,7 +9,6 @@
     box-shadow 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
     background-color 150ms ease,
     color 150ms ease;
-  will-change: transform, box-shadow;
 }
 
 .momo-button--link {
@@ -32,7 +31,6 @@
   transition:
     text-decoration-thickness 150ms ease,
     text-shadow 350ms ease;
-  will-change: text-shadow, text-decoration-thickness;
 }
 
 .momo-button.momo-button--link:hover {
@@ -40,7 +38,6 @@
   box-shadow: none;
   text-decoration-thickness: 3px;
   animation: momo-link-text-shadow 800ms ease-in-out;
-  will-change: text-shadow;
 }
 
 @keyframes momo-link-text-shadow {

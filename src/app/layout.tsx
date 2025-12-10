@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Bungee_Shade, Outfit } from 'next/font/google';
 
 import { cn } from '@utils/cn';
+import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
 import DotGrid from '../ui/dot-grid/dot-grid';
 import './globals.css';
@@ -89,17 +90,20 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: ReactNode;
 }>) {
+  const ua = (await headers()).get('user-agent') || '';
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+
   return (
     <html lang="en">
       <body
         className={cn('antialiased', outfit.className, bungeeShade.variable)}
       >
-        <DotGrid blastStrength={4} blastRadius={100} />
+        <DotGrid blastStrength={4} blastRadius={100} disableHover={isMobile} />
         <main style={{ position: 'relative', zIndex: 1 }}>{children}</main>
       </body>
     </html>

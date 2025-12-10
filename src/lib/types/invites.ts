@@ -1,8 +1,9 @@
 export type InviteStatus =
-  | 'valid'
+  | 'household_valid'
   | 'household_full'
   | 'no_household'
-  | 'invalid';
+  | 'household_invalid';
+
 export type InviteInfo = {
   household_id: string | null;
   household_name: string | null;

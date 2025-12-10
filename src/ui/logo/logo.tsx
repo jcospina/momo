@@ -3,6 +3,12 @@ import { cn } from '@utils/cn';
 
 import styles from './logo.module.css';
 
-export function Logo({ className }: PropsWithClassName) {
-  return <div className={cn(styles['momo-logo'], className)}>MoMo</div>;
+interface LogoProps {
+  text?: string;
+}
+export function Logo({
+  className,
+  text = 'MoMo',
+}: PropsWithClassName<LogoProps>) {
+  return <div className={cn(styles['momo-logo'], className)}>{text}</div>;
 }

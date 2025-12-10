@@ -16,7 +16,7 @@ export function Navbar() {
 
   const isProfilePage = pathName === '/home/profile';
 
-  const isSmallScreen = useMediaQuery(mq('(max-width: 768px)'));
+  const isBigScreen = useMediaQuery(mq('(min-width: 768px)'));
 
   const goToProfile = () => {
     router.push('/home/profile');
@@ -34,7 +34,7 @@ export function Navbar() {
       </FlexItem>
       {!isProfilePage && (
         <Avatar
-          size={isSmallScreen ? 'small' : 'medium'}
+          size={isBigScreen ? 'medium' : 'small'}
           variant="button"
           onClick={goToProfile}
           className={styles['momo-navbar__avatar']}

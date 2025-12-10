@@ -16,7 +16,7 @@ export async function fetchInviteInfo(
 
   const row = data[0] as InviteInfo;
 
-  const status = (row.status as InviteStatus) ?? 'invalid';
+  const status = (row.status as InviteStatus) ?? 'household_invalid';
 
   return {
     household_id: (row.household_id as string | null) ?? null,

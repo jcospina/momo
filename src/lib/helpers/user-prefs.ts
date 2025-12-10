@@ -7,7 +7,7 @@ export async function getUserPreferences(
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from('user_prefs')
-    .select('onboarding_status')
+    .select('onboarding_status, currency, ai_enabled')
     .eq('user_id', userId)
     .maybeSingle();
   if (error && !data) {

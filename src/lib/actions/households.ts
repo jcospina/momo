@@ -23,6 +23,7 @@ async function insertHousehold(
   if (createError || !household) {
     console.error('Create household failed', createError);
     return {
+      errorCode: 'household_create_failed',
       error:
         createError?.message ??
         'Unable to create the household. Please try again.',
@@ -40,6 +41,7 @@ async function insertHousehold(
   if (memberError) {
     console.error('Create household membership failed', memberError);
     return {
+      errorCode: 'household_membership_create_failed',
       error:
         memberError.message ?? 'Could not finish onboarding. Please try again.',
     };
@@ -56,6 +58,7 @@ async function insertHousehold(
   if (prefsError) {
     console.error('Mark onboarding completed failed', prefsError);
     return {
+      errorCode: 'onboarding_status_update_failed',
       error:
         prefsError.message ?? 'Could not finish onboarding. Please try again.',
     };
@@ -70,7 +73,10 @@ export async function createHousehold(
 ): Promise<CreateHouseholdState> {
   const name = formData.get('name');
   if (typeof name !== 'string' || !name.trim()) {
-    return { error: 'Please provide a household name.' };
+    return {
+      errorCode: 'household_name_required',
+      error: 'Please provide a household name.',
+    };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -79,12 +85,15 @@ export async function createHousehold(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/');
+    return { errorCode: 'auth_required', error: 'You need to be logged in.' };
   }
 
   const result = await insertHousehold(supabase, user.id, name.trim());
   if (result.error) {
-    return { error: result.error };
+    return {
+      errorCode: result.errorCode ?? 'household_create_failed',
+      error: result.error,
+    };
   }
 
   redirect('/home');
@@ -96,7 +105,10 @@ export async function createHouseholdInline(
 ): Promise<CreateHouseholdState> {
   const name = formData.get('name');
   if (typeof name !== 'string' || !name.trim()) {
-    return { error: 'Please provide a household name.' };
+    return {
+      errorCode: 'household_name_required',
+      error: 'Please provide a household name.',
+    };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -105,12 +117,15 @@ export async function createHouseholdInline(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: 'You need to be logged in.' };
+    return { errorCode: 'auth_required', error: 'You need to be logged in.' };
   }
 
   const result = await insertHousehold(supabase, user.id, name.trim());
   if (result.error) {
-    return { error: result.error };
+    return {
+      errorCode: result.errorCode ?? 'household_create_failed',
+      error: result.error,
+    };
   }
 
   revalidatePath('/home/profile');

@@ -15,7 +15,6 @@
     height 120ms ease,
     opacity 120ms ease,
     transform 120ms ease;
-  will-change: width, height, transform, opacity;
   opacity: 0;
   pointer-events: none;
 }
@@ -27,6 +26,5 @@
   transition:
     transform 120ms ease,
     opacity 120ms ease;
-  will-change: transform, opacity;
   pointer-events: none;
 }
