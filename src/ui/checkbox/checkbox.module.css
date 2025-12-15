@@ -23,9 +23,10 @@
   position: relative;
   width: calc(var(--font-size) * 1.25);
   height: calc(var(--font-size) * 1.25);
-  background-color: var(--color-white);
+  background-color: var(--color-light);
   color: var(--color-dark);
-  border: 2px solid var(--color-black);
+  border: 2px solid var(--color-dark);
+  border-radius: calc(var(--border-radius) / 2);
   transform: translate(0, 0);
   box-shadow: none;
   transition:
@@ -57,7 +58,7 @@
     .momo-checkbox__input:not(:disabled)
     + .momo-checkbox__box {
     transform: translate(2px, -2px);
-    box-shadow: -2px 2px 0 var(--color-black);
+    box-shadow: -2px 2px 0 var(--color-dark);
   }
 }
 
@@ -76,7 +77,7 @@
 .momo-checkbox__input:not(:disabled):focus-visible + .momo-checkbox__box {
   outline: none;
   transform: translate(6px, -6px);
-  box-shadow: -6px 6px 0 var(--color-black);
+  box-shadow: -6px 6px 0 var(--color-dark);
 }
 
 .momo-checkbox__input:disabled + .momo-checkbox__box {

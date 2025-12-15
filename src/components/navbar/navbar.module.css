@@ -1,9 +1,16 @@
 .momo-navbar__logo {
+  margin-right: auto;
+}
+
+.momo-navbar__logo > * {
   font-size: 3rem;
 }
 
-@media screen and (min-width: 769px) {
+@media screen and (min-width: 768px) {
   .momo-navbar__logo {
+    margin: auto;
+  }
+  .momo-navbar__logo > * {
     font-size: 5rem;
   }
 }

@@ -9,8 +9,8 @@
   --color-amber-glow: oklch(0.7934 0.1661 69.16);
   --color-vibrant-coral: oklch(0.719 0.1751 22.5);
   --color-sky-aqua: oklch(0.8259 0.1358 216.9);
-  --color-light: oklch(1 0.005 261.19);
-  --color-dark: oklch(0% 0 0);
+  --color-light: oklch(96.868% 0.01862 96.902);
+  --color-dark: oklch(11.449% 0.0736 272.286);
   --color-disabled: oklch(0.7522 0.0193 261.19);
   /* Fonts */
   --font-sans: var(--font-outfit);
@@ -21,6 +21,8 @@
   /* Typography */
   --font-size-base: 16;
   --font-size: calc(var(--font-size-base) * 1px);
+  /* Borders */
+  --border-radius: 10px;
 }
 
 * {
@@ -46,4 +48,12 @@ body {
 
 .momo-error {
   color: var(--color-vibrant-coral);
+}
+
+.full-h {
+  height: 100vh;
+}
+
+.full-w {
+  width: 100%;
 }

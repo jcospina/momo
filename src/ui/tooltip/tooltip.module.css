@@ -27,10 +27,10 @@
   max-width: min(420px, calc(100vw - calc(var(--spacing) * 4)));
   width: max-content;
   white-space: normal;
-  background-color: var(--color-white);
-  color: var(--color-black);
-  border: 2px solid var(--color-black);
-  box-shadow: -6px 6px 0 var(--color-black);
+  background-color: var(--color-light);
+  color: var(--color-dark);
+  border: 2px solid var(--color-dark);
+  box-shadow: -6px 6px 0 var(--color-dark);
   font-size: calc(var(--font-size) * 0.95);
   line-height: 1.35;
   z-index: 10;

@@ -14,8 +14,8 @@
   gap: calc(var(--spacing) * 1);
   padding: calc(var(--spacing) * 1);
   font-size: var(--font-size);
-  border: 2px solid var(--color-black);
-  background-color: var(--color-white);
+  border: 2px solid var(--color-dark);
+  background-color: var(--color-light);
   color: var(--color-dark);
   cursor: pointer;
   transition:
@@ -26,6 +26,7 @@
   transform: translate(0, 0);
   box-shadow: none;
   text-align: left;
+  border-radius: var(--border-radius);
 }
 
 .momo-select__trigger--open {
@@ -36,7 +37,7 @@
   background-color: var(--color-disabled);
   color: color-mix(in oklch, var(--color-dark), white 40%);
   cursor: not-allowed;
-  box-shadow: -6px 6px 0 var(--color-black);
+  box-shadow: -6px 6px 0 var(--color-dark);
   transform: translate(0, 0);
   box-shadow: none;
 }
@@ -71,11 +72,12 @@
   top: 0;
   left: 0;
   box-sizing: border-box;
-  background-color: var(--color-white);
-  border: 2px solid var(--color-black);
-  box-shadow: -2px 2px 0 var(--color-black);
+  background-color: var(--color-light);
+  border: 2px solid var(--color-dark);
+  box-shadow: -2px 2px 0 var(--color-dark);
   max-height: 320px;
   overflow: auto;
+  border-radius: var(--border-radius);
 }
 .momo-select__dropdown--open {
   transform: translate(2px, -2px);
@@ -91,13 +93,13 @@
 
 .momo-select__option {
   padding: calc(var(--spacing) * 1);
-  background-color: var(--color-white);
+  background-color: var(--color-light);
   color: var(--color-dark);
   cursor: pointer;
   transition:
     background-color 120ms ease,
     color 120ms ease;
-  border-bottom: 2px solid var(--color-black);
+  border-bottom: 2px solid var(--color-dark);
 }
 
 .momo-select__option:last-child {
@@ -142,13 +144,13 @@
   .momo-select__trigger--open:not(.momo-select__trigger--disabled) {
     outline: none;
     transform: translate(2px, -2px);
-    box-shadow: -2px 2px 0 var(--color-black);
+    box-shadow: -2px 2px 0 var(--color-dark);
   }
 }
 
 @media (hover: none) {
   .momo-select__trigger--open:not(.momo-select__trigger--disabled) {
     transform: translate(2px, -2px);
-    box-shadow: -2px 2px 0 var(--color-black);
+    box-shadow: -2px 2px 0 var(--color-dark);
   }
 }

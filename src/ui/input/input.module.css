@@ -1,27 +1,73 @@
-.momo-input {
-  padding: calc(var(--spacing) * 1);
-  font-size: var(--font-size);
-  border: 2px solid var(--color-black);
+.momo-input-wrapper {
+  display: inline-flex;
+  align-items: stretch;
+  gap: calc(var(--spacing) * 0.5);
+  width: 100%;
+  border: 2px solid var(--color-dark);
+  border-radius: var(--border-radius);
+  background-color: var(--color-light);
+  transform: translate(0, 0);
+  box-shadow: none;
   transition:
     transform 160ms cubic-bezier(0.2, 0.9, 0.2, 1),
-    box-shadow 160ms cubic-bezier(0.2, 0.9, 0.2, 1);
+    box-shadow 160ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    background-color 120ms ease,
+    color 120ms ease;
+  overflow: hidden;
+}
+
+.momo-input-wrapper:focus-within {
+  outline: none;
+  transform: translate(6px, -6px);
+  box-shadow: -6px 6px 0 var(--color-dark);
+}
+
+@media (hover: hover) {
+  .momo-input-wrapper:hover {
+    outline: none;
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-dark);
+  }
+}
+
+.momo-input-wrapper--disabled {
+  background-color: var(--color-disabled);
+  color: color-mix(in oklch, var(--color-dark), white 40%);
+  cursor: not-allowed;
   transform: translate(0, 0);
   box-shadow: none;
 }
 
-.momo-input:hover {
-  outline: none;
-  transition:
-    transform 160ms cubic-bezier(0.2, 0.9, 0.2, 1),
-    box-shadow 160ms cubic-bezier(0.2, 0.9, 0.2, 1);
-  transform: translate(2px, -2px);
-  box-shadow: -2px 2px 0 var(--color-black);
+.momo-input__adornment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-dark);
+  flex: 0 0 auto;
 }
-.momo-input:focus {
+
+.momo-input {
+  border: none;
   outline: none;
-  transition:
-    transform 160ms cubic-bezier(0.2, 0.9, 0.2, 1),
-    box-shadow 160ms cubic-bezier(0.2, 0.9, 0.2, 1);
-  transform: translate(6px, -6px);
-  box-shadow: -6px 6px 0 var(--color-black);
+  background-color: transparent;
+  color: var(--color-dark);
+  width: 100%;
+  font-size: var(--font-size);
+  padding: calc(var(--spacing) * 1);
+}
+
+.momo-input--multiline {
+  resize: none;
+  overflow-y: auto;
+  line-height: 1.4;
+  min-height: calc(var(--spacing) * 4);
+  scrollbar-width: none; /* Firefox */
+}
+
+.momo-input--multiline::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.momo-input::placeholder {
+  color: color-mix(in oklch, var(--color-dark), white 35%);
 }

@@ -1,5 +1,5 @@
-import { Flex } from '@/ui/flex/flex';
 import { Navbar } from '@/components/navbar/navbar';
+import { Flex } from '@/ui/flex/flex';
 import { getUserProfile } from '@helpers/profiles';
 import { getCurrentUser } from '@helpers/user';
 import { ProfileProvider } from '@providers/profile-provider';
@@ -20,7 +20,7 @@ export default async function HomeLayout({
     redirect('/login');
   }
   return (
-    <Flex isFullWidth direction="column" gap={5} padding={3}>
+    <Flex isFullWidth direction="column" gap={5} padding={3} className="full-h">
       <ProfileProvider profile={profile}>
         <Navbar />
         {children}

@@ -12,7 +12,7 @@
 
 .momo-toast:hover {
   transform: translate(-3px);
-  box-shadow: -2px 2px 0 var(--color-black);
+  box-shadow: -2px 2px 0 var(--color-dark);
 }
 
 @media (prefers-reduced-motion: reduce) {

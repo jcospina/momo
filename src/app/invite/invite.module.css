@@ -8,6 +8,10 @@
   width: 100%;
 }
 
+.invite-page__hightlight {
+  color: var(--color-mauve-magic);
+  font-weight: 700;
+}
 .invite-page__logo--error {
   color: var(--color-vibrant-coral);
 }

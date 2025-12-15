@@ -63,7 +63,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const isFull = members.length >= 5;
 
   return (
-    <Panel className={styles['profile__panel']} margin="auto">
+    <Panel className={styles['profile__panel']}>
       <Flex
         gap={2}
         padding={3}

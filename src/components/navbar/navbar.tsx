@@ -29,8 +29,8 @@ export function Navbar() {
       alignItems="center"
       className={styles['momo-navbar']}
     >
-      <FlexItem margin="auto">
-        <Logo className={styles['momo-navbar__logo']} />
+      <FlexItem as="a" className={styles['momo-navbar__logo']} href="/home">
+        <Logo />
       </FlexItem>
       {!isProfilePage && (
         <Avatar

@@ -14,6 +14,8 @@ export function CloseIcon({
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       {...props}
     >
       <path d="M18 6 6 18" />

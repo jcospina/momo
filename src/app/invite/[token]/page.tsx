@@ -1,16 +1,16 @@
+import { ERROR_MESSAGES } from '@/lib/constants/errors';
 import { Button } from '@/ui/button/button';
 import { Flex } from '@/ui/flex/flex';
 import { Logo } from '@/ui/logo/logo';
 import { Margin } from '@/ui/margin/margin';
 import { Panel } from '@/ui/panel/panel';
 import { Typography } from '@/ui/typography/typography';
+import { startInviteAcceptFlow } from '@actions/invites';
 import { fetchInviteInfo } from '@helpers/invites';
+import type { MomoError } from '@lib-types/errors';
 import { createSupabaseServiceRoleClient } from '@supabase/server';
 import { redirect } from 'next/navigation';
 
-import { ERROR_MESSAGES } from '@/lib/constants/errors';
-import { startInviteAcceptFlow } from '@actions/invites';
-import type { MomoError } from '@lib-types/errors';
 import styles from '../invite.module.css';
 
 type InvitePageProps = {
@@ -80,12 +80,15 @@ export default async function InvitePage({ params }: InvitePageProps) {
       <Flex direction="column" gap={3}>
         {info.member_count && info.member_count > 1 ? (
           <Typography as="p" size="lg">
-            Join {inviter} and {info.member_count} others in{' '}
+            Join{' '}
+            <span className={styles['invite-page__hightlight']}>{inviter}</span>{' '}
+            and {info.member_count} others in{' '}
             <strong>{info.household_name ?? 'their household'}</strong>.
           </Typography>
         ) : (
           <Typography as="p" size="lg">
-            {inviter} invited you to join{' '}
+            <span className={styles['invite-page__hightlight']}>{inviter}</span>{' '}
+            invited you to join{' '}
             <strong>{info.household_name ?? 'their household'}</strong>.
           </Typography>
         )}

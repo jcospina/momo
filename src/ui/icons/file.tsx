@@ -1,8 +1,8 @@
 import type { SVGProps } from 'react';
 
-export function CheckIcon({
-  width,
-  height,
+export function FileIcon({
+  width = 24,
+  height = 24,
   ...props
 }: SVGProps<SVGSVGElement>) {
   return (
@@ -13,12 +13,12 @@ export function CheckIcon({
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="3"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
       {...props}
     >
-      <path d="M20 6 9 17l-5-5" />
+      <path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551" />
     </svg>
   );
 }
