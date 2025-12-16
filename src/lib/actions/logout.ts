@@ -1,5 +1,5 @@
 'use server';
-import { createSupabaseServerClient } from '@supabase/server';
+import { createSupabaseServerClient } from '@lib-supabase/server';
 import { redirectWithError } from '@utils/redirect-with-error';
 import { redirect } from 'next/navigation';
 

@@ -1,0 +1,154 @@
+import { act, renderHook } from '@testing-library/react';
+
+import type { ChatMessage } from '@lib-types/chat-messages';
+import { useChatState } from './use-chat-state';
+
+const baseMessage = (overrides: Partial<ChatMessage>): ChatMessage => ({
+  id: 'm0',
+  household_id: 'hid',
+  user_id: 'u0',
+  content: 'base',
+  status: 'processed',
+  expense_id: null,
+  created_at: '2024-01-01T00:00:00.000Z',
+  sender_name: 'User',
+  ...overrides,
+});
+
+describe('useChatState', () => {
+  const initialHouseholdMessages: ChatMessage[] = [
+    baseMessage({
+      id: 'm1',
+      created_at: '2024-01-01T00:00:01.000Z',
+    }),
+    baseMessage({
+      id: 'm2',
+      created_at: '2024-01-01T00:00:02.000Z',
+    }),
+  ];
+
+  it('handles optimistic, reconcile, and cursor updates', () => {
+    const { result } = renderHook(() =>
+      useChatState({
+        userId: 'u1',
+        householdId: 'hid',
+        initialPersonalMessages: [],
+        initialHouseholdMessages,
+      }),
+    );
+
+    // Initial cursor should be newest initial message (m2)
+    expect(result.current.householdCursorRef.current).toEqual({
+      created_at: '2024-01-01T00:00:02.000Z',
+      id: 'm2',
+    });
+
+    // Optimistic add should not advance cursor
+    let tempId = '';
+    act(() => {
+      const res = result.current.addOptimistic('hello');
+      tempId = res.tempId;
+    });
+    expect(tempId.startsWith('tmp-')).toBe(true);
+    expect(result.current.householdCursorRef.current).toEqual({
+      created_at: '2024-01-01T00:00:02.000Z',
+      id: 'm2',
+    });
+    const latest = result.current.householdMessages.at(-1);
+    expect(latest?.status).toBe('pending');
+
+    // Reconcile should replace optimistic and advance cursor
+    const serverMessage = baseMessage({
+      id: 'srv1',
+      content: 'hello',
+      created_at: '2024-01-01T00:00:03.000Z',
+      user_id: 'u1',
+    });
+    act(() => {
+      result.current.reconcile(tempId, serverMessage);
+    });
+    expect(
+      result.current.householdMessages.find(m => m.id === tempId),
+    ).toBeUndefined();
+    expect(
+      result.current.householdMessages.find(m => m.id === 'srv1'),
+    ).toBeDefined();
+    expect(result.current.householdCursorRef.current).toEqual({
+      created_at: '2024-01-01T00:00:03.000Z',
+      id: 'srv1',
+    });
+  });
+
+  it('merges realtime updates without duplicates', () => {
+    const { result } = renderHook(() =>
+      useChatState({
+        userId: 'u1',
+        householdId: 'hid',
+        initialPersonalMessages: [],
+        initialHouseholdMessages,
+      }),
+    );
+
+    const updateMessage = baseMessage({
+      id: 'm2',
+      content: 'updated',
+      created_at: '2024-01-01T00:00:02.000Z',
+    });
+    act(() => {
+      result.current.mergeRealtime(updateMessage);
+    });
+    const updated = result.current.householdMessages.find(m => m.id === 'm2');
+    expect(updated?.content).toBe('updated');
+
+    const newMessage = baseMessage({
+      id: 'm3',
+      content: 'new',
+      created_at: '2024-01-01T00:00:03.000Z',
+    });
+    act(() => {
+      result.current.mergeRealtime(newMessage);
+    });
+    expect(
+      result.current.householdMessages.find(m => m.id === 'm3'),
+    ).toBeDefined();
+  });
+
+  it('merges batch with dedupe and sorting', () => {
+    const { result } = renderHook(() =>
+      useChatState({
+        userId: 'u1',
+        householdId: 'hid',
+        initialPersonalMessages: [],
+        initialHouseholdMessages: [
+          baseMessage({
+            id: 'm1',
+            created_at: '2024-01-01T00:00:02.000Z',
+          }),
+        ],
+      }),
+    );
+
+    act(() => {
+      result.current.mergeBatch([
+        baseMessage({
+          id: 'm1',
+          content: 'updated',
+          created_at: '2024-01-01T00:00:02.000Z',
+        }),
+        baseMessage({
+          id: 'm0',
+          created_at: '2024-01-01T00:00:01.000Z',
+        }),
+        baseMessage({
+          id: 'm2',
+          created_at: '2024-01-01T00:00:03.000Z',
+        }),
+      ]);
+    });
+
+    const ids = result.current.householdMessages.map(m => m.id);
+    expect(ids).toEqual(['m0', 'm1', 'm2']);
+    const updated = result.current.householdMessages.find(m => m.id === 'm1');
+    expect(updated?.content).toBe('updated');
+  });
+});

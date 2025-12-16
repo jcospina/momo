@@ -1,3 +1,4 @@
+import { Navbar } from '@/components/navbar/navbar';
 import { Avatar } from '@/ui/avatar/avatar';
 import { Button } from '@/ui/button/button';
 import { FlexItem } from '@/ui/flex-item/flex-item';
@@ -18,7 +19,7 @@ import { AIEnabled } from '@/app/home/profile/ai-enabled';
 import { HouseholdForm } from '@/components/household-form/household-form';
 import { Divider } from '@/ui/divider/divider';
 import { createHouseholdInline } from '@actions/households';
-import { createSupabaseServerClient } from '@supabase/server';
+import { createSupabaseServerClient } from '@lib-supabase/server';
 import { firstName } from '@utils/user';
 import { CurrencySelect } from './currency-select';
 import { InviteLink } from './invite-link';
@@ -63,88 +64,91 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const isFull = members.length >= 5;
 
   return (
-    <Panel className={styles['profile__panel']}>
-      <Flex
-        gap={2}
-        padding={3}
-        justifyContent="space-between"
-        alignItems="center"
-      >
-        <Typography as="label" size="xl" weight="bold">
-          Profile
-        </Typography>
-        <Flex alignItems="center" gap={2}>
-          <FlexItem shrink={0}>
-            <Avatar displayName={displayName || '?'} size="small" />
-          </FlexItem>
-          <Typography as="h3" size="lg">
-            {firstName(displayName, profile.email || null)}
+    <Flex direction="column" padding={3} gap={5}>
+      <Navbar />
+      <Panel className={styles['profile__panel']}>
+        <Flex
+          gap={2}
+          padding={3}
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Typography as="label" size="xl" weight="bold">
+            Profile
           </Typography>
-        </Flex>
-      </Flex>
-      <Divider thickness="thick" />
-      {household ? (
-        <>
-          <Flex
-            direction="column"
-            justifyContent="space-around"
-            padding={3}
-            gap={2}
-          >
-            <Typography size="lg" weight="bold">
-              {household.name}
+          <Flex alignItems="center" gap={2}>
+            <FlexItem shrink={0}>
+              <Avatar displayName={displayName || '?'} size="small" />
+            </FlexItem>
+            <Typography as="h3" size="lg">
+              {firstName(displayName, profile.email || null)}
             </Typography>
-            <MemberList userEmail={profile.email} members={members} />
-            {isOwner && !isFull ? <InviteLink url={shareUrl} /> : null}
           </Flex>
-        </>
-      ) : (
-        <>
-          <Flex
-            direction="column"
-            justifyContent="space-around"
-            padding={3}
-            gap={1}
-          >
-            <Typography size="sm">
-              It seems you don&apos;t have a household yet. If you decided
-              sharing with family is good, then create one below
-            </Typography>
+        </Flex>
+        <Divider thickness="thick" />
+        {household ? (
+          <>
             <Flex
-              isFullWidth
               direction="column"
               justifyContent="space-around"
+              padding={3}
               gap={2}
             >
-              <Typography size="xl" weight="bold">
-                Create a household
+              <Typography size="lg" weight="bold">
+                {household.name}
               </Typography>
-              <HouseholdForm action={createHouseholdInline} />
+              <MemberList userEmail={profile.email} members={members} />
+              {isOwner && !isFull ? <InviteLink url={shareUrl} /> : null}
             </Flex>
-          </Flex>
-        </>
-      )}
-      <Divider />
-      <Flex direction="column" padding={3} gap={2}>
-        <Typography size="lg" weight="bold">
-          Settings
-        </Typography>
-        <CurrencySelect value={prefs?.currency ?? null} />
-        <AIEnabled value={prefs?.ai_enabled || false} />
-      </Flex>
-      <Divider />
-      <Flex padding={3} direction="column" gap={2}>
-        <form>
-          <Button variant="secondary" formAction={logout}>
-            Logout
-          </Button>
-        </form>
-        {error && (
-          <Typography size="sm" className="momo-error">
-            {ERROR_MESSAGES[error]}
-          </Typography>
+          </>
+        ) : (
+          <>
+            <Flex
+              direction="column"
+              justifyContent="space-around"
+              padding={3}
+              gap={1}
+            >
+              <Typography size="sm">
+                It seems you don&apos;t have a household yet. If you decided
+                sharing with family is good, then create one below
+              </Typography>
+              <Flex
+                isFullWidth
+                direction="column"
+                justifyContent="space-around"
+                gap={2}
+              >
+                <Typography size="xl" weight="bold">
+                  Create a household
+                </Typography>
+                <HouseholdForm action={createHouseholdInline} />
+              </Flex>
+            </Flex>
+          </>
         )}
-      </Flex>
-    </Panel>
+        <Divider />
+        <Flex direction="column" padding={3} gap={2}>
+          <Typography size="lg" weight="bold">
+            Settings
+          </Typography>
+          <CurrencySelect value={prefs?.currency ?? null} />
+          <AIEnabled value={prefs?.ai_enabled || false} />
+        </Flex>
+        <Divider />
+        <Flex padding={3} direction="column" gap={2}>
+          <form>
+            <Button variant="secondary" formAction={logout}>
+              Logout
+            </Button>
+          </form>
+          {error && (
+            <Typography size="sm" className="momo-error">
+              {ERROR_MESSAGES[error]}
+            </Typography>
+          )}
+        </Flex>
+      </Panel>
+    </Flex>
   );
 }

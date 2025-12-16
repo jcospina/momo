@@ -3,8 +3,8 @@
 import { cn } from '@utils/cn';
 import type {
   InputHTMLAttributes,
-  MutableRefObject,
   ReactNode,
+  RefObject,
   TextareaHTMLAttributes,
 } from 'react';
 import { forwardRef, useCallback, useEffect, useRef } from 'react';
@@ -108,9 +108,7 @@ export const Input = forwardRef<
           ref(node as HTMLInputElement);
         } else {
           (
-            ref as MutableRefObject<
-              HTMLInputElement | HTMLTextAreaElement | null
-            >
+            ref as RefObject<HTMLInputElement | HTMLTextAreaElement | null>
           ).current = node;
         }
       },

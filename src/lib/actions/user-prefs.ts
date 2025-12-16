@@ -3,7 +3,7 @@
 import type { MomoError } from '@lib-types/errors';
 import type { SupportedCurrency } from '@lib-types/user-preferences';
 import { OnboardingStatus } from '@lib-types/user-preferences';
-import { createSupabaseServerClient } from '@supabase/server';
+import { createSupabaseServerClient } from '@lib-supabase/server';
 import { redirectWithError } from '@utils/redirect-with-error';
 import { redirect } from 'next/navigation';
 

@@ -1,5 +1,5 @@
 import type { UserPreferences } from '@lib-types/user-preferences';
-import { createSupabaseServerClient } from '@supabase/server';
+import { createSupabaseServerClient } from '@lib-supabase/server';
 
 export async function getUserPreferences(
   userId: string,

@@ -7,8 +7,8 @@ import { Panel } from '@/ui/panel/panel';
 import { Typography } from '@/ui/typography/typography';
 import { startInviteAcceptFlow } from '@actions/invites';
 import { fetchInviteInfo } from '@helpers/invites';
+import { createSupabaseServiceRoleClient } from '@lib-supabase/server';
 import type { MomoError } from '@lib-types/errors';
-import { createSupabaseServiceRoleClient } from '@supabase/server';
 import { redirect } from 'next/navigation';
 
 import styles from '../invite.module.css';
@@ -36,7 +36,9 @@ function InvalidState({
         <Typography as="p" size="lg">
           {ERROR_MESSAGES[errorCode]}
         </Typography>
-        <Button variant="primary">Go to login</Button>
+        <Button variant="primary" asLink href="/login">
+          Go to login
+        </Button>
       </Flex>
     </Panel>
   );
@@ -68,8 +70,6 @@ export default async function InvitePage({ params }: InvitePageProps) {
     );
   }
 
-  console.log(info);
-
   const inviter = info.inviter_name || 'Someone';
 
   return (
@@ -82,7 +82,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
           <Typography as="p" size="lg">
             Join{' '}
             <span className={styles['invite-page__hightlight']}>{inviter}</span>{' '}
-            and {info.member_count} others in{' '}
+            and {info.member_count - 1} others in{' '}
             <strong>{info.household_name ?? 'their household'}</strong>.
           </Typography>
         ) : (

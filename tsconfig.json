@@ -23,10 +23,12 @@
       "@auth/*": ["./src/lib/auth/*"],
       "@components/*": ["./src/components/*"],
       "@helpers/*": ["./src/lib/helpers/*"],
+      "@hooks/*": ["./src/hooks/*"],
       "@lib-types/*": ["./src/lib/types/*"],
+      "@features/*": ["./src/features/*"],
       "@providers/*": ["./src/providers/*"],
       "@proxy/*": ["./src/lib/proxy/*"],
-      "@supabase/*": ["./src/lib/supabase/*"],
+      "@lib-supabase/*": ["./src/lib/supabase/*"],
       "@ui/*": ["./src/ui/*"],
       "@utils/*": ["./src/lib/utils/*"],
       "@/*": ["./src/*"]

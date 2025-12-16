@@ -6,7 +6,7 @@ import { createUserProfile } from '@helpers/profiles';
 import {
   createSupabaseServerClient,
   createSupabaseServiceRoleClient,
-} from '@supabase/server';
+} from '@lib-supabase/server';
 import { redirectWithError } from '@utils/redirect-with-error';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
