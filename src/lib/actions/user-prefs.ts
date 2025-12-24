@@ -1,7 +1,10 @@
 'use server';
 
 import type { MomoError } from '@lib-types/errors';
-import type { SupportedCurrency } from '@lib-types/user-preferences';
+import type {
+  SupportedCurrency,
+  SupportedLanguage,
+} from '@lib-types/user-preferences';
 import { OnboardingStatus } from '@lib-types/user-preferences';
 import { createSupabaseServerClient } from '@lib-supabase/server';
 import { redirectWithError } from '@utils/redirect-with-error';
@@ -83,6 +86,31 @@ export async function setAiEnabled(
   const { error } = await supabase
     .from('user_prefs')
     .upsert({ user_id: user.id, ai_enabled: next }, { onConflict: 'user_id' });
+
+  if (error) {
+    return {
+      errorCode: 'user_pref_update_failed',
+    };
+  }
+
+  return {};
+}
+
+export async function setLanguage(
+  language: SupportedLanguage,
+): Promise<UpdatePrefResult | void> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return redirectWithError('/login', 'auth_required');
+  }
+
+  const { error } = await supabase
+    .from('user_prefs')
+    .upsert({ user_id: user.id, language }, { onConflict: 'user_id' });
 
   if (error) {
     return {

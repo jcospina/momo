@@ -23,6 +23,7 @@ import { createSupabaseServerClient } from '@lib-supabase/server';
 import { firstName } from '@utils/user';
 import { CurrencySelect } from './currency-select';
 import { InviteLink } from './invite-link';
+import { LanguageSelect } from './language-select';
 import { MemberList } from './member-list';
 
 import { ERROR_MESSAGES } from '@/lib/constants/errors';
@@ -133,6 +134,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             Settings
           </Typography>
           <CurrencySelect value={prefs?.currency ?? null} />
+          <LanguageSelect value={prefs?.language ?? null} />
           <AIEnabled value={prefs?.ai_enabled || false} />
         </Flex>
         <Divider />
