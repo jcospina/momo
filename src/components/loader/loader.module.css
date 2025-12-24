@@ -1,0 +1,55 @@
+.momo-loader {
+  --loader-size: 2.75rem;
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-logo);
+  font-size: var(--loader-size);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.momo-loader--xs {
+  --loader-size: 1.5rem;
+}
+
+.momo-loader--sm {
+  --loader-size: 2rem;
+}
+
+.momo-loader--md {
+  --loader-size: 2.75rem;
+}
+
+.momo-loader--lg {
+  --loader-size: 3.5rem;
+}
+
+.momo-loader--xl {
+  --loader-size: 4.5rem;
+}
+
+.momo-loader--xxl {
+  --loader-size: 6rem;
+}
+
+.momo-loader__base {
+  color: color-mix(in oklch, var(--color-dark), white 70%);
+}
+
+.momo-loader__fill {
+  position: absolute;
+  inset: 0;
+  color: var(--color-dark);
+  clip-path: inset(100% 0 0 0);
+  pointer-events: none;
+  animation: momo-loader-fill 1.4s linear infinite;
+}
+
+@keyframes momo-loader-fill {
+  0% {
+    clip-path: inset(100% 0 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}

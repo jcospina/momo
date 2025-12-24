@@ -1,7 +1,8 @@
 'use server';
 
-import type { SendChatMessageResult } from '@lib-types/chat-messages';
+import { processChatMessage } from '@helpers/chat-processor';
 import { createSupabaseServerClient } from '@lib-supabase/server';
+import type { SendChatMessageResult } from '@lib-types/chat-messages';
 
 type SendChatMessageInput = {
   content: string;
@@ -47,6 +48,10 @@ export async function sendChatMessage({
     });
     return { errorCode: 'chat_message_send_failed' };
   }
+
+  void processChatMessage(data).catch(err => {
+    console.error('[chat] process failed', err);
+  });
 
   return { message: data };
 }

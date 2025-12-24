@@ -11,12 +11,14 @@ type ChatToggleProps = {
   active: ChatTab;
   onChange: (next: ChatTab) => void;
   householdName?: string;
+  showHousehold?: boolean;
 };
 
 export function ChatToggle({
   active,
   onChange,
   householdName,
+  showHousehold = true,
 }: ChatToggleProps) {
   const isPersonal = active === 'personal';
 
@@ -43,23 +45,25 @@ export function ChatToggle({
           </Typography>
         ) : null}
       </button>
-      <button
-        type="button"
-        className={cn(
-          styles['momo-chat-toggle__item'],
-          styles['momo-chat-toggle__item--household'],
-          !isPersonal ? styles['momo-chat-toggle__item--active'] : '',
-        )}
-        onClick={() => onChange('household')}
-        aria-pressed={!isPersonal}
-      >
-        <GroupIcon />
-        {!isPersonal ? (
-          <Typography as="span" size="lg">
-            {householdName || 'Household'}
-          </Typography>
-        ) : null}
-      </button>
+      {showHousehold ? (
+        <button
+          type="button"
+          className={cn(
+            styles['momo-chat-toggle__item'],
+            styles['momo-chat-toggle__item--household'],
+            !isPersonal ? styles['momo-chat-toggle__item--active'] : '',
+          )}
+          onClick={() => onChange('household')}
+          aria-pressed={!isPersonal}
+        >
+          <GroupIcon />
+          {!isPersonal ? (
+            <Typography as="span" size="lg">
+              {householdName || 'Household'}
+            </Typography>
+          ) : null}
+        </button>
+      ) : null}
     </Flex>
   );
 }

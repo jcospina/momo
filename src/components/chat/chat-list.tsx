@@ -1,19 +1,13 @@
 'use client';
 
-import {
-  forwardRef,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type HTMLAttributes,
-  type ReactNode,
-} from 'react';
-import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import { Virtuoso } from 'react-virtuoso';
 
+import { useChatList } from '@features/chat/hooks/use-chat-list';
 import type { ChatMessage } from '@lib-types/chat-messages';
 import { Flex } from '@ui/flex/flex';
 
+import { MomoLoader } from '@components/loader/loader';
 import styles from './chat-list.module.css';
 
 type ChatListProps = {
@@ -36,29 +30,14 @@ export function ChatList({
   isLoadingMore = false,
   currentUserId,
 }: ChatListProps) {
-  const virtuosoRef = useRef<VirtuosoHandle | null>(null);
-  const prevCountRef = useRef(messages.length);
-  const [isAtBottom, setIsAtBottom] = useState(true);
-
-  const hasMoreToLoad = hasMore && typeof onLoadMore === 'function';
-
-  const latestMessageUserId = useMemo(() => {
-    const last = messages[messages.length - 1];
-    return last?.user_id ?? null;
-  }, [messages]);
-
-  useEffect(() => {
-    const prevCount = prevCountRef.current;
-    const grew = messages.length > prevCount;
-    if (grew && currentUserId && latestMessageUserId === currentUserId) {
-      virtuosoRef.current?.scrollToIndex({
-        index: messages.length - 1,
-        align: 'end',
-        behavior: 'smooth',
-      });
-    }
-    prevCountRef.current = messages.length;
-  }, [currentUserId, latestMessageUserId, messages.length]);
+  const { virtuosoRef, isAtBottom, handleAtBottomChange, handleRangeChanged } =
+    useChatList({
+      messages,
+      currentUserId,
+      hasMore,
+      isLoadingMore,
+      onLoadMore,
+    });
 
   return (
     <Virtuoso
@@ -66,13 +45,10 @@ export function ChatList({
       data={messages}
       style={{ height: '100%' }}
       initialTopMostItemIndex={Math.max(messages.length - 1, 0)}
-      atBottomStateChange={setIsAtBottom}
+      atBottomStateChange={handleAtBottomChange}
       atBottomThreshold={AT_BOTTOM_THRESHOLD_PX}
       followOutput={isAtBottom ? 'smooth' : false}
-      startReached={() => {
-        if (!hasMoreToLoad || isLoadingMore) return;
-        onLoadMore?.();
-      }}
+      rangeChanged={handleRangeChanged}
       computeItemKey={(_, item) => item.id}
       components={{
         Scroller: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
@@ -127,7 +103,16 @@ export function ChatList({
             );
           },
         ),
-        Header: () => <div style={{ height: TOP_SPACER }} />,
+        Header: () => (
+          <div>
+            {isLoadingMore ? (
+              <div className={styles['chat-history-loading']}>
+                <MomoLoader size="xs" />
+              </div>
+            ) : null}
+            <div style={{ height: TOP_SPACER }} />
+          </div>
+        ),
       }}
       itemContent={(_, msg) => (
         <Flex marginBottom={1} isFullWidth>

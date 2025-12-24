@@ -70,6 +70,27 @@ export function useChatState({
     [householdId, isHousehold, setHouseholdMessages, userId],
   );
 
+  const mergePersonalBatch = useCallback((incoming: ChatMessage[]) => {
+    if (!incoming?.length) return;
+    setPersonalMessages(prev => {
+      const byId = new Map<string, ChatMessage>();
+      prev.forEach(message => {
+        byId.set(message.id, message);
+      });
+      incoming.forEach(message => {
+        byId.set(message.id, message);
+      });
+      const merged = Array.from(byId.values());
+      merged.sort((a, b) => {
+        if (a.created_at === b.created_at) {
+          return a.id.localeCompare(b.id);
+        }
+        return a.created_at.localeCompare(b.created_at);
+      });
+      return merged;
+    });
+  }, []);
+
   const markFailed = useCallback(
     (tempId: string) => {
       if (isHousehold) {
@@ -107,9 +128,17 @@ export function useChatState({
     [isHousehold, setHouseholdMessages, updateHouseholdCursor],
   );
 
+  const setActiveTabSafe = useCallback(
+    (next: 'personal' | 'household') => {
+      if (next === 'household' && !householdId) return;
+      setActiveTab(next);
+    },
+    [householdId],
+  );
+
   return {
     activeTab,
-    setActiveTab,
+    setActiveTab: setActiveTabSafe,
     isHousehold,
     messages,
     addOptimistic,
@@ -117,6 +146,7 @@ export function useChatState({
     reconcile,
     mergeRealtime,
     mergeBatch,
+    mergePersonalBatch,
     personalMessages,
     householdMessages,
     householdCursorRef,

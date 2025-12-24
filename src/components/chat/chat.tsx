@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { sendChatMessage } from '@actions/chat-messages';
 import { ChatMessage as ChatMessageItem } from '@components/chat/chat-message';
@@ -10,6 +10,7 @@ import { useChatState } from '@features/chat/hooks/use-chat-state';
 import { useComposer } from '@features/chat/hooks/use-composer';
 import { useHouseholdRealtime } from '@features/chat/hooks/use-household-realtime';
 import { useHouseholdSync } from '@features/chat/hooks/use-household-sync';
+import { fetchChatHistory } from '@features/chat/utils/chat-history';
 import type { ChatMessage } from '@lib-types/chat-messages';
 import { Divider } from '@ui/divider/divider';
 import { FlexItem } from '@ui/flex-item/flex-item';
@@ -29,6 +30,8 @@ interface ChatProps {
   initialHouseholdMessages: ChatMessage[];
 }
 
+const HISTORY_PAGE_SIZE = 30;
+
 export function Chat({
   householdName,
   householdId = null,
@@ -46,13 +49,26 @@ export function Chat({
     reconcile,
     mergeRealtime,
     mergeBatch,
+    mergePersonalBatch,
     householdCursorRef,
+    personalMessages,
+    householdMessages,
   } = useChatState({
     userId,
     householdId,
     initialPersonalMessages,
     initialHouseholdMessages,
   });
+
+  const [isLoadingMorePersonal, setIsLoadingMorePersonal] = useState(false);
+  const [isLoadingMoreHousehold, setIsLoadingMoreHousehold] = useState(false);
+  const [personalHasMore, setPersonalHasMore] = useState(
+    initialPersonalMessages.length >= HISTORY_PAGE_SIZE,
+  );
+  const [householdHasMore, setHouseholdHasMore] = useState(
+    Boolean(householdId) &&
+      initialHouseholdMessages.length >= HISTORY_PAGE_SIZE,
+  );
 
   const statusRef = useRef<string | null>(null);
   const errorStatuses = useRef(
@@ -62,13 +78,6 @@ export function Chat({
   const getHouseholdCursor = useCallback(
     () => householdCursorRef.current,
     [householdCursorRef],
-  );
-
-  const handleCatchupMessages = useCallback(
-    (batch: ChatMessage[]) => {
-      batch.forEach(mergeRealtime);
-    },
-    [mergeRealtime],
   );
 
   const { scheduleSync } = useHouseholdSync({
@@ -129,6 +138,75 @@ export function Chat({
     [addOptimistic, householdId, isHousehold, markFailed, reconcile],
   );
 
+  const loadOlderPersonal = useCallback(async () => {
+    if (isLoadingMorePersonal || !personalHasMore) return;
+    const oldest = personalMessages[0];
+    if (!oldest) {
+      setPersonalHasMore(false);
+      return;
+    }
+    setIsLoadingMorePersonal(true);
+    try {
+      const batch = await fetchChatHistory({
+        householdId: null,
+        cursor: { created_at: oldest.created_at, id: oldest.id },
+        limit: HISTORY_PAGE_SIZE,
+      });
+      if (!batch.length) {
+        setPersonalHasMore(false);
+        return;
+      }
+      mergePersonalBatch(batch);
+      if (batch.length < HISTORY_PAGE_SIZE) {
+        setPersonalHasMore(false);
+      }
+    } catch (err) {
+      console.warn('[chat] personal history failed', err);
+    } finally {
+      setIsLoadingMorePersonal(false);
+    }
+  }, [
+    isLoadingMorePersonal,
+    mergePersonalBatch,
+    personalHasMore,
+    personalMessages,
+  ]);
+
+  const loadOlderHousehold = useCallback(async () => {
+    if (isLoadingMoreHousehold || !householdHasMore || !householdId) return;
+    const oldest = householdMessages[0];
+    if (!oldest) {
+      setHouseholdHasMore(false);
+      return;
+    }
+    setIsLoadingMoreHousehold(true);
+    try {
+      const batch = await fetchChatHistory({
+        householdId,
+        cursor: { created_at: oldest.created_at, id: oldest.id },
+        limit: HISTORY_PAGE_SIZE,
+      });
+      if (!batch.length) {
+        setHouseholdHasMore(false);
+        return;
+      }
+      mergeBatch(batch);
+      if (batch.length < HISTORY_PAGE_SIZE) {
+        setHouseholdHasMore(false);
+      }
+    } catch (err) {
+      console.warn('[chat] household history failed', err);
+    } finally {
+      setIsLoadingMoreHousehold(false);
+    }
+  }, [
+    householdHasMore,
+    householdId,
+    householdMessages,
+    isLoadingMoreHousehold,
+    mergeBatch,
+  ]);
+
   const { draft, setDraft, handleKeyDown, handleSubmit } = useComposer({
     onSend: handleSend,
   });
@@ -146,6 +224,7 @@ export function Chat({
           active={activeTab}
           onChange={setActiveTab}
           householdName={householdName}
+          showHousehold={Boolean(householdId)}
         />
         <Divider thickness="thick" />
         <FlexItem
@@ -156,9 +235,11 @@ export function Chat({
         >
           <ChatList
             messages={messages}
-            hasMore={false}
-            isLoadingMore={false}
-            onLoadMore={() => {}}
+            hasMore={isHousehold ? householdHasMore : personalHasMore}
+            isLoadingMore={
+              isHousehold ? isLoadingMoreHousehold : isLoadingMorePersonal
+            }
+            onLoadMore={isHousehold ? loadOlderHousehold : loadOlderPersonal}
             currentUserId={userId}
             renderMessage={msg => (
               <ChatMessageItem
