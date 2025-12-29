@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-import { subscribeToHouseholdChat } from '@helpers/chat-realtime';
+import { subscribeToHouseholdChat } from '@helpers/chat/chat-realtime';
 import { useRealtimeClient } from '@hooks/use-realtime-client';
 import type { ChatMessage } from '@lib-types/chat-messages';
 import {

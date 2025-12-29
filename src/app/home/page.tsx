@@ -1,6 +1,6 @@
 import { Navbar } from '@/components/navbar/navbar';
 import { Chat } from '@components/chat/chat';
-import { fetchChatMessages } from '@helpers/chat-messages';
+import { fetchChatMessages } from '@helpers/chat/chat-messages';
 import { getHouseholdForUser } from '@helpers/households';
 import { getCurrentUser } from '@helpers/user';
 import { createSupabaseServerClient } from '@lib-supabase/server';

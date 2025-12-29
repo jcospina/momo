@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-import { fetchChatHistory } from '@helpers/chat-messages';
+import { fetchChatHistory } from '@helpers/chat/chat-messages';
 import { createSupabaseServerClient } from '@lib-supabase/server';
 
 type HistoryRequest = {

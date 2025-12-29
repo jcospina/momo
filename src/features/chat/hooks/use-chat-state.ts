@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import type { ChatMessage } from '@lib-types/chat-messages';
+import type { ChatCursor } from '../chat.types';
 import { useHouseholdMessages } from './use-household-messages';
 
 type UseChatStateArgs = {
@@ -16,6 +17,40 @@ function createTempId() {
   return `tmp-${Date.now().toString(16)}-${Math.random()
     .toString(16)
     .slice(2)}`;
+}
+
+function compareMessageOrder(a: ChatMessage, b: ChatMessage) {
+  if (a.created_at === b.created_at) {
+    return a.id.localeCompare(b.id);
+  }
+  return a.created_at.localeCompare(b.created_at);
+}
+
+function isAfter(cursor: ChatCursor | null, message: ChatMessage) {
+  if (!cursor) return false;
+  return (
+    message.created_at > cursor.created_at ||
+    (message.created_at === cursor.created_at && message.id > cursor.id)
+  );
+}
+
+function insertSorted(
+  messages: ChatMessage[],
+  message: ChatMessage,
+): ChatMessage[] {
+  let left = 0;
+  let right = messages.length;
+  while (left < right) {
+    const mid = Math.floor((left + right) / 2);
+    if (compareMessageOrder(messages[mid], message) <= 0) {
+      left = mid + 1;
+    } else {
+      right = mid;
+    }
+  }
+  const next = messages.slice();
+  next.splice(left, 0, message);
+  return next;
 }
 
 export function useChatState({
@@ -56,7 +91,6 @@ export function useChatState({
         user_id: userId,
         content,
         status: 'pending',
-        expense_id: null,
         created_at: new Date().toISOString(),
         sender_name: null,
       };
@@ -108,24 +142,43 @@ export function useChatState({
 
   const reconcile = useCallback(
     (tempId: string, message: ChatMessage) => {
-      updateHouseholdCursor(message);
       if (isHousehold) {
         setHouseholdMessages(prev => {
-          const filtered = prev.filter(
-            m => m.id !== tempId && m.id !== message.id,
-          );
-          return [...filtered, message];
+          const index = prev.findIndex(m => m.id === tempId);
+          if (index >= 0) {
+            const next = prev.slice();
+            next[index] = message;
+            if (isAfter(householdCursorRef.current, message)) {
+              updateHouseholdCursor(message);
+            }
+            return next;
+          }
+          const filtered = prev.filter(m => m.id !== message.id);
+          const next = insertSorted(filtered, message);
+          if (isAfter(householdCursorRef.current, message)) {
+            updateHouseholdCursor(message);
+          }
+          return next;
         });
       } else {
         setPersonalMessages(prev => {
-          const filtered = prev.filter(
-            m => m.id !== tempId && m.id !== message.id,
-          );
-          return [...filtered, message];
+          const index = prev.findIndex(m => m.id === tempId);
+          if (index >= 0) {
+            const next = prev.slice();
+            next[index] = message;
+            return next;
+          }
+          const filtered = prev.filter(m => m.id !== message.id);
+          return insertSorted(filtered, message);
         });
       }
     },
-    [isHousehold, setHouseholdMessages, updateHouseholdCursor],
+    [
+      householdCursorRef,
+      isHousehold,
+      setHouseholdMessages,
+      updateHouseholdCursor,
+    ],
   );
 
   const setActiveTabSafe = useCallback(

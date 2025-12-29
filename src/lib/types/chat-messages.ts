@@ -1,4 +1,8 @@
-export type ChatMessageStatus = 'pending' | 'processed' | 'failed';
+export type ChatMessageStatus =
+  | 'pending'
+  | 'processed'
+  | 'failed'
+  | 'no_expense';
 
 export type ChatMessage = {
   id: string;
@@ -6,7 +10,6 @@ export type ChatMessage = {
   user_id: string;
   content: string;
   status: ChatMessageStatus;
-  expense_id: string | null;
   created_at: string;
   sender_name: string | null;
 };

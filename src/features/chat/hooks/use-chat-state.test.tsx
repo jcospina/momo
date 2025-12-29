@@ -9,7 +9,6 @@ const baseMessage = (overrides: Partial<ChatMessage>): ChatMessage => ({
   user_id: 'u0',
   content: 'base',
   status: 'processed',
-  expense_id: null,
   created_at: '2024-01-01T00:00:00.000Z',
   sender_name: 'User',
   ...overrides,
@@ -150,5 +149,40 @@ describe('useChatState', () => {
     expect(ids).toEqual(['m0', 'm1', 'm2']);
     const updated = result.current.householdMessages.find(m => m.id === 'm1');
     expect(updated?.content).toBe('updated');
+  });
+
+  it('keeps optimistic order when an earlier message reconciles first', () => {
+    const { result } = renderHook(() =>
+      useChatState({
+        userId: 'u1',
+        householdId: 'hid',
+        initialPersonalMessages: [],
+        initialHouseholdMessages: [],
+      }),
+    );
+
+    let firstTempId = '';
+    let secondTempId = '';
+
+    act(() => {
+      firstTempId = result.current.addOptimistic('first').tempId;
+      secondTempId = result.current.addOptimistic('second').tempId;
+    });
+
+    const serverMessage = baseMessage({
+      id: 'srv-1',
+      content: 'first',
+      created_at: '2024-01-01T00:00:01.000Z',
+      user_id: 'u1',
+    });
+
+    act(() => {
+      result.current.reconcile(firstTempId, serverMessage);
+    });
+
+    const ids = result.current.householdMessages.map(m => m.id);
+    expect(ids.indexOf(serverMessage.id)).toBeLessThan(
+      ids.indexOf(secondTempId),
+    );
   });
 });

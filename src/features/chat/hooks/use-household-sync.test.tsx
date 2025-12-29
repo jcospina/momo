@@ -19,7 +19,6 @@ const sampleMessage = (id: string): ChatMessage => ({
   user_id: 'u1',
   content: `msg-${id}`,
   status: 'processed',
-  expense_id: null,
   created_at: '2024-01-01T00:00:00.000Z',
   sender_name: 'User',
 });

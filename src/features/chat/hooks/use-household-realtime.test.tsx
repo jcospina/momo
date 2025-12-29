@@ -136,7 +136,6 @@ describe('useHouseholdRealtime', () => {
         user_id: 'u1',
         content: 'hi',
         status: 'processed',
-        expense_id: null,
         created_at: new Date().toISOString(),
         sender_name: null,
       });
@@ -168,7 +167,6 @@ describe('useHouseholdRealtime', () => {
         user_id: 'u2',
         content: 'after',
         status: 'processed',
-        expense_id: null,
         created_at: new Date().toISOString(),
         sender_name: null,
       });

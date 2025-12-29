@@ -1,6 +1,7 @@
 'use server';
 
-import { processChatMessage } from '@helpers/chat-processor';
+import { enqueueChatProcessing } from '@helpers/chat/chat-processing-queue';
+import { processChatMessage } from '@helpers/chat/chat-processor';
 import { createSupabaseServerClient } from '@lib-supabase/server';
 import type { SendChatMessageResult } from '@lib-types/chat-messages';
 
@@ -36,7 +37,7 @@ export async function sendChatMessage({
       sender_name: user.user_metadata?.name ?? user.email ?? null,
     })
     .select(
-      'id, household_id, user_id, content, status, expense_id, created_at, sender_name',
+      'id, household_id, user_id, content, status, created_at, sender_name',
     )
     .single();
 
@@ -49,8 +50,8 @@ export async function sendChatMessage({
     return { errorCode: 'chat_message_send_failed' };
   }
 
-  void processChatMessage(data).catch(err => {
-    console.error('[chat] process failed', err);
+  enqueueChatProcessing(async () => {
+    await processChatMessage(data);
   });
 
   return { message: data };

@@ -23,7 +23,7 @@ type FetchChatHistoryParams = {
 };
 
 const CHAT_MESSAGE_SELECT =
-  'id, household_id, user_id, content, status, expense_id, created_at, sender_name';
+  'id, household_id, user_id, content, status, created_at, sender_name';
 
 export async function fetchChatMessages({
   supabase,
