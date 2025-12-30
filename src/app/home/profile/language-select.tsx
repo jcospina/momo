@@ -1,6 +1,6 @@
 'use client';
 
-import { ERROR_MESSAGES } from '@/lib/constants/errors';
+import { ERROR_MESSAGES } from '@constants/errors';
 import { Flex } from '@/ui/flex/flex';
 import { Select } from '@/ui/select/select';
 import { Typography } from '@/ui/typography/typography';

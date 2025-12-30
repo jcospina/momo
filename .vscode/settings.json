@@ -31,5 +31,6 @@
   },
   "editor.formatOnPaste": true,
   "files.autoSave": "afterDelay",
-  "chatgpt.commentCodeLensEnabled": false
+  "chatgpt.commentCodeLensEnabled": false,
+  "jest.jestCommandLine": "pnpm test"
 }

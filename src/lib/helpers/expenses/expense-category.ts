@@ -1,12 +1,14 @@
+import { AMOUNT_REGEX } from '@constants/expenses/amounts';
 import {
-  AMOUNT_REGEX,
-  BIGRAM_OVERLAP_THRESHOLD,
   EXPENSE_INVERTED_INDEX,
-  EXPENSE_SCORING,
   expenseTerms,
+} from '@constants/expenses/dictionary';
+import {
+  BIGRAM_OVERLAP_THRESHOLD,
+  EXPENSE_SCORING,
   MAX_EDIT_DISTANCE,
   MIN_FUZZY_TERM_LENGTH,
-} from '@/lib/constants/expenses';
+} from '@constants/expenses/scoring';
 import {
   EXPENSE_CATEGORIES,
   type ExpenseCategory,

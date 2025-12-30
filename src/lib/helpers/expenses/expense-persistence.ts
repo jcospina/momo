@@ -1,5 +1,5 @@
 import { createSupabaseServerClient } from '@lib-supabase/server';
-import type { ChatMessage, ChatMessageStatus } from '@lib-types/chat-messages';
+import type { ChatMessage, ChatMessageStatus } from '@lib-types/chat';
 import type { ParsedEntry } from '@lib-types/expenses';
 
 type PersistResult = {
@@ -46,17 +46,18 @@ function buildExpenseRows(
   });
 }
 
-async function updateMessageStatus(
+export async function updateMessageStatus(
   messageId: string,
   status: ChatMessageStatus,
 ) {
-  const supabase = await createSupabaseServerClient();
-  return supabase.from('chat_messages').update({ status }).eq('id', messageId);
+  const client = await createSupabaseServerClient();
+  return client.from('chat_messages').update({ status }).eq('id', messageId);
 }
 
 export async function persistParsedExpenses(
   message: ChatMessage,
   entries: ParsedEntry[],
+  status?: ChatMessageStatus,
 ): Promise<PersistResult | null> {
   if (!entries.length) {
     return { expenseIds: [] };
@@ -76,9 +77,11 @@ export async function persistParsedExpenses(
     return null;
   }
 
+  const expenseIds = (data ?? []).map(row => row.id as string);
+  const nextStatus = status ?? 'processed';
   const { error: updateError } = await supabase
     .from('chat_messages')
-    .update({ status: 'processed' })
+    .update({ status: nextStatus, expense_count: expenseRows.length })
     .eq('id', message.id);
 
   if (updateError) {
@@ -87,6 +90,5 @@ export async function persistParsedExpenses(
     return null;
   }
 
-  const expenseIds = (data ?? []).map(row => row.id as string);
   return { expenseIds };
 }

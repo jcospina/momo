@@ -1,4 +1,4 @@
-import { ERROR_MESSAGES } from '@/lib/constants/errors';
+import { ERROR_MESSAGES } from '@constants/errors';
 import { Button } from '@/ui/button/button';
 import { Flex } from '@/ui/flex/flex';
 import { Logo } from '@/ui/logo/logo';

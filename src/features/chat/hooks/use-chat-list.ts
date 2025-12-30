@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ListRange, VirtuosoHandle } from 'react-virtuoso';
 
-import type { ChatMessage } from '@lib-types/chat-messages';
+import type { ChatMessage } from '@lib-types/chat';
 
 type UseChatListArgs = {
   messages: ChatMessage[];

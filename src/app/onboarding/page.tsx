@@ -6,7 +6,7 @@ import { getCurrentUser } from '@helpers/user';
 import { redirect } from 'next/navigation';
 
 import { HouseholdForm } from '@/components/household-form/household-form';
-import { ERROR_MESSAGES } from '@/lib/constants/errors';
+import { ERROR_MESSAGES } from '@constants/errors';
 import { Button } from '@/ui/button/button';
 import { Flex } from '@/ui/flex/flex';
 import { Tooltip } from '@/ui/tooltip/tooltip';

@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-import type { ChatMessage } from '@lib-types/chat-messages';
+import type { ChatMessage } from '@lib-types/chat';
 import { useHouseholdRealtime } from './use-household-realtime';
 
 type FakeChannel = {
@@ -8,7 +8,11 @@ type FakeChannel = {
     (
       event: string,
       filter: Record<string, string>,
-      handler: (payload: { eventType: string; new: ChatMessage }) => void,
+      handler: (payload: {
+        eventType: string;
+        new?: ChatMessage;
+        old?: ChatMessage;
+      }) => void,
     ) => FakeChannel
   >;
   subscribe: jest.MockedFunction<
@@ -17,6 +21,7 @@ type FakeChannel = {
   unsubscribe: jest.MockedFunction<() => void>;
   triggerStatus: (status: string) => void;
   triggerInsert: (message: ChatMessage) => void;
+  triggerDelete: (message: ChatMessage) => void;
 };
 
 type FakeClient = {
@@ -32,7 +37,11 @@ const createdClients: FakeClient[] = [];
 function makeFakeChannel(): FakeChannel {
   let statusCb: ((status: string) => void) | null = null;
   let payloadCb:
-    | ((payload: { eventType: string; new: ChatMessage }) => void)
+    | ((payload: {
+        eventType: string;
+        new?: ChatMessage;
+        old?: ChatMessage;
+      }) => void)
     | null = null;
 
   const channel: FakeChannel = {
@@ -56,6 +65,12 @@ function makeFakeChannel(): FakeChannel {
       payloadCb?.({
         eventType: 'INSERT',
         new: message,
+      });
+    },
+    triggerDelete: message => {
+      payloadCb?.({
+        eventType: 'DELETE',
+        old: message,
       });
     },
   };
@@ -136,6 +151,7 @@ describe('useHouseholdRealtime', () => {
         user_id: 'u1',
         content: 'hi',
         status: 'processed',
+        expense_count: 0,
         created_at: new Date().toISOString(),
         sender_name: null,
       });
@@ -167,6 +183,7 @@ describe('useHouseholdRealtime', () => {
         user_id: 'u2',
         content: 'after',
         status: 'processed',
+        expense_count: 0,
         created_at: new Date().toISOString(),
         sender_name: null,
       });

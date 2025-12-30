@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 
-import type { ChatMessage } from '@lib-types/chat-messages';
+import type { ChatMessage } from '@lib-types/chat';
 import {
   SYNC_COOLDOWN_MS,
   SYNC_MAX_PAGES,
   SYNC_PAGE_LIMIT,
 } from '../chat.constants';
-import type { SyncCursor, SyncReason } from '../chat.types';
-import { fetchChatSync } from '../utils/chat-sync';
+import type { SyncCursor, SyncReason } from '@lib-types/chat';
+import { fetchChatSync } from '../api/chat-sync';
 
 type UseHouseholdSyncArgs = {
   householdId: string | null;

@@ -12,6 +12,21 @@ export type ParsedEntry = {
   category: ExpenseCategory | null;
 };
 
+export type ExpenseRecord = {
+  id: string;
+  household_id: string | null;
+  user_id: string;
+  chat_message_id: string;
+  amount_cents: number;
+  currency: SupportedCurrency | string;
+  expense_date: string;
+  merchant: string | null;
+  category: string | null;
+  note: string | null;
+  created_at: string | null;
+  tags: string[];
+};
+
 export type EntryError = {
   raw: string;
   normalized: string;
@@ -37,7 +52,9 @@ export const EXPENSE_CATEGORIES = [
   'transportation',
   'vehicle',
   'health',
+  'self_care',
   'education',
+  'kids',
   'shopping',
   'entertainment',
   'subscriptions',
@@ -46,6 +63,9 @@ export const EXPENSE_CATEGORIES = [
   'fees',
   'income',
   'transfer',
+  'self_care',
+  'pets',
+  'kids',
 ] as const;
 
 export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];

@@ -2,8 +2,8 @@
 
 import { useCallback, useRef, useState } from 'react';
 
-import type { ChatMessage } from '@lib-types/chat-messages';
-import type { ChatCursor } from '../chat.types';
+import type { ChatMessage } from '@lib-types/chat';
+import type { ChatCursor } from '@lib-types/chat';
 
 type UseHouseholdMessagesArgs = {
   initialHouseholdMessages: ChatMessage[];
@@ -81,6 +81,12 @@ export function useHouseholdMessages({
     [updateHouseholdCursor],
   );
 
+  const removeHouseholdMessage = useCallback((messageId: string) => {
+    setHouseholdMessages(prev =>
+      prev.filter(message => message.id !== messageId),
+    );
+  }, []);
+
   return {
     householdMessages,
     setHouseholdMessages,
@@ -88,5 +94,6 @@ export function useHouseholdMessages({
     updateHouseholdCursor,
     mergeRealtime,
     mergeBatch,
+    removeHouseholdMessage,
   };
 }

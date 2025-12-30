@@ -1,30 +1,15 @@
 'use client';
 
-import type { ChatMessage } from '@lib-types/chat-messages';
+import type { ChatMessage } from '@lib-types/chat';
+import type { SyncCursor } from '@lib-types/chat';
+import { isChatMessageArray } from '@utils/chat-message';
 import { SYNC_PAGE_LIMIT } from '../chat.constants';
-import type { SyncCursor } from '../chat.types';
 
 type FetchChatSyncParams = {
   householdId: string;
   cursor?: SyncCursor | null;
   limit?: number;
 };
-
-function isChatMessageShape(value: unknown): value is ChatMessage {
-  if (typeof value !== 'object' || value === null) return false;
-  const msg = value as Record<string, unknown>;
-  return (
-    typeof msg.id === 'string' &&
-    typeof msg.created_at === 'string' &&
-    typeof msg.content === 'string' &&
-    'household_id' in msg &&
-    'user_id' in msg
-  );
-}
-
-function isChatMessageArray(value: unknown): value is ChatMessage[] {
-  return Array.isArray(value) && value.every(isChatMessageShape);
-}
 
 export async function fetchChatSync({
   householdId,

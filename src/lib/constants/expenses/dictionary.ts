@@ -1,34 +1,30 @@
-import type {
-  ExpenseInvertedIndex,
-  ExpenseScoringConfig,
-} from '@lib-types/expenses';
-import type { SupportedCurrency } from '@lib-types/user-preferences';
-
-export const AMOUNT_REGEX = /([0-9]+(?:\.[0-9]+)?)([kKmM])?/;
-
-export const MULTIPLIERS: Record<string, number> = {
-  k: 1_000,
-  m: 1_000_000,
-};
-
-export const DEFAULT_CURRENCY: SupportedCurrency = 'USD';
-export const EXPENSE_SCORING: ExpenseScoringConfig = {
-  strong: 3,
-  weak: 1,
-  exclude: -2,
-  min_confidence: 3,
-  min_margin: 2,
-};
-
-export const BIGRAM_OVERLAP_THRESHOLD = 0.3;
-export const MAX_EDIT_DISTANCE = 2;
-export const MIN_FUZZY_TERM_LENGTH = 3;
+import type { ExpenseInvertedIndex } from '@lib-types/expenses';
 
 export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   adobe: [
     {
       category: 'subscriptions',
       match: 'strong',
+    },
+  ],
+  aesthetic: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
+  'after school': [
+    {
+      category: 'kids',
+      match: 'weak',
     },
   ],
   agua: [
@@ -141,6 +137,20 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  'arreglo personal': [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
   arriendo: [
     {
       category: 'housing',
@@ -171,6 +181,28 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  baby: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  'baby products': [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
+  babysitter: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
   bank: [
     {
       category: 'fees',
@@ -187,6 +219,90 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     {
       category: 'dining',
       match: 'strong',
+    },
+  ],
+  barber: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
+  barberia: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
+  barbero: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
+  barbershop: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
+  beauty: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
+  'beauty salon': [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
+  'beauty treatment': [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
+  bebe: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  belleza: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
+  bienestar: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
     },
   ],
   bill: [
@@ -268,6 +384,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   cafe: [
     {
       category: 'dining',
+      match: 'strong',
+    },
+  ],
+  campamento: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  'campamento de verano': [
+    {
+      category: 'kids',
       match: 'strong',
     },
   ],
@@ -355,6 +483,24 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  child: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  childcare: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  children: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
   cinema: [
     {
       category: 'entertainment',
@@ -408,6 +554,10 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     },
   ],
   colegio: [
+    {
+      category: 'kids',
+      match: 'weak',
+    },
     {
       category: 'education',
       match: 'strong',
@@ -471,6 +621,54 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'weak',
     },
   ],
+  'corte de pelo': [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
+  cosmetic: [
+    {
+      category: 'self_care',
+      match: 'weak',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
+  cosmetico: [
+    {
+      category: 'self_care',
+      match: 'weak',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
+  cosmetologia: [
+    {
+      category: 'self_care',
+      match: 'weak',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
   costco: [
     {
       category: 'groceries',
@@ -481,6 +679,40 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     {
       category: 'education',
       match: 'strong',
+    },
+  ],
+  'cuidado de la piel': [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
+  'cuidado infantil': [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  'cuidado personal': [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
     },
   ],
   'credit card': [
@@ -525,6 +757,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  'day camp': [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  daycare: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
   decathlon: [
     {
       category: 'shopping',
@@ -563,6 +807,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     {
       category: 'housing',
       match: 'weak',
+    },
+  ],
+  depilacion: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
+  'depilacion laser': [
+    {
+      category: 'self_care',
+      match: 'strong',
     },
   ],
   deposit: [
@@ -665,6 +921,20 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'exclude',
     },
   ],
+  estetica: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
   event: [
     {
       category: 'entertainment',
@@ -680,6 +950,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   expedia: [
     {
       category: 'travel',
+      match: 'strong',
+    },
+  ],
+  facial: [
+    {
+      category: 'self_care',
       match: 'strong',
     },
   ],
@@ -855,6 +1131,20 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  grooming: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
   groceries: [
     {
       category: 'dining',
@@ -869,10 +1159,28 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'exclude',
     },
   ],
+  guarderia: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
   gym: [
     {
       category: 'health',
       match: 'weak',
+    },
+  ],
+  haircut: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
+  'hair salon': [
+    {
+      category: 'self_care',
+      match: 'strong',
     },
   ],
   'h&m': [
@@ -896,6 +1204,30 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   'health insurance': [
     {
       category: 'health',
+      match: 'strong',
+    },
+  ],
+  hija: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  hijas: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  hijo: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  hijos: [
+    {
+      category: 'kids',
       match: 'strong',
     },
   ],
@@ -1013,6 +1345,32 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  'jardin infantil': [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  juguete: [
+    {
+      category: 'kids',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
+  juguetes: [
+    {
+      category: 'kids',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
   jumbo: [
     {
       category: 'groceries',
@@ -1022,6 +1380,34 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   'just eat': [
     {
       category: 'dining',
+      match: 'strong',
+    },
+  ],
+  kid: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  kids: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  'kids toys': [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
+  kindergarten: [
+    {
+      category: 'kids',
       match: 'strong',
     },
   ],
@@ -1051,6 +1437,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     {
       category: 'education',
       match: 'weak',
+    },
+  ],
+  'laser hair removal': [
+    {
+      category: 'self_care',
+      match: 'strong',
     },
   ],
   lease: [
@@ -1113,9 +1505,43 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  makeup: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
+  manicure: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
   market: [
     {
       category: 'groceries',
+      match: 'strong',
+    },
+  ],
+  'matricula escolar': [
+    {
+      category: 'kids',
+      match: 'weak',
+    },
+    {
+      category: 'education',
+      match: 'strong',
+    },
+  ],
+  masaje: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
+  massage: [
+    {
+      category: 'self_care',
       match: 'strong',
     },
   ],
@@ -1229,6 +1655,24 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  'nail salon': [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
+  nana: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  nanny: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
   nebula: [
     {
       category: 'subscriptions',
@@ -1260,6 +1704,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   notion: [
     {
       category: 'subscriptions',
+      match: 'strong',
+    },
+  ],
+  nursery: [
+    {
+      category: 'kids',
       match: 'strong',
     },
   ],
@@ -1329,6 +1779,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  pedicure: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
+  peluqueria: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
   penalty: [
     {
       category: 'fees',
@@ -1383,6 +1845,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  preescolar: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  preschool: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
   present: [
     {
       category: 'gifts',
@@ -1393,6 +1867,16 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     {
       category: 'subscriptions',
       match: 'strong',
+    },
+  ],
+  'productos para bebe': [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
     },
   ],
   'property tax': [
@@ -1441,6 +1925,34 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     {
       category: 'income',
       match: 'strong',
+    },
+  ],
+  relajacion: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
+  relaxation: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
     },
   ],
   regalo: [
@@ -1537,10 +2049,44 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  'salon de belleza': [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
   school: [
+    {
+      category: 'kids',
+      match: 'weak',
+    },
+    {
+      category: 'education',
+      match: 'weak',
+    },
+  ],
+  'school tuition': [
+    {
+      category: 'kids',
+      match: 'weak',
+    },
     {
       category: 'education',
       match: 'strong',
+    },
+  ],
+  'self care': [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
     },
   ],
   scribd: [
@@ -1599,6 +2145,20 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'exclude',
     },
   ],
+  skincare: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
   snack: [
     {
       category: 'dining',
@@ -1608,6 +2168,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   soundcloud: [
     {
       category: 'subscriptions',
+      match: 'strong',
+    },
+  ],
+  spa: [
+    {
+      category: 'self_care',
       match: 'strong',
     },
   ],
@@ -1652,6 +2218,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   sueldo: [
     {
       category: 'income',
+      match: 'strong',
+    },
+  ],
+  'summer camp': [
+    {
+      category: 'kids',
       match: 'strong',
     },
   ],
@@ -1711,6 +2283,20 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  'therapy massage': [
+    {
+      category: 'self_care',
+      match: 'weak',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
   tidal: [
     {
       category: 'subscriptions',
@@ -1733,6 +2319,26 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     {
       category: 'transportation',
       match: 'strong',
+    },
+  ],
+  toy: [
+    {
+      category: 'kids',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
+    },
+  ],
+  toys: [
+    {
+      category: 'kids',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
+      match: 'weak',
     },
   ],
   train: [
@@ -1769,6 +2375,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     {
       category: 'transportation',
       match: 'weak',
+    },
+  ],
+  'tratamiento estetico': [
+    {
+      category: 'self_care',
+      match: 'strong',
     },
   ],
   travel: [
@@ -1865,9 +2477,29 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  waxing: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+  ],
   wedding: [
     {
       category: 'gifts',
+      match: 'weak',
+    },
+  ],
+  wellness: [
+    {
+      category: 'self_care',
+      match: 'strong',
+    },
+    {
+      category: 'health',
+      match: 'weak',
+    },
+    {
+      category: 'shopping',
       match: 'weak',
     },
   ],

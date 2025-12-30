@@ -4,7 +4,7 @@ import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
 import { useChatList } from '@features/chat/hooks/use-chat-list';
-import type { ChatMessage } from '@lib-types/chat-messages';
+import type { ChatMessage } from '@lib-types/chat';
 import { Flex } from '@ui/flex/flex';
 
 import { MomoLoader } from '@components/loader/loader';

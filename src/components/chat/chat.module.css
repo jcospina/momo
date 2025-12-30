@@ -35,43 +35,6 @@
     height 160ms cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 
-.momo-chat__message {
-  border-radius: var(--border-radius);
-  border: 2px solid var(--color-dark);
-  box-shadow: -2px 2px 0 var(--color-dark);
-  background-color: var(--color-mauve-magic);
-}
-
-.momo-chat__message--own {
-  background-color: var(--color-sky-aqua);
-}
-
-.momo-chat__avatar-placeholder {
-  width: calc(var(--spacing) * 3);
-}
-
-.momo-chat__bubble {
-  max-width: min(90%, 720px);
-}
-
-.momo-chat__sender {
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.momo-chat__timestamp {
-  font-size: 0.75rem;
-  color: color-mix(in oklch, var(--color-dark), white 40%);
-}
-
-.momo-chat__timestamp--own {
-  text-align: right;
-}
-
-.momo-chat__timestamp--incoming {
-  transform: translateX(2px);
-}
-
 @media (hover: hover) {
   .momo-chat__send-button:hover > svg {
     width: 28px;

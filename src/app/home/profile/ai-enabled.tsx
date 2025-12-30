@@ -1,5 +1,5 @@
 'use client';
-import { ERROR_MESSAGES } from '@/lib/constants/errors';
+import { ERROR_MESSAGES } from '@constants/errors';
 import { Typography } from '@/ui/typography/typography';
 import { setAiEnabled } from '@actions/user-prefs';
 import { MomoError } from '@lib-types/errors';

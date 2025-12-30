@@ -1,23 +1,22 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { sendChatMessage } from '@actions/chat-messages';
 import { ChatMessage as ChatMessageItem } from '@components/chat/chat-message';
 import { SendButton } from '@components/chat/send-button';
 import { ChatToggle } from '@components/chat/toggle/chat-toggle';
+import { fetchChatHistory } from '@features/chat/api/chat-history';
 import { useChatState } from '@features/chat/hooks/use-chat-state';
 import { useComposer } from '@features/chat/hooks/use-composer';
 import { useHouseholdRealtime } from '@features/chat/hooks/use-household-realtime';
 import { useHouseholdSync } from '@features/chat/hooks/use-household-sync';
-import { fetchChatHistory } from '@features/chat/utils/chat-history';
-import type { ChatMessage } from '@lib-types/chat-messages';
+import type { ChatMessage } from '@lib-types/chat';
 import { Divider } from '@ui/divider/divider';
 import { FlexItem } from '@ui/flex-item/flex-item';
 import { Flex } from '@ui/flex/flex';
 import { Input } from '@ui/input/input';
 import { Panel } from '@ui/panel/panel';
-import { format } from 'date-fns';
 import { ChatList } from './chat-list';
 
 import styles from './chat.module.css';
@@ -53,6 +52,7 @@ export function Chat({
     householdCursorRef,
     personalMessages,
     householdMessages,
+    removeHouseholdMessage,
   } = useChatState({
     userId,
     householdId,
@@ -80,11 +80,18 @@ export function Chat({
     [householdCursorRef],
   );
 
+  const handleSyncMessages = useCallback(
+    (batch: ChatMessage[]) => {
+      mergeBatch(batch);
+    },
+    [mergeBatch],
+  );
+
   const { scheduleSync } = useHouseholdSync({
     householdId,
     enabled: isHousehold,
     getCursor: getHouseholdCursor,
-    onMessages: batch => mergeBatch(batch),
+    onMessages: handleSyncMessages,
   });
 
   const handleRealtimeStatus = useCallback(
@@ -105,6 +112,7 @@ export function Chat({
     householdId,
     isHousehold,
     onMessage: mergeRealtime,
+    onDelete: message => removeHouseholdMessage(message.id),
     onStatus: handleRealtimeStatus,
   });
 
@@ -211,6 +219,86 @@ export function Chat({
     onSend: handleSend,
   });
 
+  const statusSampleMessages = useMemo(() => {
+    if (process.env.NODE_ENV === 'production') {
+      return [];
+    }
+
+    const latestTimestamp = messages.at(-1)?.created_at;
+    const baseTime = latestTimestamp
+      ? new Date(latestTimestamp).getTime()
+      : Date.now();
+    const household = isHousehold ? householdId : null;
+    const fallbackSender = 'Sample User';
+    const otherUserId = isHousehold ? 'sample-user' : userId;
+
+    const buildSample = (
+      offsetMs: number,
+      overrides: Partial<ChatMessage>,
+    ): ChatMessage => {
+      const createdAt = new Date(baseTime + offsetMs).toISOString();
+      const user = overrides.user_id ?? userId;
+      const isOwnSample = user === userId;
+      return {
+        id: overrides.id ?? `sample-${offsetMs}`,
+        household_id: household,
+        user_id: user,
+        content: overrides.content ?? 'Sample message',
+        status: overrides.status ?? 'pending',
+        expense_count: overrides.expense_count ?? 0,
+        created_at: createdAt,
+        sender_name:
+          overrides.sender_name ??
+          (isHousehold && !isOwnSample ? fallbackSender : null),
+      };
+    };
+
+    return [
+      buildSample(1000, {
+        id: 'tmp-sample-error',
+        content: 'Sample: failed to send',
+        status: 'failed',
+      }),
+      buildSample(2000, {
+        id: 'sample-needs-category',
+        content: 'Sample: needs category 25',
+        status: 'needs_category',
+        expense_count: 1,
+      }),
+      buildSample(3000, {
+        id: 'sample-expense',
+        content: 'Sample: expenses created 10, 20',
+        status: 'processed',
+        expense_count: 2,
+      }),
+      buildSample(4000, {
+        id: 'sample-failed-expense',
+        content: 'Sample: expense failed 15',
+        status: 'failed',
+        user_id: otherUserId,
+      }),
+      buildSample(5000, {
+        id: 'sample-no-expense',
+        content: 'Sample: no expense here',
+        status: 'no_expense',
+        user_id: otherUserId,
+      }),
+      buildSample(6000, {
+        id: 'sample-pending',
+        content: 'Sample: pending',
+        status: 'pending',
+      }),
+    ];
+  }, [householdId, isHousehold, messages, userId]);
+
+  const messagesToRender = useMemo(
+    () =>
+      statusSampleMessages.length
+        ? [...messages, ...statusSampleMessages]
+        : messages,
+    [messages, statusSampleMessages],
+  );
+
   return (
     <Panel marginBottom={2} className={styles['momo-chat']}>
       <Flex
@@ -234,7 +322,7 @@ export function Chat({
           style={{ minHeight: 0 }}
         >
           <ChatList
-            messages={messages}
+            messages={messagesToRender}
             hasMore={isHousehold ? householdHasMore : personalHasMore}
             isLoadingMore={
               isHousehold ? isLoadingMoreHousehold : isLoadingMorePersonal
@@ -244,15 +332,9 @@ export function Chat({
             renderMessage={msg => (
               <ChatMessageItem
                 key={msg.id}
-                message={msg.content}
-                isOwn={msg.user_id === userId}
-                senderName={
-                  isHousehold && msg.user_id !== userId
-                    ? (msg.sender_name ?? null)
-                    : null
-                }
-                showAvatar={isHousehold && msg.user_id !== userId}
-                timestamp={format(new Date(msg.created_at), 'p')}
+                message={msg}
+                currentUserId={userId}
+                isHousehold={isHousehold}
               />
             )}
           />

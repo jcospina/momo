@@ -1,8 +1,8 @@
-import type { ChatMessage } from '@lib-types/chat-messages';
+import type { ChatMessage } from '@lib-types/chat';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export type ChatRealtimeHandler = (payload: {
-  type: 'INSERT' | 'UPDATE';
+  type: 'INSERT' | 'UPDATE' | 'DELETE';
   message: ChatMessage;
 }) => void;
 
@@ -30,8 +30,13 @@ export function subscribeToHouseholdChat(
         table: 'chat_messages',
       },
       payload => {
-        const type = payload.eventType as 'INSERT' | 'UPDATE';
-        onChange({ type, message: payload.new as ChatMessage });
+        const type = payload.eventType as 'INSERT' | 'UPDATE' | 'DELETE';
+        const record =
+          type === 'DELETE'
+            ? (payload.old as ChatMessage | null)
+            : (payload.new as ChatMessage | null);
+        if (!record) return;
+        onChange({ type, message: record });
       },
     )
     .subscribe(status => {

@@ -77,6 +77,11 @@ export function useRealtimeClient(): UseRealtimeClientResult {
               autoRefreshToken: false,
               detectSessionInUrl: false,
             },
+            // realtime: {
+            //   logger: (kind, msg, data) => {
+            //     console.log(`${kind}: ${msg}`, data);
+            //   },
+            // },
           },
         );
         clientRef.current = instance;

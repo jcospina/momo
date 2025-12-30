@@ -2,8 +2,12 @@
 
 import { enqueueChatProcessing } from '@helpers/chat/chat-processing-queue';
 import { processChatMessage } from '@helpers/chat/chat-processor';
+import { deleteChatMessage as deleteChatMessageRow } from '@helpers/chat/chat-messages';
 import { createSupabaseServerClient } from '@lib-supabase/server';
-import type { SendChatMessageResult } from '@lib-types/chat-messages';
+import type {
+  DeleteChatMessageResult,
+  SendChatMessageResult,
+} from '@lib-types/chat';
 
 type SendChatMessageInput = {
   content: string;
@@ -37,7 +41,7 @@ export async function sendChatMessage({
       sender_name: user.user_metadata?.name ?? user.email ?? null,
     })
     .select(
-      'id, household_id, user_id, content, status, created_at, sender_name',
+      'id, household_id, user_id, content, status, expense_count, created_at, sender_name',
     )
     .single();
 
@@ -55,4 +59,42 @@ export async function sendChatMessage({
   });
 
   return { message: data };
+}
+
+type DeleteChatMessageInput = {
+  messageId: string;
+};
+
+export async function deleteChatMessage({
+  messageId,
+}: DeleteChatMessageInput): Promise<DeleteChatMessageResult> {
+  const trimmed = messageId?.trim();
+  if (!trimmed) {
+    return { errorCode: 'chat_message_not_found' };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { errorCode: 'auth_required' };
+  }
+
+  const { deletedId, error } = await deleteChatMessageRow({
+    supabase,
+    messageId: trimmed,
+    userId: user.id,
+  });
+
+  if (error) {
+    return { errorCode: 'chat_message_delete_failed' };
+  }
+
+  if (!deletedId) {
+    return { errorCode: 'chat_message_not_found' };
+  }
+
+  return { messageId: deletedId };
 }

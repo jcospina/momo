@@ -26,7 +26,7 @@ import { InviteLink } from './invite-link';
 import { LanguageSelect } from './language-select';
 import { MemberList } from './member-list';
 
-import { ERROR_MESSAGES } from '@/lib/constants/errors';
+import { ERROR_MESSAGES } from '@constants/errors';
 import type { MomoError } from '@lib-types/errors';
 import styles from './profile.module.css';
 

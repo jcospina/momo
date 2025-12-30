@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 
-import type { ChatMessage } from '@lib-types/chat-messages';
+import type { ChatMessage } from '@lib-types/chat';
 import { useChatState } from './use-chat-state';
 
 const baseMessage = (overrides: Partial<ChatMessage>): ChatMessage => ({
@@ -9,6 +9,7 @@ const baseMessage = (overrides: Partial<ChatMessage>): ChatMessage => ({
   user_id: 'u0',
   content: 'base',
   status: 'processed',
+  expense_count: 0,
   created_at: '2024-01-01T00:00:00.000Z',
   sender_name: 'User',
   ...overrides,
@@ -184,5 +185,32 @@ describe('useChatState', () => {
     expect(ids.indexOf(serverMessage.id)).toBeLessThan(
       ids.indexOf(secondTempId),
     );
+  });
+
+  it('toggles optimistic status between failed and pending', () => {
+    const { result } = renderHook(() =>
+      useChatState({
+        userId: 'u1',
+        householdId: 'hid',
+        initialPersonalMessages: [],
+        initialHouseholdMessages: [],
+      }),
+    );
+
+    let tempId = '';
+    act(() => {
+      tempId = result.current.addOptimistic('retry me').tempId;
+      result.current.markFailed(tempId);
+    });
+
+    const failed = result.current.householdMessages.find(m => m.id === tempId);
+    expect(failed?.status).toBe('failed');
+
+    act(() => {
+      result.current.markPending(tempId);
+    });
+
+    const pending = result.current.householdMessages.find(m => m.id === tempId);
+    expect(pending?.status).toBe('pending');
   });
 });

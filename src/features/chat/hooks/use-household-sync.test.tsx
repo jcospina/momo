@@ -1,13 +1,13 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-import type { ChatMessage } from '@lib-types/chat-messages';
+import type { ChatMessage } from '@lib-types/chat';
 import { useHouseholdSync } from './use-household-sync';
 
-jest.mock('../utils/chat-sync', () => ({
+jest.mock('../api/chat-sync', () => ({
   fetchChatSync: jest.fn(),
 }));
 
-import { fetchChatSync } from '../utils/chat-sync';
+import { fetchChatSync } from '../api/chat-sync';
 
 const mockFetchChatSync = fetchChatSync as jest.MockedFunction<
   typeof fetchChatSync
@@ -19,6 +19,7 @@ const sampleMessage = (id: string): ChatMessage => ({
   user_id: 'u1',
   content: `msg-${id}`,
   status: 'processed',
+  expense_count: 0,
   created_at: '2024-01-01T00:00:00.000Z',
   sender_name: 'User',
 });

@@ -14,6 +14,7 @@ const config: Config = {
     '^@actions/(.*)$': '<rootDir>/src/lib/actions/$1',
     '^@auth/(.*)$': '<rootDir>/src/lib/auth/$1',
     '^@components/(.*)$': '<rootDir>/src/components/$1',
+    '^@constants/(.*)$': '<rootDir>/src/lib/constants/$1',
     '^@helpers/(.*)$': '<rootDir>/src/lib/helpers/$1',
     '^@hooks/(.*)$': '<rootDir>/src/hooks/$1',
     '^@lib-types/(.*)$': '<rootDir>/src/lib/types/$1',

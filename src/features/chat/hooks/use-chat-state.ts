@@ -2,8 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react';
 
-import type { ChatMessage } from '@lib-types/chat-messages';
-import type { ChatCursor } from '../chat.types';
+import type { ChatCursor, ChatMessage } from '@lib-types/chat';
 import { useHouseholdMessages } from './use-household-messages';
 
 type UseChatStateArgs = {
@@ -73,6 +72,7 @@ export function useChatState({
     updateHouseholdCursor,
     mergeRealtime,
     mergeBatch,
+    removeHouseholdMessage,
   } = useHouseholdMessages({ initialHouseholdMessages });
 
   const isHousehold = activeTab === 'household' && Boolean(householdId);
@@ -91,6 +91,7 @@ export function useChatState({
         user_id: userId,
         content,
         status: 'pending',
+        expense_count: 0,
         created_at: new Date().toISOString(),
         sender_name: null,
       };
@@ -125,6 +126,12 @@ export function useChatState({
     });
   }, []);
 
+  const removePersonalMessage = useCallback((messageId: string) => {
+    setPersonalMessages(prev =>
+      prev.filter(message => message.id !== messageId),
+    );
+  }, []);
+
   const markFailed = useCallback(
     (tempId: string) => {
       if (isHousehold) {
@@ -134,6 +141,21 @@ export function useChatState({
       } else {
         setPersonalMessages(prev =>
           prev.map(m => (m.id === tempId ? { ...m, status: 'failed' } : m)),
+        );
+      }
+    },
+    [isHousehold, setHouseholdMessages],
+  );
+
+  const markPending = useCallback(
+    (tempId: string) => {
+      if (isHousehold) {
+        setHouseholdMessages(prev =>
+          prev.map(m => (m.id === tempId ? { ...m, status: 'pending' } : m)),
+        );
+      } else {
+        setPersonalMessages(prev =>
+          prev.map(m => (m.id === tempId ? { ...m, status: 'pending' } : m)),
         );
       }
     },
@@ -196,10 +218,13 @@ export function useChatState({
     messages,
     addOptimistic,
     markFailed,
+    markPending,
     reconcile,
     mergeRealtime,
     mergeBatch,
     mergePersonalBatch,
+    removeHouseholdMessage,
+    removePersonalMessage,
     personalMessages,
     householdMessages,
     householdCursorRef,

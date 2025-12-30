@@ -4,7 +4,7 @@ import { Panel } from '@/ui/panel/panel';
 import { Typography } from '@/ui/typography/typography';
 import { loginWithProvider } from '@actions/login';
 
-import { ERROR_MESSAGES } from '@/lib/constants/errors';
+import { ERROR_MESSAGES } from '@constants/errors';
 import { Flex } from '@/ui/flex/flex';
 import { Toast } from '@components/toast/toast';
 import type { MomoError } from '@lib-types/errors';

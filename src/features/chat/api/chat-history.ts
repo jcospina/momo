@@ -1,7 +1,8 @@
 'use client';
 
-import type { ChatMessage } from '@lib-types/chat-messages';
-import type { ChatCursor } from '../chat.types';
+import type { ChatMessage } from '@lib-types/chat';
+import type { ChatCursor } from '@lib-types/chat';
+import { isChatMessageArray } from '@utils/chat-message';
 
 type FetchChatHistoryParams = {
   householdId?: string | null;
@@ -10,22 +11,6 @@ type FetchChatHistoryParams = {
 };
 
 const DEFAULT_LIMIT = 30;
-
-function isChatMessageShape(value: unknown): value is ChatMessage {
-  if (typeof value !== 'object' || value === null) return false;
-  const msg = value as Record<string, unknown>;
-  return (
-    typeof msg.id === 'string' &&
-    typeof msg.created_at === 'string' &&
-    typeof msg.content === 'string' &&
-    'household_id' in msg &&
-    'user_id' in msg
-  );
-}
-
-function isChatMessageArray(value: unknown): value is ChatMessage[] {
-  return Array.isArray(value) && value.every(isChatMessageShape);
-}
 
 export async function fetchChatHistory({
   householdId = null,

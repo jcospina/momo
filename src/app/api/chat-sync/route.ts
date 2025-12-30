@@ -10,7 +10,7 @@ type SyncRequest = {
 };
 
 const CHAT_SELECT =
-  'id, household_id, user_id, content, status, created_at, sender_name';
+  'id, household_id, user_id, content, status, expense_count, created_at, sender_name';
 const DEFAULT_LIMIT = 100;
 const MAX_LIMIT = 100;
 

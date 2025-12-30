@@ -2,7 +2,7 @@ import {
   AMOUNT_REGEX,
   DEFAULT_CURRENCY,
   MULTIPLIERS,
-} from '@/lib/constants/expenses';
+} from '@constants/expenses/amounts';
 import type { EntryError, ParsedEntry, ParseResult } from '@lib-types/expenses';
 import type { SupportedCurrency } from '@lib-types/user-preferences';
 import { scoreExpenseCategory } from './expense-category';

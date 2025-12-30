@@ -1,4 +1,4 @@
-import type { ChatMessage } from '@lib-types/chat-messages';
+import type { ChatMessage } from '@lib-types/chat';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 type FetchChatMessagesParams = {
@@ -22,8 +22,19 @@ type FetchChatHistoryParams = {
   before?: ChatHistoryCursor | null;
 };
 
+type DeleteChatMessageParams = {
+  supabase: SupabaseClient;
+  messageId: string;
+  userId: string;
+};
+
+type DeleteChatMessageResult = {
+  deletedId: string | null;
+  error: string | null;
+};
+
 const CHAT_MESSAGE_SELECT =
-  'id, household_id, user_id, content, status, created_at, sender_name';
+  'id, household_id, user_id, content, status, expense_count, created_at, sender_name';
 
 export async function fetchChatMessages({
   supabase,
@@ -92,4 +103,25 @@ export async function fetchChatHistory({
   }
 
   return (data as ChatMessage[] | null)?.reverse() ?? [];
+}
+
+export async function deleteChatMessage({
+  supabase,
+  messageId,
+  userId,
+}: DeleteChatMessageParams): Promise<DeleteChatMessageResult> {
+  const { data, error } = await supabase
+    .from('chat_messages')
+    .delete()
+    .eq('id', messageId)
+    .eq('user_id', userId)
+    .select('id');
+
+  if (error) {
+    console.error('deleteChatMessage failed', error);
+    return { deletedId: null, error: error.message };
+  }
+
+  const deletedId = data?.[0]?.id ?? null;
+  return { deletedId, error: null };
 }

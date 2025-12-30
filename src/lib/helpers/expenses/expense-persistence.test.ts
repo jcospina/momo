@@ -1,4 +1,4 @@
-import type { ChatMessage } from '@lib-types/chat-messages';
+import type { ChatMessage } from '@lib-types/chat';
 import type { ParsedEntry } from '@lib-types/expenses';
 import { persistParsedExpenses } from './expense-persistence';
 
@@ -15,6 +15,7 @@ function buildMessage(overrides: Partial<ChatMessage> = {}): ChatMessage {
     user_id: 'user-1',
     content: 'uber 20',
     status: 'pending',
+    expense_count: 0,
     created_at: new Date().toISOString(),
     sender_name: 'User',
     ...overrides,
@@ -80,7 +81,10 @@ describe('persistParsedExpenses', () => {
         }),
       ]),
     );
-    expect(chatQuery.update).toHaveBeenCalledWith({ status: 'processed' });
+    expect(chatQuery.update).toHaveBeenCalledWith({
+      status: 'processed',
+      expense_count: 1,
+    });
     expect(result?.expenseIds).toEqual(['exp-1']);
   });
 
@@ -104,8 +108,30 @@ describe('persistParsedExpenses', () => {
     insertArgs.forEach(row => {
       expect(row.chat_message_id).toBe(message.id);
     });
-    expect(chatQuery.update).toHaveBeenCalledWith({ status: 'processed' });
+    expect(chatQuery.update).toHaveBeenCalledWith({
+      status: 'processed',
+      expense_count: 2,
+    });
     expect(result?.expenseIds).toEqual(['exp-1', 'exp-2']);
+  });
+
+  it('uses a status override when provided', async () => {
+    expensesQuery.select.mockResolvedValue({ data: [{ id: 'exp-1' }] });
+    chatQuery.eq.mockResolvedValue({ error: null });
+    const message = buildMessage();
+    const entry = buildEntry({ category: null });
+
+    const result = await persistParsedExpenses(
+      message,
+      [entry],
+      'needs_category',
+    );
+
+    expect(chatQuery.update).toHaveBeenCalledWith({
+      status: 'needs_category',
+      expense_count: 1,
+    });
+    expect(result?.expenseIds).toEqual(['exp-1']);
   });
 
   it('marks the message failed when insert fails', async () => {
@@ -135,6 +161,7 @@ describe('persistParsedExpenses', () => {
 
     expect(chatQuery.update).toHaveBeenNthCalledWith(1, {
       status: 'processed',
+      expense_count: 1,
     });
     expect(chatQuery.update).toHaveBeenNthCalledWith(2, { status: 'failed' });
     expect(result).toBeNull();

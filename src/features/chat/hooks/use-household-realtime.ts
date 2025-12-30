@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 
 import { subscribeToHouseholdChat } from '@helpers/chat/chat-realtime';
 import { useRealtimeClient } from '@hooks/use-realtime-client';
-import type { ChatMessage } from '@lib-types/chat-messages';
+import type { ChatMessage } from '@lib-types/chat';
 import {
   RESUBSCRIBE_BACKOFF_FACTOR,
   RESUBSCRIBE_BASE_DELAY_MS,
@@ -14,12 +14,13 @@ import {
   STALL_HIDDEN_THRESHOLD_MS,
   STALL_VISIBLE_THRESHOLD_MS,
 } from '../chat.constants';
-import type { RealtimeState } from '../chat.types';
+import type { RealtimeState } from '@lib-types/chat';
 
 type UseHouseholdRealtimeArgs = {
   householdId: string | null;
   isHousehold: boolean;
   onMessage: (msg: ChatMessage) => void;
+  onDelete?: (msg: ChatMessage) => void;
   onStatus?: (status: string) => void;
 };
 
@@ -27,6 +28,7 @@ export function useHouseholdRealtime({
   householdId,
   isHousehold,
   onMessage,
+  onDelete,
   onStatus,
 }: UseHouseholdRealtimeArgs) {
   const realtime = useRealtimeClient();
@@ -47,6 +49,7 @@ export function useHouseholdRealtime({
     version,
     reset,
     onMessage,
+    onDelete,
     onStatus,
     lastStatusRef,
     lastMessageAtRef,
@@ -76,12 +79,13 @@ type ChannelLifecycleArgs = {
   version: number;
   reset: () => void;
   onMessage: (msg: ChatMessage) => void;
+  onDelete?: (msg: ChatMessage) => void;
   onStatus?: (status: string) => void;
-  lastStatusRef: React.MutableRefObject<string | null>;
-  lastMessageAtRef: React.MutableRefObject<number | null>;
-  stallLoggedRef: React.MutableRefObject<boolean>;
-  resubscribeRef: React.MutableRefObject<(() => void) | null>;
-  stateRef: React.MutableRefObject<RealtimeState>;
+  lastStatusRef: RefObject<string | null>;
+  lastMessageAtRef: RefObject<number | null>;
+  stallLoggedRef: RefObject<boolean>;
+  resubscribeRef: RefObject<(() => void) | null>;
+  stateRef: RefObject<RealtimeState>;
 };
 
 function useChannelLifecycle({
@@ -93,6 +97,7 @@ function useChannelLifecycle({
   version,
   reset,
   onMessage,
+  onDelete,
   onStatus,
   lastStatusRef,
   lastMessageAtRef,
@@ -159,7 +164,11 @@ function useChannelLifecycle({
           if (!payload?.message) return;
           lastMessageAtRef.current = Date.now();
           stallLoggedRef.current = false;
-          onMessage(payload.message as ChatMessage);
+          if (payload.type === 'DELETE') {
+            onDelete?.(payload.message as ChatMessage);
+          } else {
+            onMessage(payload.message as ChatMessage);
+          }
         },
         status => {
           lastStatusRef.current = status;
@@ -207,6 +216,7 @@ function useChannelLifecycle({
     isHousehold,
     loading,
     onMessage,
+    onDelete,
     onStatus,
     reset,
     version,
