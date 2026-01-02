@@ -104,7 +104,9 @@ export default async function RootLayout({
         className={cn('antialiased', outfit.className, bungeeShade.variable)}
       >
         <DotGrid blastStrength={4} blastRadius={100} disableHover={isMobile} />
-        <main style={{ position: 'relative', zIndex: 1 }}>{children}</main>
+        <main style={{ position: 'relative', zIndex: 1 }} className="root">
+          {children}
+        </main>
       </body>
     </html>
   );

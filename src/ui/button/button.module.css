@@ -12,6 +12,10 @@
   border-radius: var(--border-radius);
 }
 
+.momo-button--icon {
+  transition: none;
+}
+
 .momo-button--link {
   border: none;
   box-shadow: none;
@@ -19,6 +23,17 @@
   text-decoration-thickness: 2px;
   transition: none;
   padding: 0;
+}
+
+.momo-button--icon {
+  padding: calc(var(--spacing) * 0.5);
+  min-width: calc(var(--spacing) * 3);
+  min-height: calc(var(--spacing) * 3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  box-shadow: none;
 }
 
 .momo-button:hover {
@@ -39,6 +54,15 @@
   box-shadow: none;
   text-decoration-thickness: 3px;
   animation: momo-link-text-shadow 800ms ease-in-out;
+}
+
+.momo-button.momo-button--icon:hover {
+  transform: translate(0) scale(1.05);
+  box-shadow: none;
+}
+
+.momo-button.momo-button--icon:active {
+  transform: translate(0) scale(1.1);
 }
 
 @keyframes momo-link-text-shadow {
@@ -76,6 +100,11 @@
 .momo-button--disabled:hover {
   transform: none;
   box-shadow: -6px 6px 0 var(--color-dark);
+}
+
+.momo-button--disabled.momo-button--icon:hover {
+  box-shadow: none;
+  background-color: var(--color-disabled);
 }
 
 @media (prefers-reduced-motion: reduce) {

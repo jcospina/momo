@@ -1,17 +1,19 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { sendChatMessage } from '@actions/chat-messages';
+import { deleteChatMessage, sendChatMessage } from '@actions/chat-messages';
 import { ChatMessage as ChatMessageItem } from '@components/chat/chat-message';
 import { SendButton } from '@components/chat/send-button';
 import { ChatToggle } from '@components/chat/toggle/chat-toggle';
+import { ExpenseDetailsDialog } from '@components/expense-details/expense-details-dialog';
 import { fetchChatHistory } from '@features/chat/api/chat-history';
 import { useChatState } from '@features/chat/hooks/use-chat-state';
 import { useComposer } from '@features/chat/hooks/use-composer';
 import { useHouseholdRealtime } from '@features/chat/hooks/use-household-realtime';
 import { useHouseholdSync } from '@features/chat/hooks/use-household-sync';
 import type { ChatMessage } from '@lib-types/chat';
+import { useDialogController } from '@ui/dialog/dialog';
 import { Divider } from '@ui/divider/divider';
 import { FlexItem } from '@ui/flex-item/flex-item';
 import { Flex } from '@ui/flex/flex';
@@ -45,6 +47,7 @@ export function Chat({
     messages,
     addOptimistic,
     markFailed,
+    markPending,
     reconcile,
     mergeRealtime,
     mergeBatch,
@@ -53,6 +56,7 @@ export function Chat({
     personalMessages,
     householdMessages,
     removeHouseholdMessage,
+    removePersonalMessage,
   } = useChatState({
     userId,
     householdId,
@@ -62,6 +66,10 @@ export function Chat({
 
   const [isLoadingMorePersonal, setIsLoadingMorePersonal] = useState(false);
   const [isLoadingMoreHousehold, setIsLoadingMoreHousehold] = useState(false);
+  const [expenseDetailsMessageId, setExpenseDetailsMessageId] = useState<
+    string | null
+  >(null);
+  const [deleteErrors, setDeleteErrors] = useState<Record<string, boolean>>({});
   const [personalHasMore, setPersonalHasMore] = useState(
     initialPersonalMessages.length >= HISTORY_PAGE_SIZE,
   );
@@ -93,6 +101,8 @@ export function Chat({
     getCursor: getHouseholdCursor,
     onMessages: handleSyncMessages,
   });
+
+  const expenseDetailsDialog = useDialogController();
 
   const handleRealtimeStatus = useCallback(
     (status: string) => {
@@ -144,6 +154,69 @@ export function Chat({
       reconcile(tempId, result.message);
     },
     [addOptimistic, householdId, isHousehold, markFailed, reconcile],
+  );
+
+  const handleRetrySend = useCallback(
+    async (message: ChatMessage) => {
+      if (!message.id.startsWith('tmp-')) return;
+      markPending(message.id);
+      const result = await sendChatMessage({
+        content: message.content,
+        householdId: message.household_id ?? null,
+      });
+
+      if (result?.errorCode || !result.message) {
+        markFailed(message.id);
+        return;
+      }
+
+      reconcile(message.id, result.message);
+    },
+    [markFailed, markPending, reconcile],
+  );
+
+  const handleOpenExpenseDetails = useCallback(
+    (message: ChatMessage) => {
+      setExpenseDetailsMessageId(message.id);
+      expenseDetailsDialog.openDialog();
+    },
+    [expenseDetailsDialog],
+  );
+
+  const handleDeleteMessage = useCallback(
+    async (message: ChatMessage) => {
+      if (message.household_id) {
+        removeHouseholdMessage(message.id);
+      } else {
+        removePersonalMessage(message.id);
+      }
+      setDeleteErrors(prev => {
+        if (!prev[message.id]) return prev;
+        const next = { ...prev };
+        delete next[message.id];
+        return next;
+      });
+      const result = await deleteChatMessage({ messageId: message.id });
+      if (result?.errorCode) {
+        console.warn('[chat] delete failed', {
+          id: message.id,
+          error: result.errorCode,
+        });
+        if (message.household_id) {
+          mergeBatch([message]);
+        } else {
+          mergePersonalBatch([message]);
+        }
+        setDeleteErrors(prev => ({ ...prev, [message.id]: true }));
+        return;
+      }
+    },
+    [
+      mergeBatch,
+      mergePersonalBatch,
+      removeHouseholdMessage,
+      removePersonalMessage,
+    ],
   );
 
   const loadOlderPersonal = useCallback(async () => {
@@ -219,149 +292,81 @@ export function Chat({
     onSend: handleSend,
   });
 
-  const statusSampleMessages = useMemo(() => {
-    if (process.env.NODE_ENV === 'production') {
-      return [];
-    }
-
-    const latestTimestamp = messages.at(-1)?.created_at;
-    const baseTime = latestTimestamp
-      ? new Date(latestTimestamp).getTime()
-      : Date.now();
-    const household = isHousehold ? householdId : null;
-    const fallbackSender = 'Sample User';
-    const otherUserId = isHousehold ? 'sample-user' : userId;
-
-    const buildSample = (
-      offsetMs: number,
-      overrides: Partial<ChatMessage>,
-    ): ChatMessage => {
-      const createdAt = new Date(baseTime + offsetMs).toISOString();
-      const user = overrides.user_id ?? userId;
-      const isOwnSample = user === userId;
-      return {
-        id: overrides.id ?? `sample-${offsetMs}`,
-        household_id: household,
-        user_id: user,
-        content: overrides.content ?? 'Sample message',
-        status: overrides.status ?? 'pending',
-        expense_count: overrides.expense_count ?? 0,
-        created_at: createdAt,
-        sender_name:
-          overrides.sender_name ??
-          (isHousehold && !isOwnSample ? fallbackSender : null),
-      };
-    };
-
-    return [
-      buildSample(1000, {
-        id: 'tmp-sample-error',
-        content: 'Sample: failed to send',
-        status: 'failed',
-      }),
-      buildSample(2000, {
-        id: 'sample-needs-category',
-        content: 'Sample: needs category 25',
-        status: 'needs_category',
-        expense_count: 1,
-      }),
-      buildSample(3000, {
-        id: 'sample-expense',
-        content: 'Sample: expenses created 10, 20',
-        status: 'processed',
-        expense_count: 2,
-      }),
-      buildSample(4000, {
-        id: 'sample-failed-expense',
-        content: 'Sample: expense failed 15',
-        status: 'failed',
-        user_id: otherUserId,
-      }),
-      buildSample(5000, {
-        id: 'sample-no-expense',
-        content: 'Sample: no expense here',
-        status: 'no_expense',
-        user_id: otherUserId,
-      }),
-      buildSample(6000, {
-        id: 'sample-pending',
-        content: 'Sample: pending',
-        status: 'pending',
-      }),
-    ];
-  }, [householdId, isHousehold, messages, userId]);
-
-  const messagesToRender = useMemo(
-    () =>
-      statusSampleMessages.length
-        ? [...messages, ...statusSampleMessages]
-        : messages,
-    [messages, statusSampleMessages],
-  );
-
   return (
-    <Panel marginBottom={2} className={styles['momo-chat']}>
-      <Flex
-        isFullHeight
-        isFullWidth
-        direction="column"
-        justifyContent="space-between"
-        style={{ minHeight: 0 }}
-      >
-        <ChatToggle
-          active={activeTab}
-          onChange={setActiveTab}
-          householdName={householdName}
-          showHousehold={Boolean(householdId)}
-        />
-        <Divider thickness="thick" />
-        <FlexItem
-          grow={1}
-          padding={0}
-          className="full-w"
+    <>
+      <Panel marginBottom={2} className={styles['momo-chat']}>
+        <Flex
+          isFullHeight
+          isFullWidth
+          direction="column"
+          justifyContent="space-between"
           style={{ minHeight: 0 }}
         >
-          <ChatList
-            messages={messagesToRender}
-            hasMore={isHousehold ? householdHasMore : personalHasMore}
-            isLoadingMore={
-              isHousehold ? isLoadingMoreHousehold : isLoadingMorePersonal
-            }
-            onLoadMore={isHousehold ? loadOlderHousehold : loadOlderPersonal}
-            currentUserId={userId}
-            renderMessage={msg => (
-              <ChatMessageItem
-                key={msg.id}
-                message={msg}
-                currentUserId={userId}
-                isHousehold={isHousehold}
-              />
-            )}
+          <ChatToggle
+            active={activeTab}
+            onChange={setActiveTab}
+            householdName={householdName}
+            showHousehold={Boolean(householdId)}
           />
-        </FlexItem>
-        <Divider thickness="thick" />
-        <Flex
-          as="form"
-          paddingX={1}
-          paddingY={2}
-          isFullWidth
-          gap={1}
-          onSubmit={handleSubmit}
-        >
-          <Input
-            multiline
-            autoResize
-            minRows={1}
-            maxRows={3}
-            value={draft}
-            onChange={(
-              event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
-            ) => setDraft(event.target.value)}
-            onKeyDown={handleKeyDown}
-            suffix={<SendButton />}
-          />
+          <Divider thickness="thick" />
+          <FlexItem
+            grow={1}
+            padding={0}
+            className="full-w"
+            style={{ minHeight: 0 }}
+          >
+            <ChatList
+              messages={messages}
+              hasMore={isHousehold ? householdHasMore : personalHasMore}
+              isLoadingMore={
+                isHousehold ? isLoadingMoreHousehold : isLoadingMorePersonal
+              }
+              onLoadMore={isHousehold ? loadOlderHousehold : loadOlderPersonal}
+              currentUserId={userId}
+              renderMessage={msg => (
+                <ChatMessageItem
+                  key={msg.id}
+                  message={msg}
+                  currentUserId={userId}
+                  isHousehold={isHousehold}
+                  onDelete={handleDeleteMessage}
+                  onRetrySend={handleRetrySend}
+                  onOpenExpenseDetails={handleOpenExpenseDetails}
+                  deleteError={Boolean(deleteErrors[msg.id])}
+                />
+              )}
+            />
+          </FlexItem>
+          <Divider thickness="thick" />
+          <Flex
+            as="form"
+            paddingX={1}
+            paddingY={2}
+            isFullWidth
+            gap={1}
+            onSubmit={handleSubmit}
+          >
+            <Input
+              multiline
+              autoResize
+              minRows={1}
+              maxRows={3}
+              value={draft}
+              onChange={(
+                event: React.ChangeEvent<
+                  HTMLTextAreaElement | HTMLInputElement
+                >,
+              ) => setDraft(event.target.value)}
+              onKeyDown={handleKeyDown}
+              suffix={<SendButton />}
+            />
+          </Flex>
         </Flex>
-      </Flex>
-    </Panel>
+      </Panel>
+      <ExpenseDetailsDialog
+        controller={expenseDetailsDialog}
+        messageId={expenseDetailsMessageId}
+      />
+    </>
   );
 }

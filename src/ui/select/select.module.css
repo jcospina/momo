@@ -29,11 +29,13 @@
   border-radius: var(--border-radius);
 }
 
-.momo-select__trigger--open {
+.momo-select__trigger--open,
+.momo-select__trigger[data-popup-open] {
   outline: none;
 }
 
-.momo-select__trigger--disabled {
+.momo-select__trigger--disabled,
+.momo-select__trigger[data-disabled] {
   background-color: var(--color-disabled);
   color: color-mix(in oklch, var(--color-dark), white 40%);
   cursor: not-allowed;
@@ -66,11 +68,12 @@
   flex-shrink: 0;
 }
 
+.momo-select__positioner {
+  outline: none;
+  z-index: 1002;
+}
+
 .momo-select__dropdown {
-  position: absolute;
-  z-index: 20;
-  top: 0;
-  left: 0;
   box-sizing: border-box;
   background-color: var(--color-light);
   border: 2px solid var(--color-dark);
@@ -78,8 +81,11 @@
   max-height: 320px;
   overflow: auto;
   border-radius: var(--border-radius);
+  min-width: var(--anchor-width);
+  transform-origin: var(--transform-origin);
 }
-.momo-select__dropdown--open {
+.momo-select__dropdown--open,
+.momo-select__dropdown[data-open] {
   transform: translate(2px, -2px);
 }
 
@@ -111,24 +117,28 @@
   color: var(--color-light);
 }
 
-.momo-select__option--selected {
+.momo-select__option--selected,
+.momo-select__option[data-selected] {
   background-color: var(--color-dark);
   color: var(--color-light);
 }
 
-.momo-select__option--active {
+.momo-select__option--active,
+.momo-select__option[data-highlighted] {
   outline: 2px solid var(--color-dark);
   background-color: var(--color-dark);
   color: var(--color-light);
 }
 
-.momo-select__option--disabled {
+.momo-select__option--disabled,
+.momo-select__option[data-disabled] {
   cursor: not-allowed;
   background-color: var(--color-disabled);
   color: color-mix(in oklch, var(--color-dark), white 40%);
 }
 
-.momo-select__option--disabled:hover {
+.momo-select__option--disabled:hover,
+.momo-select__option[data-disabled]:hover {
   background-color: var(--color-disabled);
   color: color-mix(in oklch, var(--color-dark), white 40%);
 }
@@ -140,8 +150,11 @@
 }
 
 @media (hover: hover) {
-  .momo-select__trigger:hover:not(.momo-select__trigger--disabled),
-  .momo-select__trigger--open:not(.momo-select__trigger--disabled) {
+  .momo-select__trigger:hover:not(.momo-select__trigger--disabled):not(
+      [data-disabled]
+    ),
+  .momo-select__trigger--open:not(.momo-select__trigger--disabled),
+  .momo-select__trigger[data-popup-open]:not([data-disabled]) {
     outline: none;
     transform: translate(2px, -2px);
     box-shadow: -2px 2px 0 var(--color-dark);
@@ -149,7 +162,8 @@
 }
 
 @media (hover: none) {
-  .momo-select__trigger--open:not(.momo-select__trigger--disabled) {
+  .momo-select__trigger--open:not(.momo-select__trigger--disabled),
+  .momo-select__trigger[data-popup-open]:not([data-disabled]) {
     transform: translate(2px, -2px);
     box-shadow: -2px 2px 0 var(--color-dark);
   }

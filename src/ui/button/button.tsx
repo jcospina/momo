@@ -4,7 +4,7 @@ import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
 import styles from './button.module.css';
 
 type ButtonBaseProps = {
-  variant: 'primary' | 'secondary' | 'link';
+  variant: 'primary' | 'secondary' | 'link' | 'icon';
   className?: string;
 };
 
@@ -27,6 +27,7 @@ export function Button(props: ButtonProps) {
     primary: styles['momo-button--primary'],
     secondary: styles['momo-button--secondary'],
     link: styles['momo-button--link'],
+    icon: styles['momo-button--icon'],
   }[variant];
 
   const baseClassName = cn(styles['momo-button'], variantClass, className);

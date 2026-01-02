@@ -35,6 +35,20 @@
   transform: translateX(2px);
 }
 
+.momo-chat__delete-error {
+  font-size: 0.75rem;
+  color: var(--color-vibrant-coral);
+  margin-top: 2px;
+}
+
+.momo-chat__delete-error--own {
+  text-align: right;
+}
+
+.momo-chat__delete-error--incoming {
+  transform: translateX(2px);
+}
+
 .momo-chat__content-row {
   display: flex;
   align-items: flex-start;
@@ -51,7 +65,24 @@
   display: inline-flex;
   align-items: center;
   margin-top: 4px;
+  padding: 0;
   color: color-mix(in oklch, var(--color-dark), white 20%);
+}
+
+.momo-chat__icon-button {
+  padding: 0;
+  min-width: auto;
+  min-height: auto;
+  border: none;
+  box-shadow: none;
+  background: none;
+}
+
+.momo-chat__icon-button:hover,
+.momo-chat__icon-button:active {
+  transform: none;
+  box-shadow: none;
+  background-color: transparent;
 }
 
 .momo-chat__status-icon {
@@ -60,6 +91,7 @@
   justify-content: center;
   flex-shrink: 0;
   margin-top: 4px;
+  padding: 0;
 }
 
 .momo-chat__status-icon--error {

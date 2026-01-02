@@ -1,25 +1,14 @@
 'use client';
 
+import { Select as BaseSelect } from '@base-ui/react/select';
 import { TriangleIcon } from '@ui/icons/triangle';
 import { cn } from '@utils/cn';
-import {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useState,
-} from 'react';
-import { createPortal } from 'react-dom';
-import {
-  useActiveOptionScroll,
-  useDropdownPosition,
-  useKeyboardNavigation,
-} from './select.hooks';
+import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './select.module.css';
 import type {
   SelectComponent,
   SelectForwardedRef,
+  SelectOptionValue,
   SelectProps,
 } from './select.types';
 
@@ -49,7 +38,6 @@ import type {
  * @param ref - Forwarded ref to the trigger element.
  */
 function SelectInner<T>(props: SelectProps<T>, ref: SelectForwardedRef) {
-  const listboxId = useId();
   const {
     className,
     style,
@@ -99,19 +87,33 @@ function SelectInner<T>(props: SelectProps<T>, ref: SelectForwardedRef) {
     'aria-labelledby'?: string;
   };
   const isDisabled = Boolean(disabled);
-
-  const [isOpen, setIsOpen] = useState(false);
-  const { triggerRef, dropdownRef, dropdownPosition, attachPositionListeners } =
-    useDropdownPosition({ gap: 6 });
-  const [activeIndex, setActiveIndex] = useState<number>(-1);
-  const [internalValue, setInternalValue] = useState<T | null>(
-    value ?? defaultValue ?? null,
+  const isControlled = value !== undefined;
+  const defaultOptionValue =
+    defaultValue !== undefined && defaultValue !== null
+      ? getOptionValue(defaultValue)
+      : null;
+  const [internalValue, setInternalValue] = useState<SelectOptionValue | null>(
+    defaultOptionValue,
   );
-  const { listRef, activeOptionRef, ensureVisible } = useActiveOptionScroll();
+
+  const selectedValue =
+    value !== undefined && value !== null
+      ? getOptionValue(value)
+      : isControlled
+        ? null
+        : internalValue;
+
+  const selectedOption = useMemo(() => {
+    if (selectedValue === null || selectedValue === undefined) return null;
+    return (
+      options.find(option => getOptionValue(option) === selectedValue) ?? null
+    );
+  }, [getOptionValue, options, selectedValue]);
+
+  const hasSelection = selectedOption !== null && selectedOption !== undefined;
 
   const setTriggerRef = useCallback(
     (node: HTMLButtonElement | null) => {
-      triggerRef.current = node;
       if (!ref) return;
       if (typeof ref === 'function') {
         ref(node);
@@ -119,153 +121,20 @@ function SelectInner<T>(props: SelectProps<T>, ref: SelectForwardedRef) {
         (ref as { current: HTMLButtonElement | null }).current = node;
       }
     },
-    [ref, triggerRef],
+    [ref],
   );
-
-  useLayoutEffect(() => {
-    if (!isOpen) return;
-    const cleanup = attachPositionListeners(true);
-    return cleanup;
-  }, [attachPositionListeners, isOpen]);
-
-  const toggleOpen = useCallback(() => {
-    if (isDisabled) return;
-    setIsOpen(prev => {
-      const next = !prev;
-      onOpenChange?.(next);
-      return next;
-    });
-  }, [isDisabled, onOpenChange]);
-
-  const close = useCallback(() => {
-    setIsOpen(prev => {
-      if (!prev) return prev;
-      onOpenChange?.(false);
-      return false;
-    });
-  }, [onOpenChange]);
-
-  const isOptionDisabled = useCallback(
-    (option: T) => getOptionDisabled?.(option) ?? false,
-    [getOptionDisabled],
-  );
-
-  const selectedOption =
-    value !== undefined ? (value ?? null) : (internalValue ?? null);
-  const hasSelection = selectedOption !== null && selectedOption !== undefined;
-  const selectedValue = hasSelection
-    ? getOptionValue(selectedOption as T)
-    : null;
-
-  const selectedIndex = hasSelection
-    ? options.findIndex(option => getOptionValue(option) === selectedValue)
-    : -1;
-
-  const findNextEnabled = useCallback(
-    (start: number, direction: 1 | -1) => {
-      if (!options.length) return -1;
-      let idx = start;
-      for (let i = 0; i < options.length; i += 1) {
-        idx = (idx + direction + options.length) % options.length;
-        if (!isOptionDisabled(options[idx])) return idx;
-      }
-      return -1;
-    },
-    [isOptionDisabled, options],
-  );
-
-  const firstEnabledIndex = useCallback(
-    () => findNextEnabled(-1, 1),
-    [findNextEnabled],
-  );
-
-  useLayoutEffect(() => {
-    if (!isOpen) {
-      setActiveIndex(-1);
-      return;
-    }
-
-    if (selectedIndex >= 0 && !isOptionDisabled(options[selectedIndex])) {
-      setActiveIndex(selectedIndex);
-      return;
-    }
-
-    setActiveIndex(firstEnabledIndex());
-  }, [firstEnabledIndex, isOpen, isOptionDisabled, options, selectedIndex]);
-
-  useLayoutEffect(() => {
-    if (!isOpen || activeIndex < 0) return;
-    ensureVisible(isOpen, activeIndex);
-  }, [activeIndex, ensureVisible, isOpen]);
-
-  const openAtIndex = useCallback(
-    (index: number) => {
-      if (isDisabled) return;
-      setIsOpen(true);
-      setActiveIndex(index >= 0 ? index : firstEnabledIndex());
-      onOpenChange?.(true);
-    },
-    [firstEnabledIndex, isDisabled, onOpenChange],
-  );
-
-  const selectOption = useCallback(
-    (option: T | null) => {
-      if (isDisabled) return;
-      if (value === undefined) {
-        setInternalValue(option);
-      }
-      onChange?.(option);
-      close();
-    },
-    [close, isDisabled, onChange, value],
-  );
-
-  const { handleKeyDown } = useKeyboardNavigation<T>({
-    disabled: isDisabled,
-    isOpen,
-    selectedIndex,
-    options,
-    isOptionDisabled,
-    firstEnabledIndex,
-    findNextEnabled,
-    openAtIndex,
-    selectOption,
-    activeIndex,
-    setActiveIndex,
-    onRequestClose: close,
-  });
 
   useEffect(() => {
-    if (!isOpen) return;
-    const handlePointerOrFocus = (event: Event) => {
-      const target = event.target as Node | null;
-      if (!target) return;
-      const triggerEl = triggerRef.current;
-      const dropdownEl = dropdownRef.current;
-      if (triggerEl?.contains(target) || dropdownEl?.contains(target)) return;
-      close();
-    };
-
-    document.addEventListener('pointerdown', handlePointerOrFocus);
-    document.addEventListener('focusin', handlePointerOrFocus);
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerOrFocus);
-      document.removeEventListener('focusin', handlePointerOrFocus);
-    };
-  }, [close, dropdownRef, isOpen, triggerRef]);
-
-  useEffect(() => {
-    if (value !== undefined) return;
+    if (isControlled) return;
     if (internalValue === null || internalValue === undefined) return;
-    const currentValue = getOptionValue(internalValue);
     const exists = options.some(
-      option => getOptionValue(option) === currentValue,
+      option => getOptionValue(option) === internalValue,
     );
     if (!exists) {
       setInternalValue(null);
       onChange?.(null);
     }
-  }, [getOptionValue, internalValue, onChange, options, value]);
+  }, [getOptionValue, internalValue, isControlled, onChange, options]);
 
   const renderedValue = renderValue
     ? renderValue(selectedOption)
@@ -274,6 +143,27 @@ function SelectInner<T>(props: SelectProps<T>, ref: SelectForwardedRef) {
       : placeholder;
   const computedAriaLabel =
     ariaLabel ?? (!ariaLabelledby ? placeholder : undefined);
+
+  const handleValueChange = useCallback(
+    (nextValue: SelectOptionValue | null) => {
+      const option =
+        nextValue === null || nextValue === undefined
+          ? null
+          : (options.find(opt => getOptionValue(opt) === nextValue) ?? null);
+      if (!isControlled) {
+        setInternalValue(nextValue);
+      }
+      onChange?.(option);
+    },
+    [getOptionValue, isControlled, onChange, options],
+  );
+
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      onOpenChange?.(open);
+    },
+    [onOpenChange],
+  );
 
   return (
     <div className={cn(styles['momo-select'], className)} style={style}>
@@ -288,120 +178,92 @@ function SelectInner<T>(props: SelectProps<T>, ref: SelectForwardedRef) {
           aria-hidden="true"
         />
       ) : null}
-      <button
-        ref={setTriggerRef}
-        type="button"
-        className={cn(
-          styles['momo-select__trigger'],
-          isOpen && styles['momo-select__trigger--open'],
-          isDisabled && styles['momo-select__trigger--disabled'],
-        )}
-        role="combobox"
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
-        aria-controls={isOpen ? listboxId : undefined}
-        aria-activedescendant={
-          isOpen && activeIndex >= 0
-            ? `${listboxId}-option-${activeIndex}`
-            : undefined
-        }
+      <BaseSelect.Root<SelectOptionValue>
+        value={selectedValue}
+        onValueChange={handleValueChange}
+        onOpenChange={handleOpenChange}
         disabled={isDisabled}
-        name={name}
-        id={id}
-        form={form}
-        autoFocus={autoFocus}
-        tabIndex={tabIndex}
-        title={title}
-        aria-label={computedAriaLabel}
-        aria-labelledby={ariaLabelledby}
-        onClick={toggleOpen}
-        onBlur={close}
-        onKeyDown={handleKeyDown}
       >
-        <span
-          className={cn(
-            styles['momo-select__value'],
-            !hasSelection && styles['momo-select__value--placeholder'],
-          )}
+        <BaseSelect.Trigger
+          ref={setTriggerRef}
+          id={id}
+          disabled={isDisabled}
+          autoFocus={autoFocus}
+          tabIndex={tabIndex}
+          title={title}
+          aria-label={computedAriaLabel}
+          aria-labelledby={ariaLabelledby}
+          className={styles['momo-select__trigger']}
         >
-          {renderedValue}
-        </span>
-        <span className={styles['momo-select__chevron']} aria-hidden="true">
-          <TriangleIcon width={14} height={10} />
-        </span>
-      </button>
-      {typeof document !== 'undefined' && isOpen
-        ? createPortal(
-            <div
-              className={cn(
-                styles['momo-select__dropdown'],
-                isOpen && styles['momo-select__dropdown--open'],
-                dropdownClassName,
-              )}
-              ref={dropdownRef}
-              style={{
-                top: dropdownPosition.top,
-                left: dropdownPosition.left,
-                width: dropdownPosition.width,
-              }}
+          <BaseSelect.Value
+            className={cn(
+              styles['momo-select__value'],
+              !hasSelection && styles['momo-select__value--placeholder'],
+            )}
+          >
+            {renderedValue}
+          </BaseSelect.Value>
+          <BaseSelect.Icon className={styles['momo-select__chevron']}>
+            <TriangleIcon width={14} height={10} />
+          </BaseSelect.Icon>
+        </BaseSelect.Trigger>
+        <BaseSelect.Portal>
+          <BaseSelect.Positioner
+            className={styles['momo-select__positioner']}
+            align="start"
+            sideOffset={6}
+            side="bottom"
+            alignItemWithTrigger={false}
+          >
+            <BaseSelect.Popup
+              className={cn(styles['momo-select__dropdown'], dropdownClassName)}
             >
-              <ul
-                className={styles['momo-select__list']}
-                role="listbox"
-                id={listboxId}
-                ref={listRef}
-              >
+              <BaseSelect.List className={styles['momo-select__list']}>
                 {options.map((option, index) => {
                   const key =
                     getOptionKey?.(option, index) ??
                     String(getOptionValue(option));
                   const optionValue = getOptionValue(option);
-                  const isDisabled = getOptionDisabled?.(option) ?? false;
-                  const isSelected =
-                    selectedValue !== null && selectedValue === optionValue;
-                  const isActive = index === activeIndex;
+                  const isOptionDisabled = getOptionDisabled?.(option) ?? false;
                   const optionLabel = getOptionLabel(option);
-                  const content = renderOption
-                    ? renderOption(option, {
-                        isActive,
-                        isSelected,
-                        index,
-                      })
-                    : getOptionLabel(option);
 
                   return (
-                    <li
+                    <BaseSelect.Item
                       key={key}
-                      role="option"
-                      aria-selected={isSelected}
-                      aria-disabled={isDisabled}
-                      id={`${listboxId}-option-${index}`}
-                      ref={isActive ? activeOptionRef : undefined}
-                      aria-label={optionLabel}
-                      title={optionLabel}
-                      className={cn(
-                        styles['momo-select__option'],
-                        isSelected && styles['momo-select__option--selected'],
-                        isActive && styles['momo-select__option--active'],
-                        isDisabled && styles['momo-select__option--disabled'],
-                      )}
-                      onMouseDown={event => {
-                        event.preventDefault();
-                        if (!isDisabled) {
-                          setActiveIndex(index);
-                          selectOption(option);
-                        }
+                      value={optionValue}
+                      label={optionLabel}
+                      disabled={isOptionDisabled}
+                      render={(itemProps, state) => {
+                        const content = renderOption
+                          ? renderOption(option, {
+                              isActive: Boolean(state.highlighted),
+                              isSelected: Boolean(state.selected),
+                              index,
+                            })
+                          : optionLabel;
+
+                        return (
+                          <div
+                            {...itemProps}
+                            className={cn(
+                              styles['momo-select__option'],
+                              itemProps.className,
+                            )}
+                            aria-label={optionLabel}
+                            title={optionLabel}
+                          >
+                            {content}
+                          </div>
+                        );
                       }}
-                    >
-                      {content}
-                    </li>
+                    />
                   );
                 })}
-              </ul>
-            </div>,
-            document.body,
-          )
-        : null}
+              </BaseSelect.List>
+            </BaseSelect.Popup>
+          </BaseSelect.Positioner>
+        </BaseSelect.Portal>
+      </BaseSelect.Root>
     </div>
   );
 }

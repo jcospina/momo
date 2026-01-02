@@ -92,3 +92,20 @@ export type ExpenseScoreResult = {
   tags: string[];
   scores: Record<ExpenseCategory, number>;
 };
+
+export type ExpenseUpdateInput = {
+  id: string;
+  amount: string;
+  expense_date: string;
+  category: ExpenseCategory | null;
+  merchant: string | null;
+  currency: string;
+};
+
+export type UpdateExpensesResult = {
+  errorCode?:
+    | 'auth_required'
+    | 'expense_update_failed'
+    | 'expense_amount_invalid';
+  updatedIds?: string[];
+};

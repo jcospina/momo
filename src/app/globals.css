@@ -46,6 +46,10 @@ body {
   position: relative;
 }
 
+.root {
+  isolation: isolate;
+}
+
 .momo-error {
   color: var(--color-vibrant-coral);
 }
