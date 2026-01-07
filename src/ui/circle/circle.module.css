@@ -1,0 +1,33 @@
+.momo-circle {
+  border-radius: 50%;
+  color: var(--color-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  width: calc(var(--circle-size) * var(--font-size));
+  height: calc(var(--circle-size) * var(--font-size));
+  box-shadow: calc(var(--circle-shadow) * -1px) calc(var(--circle-shadow) * 1px)
+    0 var(--color-dark);
+  font-size: calc(var(--circle-font-size) * 1rem);
+  border-width: calc(var(--circle-border-width) * 1px);
+}
+
+.momo-circle--button {
+  cursor: pointer;
+  transition:
+    transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.momo-circle--button:hover {
+  box-shadow: calc(var(--circle-shadow) * -0.5px)
+    calc(var(--circle-shadow) * 0.5px) 0 var(--color-dark);
+  transform: translate(calc(var(--circle-shadow) * -0.5px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-circle--button {
+    animation: none;
+  }
+}

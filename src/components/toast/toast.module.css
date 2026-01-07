@@ -16,7 +16,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .momo-avatar--button {
-    animation: none;
+  .momo-toast {
+    transition: none;
   }
 }
