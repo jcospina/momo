@@ -79,7 +79,10 @@ function makeFakeChannel(): FakeChannel {
 }
 
 const mockCreateClient = jest.fn(
-  (_url?: string, _key?: string, _opts?: unknown) => {
+  (url?: string, key?: string, opts?: unknown) => {
+    void url;
+    void key;
+    void opts;
     const channelInstance = makeFakeChannel();
     const channelMock = jest.fn<FakeChannel, [string]>(
       () => channelInstance,
