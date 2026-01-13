@@ -6,7 +6,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import chartTheme from './theme.json';
 
-// Register theme once at module level
 const THEME_NAME = 'momo';
 let themeRegistered = false;
 
@@ -17,28 +16,17 @@ function ensureThemeRegistered() {
   }
 }
 
-const OTHERS_LABEL = 'Others';
-const TOP_COUNT = 4;
-
-type RingItem = {
-  category: string;
-  totalCents: number;
+export type RingChartItem = {
+  name: string;
+  value: number;
 };
 
-type RingChartProps = {
-  monthLabel: string;
-  items: RingItem[];
+export type RingChartProps = {
+  items: RingChartItem[];
   currency: string;
-  onCategoryClick?: (payload: {
-    monthLabel: string;
-    category: string;
-    totalCents: number;
-  }) => void;
-  onOthersClick?: (payload: {
-    monthLabel: string;
-    categories: string[];
-    totalCents: number;
-  }) => void;
+  centerLabel?: string;
+  onItemClick?: (payload: RingChartItem) => void;
+  getTooltipLines?: (payload: RingChartItem) => string[];
 };
 
 function toDisplayAmount(amountCents: number, currency: string) {
@@ -50,62 +38,42 @@ function formatCurrency(amount: number, currency: string) {
   return new Intl.NumberFormat(undefined, {
     style: 'currency',
     currency,
+    currencyDisplay: currency === 'COP' ? 'narrowSymbol' : 'symbol',
     maximumFractionDigits: currency === 'COP' ? 0 : 2,
   }).format(amount);
 }
 
-function prepareData(items: RingItem[]) {
-  const sorted = [...items].sort(
-    (left, right) => right.totalCents - left.totalCents,
-  );
-  const top = sorted.slice(0, TOP_COUNT);
-  const rest = sorted.slice(TOP_COUNT);
-  const othersTotal = rest.reduce((sum, item) => sum + item.totalCents, 0);
-
-  const data: Array<{ name: string; value: number }> = top.map(item => ({
-    name: item.category,
-    value: item.totalCents,
-  }));
-
-  if (rest.length > 0) {
-    data.push({ name: OTHERS_LABEL, value: othersTotal });
-  }
-
-  const totalCents = sorted.reduce((acc, item) => acc + item.totalCents, 0);
-
-  return {
-    seriesData: data,
-    othersCategories: rest.map(item => item.category),
-    totalCents,
-  };
-}
-
 export function RingChart({
-  monthLabel,
   items,
   currency,
-  onCategoryClick,
-  onOthersClick,
+  centerLabel = 'Total',
+  onItemClick,
+  getTooltipLines,
 }: RingChartProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<EChartsType | null>(null);
-  const [centerText, setCenterText] = useState({ name: 'Total', value: 0 });
+  const [centerText, setCenterText] = useState({ name: centerLabel, value: 0 });
   const [containerSize, setContainerSize] = useState({
     width: 0,
     height: 0,
   });
 
-  // Prepare data - memoized to prevent unnecessary effect triggers
-  const { seriesData, othersCategories, totalCents } = useMemo(
-    () => prepareData(items),
+  const totalCents = useMemo(
+    () => items.reduce((sum, item) => sum + (item.value ?? 0), 0),
+    [items],
+  );
+
+  const seriesData = useMemo(
+    () => items.map(item => ({ name: item.name, value: item.value })),
     [items],
   );
 
   const layout = useMemo(() => {
     const isDesktop = containerSize.width >= 768;
-    const hasWrappedLegend = seriesData.length >= 5;
-    const radius: [string, string] = ['52%', '72%'];
-    const centerY = isDesktop ? '50%' : hasWrappedLegend ? '38%' : '42%';
+    const legendRows = isDesktop ? 1 : Math.ceil(seriesData.length / 2);
+    const compact = !isDesktop && legendRows >= 2;
+    const radius: [string, string] = compact ? ['48%', '68%'] : ['52%', '72%'];
+    const centerY = isDesktop ? '50%' : compact ? '36%' : '42%';
     const legend = isDesktop
       ? {
           orient: 'vertical' as const,
@@ -130,14 +98,18 @@ export function RingChart({
     };
   }, [containerSize.width, seriesData.length]);
 
-  // Initialize chart once on mount
+  useEffect(() => {
+    setCenterText({
+      name: centerLabel,
+      value: toDisplayAmount(totalCents, currency),
+    });
+  }, [centerLabel, currency, totalCents]);
+
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Register theme if not already done
     ensureThemeRegistered();
 
-    // Initialize with theme
     const chart = echarts.init(containerRef.current, THEME_NAME, {
       renderer: 'canvas',
     });
@@ -153,7 +125,48 @@ export function RingChart({
         ...layout.legend,
       },
       tooltip: {
-        show: false,
+        show: true,
+        confine: true,
+        position: (
+          point: number[],
+          _params: unknown,
+          _dom: unknown,
+          _rect: unknown,
+          size: { contentSize: number[]; viewSize: number[] },
+        ) => {
+          const [x, y] = point;
+          const [contentWidth, contentHeight] = size.contentSize;
+          const [viewWidth, viewHeight] = size.viewSize;
+          const clampedX = Math.min(
+            Math.max(x, 8),
+            Math.max(8, viewWidth - contentWidth - 8),
+          );
+          const clampedY = Math.min(
+            Math.max(y, 8),
+            Math.max(8, viewHeight - contentHeight - 8),
+          );
+          return [clampedX, clampedY];
+        },
+        formatter: (params: unknown) => {
+          const p = params as {
+            name?: string;
+            value?: number;
+            percent?: number;
+          };
+          if (!p || typeof p.value !== 'number' || !p.name) return '';
+          const amount = formatCurrency(
+            toDisplayAmount(p.value, currency),
+            currency,
+          );
+          const percent = Number.isFinite(p.percent) ? p.percent : 0;
+          const extra =
+            getTooltipLines?.({ name: p.name, value: p.value }) ?? [];
+          return [
+            `<strong>${p.name}</strong>`,
+            `${amount} (${percent!.toFixed(1)}%)`,
+            ...extra,
+          ].join('<br/>');
+        },
       },
       series: [
         {
@@ -182,13 +195,6 @@ export function RingChart({
 
     chart.setOption(option);
 
-    // Set initial center text
-    setCenterText({
-      name: 'Total',
-      value: toDisplayAmount(totalCents, currency),
-    });
-
-    // Handle resize
     const resizeObserver = new ResizeObserver(entries => {
       const entry = entries[0];
       if (entry) {
@@ -207,9 +213,8 @@ export function RingChart({
       chartRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Initialize once
+  }, []);
 
-  // Set up event handlers (separate effect to use current values)
   useEffect(() => {
     const chart = chartRef.current;
     if (!chart) return;
@@ -226,49 +231,44 @@ export function RingChart({
 
     const handleMouseOut = () => {
       setCenterText({
-        name: 'Total',
+        name: centerLabel,
         value: toDisplayAmount(totalCents, currency),
       });
     };
 
+    const handleLegendChange = (params: unknown) => {
+      const p = params as { selected?: Record<string, boolean> };
+      const selected = p.selected ?? {};
+      const visibleTotal = items.reduce((sum, item) => {
+        if (selected[item.name] === false) return sum;
+        return sum + item.value;
+      }, 0);
+      setCenterText({
+        name: centerLabel,
+        value: toDisplayAmount(visibleTotal, currency),
+      });
+    };
+
     const handleClick = (params: unknown) => {
+      if (!onItemClick) return;
       const p = params as { name?: string; value?: number };
       if (!p.name || typeof p.value !== 'number') return;
-
-      if (p.name === OTHERS_LABEL) {
-        onOthersClick?.({
-          monthLabel,
-          categories: othersCategories,
-          totalCents: p.value,
-        });
-      } else {
-        onCategoryClick?.({
-          monthLabel,
-          category: p.name,
-          totalCents: p.value,
-        });
-      }
+      onItemClick({ name: p.name, value: p.value });
     };
 
     chart.on('mouseover', handleMouseOver);
     chart.on('mouseout', handleMouseOut);
+    chart.on('legendselectchanged', handleLegendChange);
     chart.on('click', handleClick);
 
     return () => {
       chart.off('mouseover', handleMouseOver);
       chart.off('mouseout', handleMouseOut);
+      chart.off('legendselectchanged', handleLegendChange);
       chart.off('click', handleClick);
     };
-  }, [
-    currency,
-    totalCents,
-    monthLabel,
-    othersCategories,
-    onCategoryClick,
-    onOthersClick,
-  ]);
+  }, [centerLabel, currency, getTooltipLines, items, onItemClick, totalCents]);
 
-  // Update chart data when items change
   useEffect(() => {
     const chart = chartRef.current;
     if (!chart) return;

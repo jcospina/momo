@@ -4,8 +4,10 @@ import { Flex } from '@/ui/flex/flex';
 import { useProfile } from '@providers/profile-provider';
 
 import { mq, useMediaQuery } from '@/hooks/use-media-query';
-import { FlexItem } from '@/ui/flex-item/flex-item';
 import { Logo } from '@/ui/logo/logo';
+import { Circle } from '@ui/circle/circle';
+import { ChartIcon } from '@ui/icons/chart';
+import { cn } from '@utils/cn';
 import { usePathname, useRouter } from 'next/navigation';
 import styles from './navbar.module.css';
 
@@ -22,25 +24,36 @@ export function Navbar() {
     router.push('/home/profile');
   };
 
+  const goToStats = () => {
+    router.push('/home/stats');
+  };
+
   return (
-    <Flex
-      as="nav"
-      isFullWidth
-      alignItems="center"
-      className={styles['momo-navbar']}
-    >
-      <FlexItem as="a" className={styles['momo-navbar__logo']} href="/home">
+    <nav className={styles['momo-navbar']}>
+      <div
+        className={cn(
+          styles['momo-navbar__slot'],
+          styles['momo-navbar__spacer'],
+        )}
+      />
+      <a className={styles['momo-navbar__logo']} href="/home">
         <Logo />
-      </FlexItem>
-      {!isProfilePage && (
-        <Avatar
-          size={isBigScreen ? 'medium' : 'small'}
-          variant="button"
-          onClick={goToProfile}
-          className={styles['momo-navbar__avatar']}
-          displayName={profile?.display_name || '?'}
-        />
-      )}
-    </Flex>
+      </a>
+      <div className={styles['momo-navbar__slot']}>
+        <Flex gap={2} justifyContent="flex-end" className="full-w">
+          <Circle onClick={goToStats} color="mauve-magic">
+            <ChartIcon width={30} height={30} />
+          </Circle>
+          {!isProfilePage && (
+            <Avatar
+              size={isBigScreen ? 'medium' : 'small'}
+              onClick={goToProfile}
+              className={styles['momo-navbar__avatar']}
+              displayName={profile?.display_name || '?'}
+            />
+          )}
+        </Flex>
+      </div>
+    </nav>
   );
 }

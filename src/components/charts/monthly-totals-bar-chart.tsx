@@ -46,6 +46,13 @@ function formatMonthKey(year: number, monthIndex: number) {
   return `${year}-${month}`;
 }
 
+function formatCategoryLabel(category: string) {
+  return category
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 function buildMonthSeries(entries: MonthEntry[]) {
   if (!entries.length) {
     return {
@@ -154,6 +161,7 @@ export function MonthlyTotalsBarChart({
       new Intl.NumberFormat(undefined, {
         style: 'currency',
         currency,
+        currencyDisplay: currency === 'COP' ? 'narrowSymbol' : 'symbol',
         notation: 'compact',
         maximumFractionDigits: currency === 'COP' ? 0 : 2,
       }),
@@ -188,7 +196,14 @@ export function MonthlyTotalsBarChart({
   const options = useMemo<EChartsOption>(() => {
     return {
       tooltip: {
-        show: false,
+        trigger: 'item',
+        formatter: (params: unknown) => {
+          const payload = params as { seriesName?: string; value?: number };
+          if (!payload || typeof payload.value !== 'number') return '';
+          return `${payload.seriesName ?? ''} ${formatter.format(
+            toDisplayAmount(payload.value, currency),
+          )}`;
+        },
       },
       legend: {
         show: true,
@@ -196,6 +211,7 @@ export function MonthlyTotalsBarChart({
         itemHeight: 12,
         itemWidth: 12,
         itemGap: 10,
+        formatter: (name: string) => formatCategoryLabel(name),
         ...legendLayout,
       },
       grid: {

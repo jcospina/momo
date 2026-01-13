@@ -1,0 +1,52 @@
+.stats__panel {
+  width: 100%;
+}
+
+.stats__ring-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: calc(var(--spacing) * 5);
+  width: 100%;
+}
+
+.stats__ring-panel {
+  min-width: 0;
+}
+
+.stats__chart {
+  width: 100%;
+  height: clamp(240px, 42vh, 360px);
+  padding: 0 calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+}
+
+.stats__chart--bar {
+  width: 100%;
+  height: clamp(200px, 32vh, 280px);
+  padding: 0 calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+}
+
+.stats__chart--line {
+  width: 100%;
+  height: clamp(220px, 36vh, 320px);
+  padding: 0 calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+}
+
+.stats__chart--user-ring {
+  width: 100%;
+  height: clamp(240px, 42vh, 360px);
+  padding: 0 calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+}
+
+@media (min-width: 1025px) {
+  .stats__ring-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stats__ring-panel--category {
+    order: 2;
+  }
+
+  .stats__ring-panel--user {
+    order: 1;
+  }
+}

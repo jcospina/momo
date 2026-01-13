@@ -116,6 +116,7 @@ export function DailyComparisonLineChart({
       new Intl.NumberFormat(undefined, {
         style: 'currency',
         currency,
+        currencyDisplay: currency === 'COP' ? 'narrowSymbol' : 'symbol',
         maximumFractionDigits: currency === 'COP' ? 0 : 2,
       }),
     [currency],
@@ -146,6 +147,8 @@ export function DailyComparisonLineChart({
           const previousValue =
             typeof previousItem?.value === 'number' ? previousItem.value : 0;
 
+          const axisValue = items[0]?.axisValue ?? items[0]?.name;
+          const dayLine = axisValue ? `<strong>Day ${axisValue}</strong>` : '';
           const currentLine = `${currentLabel} ${formatter.format(
             toDisplayAmount(currentValue, currency),
           )}`;
@@ -153,7 +156,9 @@ export function DailyComparisonLineChart({
             toDisplayAmount(previousValue, currency),
           )}`;
 
-          return `${currentLine}<br/>${previousLine}`;
+          return [dayLine, currentLine, previousLine]
+            .filter(Boolean)
+            .join('<br/>');
         },
       },
       grid: {
