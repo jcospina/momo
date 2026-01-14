@@ -281,6 +281,48 @@ export async function getMonthlyCategoryRange({
   return { data: { months: result } };
 }
 
+export async function getMonthlyCategoryUserRange({
+  scope,
+  householdId,
+  months,
+  endMonth,
+  count,
+}: ScopeInput & MonthRangeInput): Promise<
+  ActionResult<{ months: string[]; rows: MonthlyByCategoryUserRow[] }>
+> {
+  const range = buildMonthRange({ months, endMonth, count });
+  if (!range.length) {
+    return { data: { months: [], rows: [] } };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { data: { months: [], rows: [] }, errorCode: 'auth_required' };
+  }
+
+  const resolved = await resolveScope({
+    scope,
+    householdId,
+    userId: user.id,
+    supabase,
+  });
+  if ('errorCode' in resolved && resolved.errorCode) {
+    return { data: { months: [], rows: [] }, errorCode: resolved.errorCode };
+  }
+
+  const rows = await fetchMonthlyByCategoryUser({
+    supabase,
+    householdId: resolved.householdId,
+    months: range,
+  });
+
+  return { data: { months: range, rows } };
+}
+
 export async function getMonthlyTotalsRange({
   scope,
   householdId,

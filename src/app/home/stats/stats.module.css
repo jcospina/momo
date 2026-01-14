@@ -13,6 +13,10 @@
   min-width: 0;
 }
 
+.stats__header-row {
+  width: 100%;
+}
+
 .stats__chart {
   width: 100%;
   height: clamp(240px, 42vh, 360px);

@@ -1,0 +1,44 @@
+.momo-toggle {
+  border: 2px solid var(--color-dark);
+  border-radius: calc(var(--border-radius) - 2px);
+  padding: calc(var(--spacing) * 0.5) calc(var(--spacing) * 1.5);
+  font-weight: 700;
+  background: transparent;
+  color: var(--color-dark);
+  cursor: pointer;
+  transition:
+    box-shadow 150ms ease,
+    background-color 150ms ease;
+}
+
+.momo-toggle:hover {
+  box-shadow: -1px 1px 0 var(--color-dark);
+}
+
+.momo-toggle[data-pressed] {
+  background: var(--color-sky-aqua);
+  color: var(--color-dark);
+  box-shadow: -2px 2px 0 var(--color-dark);
+}
+
+.momo-toggle:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+
+.momo-toggle[data-disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-toggle {
+    transition: none;
+  }
+}
+.momo-toggle-group {
+  display: inline-flex;
+  gap: calc(var(--spacing) * 1);
+}
