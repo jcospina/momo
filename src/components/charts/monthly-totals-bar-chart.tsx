@@ -4,6 +4,9 @@ import type { EChartsOption, EChartsType } from 'echarts';
 import * as echarts from 'echarts';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { formatCategoryLabel } from '@helpers/expenses/expense-stats.aggregations';
+import { safeResize, safeSetOption } from './echarts-safe';
+
 import chartTheme from './theme.json';
 
 const THEME_NAME = 'momo';
@@ -44,13 +47,6 @@ function parseMonthKey(month: string): ParsedMonth | null {
 function formatMonthKey(year: number, monthIndex: number) {
   const month = String(monthIndex + 1).padStart(2, '0');
   return `${year}-${month}`;
-}
-
-function formatCategoryLabel(category: string) {
-  return category
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
 }
 
 function buildMonthSeries(entries: MonthEntry[]) {
@@ -267,7 +263,7 @@ export function MonthlyTotalsBarChart({
       if (entry) {
         setContainerWidth(entry.contentRect.width);
       }
-      chart.resize();
+      safeResize(chart, entry, 'MonthlyTotalsBarChart');
     });
     resizeObserver.observe(containerRef.current);
 
@@ -281,7 +277,7 @@ export function MonthlyTotalsBarChart({
   useEffect(() => {
     const chart = chartRef.current;
     if (!chart) return;
-    chart.setOption(options);
+    safeSetOption(chart, options, 'MonthlyTotalsBarChart');
   }, [options]);
 
   useEffect(() => {

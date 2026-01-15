@@ -1,30 +1,21 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import useEmblaCarousel from 'embla-carousel-react';
+import { useMemo } from 'react';
 
 import styles from '@/app/home/stats/stats.module.css';
 import { mq, useMediaQuery } from '@/hooks/use-media-query';
-import type { MonthlyCategoryTotals } from '@actions/expense-stats';
 import { MonthlyTotalsBarChart } from '@components/charts/monthly-totals-bar-chart';
+import { buildMonthlyCategoryTotals } from '@helpers/expenses/expense-stats.aggregations';
+import { formatMonthRange } from '@helpers/expenses/expense-stats.months';
+import { useEmblaSync } from '@hooks/use-embla-sync';
+import { useMonthlyWindows } from '@hooks/use-monthly-windows';
+import type { MonthlyByCategoryUserRow } from '@lib-types/expense-stats';
 import { Flex } from '@ui/flex/flex';
+import { LeftIcon } from '@ui/icons/left';
+import { RightIcon } from '@ui/icons/right';
 import { ToggleGroup } from '@ui/toggle-group/toggle-group';
 import { Typography } from '@ui/typography/typography';
-
-function formatMonthLabel(month: string) {
-  const parsed = new Date(`${month}-01T00:00:00`);
-  if (Number.isNaN(parsed.getTime())) return month;
-  return new Intl.DateTimeFormat(undefined, {
-    month: 'short',
-    year: 'numeric',
-  }).format(parsed);
-}
-
-function formatMonthRange(months: string[]) {
-  if (!months.length) return '';
-  const first = formatMonthLabel(months[0]);
-  const last = formatMonthLabel(months[months.length - 1]);
-  return first === last ? first : `${first}–${last}`;
-}
 
 const RANGE_OPTIONS = [
   { label: '3m', value: '3' },
@@ -33,31 +24,57 @@ const RANGE_OPTIONS = [
 ];
 
 type MonthlyTotalsPanelProps = {
-  months3: MonthlyCategoryTotals[];
-  months6: MonthlyCategoryTotals[];
-  months12: MonthlyCategoryTotals[];
+  months: string[];
+  breakdownRows: MonthlyByCategoryUserRow[];
   currency: string;
 };
 
 export function MonthlyTotalsPanel({
-  months3,
-  months6,
-  months12,
+  months,
+  breakdownRows,
   currency,
 }: MonthlyTotalsPanelProps) {
-  const [selectedRange, setSelectedRange] = useState('3');
-  const isNarrow = useMediaQuery(mq('(max-width: 390px)'));
+  const isNarrow = useMediaQuery(mq('(max-width: 768px)'));
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: 'start',
+    containScroll: 'trimSnaps',
+  });
 
-  const barMonths = useMemo(() => {
-    if (selectedRange === '12') return months12;
-    if (selectedRange === '6') return months6;
-    return months3;
-  }, [months12, months3, months6, selectedRange]);
+  const monthlyTotals = useMemo(
+    () => buildMonthlyCategoryTotals(breakdownRows, months),
+    [breakdownRows, months],
+  );
+
+  const {
+    selectedRange,
+    setSelectedRange,
+    windows: barMonths,
+    activeIndex,
+    setActiveIndex,
+  } = useMonthlyWindows(monthlyTotals, { defaultRange: '3' });
+
+  useEmblaSync(emblaApi, {
+    activeIndex,
+    onSelect: setActiveIndex,
+  });
 
   const handleRangeChange = (value: string[]) => {
     const next = value[0];
     if (!next) return;
     setSelectedRange(next);
+  };
+
+  const canGoPrev = activeIndex > 0;
+  const canGoNext = activeIndex < barMonths.length - 1;
+
+  const handlePrev = () => {
+    if (!canGoPrev) return;
+    setActiveIndex(activeIndex - 1);
+  };
+
+  const handleNext = () => {
+    if (!canGoNext) return;
+    setActiveIndex(activeIndex + 1);
   };
 
   return (
@@ -74,18 +91,50 @@ export function MonthlyTotalsPanel({
           <Typography as="h2" size="lg" weight="bold">
             Monthly totals
           </Typography>
-          <ToggleGroup
-            items={RANGE_OPTIONS}
-            value={[selectedRange]}
-            onValueChange={handleRangeChange}
-          />
+          <Flex alignItems="center" gap={2} wrap={isNarrow ? 'wrap' : 'nowrap'}>
+            <ToggleGroup
+              items={RANGE_OPTIONS}
+              value={[selectedRange]}
+              onValueChange={handleRangeChange}
+            />
+          </Flex>
         </Flex>
         <Typography size="sm">
-          {formatMonthRange(barMonths.map(entry => entry.month))}
+          {formatMonthRange(
+            (barMonths[activeIndex] ?? []).map(entry => entry.month),
+          )}
         </Typography>
       </Flex>
-      <div className={styles['stats__chart--bar']}>
-        <MonthlyTotalsBarChart months={barMonths} currency={currency} />
+      <div className={styles['stats__embla']}>
+        <button
+          type="button"
+          aria-label="Previous months"
+          onClick={handlePrev}
+          className={styles['stats__nav-button']}
+          data-hidden={canGoPrev ? 'false' : 'true'}
+        >
+          <LeftIcon aria-hidden="true" />
+        </button>
+        <div className={styles['stats__embla-viewport']} ref={emblaRef}>
+          <div className={styles['stats__embla-container']}>
+            {barMonths.map((window, index) => (
+              <div className={styles['stats__embla-slide']} key={index}>
+                <div className={styles['stats__chart--bar']}>
+                  <MonthlyTotalsBarChart months={window} currency={currency} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <button
+          type="button"
+          aria-label="Next months"
+          onClick={handleNext}
+          className={styles['stats__nav-button']}
+          data-hidden={canGoNext ? 'false' : 'true'}
+        >
+          <RightIcon aria-hidden="true" />
+        </button>
       </div>
     </>
   );

@@ -1,14 +1,20 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import useEmblaCarousel from 'embla-carousel-react';
+import { useMemo } from 'react';
 
 import styles from '@/app/home/stats/stats.module.css';
 import { mq, useMediaQuery } from '@/hooks/use-media-query';
-import type { MonthlyCategoryTotals } from '@actions/expense-stats';
 import { CategoryRingChart } from '@components/charts/category-ring-chart';
 import { UserTotalsRingChart } from '@components/charts/user-totals-ring-chart';
+import { buildCategoryUserWindowData } from '@helpers/expenses/expense-stats.aggregations';
+import { formatMonthRange } from '@helpers/expenses/expense-stats.months';
+import { useEmblaSync } from '@hooks/use-embla-sync';
+import { useMonthlyWindows } from '@hooks/use-monthly-windows';
 import type { MonthlyByCategoryUserRow } from '@lib-types/expense-stats';
 import { Flex } from '@ui/flex/flex';
+import { LeftIcon } from '@ui/icons/left';
+import { RightIcon } from '@ui/icons/right';
 import { Panel } from '@ui/panel/panel';
 import { ToggleGroup } from '@ui/toggle-group/toggle-group';
 import { Typography } from '@ui/typography/typography';
@@ -22,143 +28,70 @@ const RANGE_OPTIONS = [
 ];
 
 type RingChartsPanelProps = {
-  months12: MonthlyCategoryTotals[];
+  months: string[];
   breakdownRows: MonthlyByCategoryUserRow[];
   currency: string;
 };
 
-function formatMonthLabel(month: string) {
-  const parsed = new Date(`${month}-01T00:00:00`);
-  if (Number.isNaN(parsed.getTime())) return month;
-  return new Intl.DateTimeFormat(undefined, {
-    month: 'short',
-    year: 'numeric',
-  }).format(parsed);
-}
-
-function formatMonthRange(months: string[]) {
-  if (!months.length) return '';
-  const first = formatMonthLabel(months[0]);
-  const last = formatMonthLabel(months[months.length - 1]);
-  return first === last ? first : `${first}–${last}`;
-}
-
-function formatCategoryLabel(category: string) {
-  return category
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
-
-function toFirstName(label: string) {
-  const trimmed = label.trim();
-  if (!trimmed) return 'Unknown';
-  const [firstToken] = trimmed.split(/\s+/);
-  const [emailBase] = firstToken.split('@');
-  const [simple] = emailBase.split(/[._-]/);
-  return simple || emailBase || firstToken;
-}
-
 export function RingChartsPanel({
-  months12,
+  months,
   breakdownRows,
   currency,
 }: RingChartsPanelProps) {
-  const [selectedRange, setSelectedRange] = useState('1');
-  const isNarrow = useMediaQuery(mq('(max-width: 390px)'));
+  const isNarrow = useMediaQuery(mq('(max-width: 768px)'));
+  const [userEmblaRef, userEmblaApi] = useEmblaCarousel({
+    align: 'start',
+    containScroll: 'trimSnaps',
+  });
+  const [categoryEmblaRef, categoryEmblaApi] = useEmblaCarousel({
+    align: 'start',
+    containScroll: 'trimSnaps',
+  });
 
-  const rangeMonths = useMemo(() => {
-    const total = Math.max(1, Math.min(12, Number(selectedRange) || 1));
-    const months = months12.map(entry => entry.month);
-    return months.slice(-total);
-  }, [months12, selectedRange]);
+  const {
+    selectedRange,
+    setSelectedRange,
+    windows: rangeMonths,
+    activeIndex,
+    setActiveIndex,
+  } = useMonthlyWindows(months, { defaultRange: '1' });
 
-  const monthLabel = formatMonthRange(rangeMonths);
+  useEmblaSync(userEmblaApi, {
+    activeIndex,
+    onSelect: setActiveIndex,
+  });
+  useEmblaSync(categoryEmblaApi, {
+    activeIndex,
+    onSelect: setActiveIndex,
+  });
 
-  const categoryItems = useMemo(() => {
-    const totals = new Map<string, number>();
-    months12.forEach(entry => {
-      if (!rangeMonths.includes(entry.month)) return;
-      entry.categories.forEach(categoryEntry => {
-        const category = categoryEntry.category ?? 'uncategorized';
-        totals.set(
-          category,
-          (totals.get(category) ?? 0) + categoryEntry.totalCents,
-        );
-      });
-    });
+  const monthLabel = formatMonthRange(rangeMonths[activeIndex] ?? []);
 
-    return Array.from(totals.entries()).map(([category, totalCents]) => ({
-      category,
-      totalCents,
-    }));
-  }, [months12, rangeMonths]);
-
-  const filteredRows = useMemo(
-    () => breakdownRows.filter(row => rangeMonths.includes(row.month)),
+  const windowData = useMemo(
+    () =>
+      rangeMonths.map(windowMonths => ({
+        windowMonths,
+        ...buildCategoryUserWindowData(breakdownRows, windowMonths),
+      })),
     [breakdownRows, rangeMonths],
   );
 
-  const categoryTooltipMap = useMemo(() => {
-    const map = new Map<string, Map<string, number>>();
-    filteredRows.forEach(row => {
-      const category = formatCategoryLabel(row.category ?? 'uncategorized');
-      const label = toFirstName(row.user_label ?? 'Unknown');
-      const categoryMap = map.get(category) ?? new Map<string, number>();
-      categoryMap.set(label, (categoryMap.get(label) ?? 0) + row.total_cents);
-      map.set(category, categoryMap);
-    });
-    const result: Record<
-      string,
-      Array<{ label: string; totalCents: number }>
-    > = {};
-    map.forEach((userMap, category) => {
-      const entries = Array.from(userMap.entries())
-        .map(([label, totalCents]) => ({ label, totalCents }))
-        .filter(entry => entry.totalCents > 0)
-        .sort((a, b) => b.totalCents - a.totalCents);
-      result[category] = entries;
-    });
-    return result;
-  }, [filteredRows]);
+  const canGoPrev = activeIndex > 0;
+  const canGoNext = activeIndex < rangeMonths.length - 1;
 
-  const userTotalsItems = useMemo(() => {
-    const totals = new Map<string, number>();
-    filteredRows.forEach(row => {
-      const label = toFirstName(row.user_label ?? 'Unknown');
-      totals.set(label, (totals.get(label) ?? 0) + row.total_cents);
-    });
-    return Array.from(totals.entries())
-      .map(([user_label, totalCents]) => ({ user_label, totalCents }))
-      .filter(item => item.totalCents > 0);
-  }, [filteredRows]);
+  const handlePrev = () => {
+    if (!canGoPrev) return;
+    setActiveIndex(activeIndex - 1);
+  };
 
-  const userTooltipMap = useMemo(() => {
-    const map = new Map<string, Map<string, number>>();
-    filteredRows.forEach(row => {
-      const label = toFirstName(row.user_label ?? 'Unknown');
-      const category = formatCategoryLabel(row.category ?? 'uncategorized');
-      const userMap = map.get(label) ?? new Map<string, number>();
-      userMap.set(category, (userMap.get(category) ?? 0) + row.total_cents);
-      map.set(label, userMap);
-    });
-    const result: Record<
-      string,
-      Array<{ category: string; totalCents: number }>
-    > = {};
-    map.forEach((categoryMap, label) => {
-      const entries = Array.from(categoryMap.entries())
-        .map(([category, totalCents]) => ({ category, totalCents }))
-        .filter(entry => entry.totalCents > 0)
-        .sort((a, b) => b.totalCents - a.totalCents);
-      result[label] = entries;
-    });
-    return result;
-  }, [filteredRows]);
+  const handleNext = () => {
+    if (!canGoNext) return;
+    setActiveIndex(activeIndex + 1);
+  };
 
   return (
     <div className={styles['stats__ring-row']}>
-      {userTotalsItems.length > 0 ? (
+      {windowData[activeIndex]?.userTotalsItems.length ? (
         <Panel
           shadowless
           className={cn(
@@ -179,20 +112,58 @@ export function RingChartsPanel({
               <Typography as="h2" size="lg" weight="bold">
                 Household totals by member
               </Typography>
-              <ToggleGroup
-                items={RANGE_OPTIONS}
-                value={[selectedRange]}
-                onValueChange={value => setSelectedRange(value[0] ?? '1')}
-              />
+              <Flex
+                alignItems="center"
+                gap={2}
+                wrap={isNarrow ? 'wrap' : 'nowrap'}
+              >
+                <ToggleGroup
+                  items={RANGE_OPTIONS}
+                  value={[selectedRange]}
+                  onValueChange={value => {
+                    const next = value[0];
+                    if (!next) return;
+                    setSelectedRange(next);
+                  }}
+                />
+              </Flex>
             </Flex>
             <Typography size="sm">{monthLabel}</Typography>
           </Flex>
-          <div className={styles['stats__chart--user-ring']}>
-            <UserTotalsRingChart
-              items={userTotalsItems}
-              currency={currency}
-              tooltipByUser={userTooltipMap}
-            />
+          <div className={styles['stats__embla']}>
+            <button
+              type="button"
+              aria-label="Previous months"
+              onClick={handlePrev}
+              className={styles['stats__nav-button']}
+              data-hidden={canGoPrev ? 'false' : 'true'}
+            >
+              <LeftIcon aria-hidden="true" />
+            </button>
+            <div className={styles['stats__embla-viewport']} ref={userEmblaRef}>
+              <div className={styles['stats__embla-container']}>
+                {windowData.map((window, index) => (
+                  <div className={styles['stats__embla-slide']} key={index}>
+                    <div className={styles['stats__chart--user-ring']}>
+                      <UserTotalsRingChart
+                        items={window.userTotalsItems}
+                        currency={currency}
+                        tooltipByUser={window.userTooltip}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <button
+              type="button"
+              aria-label="Next months"
+              onClick={handleNext}
+              className={styles['stats__nav-button']}
+              data-hidden={canGoNext ? 'false' : 'true'}
+            >
+              <RightIcon aria-hidden="true" />
+            </button>
           </div>
         </Panel>
       ) : null}
@@ -216,21 +187,62 @@ export function RingChartsPanel({
             <Typography as="h2" size="lg" weight="bold">
               Expenses by category
             </Typography>
-            <ToggleGroup
-              items={RANGE_OPTIONS}
-              value={[selectedRange]}
-              onValueChange={value => setSelectedRange(value[0] ?? '1')}
-            />
+            <Flex
+              alignItems="center"
+              gap={2}
+              wrap={isNarrow ? 'wrap' : 'nowrap'}
+            >
+              <ToggleGroup
+                items={RANGE_OPTIONS}
+                value={[selectedRange]}
+                onValueChange={value => {
+                  const next = value[0];
+                  if (!next) return;
+                  setSelectedRange(next);
+                }}
+              />
+            </Flex>
           </Flex>
           <Typography size="sm">{monthLabel}</Typography>
         </Flex>
-        <div className={styles['stats__chart']}>
-          <CategoryRingChart
-            monthLabel={monthLabel}
-            items={categoryItems}
-            currency={currency}
-            tooltipByCategory={categoryTooltipMap}
-          />
+        <div className={styles['stats__embla']}>
+          <button
+            type="button"
+            aria-label="Previous months"
+            onClick={handlePrev}
+            className={styles['stats__nav-button']}
+            data-hidden={canGoPrev ? 'false' : 'true'}
+          >
+            <LeftIcon aria-hidden="true" />
+          </button>
+          <div
+            className={styles['stats__embla-viewport']}
+            ref={categoryEmblaRef}
+          >
+            <div className={styles['stats__embla-container']}>
+              {windowData.map((window, index) => (
+                <div className={styles['stats__embla-slide']} key={index}>
+                  <div className={styles['stats__chart']}>
+                    <CategoryRingChart
+                      monthLabel={formatMonthRange(window.windowMonths)}
+                      items={window.categoryItems}
+                      currency={currency}
+                      tooltipByCategory={window.categoryTooltip}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <button
+            type="button"
+            aria-label="Next months"
+            onClick={handleNext}
+            className={styles['stats__nav-button']}
+            data-hidden={canGoNext ? 'false' : 'true'}
+          >
+            <RightIcon aria-hidden="true" />
+          </button>
         </div>
       </Panel>
     </div>

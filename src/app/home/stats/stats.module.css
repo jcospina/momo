@@ -41,6 +41,56 @@
   padding: 0 calc(var(--spacing) * 2) calc(var(--spacing) * 4);
 }
 
+.stats__embla {
+  position: relative;
+  width: 100%;
+}
+
+.stats__embla-viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.stats__embla-container {
+  display: flex;
+}
+
+.stats__embla-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+.stats__nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.stats__nav-button svg {
+  stroke: #7a7a7a;
+  width: 36px;
+  height: 36px;
+}
+
+.stats__nav-button:first-of-type {
+  left: calc(var(--spacing) * 1);
+}
+
+.stats__nav-button:last-of-type {
+  right: calc(var(--spacing) * 1);
+}
+
+.stats__nav-button[data-hidden='true'] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 @media (min-width: 1025px) {
   .stats__ring-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));

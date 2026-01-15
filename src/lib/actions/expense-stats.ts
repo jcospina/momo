@@ -3,7 +3,9 @@
 import { format, isValid, parse, subMonths } from 'date-fns';
 
 import {
+  fetchAllMonthlyByCategoryUser,
   fetchDailyTotalsByMonth,
+  fetchMonthlyBoundsByCategoryUser,
   fetchMonthlyByCategoryUser,
 } from '@helpers/expenses/expense-stats';
 import { fetchHouseholdMembership } from '@helpers/households';
@@ -90,6 +92,22 @@ function buildMonthRange({
     const offset = total - 1 - index;
     return format(subMonths(endDate, offset), 'yyyy-MM');
   });
+}
+
+function buildMonthSpan(start: string, end: string): string[] {
+  const startDate = parse(start, 'yyyy-MM', new Date());
+  const endDate = parse(end, 'yyyy-MM', new Date());
+  if (!isValid(startDate) || !isValid(endDate) || startDate > endDate) {
+    return [];
+  }
+  const months: string[] = [];
+  const cursor = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+  const endCursor = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+  while (cursor <= endCursor) {
+    months.push(format(cursor, 'yyyy-MM'));
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+  return months;
 }
 
 async function resolveScope({
@@ -321,6 +339,136 @@ export async function getMonthlyCategoryUserRange({
   });
 
   return { data: { months: range, rows } };
+}
+
+export async function getMonthlyWindow({
+  scope,
+  householdId,
+  endMonth,
+}: ScopeInput & { endMonth?: string }): Promise<
+  ActionResult<{ months: string[]; rows: MonthlyByCategoryUserRow[] }>
+> {
+  const range = buildMonthRange({ endMonth, count: 12 });
+  if (!range.length) {
+    return { data: { months: [], rows: [] } };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { data: { months: [], rows: [] }, errorCode: 'auth_required' };
+  }
+
+  const resolved = await resolveScope({
+    scope,
+    householdId,
+    userId: user.id,
+    supabase,
+  });
+  if ('errorCode' in resolved && resolved.errorCode) {
+    return { data: { months: [], rows: [] }, errorCode: resolved.errorCode };
+  }
+
+  const rows = await fetchMonthlyByCategoryUser({
+    supabase,
+    householdId: resolved.householdId,
+    months: range,
+  });
+
+  return { data: { months: range, rows } };
+}
+
+export async function getMonthlyHistory({
+  scope,
+  householdId,
+}: ScopeInput): Promise<
+  ActionResult<{ months: string[]; rows: MonthlyByCategoryUserRow[] }>
+> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { data: { months: [], rows: [] }, errorCode: 'auth_required' };
+  }
+
+  const resolved = await resolveScope({
+    scope,
+    householdId,
+    userId: user.id,
+    supabase,
+  });
+  if ('errorCode' in resolved && resolved.errorCode) {
+    return { data: { months: [], rows: [] }, errorCode: resolved.errorCode };
+  }
+
+  const rows = await fetchAllMonthlyByCategoryUser({
+    supabase,
+    householdId: resolved.householdId,
+  });
+
+  const monthsFromRows = rows
+    .map(row => row.month)
+    .filter((month): month is string => Boolean(month));
+  const unique = uniqueMonths(monthsFromRows);
+  if (!unique.length) {
+    return { data: { months: [], rows } };
+  }
+
+  const earliest = unique[0];
+  const latest = unique[unique.length - 1];
+  const months = buildMonthSpan(earliest, latest);
+
+  return { data: { months, rows } };
+}
+
+export async function getMonthlyDataBounds({
+  scope,
+  householdId,
+}: ScopeInput): Promise<
+  ActionResult<{ earliestMonth: string | null; currentMonth: string }>
+> {
+  const currentMonth = format(new Date(), 'yyyy-MM');
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      data: { earliestMonth: null, currentMonth },
+      errorCode: 'auth_required',
+    };
+  }
+
+  const resolved = await resolveScope({
+    scope,
+    householdId,
+    userId: user.id,
+    supabase,
+  });
+  if ('errorCode' in resolved && resolved.errorCode) {
+    return {
+      data: { earliestMonth: null, currentMonth },
+      errorCode: resolved.errorCode,
+    };
+  }
+
+  const bounds = await fetchMonthlyBoundsByCategoryUser({
+    supabase,
+    householdId: resolved.householdId,
+  });
+
+  return {
+    data: {
+      earliestMonth: bounds.earliestMonth,
+      currentMonth,
+    },
+  };
 }
 
 export async function getMonthlyTotalsRange({

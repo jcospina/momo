@@ -4,6 +4,7 @@ import type { EChartsOption, EChartsType } from 'echarts';
 import * as echarts from 'echarts';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { safeResize, safeSetOption } from './echarts-safe';
 import chartTheme from './theme.json';
 
 const THEME_NAME = 'momo';
@@ -193,7 +194,7 @@ export function RingChart({
       ],
     };
 
-    chart.setOption(option);
+    safeSetOption(chart, option, 'RingChart');
 
     const resizeObserver = new ResizeObserver(entries => {
       const entry = entries[0];
@@ -203,7 +204,7 @@ export function RingChart({
           height: entry.contentRect.height,
         });
       }
-      chart.resize();
+      safeResize(chart, entry, 'RingChart');
     });
     resizeObserver.observe(containerRef.current);
 
@@ -273,18 +274,22 @@ export function RingChart({
     const chart = chartRef.current;
     if (!chart) return;
 
-    chart.setOption({
-      legend: {
-        ...layout.legend,
-      },
-      series: [
-        {
-          radius: layout.radius,
-          center: [layout.centerX, layout.centerY],
-          data: seriesData,
+    safeSetOption(
+      chart,
+      {
+        legend: {
+          ...layout.legend,
         },
-      ],
-    });
+        series: [
+          {
+            radius: layout.radius,
+            center: [layout.centerX, layout.centerY],
+            data: seriesData,
+          },
+        ],
+      },
+      'RingChart',
+    );
   }, [
     layout.centerX,
     layout.centerY,

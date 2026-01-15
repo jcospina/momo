@@ -2,17 +2,12 @@
 
 import { useCallback, useMemo } from 'react';
 
+import { formatCategoryLabel } from '@helpers/expenses/expense-stats.aggregations';
+
 import { RingChart, type RingChartItem } from './ring-chart';
 
 const OTHERS_LABEL = 'Others';
 const TOP_COUNT = 4;
-
-function formatCategoryLabel(category: string) {
-  return category
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
 
 type RingItem = {
   category: string;

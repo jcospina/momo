@@ -2,8 +2,7 @@ import { format, isValid, parse } from 'date-fns';
 
 import {
   getDailyComparisonData,
-  getMonthlyCategoryRange,
-  getMonthlyCategoryUserRange,
+  getMonthlyHistory,
 } from '@actions/expense-stats';
 import { DailyComparisonLineChart } from '@components/charts/daily-comparison-line-chart';
 import { Navbar } from '@components/navbar/navbar';
@@ -33,55 +32,29 @@ export default async function StatsPage() {
   const currency = prefs?.currency ?? 'USD';
   const currentMonth = format(new Date(), 'yyyy-MM');
 
-  const [
-    range3Result,
-    range6Result,
-    range12Result,
-    breakdownResult,
-    dailyResult,
-  ] = await Promise.all([
-    getMonthlyCategoryRange({
-      count: 3,
-      endMonth: currentMonth,
-      scope: 'auto',
-    }),
-    getMonthlyCategoryRange({
-      count: 6,
-      endMonth: currentMonth,
-      scope: 'auto',
-    }),
-    getMonthlyCategoryRange({
-      count: 12,
-      endMonth: currentMonth,
-      scope: 'auto',
-    }),
-    getMonthlyCategoryUserRange({
-      count: 12,
-      endMonth: currentMonth,
+  const [windowResult, dailyResult] = await Promise.all([
+    getMonthlyHistory({
       scope: 'auto',
     }),
     getDailyComparisonData({ currentMonth, scope: 'auto' }),
   ]);
 
-  const breakdownRows = breakdownResult.data.rows;
-  const months3 = range3Result.data.months;
-  const months6 = range6Result.data.months;
-  const months12 = range12Result.data.months;
+  const windowMonths = windowResult.data.months;
+  const breakdownRows = windowResult.data.rows;
   const dailyLabel = formatMonthLabel(dailyResult.data.currentMonth);
 
   return (
     <Flex direction="column" padding={3} gap={5}>
       <Navbar />
       <RingChartsPanel
-        months12={months12}
+        months={windowMonths}
         breakdownRows={breakdownRows}
         currency={currency}
       />
       <Panel shadowless className={styles['stats__panel']}>
         <MonthlyTotalsPanel
-          months3={months3}
-          months6={months6}
-          months12={months12}
+          months={windowMonths}
+          breakdownRows={breakdownRows}
           currency={currency}
         />
       </Panel>
