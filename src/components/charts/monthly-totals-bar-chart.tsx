@@ -277,7 +277,7 @@ export function MonthlyTotalsBarChart({
   useEffect(() => {
     const chart = chartRef.current;
     if (!chart) return;
-    safeSetOption(chart, options, 'MonthlyTotalsBarChart');
+    safeSetOption(chart, options, 'MonthlyTotalsBarChart', true);
   }, [options]);
 
   useEffect(() => {

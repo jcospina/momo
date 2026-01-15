@@ -25,10 +25,11 @@ export function safeSetOption(
   chart: EChartsType,
   option: EChartsOption,
   context = 'ECharts',
+  notMerge = false,
 ) {
   if (chart.isDisposed()) return;
   try {
-    chart.setOption(option);
+    chart.setOption(option, { notMerge });
   } catch (error) {
     if (process.env.NODE_ENV !== 'production') {
       console.warn(`${context} setOption skipped:`, error);

@@ -1,6 +1,5 @@
 'use client';
 
-import useEmblaCarousel from 'embla-carousel-react';
 import { useMemo } from 'react';
 
 import styles from '@/app/home/stats/stats.module.css';
@@ -8,7 +7,6 @@ import { mq, useMediaQuery } from '@/hooks/use-media-query';
 import { MonthlyTotalsBarChart } from '@components/charts/monthly-totals-bar-chart';
 import { buildMonthlyCategoryTotals } from '@helpers/expenses/expense-stats.aggregations';
 import { formatMonthRange } from '@helpers/expenses/expense-stats.months';
-import { useEmblaSync } from '@hooks/use-embla-sync';
 import { useMonthlyWindows } from '@hooks/use-monthly-windows';
 import type { MonthlyByCategoryUserRow } from '@lib-types/expense-stats';
 import { Flex } from '@ui/flex/flex';
@@ -35,10 +33,6 @@ export function MonthlyTotalsPanel({
   currency,
 }: MonthlyTotalsPanelProps) {
   const isNarrow = useMediaQuery(mq('(max-width: 768px)'));
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: 'start',
-    containScroll: 'trimSnaps',
-  });
 
   const monthlyTotals = useMemo(
     () => buildMonthlyCategoryTotals(breakdownRows, months),
@@ -53,10 +47,10 @@ export function MonthlyTotalsPanel({
     setActiveIndex,
   } = useMonthlyWindows(monthlyTotals, { defaultRange: '3' });
 
-  useEmblaSync(emblaApi, {
-    activeIndex,
-    onSelect: setActiveIndex,
-  });
+  const activeWindow = barMonths[activeIndex] ?? [];
+  const hasData = activeWindow.some(entry =>
+    entry.categories.some(category => category.totalCents > 0),
+  );
 
   const handleRangeChange = (value: string[]) => {
     const next = value[0];
@@ -105,7 +99,7 @@ export function MonthlyTotalsPanel({
           )}
         </Typography>
       </Flex>
-      <div className={styles['stats__embla']}>
+      <div className={styles['stats__chart-shell']}>
         <button
           type="button"
           aria-label="Previous months"
@@ -115,17 +109,12 @@ export function MonthlyTotalsPanel({
         >
           <LeftIcon aria-hidden="true" />
         </button>
-        <div className={styles['stats__embla-viewport']} ref={emblaRef}>
-          <div className={styles['stats__embla-container']}>
-            {barMonths.map((window, index) => (
-              <div className={styles['stats__embla-slide']} key={index}>
-                <div className={styles['stats__chart--bar']}>
-                  <MonthlyTotalsBarChart months={window} currency={currency} />
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className={styles['stats__chart--bar']}>
+          <MonthlyTotalsBarChart months={activeWindow} currency={currency} />
         </div>
+        {!hasData ? (
+          <div className={styles['stats__chart-empty']}>No data yet</div>
+        ) : null}
         <button
           type="button"
           aria-label="Next months"

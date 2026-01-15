@@ -1,26 +1,15 @@
-import { format, isValid, parse } from 'date-fns';
+import { format } from 'date-fns';
 
 import {
   getDailyComparisonData,
   getMonthlyHistory,
 } from '@actions/expense-stats';
-import { DailyComparisonLineChart } from '@components/charts/daily-comparison-line-chart';
 import { Navbar } from '@components/navbar/navbar';
-import { MonthlyTotalsPanel } from '@components/stats/monthly-totals-panel';
-import { RingChartsPanel } from '@components/stats/ring-charts-panel';
+import { ExpenseScopePanels } from '@components/stats/expense-scope-panels';
 import { getCurrentUser } from '@helpers/user';
 import { getUserPreferences } from '@helpers/user-prefs';
 import { Flex } from '@ui/flex/flex';
-import { Panel } from '@ui/panel/panel';
-import { Typography } from '@ui/typography/typography';
 import { redirect } from 'next/navigation';
-import styles from './stats.module.css';
-
-function formatMonthLabel(month: string) {
-  const parsed = parse(month, 'yyyy-MM', new Date());
-  if (!isValid(parsed)) return month;
-  return format(parsed, 'MMM yyyy');
-}
 
 export default async function StatsPage() {
   const user = await getCurrentUser();
@@ -32,51 +21,45 @@ export default async function StatsPage() {
   const currency = prefs?.currency ?? 'USD';
   const currentMonth = format(new Date(), 'yyyy-MM');
 
-  const [windowResult, dailyResult] = await Promise.all([
-    getMonthlyHistory({
-      scope: 'auto',
-    }),
-    getDailyComparisonData({ currentMonth, scope: 'auto' }),
+  const [personalMonthly, householdMonthly] = await Promise.all([
+    getMonthlyHistory({ scope: 'personal' }),
+    getMonthlyHistory({ scope: 'household' }),
   ]);
 
-  const windowMonths = windowResult.data.months;
-  const breakdownRows = windowResult.data.rows;
-  const dailyLabel = formatMonthLabel(dailyResult.data.currentMonth);
+  const householdAvailable = householdMonthly.errorCode !== 'no_household';
+
+  const [personalDaily, householdDaily] = await Promise.all([
+    getDailyComparisonData({ currentMonth, scope: 'personal' }),
+    householdAvailable
+      ? getDailyComparisonData({ currentMonth, scope: 'household' })
+      : Promise.resolve({
+          data: {
+            currentMonth,
+            previousMonth: currentMonth,
+            current: [],
+            previous: [],
+          },
+          errorCode: 'no_household' as const,
+        }),
+  ]);
 
   return (
     <Flex direction="column" padding={3} gap={5}>
       <Navbar />
-      <RingChartsPanel
-        months={windowMonths}
-        breakdownRows={breakdownRows}
+      <ExpenseScopePanels
         currency={currency}
+        householdAvailable={householdAvailable}
+        personal={{
+          months: personalMonthly.data.months,
+          rows: personalMonthly.data.rows,
+          daily: personalDaily.data,
+        }}
+        household={{
+          months: householdMonthly.data.months,
+          rows: householdMonthly.data.rows,
+          daily: householdDaily.data,
+        }}
       />
-      <Panel shadowless className={styles['stats__panel']}>
-        <MonthlyTotalsPanel
-          months={windowMonths}
-          breakdownRows={breakdownRows}
-          currency={currency}
-        />
-      </Panel>
-      <Panel shadowless className={styles['stats__panel']}>
-        <Flex direction="column" gap={1} padding={3}>
-          <Typography as="h2" size="lg" weight="bold">
-            Daily comparison
-          </Typography>
-          <Typography size="sm">
-            {formatMonthLabel(dailyResult.data.currentMonth)} vs{' '}
-            {formatMonthLabel(dailyResult.data.previousMonth)}
-          </Typography>
-        </Flex>
-        <div className={styles['stats__chart--line']}>
-          <DailyComparisonLineChart
-            monthLabel={dailyLabel}
-            current={dailyResult.data.current}
-            previous={dailyResult.data.previous}
-            currency={currency}
-          />
-        </div>
-      </Panel>
     </Flex>
   );
 }

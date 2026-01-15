@@ -194,7 +194,7 @@ export function RingChart({
       ],
     };
 
-    safeSetOption(chart, option, 'RingChart');
+    safeSetOption(chart, option, 'RingChart', true);
 
     const resizeObserver = new ResizeObserver(entries => {
       const entry = entries[0];
@@ -282,13 +282,30 @@ export function RingChart({
         },
         series: [
           {
+            type: 'pie',
             radius: layout.radius,
             center: [layout.centerX, layout.centerY],
+            avoidLabelOverlap: false,
+            label: {
+              show: false,
+            },
+            labelLine: {
+              show: false,
+            },
+            itemStyle: {
+              borderRadius: 6,
+              borderWidth: 1,
+            },
+            emphasis: {
+              scale: true,
+              scaleSize: 6,
+            },
             data: seriesData,
           },
         ],
       },
       'RingChart',
+      true,
     );
   }, [
     layout.centerX,
