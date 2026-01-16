@@ -1,0 +1,43 @@
+.navigationProgress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-100%);
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+  z-index: 5;
+}
+
+.navigationProgress--active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.navigationProgress__track {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.navigationProgress__indicator {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 34%;
+  background: var(--color-sky-aqua);
+  border-right: 2px solid var(--color-dark);
+  animation: navigationProgressSlide 1.8s ease-in-out infinite;
+}
+
+@keyframes navigationProgressSlide {
+  0% {
+    transform: translateX(-40%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}

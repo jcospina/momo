@@ -9,13 +9,14 @@ import { Circle } from '@ui/circle/circle';
 import { ChartIcon } from '@ui/icons/chart';
 import { MessageIcon } from '@ui/icons/message';
 import { cn } from '@utils/cn';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { useNavigationProgress } from '@/providers/navigation-progress-provider';
 import styles from './navbar.module.css';
 
 export function Navbar() {
-  const router = useRouter();
   const pathName = usePathname();
   const profile = useProfile();
+  const { navigate } = useNavigationProgress();
 
   const isHomePage = pathName === '/home';
   const isProfilePage = pathName === '/home/profile';
@@ -24,15 +25,15 @@ export function Navbar() {
   const isBigScreen = useMediaQuery(mq('(min-width: 768px)'));
 
   const goToProfile = () => {
-    router.push('/home/profile');
+    navigate('/home/profile');
   };
 
   const goToStats = () => {
-    router.push('/home/stats');
+    navigate('/home/stats');
   };
 
   const goToHome = () => {
-    router.push('/home');
+    navigate('/home');
   };
 
   return (
@@ -43,7 +44,14 @@ export function Navbar() {
           styles['momo-navbar__spacer'],
         )}
       />
-      <a className={styles['momo-navbar__logo']} href="/home">
+      <a
+        className={styles['momo-navbar__logo']}
+        href="/home"
+        onClick={event => {
+          event.preventDefault();
+          goToHome();
+        }}
+      >
         <Logo />
       </a>
       <div className={styles['momo-navbar__slot']}>

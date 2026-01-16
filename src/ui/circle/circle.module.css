@@ -24,7 +24,8 @@
     box-shadow 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.momo-circle--button:hover {
+.momo-circle--button:hover,
+.momo-circle--button:active {
   box-shadow: calc(var(--circle-shadow) * -0.5px)
     calc(var(--circle-shadow) * 0.5px) 0 var(--color-dark);
   transform: translate(calc(var(--circle-shadow) * -0.5px));
