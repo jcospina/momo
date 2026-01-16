@@ -134,7 +134,7 @@ export function ExpenseDetailsDialog({
       merchant: draft.merchant || null,
       currency: draft.currency,
     }));
-    await updateExpenses({ updates });
+    await updateExpenses({ updates, messageId });
     setIsSaving(false);
     controller.closeDialog();
   };

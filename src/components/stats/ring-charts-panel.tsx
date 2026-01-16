@@ -217,8 +217,7 @@ export function RingChartsPanel({
         !showHouseholdTotals && styles['stats__ring-row--single'],
       )}
     >
-      {showHouseholdTotals &&
-      windowData[activeIndex]?.userTotalsItems.length ? (
+      {showHouseholdTotals ? (
         <Panel
           shadowless
           className={cn(

@@ -11,6 +11,7 @@ import { fetchChatHistory } from '@features/chat/api/chat-history';
 import { useChatState } from '@features/chat/hooks/use-chat-state';
 import { useComposer } from '@features/chat/hooks/use-composer';
 import { useHouseholdRealtime } from '@features/chat/hooks/use-household-realtime';
+import { usePersonalRealtime } from '@features/chat/hooks/use-personal-realtime';
 import { useHouseholdSync } from '@features/chat/hooks/use-household-sync';
 import type { ChatMessage } from '@lib-types/chat';
 import { useDialogController } from '@ui/dialog/dialog';
@@ -123,6 +124,28 @@ export function Chat({
     isHousehold,
     onMessage: mergeRealtime,
     onDelete: message => removeHouseholdMessage(message.id),
+    onStatus: handleRealtimeStatus,
+  });
+
+  const handlePersonalMessage = useCallback(
+    (message: ChatMessage) => {
+      mergePersonalBatch([message]);
+    },
+    [mergePersonalBatch],
+  );
+
+  const handlePersonalDelete = useCallback(
+    (message: ChatMessage) => {
+      removePersonalMessage(message.id);
+    },
+    [removePersonalMessage],
+  );
+
+  usePersonalRealtime({
+    userId,
+    isPersonal: activeTab === 'personal',
+    onMessage: handlePersonalMessage,
+    onDelete: handlePersonalDelete,
     onStatus: handleRealtimeStatus,
   });
 

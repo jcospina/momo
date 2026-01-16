@@ -280,6 +280,50 @@ export function RingChart({
         legend: {
           ...layout.legend,
         },
+        tooltip: {
+          show: true,
+          confine: true,
+          position: (
+            point: number[],
+            _params: unknown,
+            _dom: unknown,
+            _rect: unknown,
+            size: { contentSize: number[]; viewSize: number[] },
+          ) => {
+            const [x, y] = point;
+            const [contentWidth, contentHeight] = size.contentSize;
+            const [viewWidth, viewHeight] = size.viewSize;
+            const clampedX = Math.min(
+              Math.max(x, 8),
+              Math.max(8, viewWidth - contentWidth - 8),
+            );
+            const clampedY = Math.min(
+              Math.max(y, 8),
+              Math.max(8, viewHeight - contentHeight - 8),
+            );
+            return [clampedX, clampedY];
+          },
+          formatter: (params: unknown) => {
+            const p = params as {
+              name?: string;
+              value?: number;
+              percent?: number;
+            };
+            if (!p || typeof p.value !== 'number' || !p.name) return '';
+            const amount = formatCurrency(
+              toDisplayAmount(p.value, currency),
+              currency,
+            );
+            const percent = Number.isFinite(p.percent) ? p.percent : 0;
+            const extra =
+              getTooltipLines?.({ name: p.name, value: p.value }) ?? [];
+            return [
+              `<strong>${p.name}</strong>`,
+              `${amount} (${percent!.toFixed(1)}%)`,
+              ...extra,
+            ].join('<br/>');
+          },
+        },
         series: [
           {
             type: 'pie',

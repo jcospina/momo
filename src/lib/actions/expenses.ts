@@ -46,6 +46,7 @@ export async function getExpensesByMessageId({
 
 type UpdateExpensesInput = {
   updates: ExpenseUpdateInput[];
+  messageId?: string | null;
 };
 
 function toMinorUnits(value: number, currency: string) {
@@ -70,6 +71,7 @@ function parseAmountInput(amount: string, currency: string): number | null {
 
 export async function updateExpenses({
   updates,
+  messageId = null,
 }: UpdateExpensesInput): Promise<UpdateExpensesResult> {
   if (!updates?.length) {
     return { updatedIds: [] };
@@ -116,6 +118,21 @@ export async function updateExpenses({
 
   if (error) {
     return { errorCode: 'expense_update_failed' };
+  }
+
+  const trimmedMessageId = messageId?.trim();
+  if (trimmedMessageId) {
+    const expenses = await fetchExpensesByMessageId({
+      supabase,
+      messageId: trimmedMessageId,
+    });
+    const needsCategory = expenses.some(expense => !expense.category);
+    const nextStatus = needsCategory ? 'needs_category' : 'processed';
+    await supabase
+      .from('chat_messages')
+      .update({ status: nextStatus })
+      .eq('id', trimmedMessageId)
+      .eq('user_id', user.id);
   }
 
   return {

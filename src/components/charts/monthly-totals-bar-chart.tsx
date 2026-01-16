@@ -95,7 +95,7 @@ function buildMonthSeries(entries: MonthEntry[]) {
 
   const topCategories = Array.from(totalsByCategory.entries())
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 4)
+    .slice(0, 5)
     .map(([name]) => name);
 
   const othersLabel = 'Others';

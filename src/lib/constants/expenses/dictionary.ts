@@ -61,6 +61,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  'alimento para mascotas': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
   almuerzo: [
     {
       category: 'dining',
@@ -89,6 +95,24 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     {
       category: 'gifts',
       match: 'weak',
+    },
+  ],
+  animal: [
+    {
+      category: 'pets',
+      match: 'weak',
+    },
+  ],
+  'animal hospital': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  aparcamiento: [
+    {
+      category: 'transportation',
+      match: 'strong',
     },
   ],
   apartamento: [
@@ -135,6 +159,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     {
       category: 'groceries',
       match: 'strong',
+    },
+  ],
+  'arena para gatos': [
+    {
+      category: 'pets',
+      match: 'weak',
     },
   ],
   'arreglo personal': [
@@ -323,6 +353,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  'boarding kennel': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
   bonus: [
     {
       category: 'income',
@@ -381,6 +417,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  cabify: [
+    {
+      category: 'transportation',
+      match: 'strong',
+    },
+  ],
+  cachorro: [
+    {
+      category: 'pets',
+      match: 'weak',
+    },
+  ],
   cafe: [
     {
       category: 'dining',
@@ -417,6 +465,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  cardiologist: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
   carrefour: [
     {
       category: 'groceries',
@@ -438,6 +492,24 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   cashback: [
     {
       category: 'income',
+      match: 'strong',
+    },
+  ],
+  cat: [
+    {
+      category: 'pets',
+      match: 'weak',
+    },
+  ],
+  'cat food': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  'cat grooming': [
+    {
+      category: 'pets',
       match: 'strong',
     },
   ],
@@ -523,6 +595,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'weak',
     },
   ],
+  claro: [
+    {
+      category: 'utilities',
+      match: 'strong',
+    },
+  ],
   clinic: [
     {
       category: 'health',
@@ -532,6 +610,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   clinica: [
     {
       category: 'health',
+      match: 'strong',
+    },
+  ],
+  'clinica veterinaria': [
+    {
+      category: 'pets',
       match: 'strong',
     },
   ],
@@ -573,6 +657,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'weak',
     },
   ],
+  'comida para gatos': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  'comida para perros': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
   comision: [
     {
       category: 'fees',
@@ -586,6 +682,10 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     },
   ],
   compra: [
+    {
+      category: 'shopping',
+      match: 'strong',
+    },
     {
       category: 'groceries',
       match: 'weak',
@@ -618,6 +718,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   consulta: [
     {
       category: 'health',
+      match: 'weak',
+    },
+  ],
+  correa: [
+    {
+      category: 'pets',
       match: 'weak',
     },
   ],
@@ -692,6 +798,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     },
     {
       category: 'shopping',
+      match: 'weak',
+    },
+  ],
+  'cuidado de mascotas': [
+    {
+      category: 'pets',
       match: 'weak',
     },
   ],
@@ -821,6 +933,24 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  dermatologist: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  dermatologo: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  diapers: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
   deposit: [
     {
       category: 'income',
@@ -830,6 +960,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   desayuno: [
     {
       category: 'dining',
+      match: 'strong',
+    },
+  ],
+  didi: [
+    {
+      category: 'transportation',
       match: 'strong',
     },
   ],
@@ -854,6 +990,42 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   doctor: [
     {
       category: 'health',
+      match: 'strong',
+    },
+  ],
+  doctora: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  dog: [
+    {
+      category: 'pets',
+      match: 'weak',
+    },
+  ],
+  'dog food': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  'dog grooming': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  dollarcity: [
+    {
+      category: 'shopping',
+      match: 'strong',
+    },
+  ],
+  'dollar city': [
+    {
+      category: 'shopping',
       match: 'strong',
     },
   ],
@@ -906,6 +1078,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   electronics: [
     {
       category: 'shopping',
+      match: 'strong',
+    },
+  ],
+  endocrinologist: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  endocrinologo: [
+    {
+      category: 'health',
       match: 'strong',
     },
   ],
@@ -1095,9 +1279,33 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  gastroenterologist: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  gastroenterologo: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  gato: [
+    {
+      category: 'pets',
+      match: 'weak',
+    },
+  ],
   gift: [
     {
       category: 'gifts',
+      match: 'strong',
+    },
+  ],
+  ginecologo: [
+    {
+      category: 'health',
       match: 'strong',
     },
   ],
@@ -1141,6 +1349,10 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'weak',
     },
     {
+      category: 'pets',
+      match: 'weak',
+    },
+    {
       category: 'shopping',
       match: 'weak',
     },
@@ -1165,10 +1377,22 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  'guarderia canina': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
   gym: [
     {
       category: 'health',
       match: 'weak',
+    },
+  ],
+  gynecologist: [
+    {
+      category: 'health',
+      match: 'strong',
     },
   ],
   haircut: [
@@ -1267,6 +1491,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  'hospital veterinario': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
   hostel: [
     {
       category: 'housing',
@@ -1284,6 +1514,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     },
     {
       category: 'travel',
+      match: 'strong',
+    },
+  ],
+  'hotel para mascotas': [
+    {
+      category: 'pets',
       match: 'strong',
     },
   ],
@@ -1314,6 +1550,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   income: [
     {
       category: 'income',
+      match: 'strong',
+    },
+  ],
+  indriver: [
+    {
+      category: 'transportation',
       match: 'strong',
     },
   ],
@@ -1351,6 +1593,16 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  juegos: [
+    {
+      category: 'entertainment',
+      match: 'strong',
+    },
+    {
+      category: 'kids',
+      match: 'weak',
+    },
+  ],
   juguete: [
     {
       category: 'kids',
@@ -1380,6 +1632,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   'just eat': [
     {
       category: 'dining',
+      match: 'strong',
+    },
+  ],
+  kennel: [
+    {
+      category: 'pets',
       match: 'strong',
     },
   ],
@@ -1427,6 +1685,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  kitten: [
+    {
+      category: 'pets',
+      match: 'weak',
+    },
+  ],
   'late fee': [
     {
       category: 'fees',
@@ -1451,6 +1715,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  leash: [
+    {
+      category: 'pets',
+      match: 'weak',
+    },
+  ],
   leisure: [
     {
       category: 'entertainment',
@@ -1473,6 +1743,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     {
       category: 'subscriptions',
       match: 'strong',
+    },
+  ],
+  litter: [
+    {
+      category: 'pets',
+      match: 'weak',
     },
   ],
   luggage: [
@@ -1536,6 +1812,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   masaje: [
     {
       category: 'self_care',
+      match: 'strong',
+    },
+  ],
+  mascota: [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  mascotas: [
+    {
+      category: 'pets',
       match: 'strong',
     },
   ],
@@ -1643,6 +1931,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  movistar: [
+    {
+      category: 'utilities',
+      match: 'strong',
+    },
+  ],
   mubi: [
     {
       category: 'subscriptions',
@@ -1679,6 +1973,24 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  neumologo: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  neurologist: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  neurologo: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
   netflix: [
     {
       category: 'subscriptions',
@@ -1687,6 +1999,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     {
       category: 'utilities',
       match: 'exclude',
+    },
+  ],
+  ninera: [
+    {
+      category: 'kids',
+      match: 'strong',
     },
   ],
   nintendo: [
@@ -1713,6 +2031,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  obstetra: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  obstetrician: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
   ocio: [
     {
       category: 'entertainment',
@@ -1725,15 +2055,69 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  oftalmologo: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  oncologist: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  oncologo: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
   openai: [
     {
       category: 'subscriptions',
       match: 'strong',
     },
   ],
+  ophthalmologist: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  orthopedist: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  ortopedista: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  otolaryngologist: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  otorrinolaringologo: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
   'pago tarjeta': [
     {
       category: 'transfer',
+      match: 'strong',
+    },
+  ],
+  panales: [
+    {
+      category: 'kids',
       match: 'strong',
     },
   ],
@@ -1744,6 +2128,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     },
   ],
   parking: [
+    {
+      category: 'transportation',
+      match: 'strong',
+    },
+  ],
+  parqueadero: [
+    {
+      category: 'transportation',
+      match: 'strong',
+    },
+  ],
+  parqueo: [
     {
       category: 'transportation',
       match: 'strong',
@@ -1779,6 +2175,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  pediatra: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
+  pediatrician: [
+    {
+      category: 'kids',
+      match: 'strong',
+    },
+  ],
   pedicure: [
     {
       category: 'self_care',
@@ -1791,9 +2199,87 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  'peluqueria canina': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  'peluqueria para mascotas': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
   penalty: [
     {
       category: 'fees',
+      match: 'strong',
+    },
+  ],
+  perro: [
+    {
+      category: 'pets',
+      match: 'weak',
+    },
+  ],
+  pet: [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  'pet boarding': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  'pet care': [
+    {
+      category: 'pets',
+      match: 'weak',
+    },
+  ],
+  'pet clinic': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  'pet food': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  'pet grooming': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  'pet shop': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  'pet store': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  pets: [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  petshop: [
+    {
+      category: 'pets',
       match: 'strong',
     },
   ],
@@ -1891,10 +2377,34 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  psiquiatra: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  psychiatrist: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
   pub: [
     {
       category: 'dining',
       match: 'strong',
+    },
+  ],
+  pulmonologist: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  puppy: [
+    {
+      category: 'pets',
+      match: 'weak',
     },
   ],
   purchase: [
@@ -1961,6 +2471,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  regalos: [
+    {
+      category: 'gifts',
+      match: 'strong',
+    },
+  ],
   renewal: [
     {
       category: 'subscriptions',
@@ -1984,6 +2500,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   renta: [
     {
       category: 'housing',
+      match: 'strong',
+    },
+  ],
+  reumatologo: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  rheumatologist: [
+    {
+      category: 'health',
       match: 'strong',
     },
   ],
@@ -2075,6 +2603,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  scribd: [
+    {
+      category: 'subscriptions',
+      match: 'strong',
+    },
+  ],
+  'seguro medico': [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
   'self care': [
     {
       category: 'self_care',
@@ -2087,12 +2627,6 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     {
       category: 'shopping',
       match: 'weak',
-    },
-  ],
-  scribd: [
-    {
-      category: 'subscriptions',
-      match: 'strong',
     },
   ],
   send: [
@@ -2309,6 +2843,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'weak',
     },
   ],
+  'tienda de mascotas': [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  tigo: [
+    {
+      category: 'utilities',
+      match: 'strong',
+    },
+  ],
   tip: [
     {
       category: 'gifts',
@@ -2377,6 +2923,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'weak',
     },
   ],
+  transporte: [
+    {
+      category: 'transportation',
+      match: 'weak',
+    },
+  ],
   'tratamiento estetico': [
     {
       category: 'self_care',
@@ -2437,10 +2989,52 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  urologo: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
+  urologist: [
+    {
+      category: 'health',
+      match: 'strong',
+    },
+  ],
   vehicle: [
     {
       category: 'vehicle',
       match: 'weak',
+    },
+  ],
+  vet: [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  veterinaria: [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  veterinarian: [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  veterinario: [
+    {
+      category: 'pets',
+      match: 'strong',
+    },
+  ],
+  veterinary: [
+    {
+      category: 'pets',
+      match: 'strong',
     },
   ],
   viaje: [
@@ -2450,6 +3044,18 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     },
     {
       category: 'travel',
+      match: 'strong',
+    },
+  ],
+  videogames: [
+    {
+      category: 'entertainment',
+      match: 'strong',
+    },
+  ],
+  videojuegos: [
+    {
+      category: 'entertainment',
       match: 'strong',
     },
   ],

@@ -7,7 +7,7 @@ import { formatCategoryLabel } from '@helpers/expenses/expense-stats.aggregation
 import { RingChart, type RingChartItem } from './ring-chart';
 
 const OTHERS_LABEL = 'Others';
-const TOP_COUNT = 4;
+const TOP_COUNT = 5;
 
 type RingItem = {
   category: string;
@@ -54,6 +54,10 @@ function prepareData(items: RingItem[]) {
   return {
     seriesData: data,
     othersCategories: rest.map(item => item.category),
+    othersBreakdown: rest.map(item => ({
+      category: item.category,
+      totalCents: item.totalCents,
+    })),
   };
 }
 
@@ -65,7 +69,7 @@ export function CategoryRingChart({
   onCategoryClick,
   onOthersClick,
 }: CategoryRingChartProps) {
-  const { seriesData, othersCategories } = useMemo(
+  const { seriesData, othersCategories, othersBreakdown } = useMemo(
     () => prepareData(items),
     [items],
   );
@@ -94,6 +98,21 @@ export function CategoryRingChart({
       items={seriesData}
       currency={currency}
       getTooltipLines={payload => {
+        if (payload.name === OTHERS_LABEL) {
+          if (!othersBreakdown.length) return [];
+          const formatter = new Intl.NumberFormat(undefined, {
+            style: 'currency',
+            currency,
+            currencyDisplay: currency === 'COP' ? 'narrowSymbol' : 'symbol',
+            maximumFractionDigits: currency === 'COP' ? 0 : 2,
+          });
+          return othersBreakdown.map(entry => {
+            const value = entry.totalCents / (currency === 'COP' ? 1 : 100);
+            return `<strong>${formatCategoryLabel(
+              entry.category,
+            )}</strong>: ${formatter.format(value)}`;
+          });
+        }
         const breakdown = tooltipByCategory?.[payload.name] ?? [];
         if (!breakdown.length) return [];
         const formatter = new Intl.NumberFormat(undefined, {
