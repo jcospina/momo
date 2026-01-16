@@ -6,7 +6,7 @@ import { Button } from '@ui/button/button';
 import { Dialog, useDialogController } from '@ui/dialog/dialog';
 import { Flex } from '@ui/flex/flex';
 import { AlertIcon } from '@ui/icons/alert';
-import { CentsIcon } from '@ui/icons/cents';
+import { CircleCheckIcon } from '@ui/icons/circle-check';
 import { ThreeDotsIcon } from '@ui/icons/three-dots';
 import { Margin } from '@ui/margin/margin';
 import { Menu } from '@ui/menu/menu';
@@ -175,19 +175,21 @@ function ExpenseCreatedButton({
       onClick={onClick}
       aria-label={label}
     >
-      <CentsIcon width={18} height={18} />
+      <CircleCheckIcon width={18} height={18} />
     </Button>
   );
 }
 
 type ActionsTriggerButtonProps = {
   onDelete: () => void;
+  onEdit: () => void;
 };
 
-function ActionsTriggerButton({ onDelete }: ActionsTriggerButtonProps) {
+function ActionsTriggerButton({ onDelete, onEdit }: ActionsTriggerButtonProps) {
   return (
     <Menu
       items={[
+        { type: 'item', label: 'Edit', onSelect: onEdit },
         { type: 'item', label: 'Delete', tone: 'danger', onSelect: onDelete },
       ]}
     >
@@ -313,7 +315,10 @@ function ChatMessageBubble({
                 {message}
               </Typography>
               {showActions ? (
-                <ActionsTriggerButton onDelete={deleteDialog.openDialog} />
+                <ActionsTriggerButton
+                  onEdit={onExpenseDetails}
+                  onDelete={deleteDialog.openDialog}
+                />
               ) : null}
             </div>
           </Padding>

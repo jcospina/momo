@@ -136,11 +136,11 @@ export function DailyComparisonLineChart({
           const currentItem = items.find(
             item =>
               (item as { seriesName?: string }).seriesName === currentLabel,
-          ) as { value?: number } | undefined;
+          ) as { value?: number; color?: string } | undefined;
           const previousItem = items.find(
             item =>
               (item as { seriesName?: string }).seriesName === previousLabel,
-          ) as { value?: number } | undefined;
+          ) as { value?: number; color?: string } | undefined;
 
           const currentValue =
             typeof currentItem?.value === 'number' ? currentItem.value : 0;
@@ -149,12 +149,28 @@ export function DailyComparisonLineChart({
 
           const axisValue = items[0]?.axisValue ?? items[0]?.name;
           const dayLine = axisValue ? `<strong>Day ${axisValue}</strong>` : '';
-          const currentLine = `${currentLabel} ${formatter.format(
-            toDisplayAmount(currentValue, currency),
-          )}`;
-          const previousLine = `${previousLabel} ${formatter.format(
-            toDisplayAmount(previousValue, currency),
-          )}`;
+          const formatLine = (
+            label: string,
+            color: string | undefined,
+            value: number,
+          ) => {
+            const dot = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color ?? '#000'};margin-right:6px;"></span>`;
+            const spacer =
+              '<span style="display:inline-block;width:10px;"></span>';
+            return `${dot}<strong>${label}</strong>${spacer}${formatter.format(
+              toDisplayAmount(value, currency),
+            )}`;
+          };
+          const currentLine = formatLine(
+            currentLabel,
+            currentItem?.color,
+            currentValue,
+          );
+          const previousLine = formatLine(
+            previousLabel,
+            previousItem?.color,
+            previousValue,
+          );
 
           return [dayLine, currentLine, previousLine]
             .filter(Boolean)
@@ -165,8 +181,17 @@ export function DailyComparisonLineChart({
         left: '10%',
         right: '6%',
         top: 24,
-        bottom: 36,
+        bottom: 60,
         containLabel: true,
+      },
+      legend: {
+        show: true,
+        icon: 'circle',
+        itemHeight: 12,
+        itemWidth: 12,
+        itemGap: 10,
+        bottom: 10,
+        left: 'center',
       },
       xAxis: {
         type: 'category',

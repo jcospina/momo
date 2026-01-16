@@ -53,9 +53,10 @@ function formatCategoryLabel(category: ExpenseCategory) {
     .join(' ');
 }
 
-function formatAmount(amountCents: number) {
+function formatAmount(amountCents: number, currency: string) {
   if (!Number.isFinite(amountCents)) return '';
-  return (amountCents / 100).toString();
+  const divisor = currency === 'COP' ? 1 : 100;
+  return (amountCents / divisor).toString();
 }
 
 function formatExpenseNote(note: string, fallback: string) {
@@ -97,13 +98,14 @@ export function ExpenseDetailsDialog({
           categorySet.has(expense.category as ExpenseCategory)
             ? (expense.category as ExpenseCategory)
             : null;
+        const currency = expense.currency ?? 'USD';
         return {
           id: expense.id,
-          amount: formatAmount(expense.amount_cents),
+          amount: formatAmount(expense.amount_cents, currency),
           expenseDate: expense.expense_date ?? '',
           category,
           merchant: expense.merchant ?? '',
-          currency: expense.currency ?? 'USD',
+          currency,
           note: expense.note ?? '',
         };
       });

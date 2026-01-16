@@ -1,8 +1,10 @@
-export function ChartIcon({
+import type { SVGProps } from 'react';
+
+export function MessageIcon({
   width = 24,
   height = 24,
   ...props
-}: React.SVGProps<SVGSVGElement>) {
+}: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -16,12 +18,10 @@ export function ChartIcon({
       strokeLinejoin="round"
       {...props}
     >
-      <path d="M12 16v5" />
-      <path d="M16 14v7" />
-      <path d="M20 10v11" />
-      <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15" />
-      <path d="M4 18v3" />
-      <path d="M8 14v7" />
+      <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" />
+      <path d="M7 11h10" />
+      <path d="M7 15h6" />
+      <path d="M7 7h8" />
     </svg>
   );
 }
