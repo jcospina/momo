@@ -7,6 +7,7 @@ import { mq, useMediaQuery } from '@/hooks/use-media-query';
 import { Logo } from '@/ui/logo/logo';
 import { Circle } from '@ui/circle/circle';
 import { ChartIcon } from '@ui/icons/chart';
+import { MessageIcon } from '@ui/icons/message';
 import { cn } from '@utils/cn';
 import { usePathname, useRouter } from 'next/navigation';
 import styles from './navbar.module.css';
@@ -16,7 +17,9 @@ export function Navbar() {
   const pathName = usePathname();
   const profile = useProfile();
 
+  const isHomePage = pathName === '/home';
   const isProfilePage = pathName === '/home/profile';
+  const isStatsPage = pathName === '/home/stats';
 
   const isBigScreen = useMediaQuery(mq('(min-width: 768px)'));
 
@@ -26,6 +29,10 @@ export function Navbar() {
 
   const goToStats = () => {
     router.push('/home/stats');
+  };
+
+  const goToHome = () => {
+    router.push('/home');
   };
 
   return (
@@ -41,9 +48,16 @@ export function Navbar() {
       </a>
       <div className={styles['momo-navbar__slot']}>
         <Flex gap={2} justifyContent="flex-end" className="full-w">
-          <Circle onClick={goToStats} color="mauve-magic">
-            <ChartIcon width={30} height={30} />
-          </Circle>
+          {!isHomePage && (
+            <Circle onClick={goToHome} color="amber-glow">
+              <MessageIcon width={30} height={30} />
+            </Circle>
+          )}
+          {!isStatsPage && (
+            <Circle onClick={goToStats} color="mauve-magic">
+              <ChartIcon width={30} height={30} />
+            </Circle>
+          )}
           {!isProfilePage && (
             <Avatar
               size={isBigScreen ? 'medium' : 'small'}

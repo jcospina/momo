@@ -1,5 +1,6 @@
 'use client';
 
+import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { deleteChatMessage, sendChatMessage } from '@actions/chat-messages';
@@ -11,8 +12,8 @@ import { fetchChatHistory } from '@features/chat/api/chat-history';
 import { useChatState } from '@features/chat/hooks/use-chat-state';
 import { useComposer } from '@features/chat/hooks/use-composer';
 import { useHouseholdRealtime } from '@features/chat/hooks/use-household-realtime';
-import { usePersonalRealtime } from '@features/chat/hooks/use-personal-realtime';
 import { useHouseholdSync } from '@features/chat/hooks/use-household-sync';
+import { usePersonalRealtime } from '@features/chat/hooks/use-personal-realtime';
 import type { ChatMessage } from '@lib-types/chat';
 import { useDialogController } from '@ui/dialog/dialog';
 import { Divider } from '@ui/divider/divider';
@@ -32,100 +33,150 @@ interface ChatProps {
   initialHouseholdMessages: ChatMessage[];
 }
 
+type ChatPanelProps = {
+  userId: string;
+  isActive: boolean;
+  householdId?: string | null;
+  initialMessages: ChatMessage[];
+};
+
 const HISTORY_PAGE_SIZE = 30;
 
-export function Chat({
-  householdName,
-  householdId = null,
+type ChatPanelLayoutProps = {
+  isActive: boolean;
+  messages: ChatMessage[];
+  hasMore: boolean;
+  isLoadingMore: boolean;
+  onLoadMore: () => void;
+  currentUserId: string;
+  isHousehold: boolean;
+  onDelete: (message: ChatMessage) => void;
+  onRetrySend: (message: ChatMessage) => void;
+  onOpenExpenseDetails: (message: ChatMessage) => void;
+  deleteErrors: Record<string, boolean>;
+  draft: string;
+  setDraft: (value: string) => void;
+  onKeyDown: (
+    event: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  expenseDetailsDialog: ReturnType<typeof useDialogController>;
+  expenseDetailsMessageId: string | null;
+};
+
+function ChatPanelLayout({
+  isActive,
+  messages,
+  hasMore,
+  isLoadingMore,
+  onLoadMore,
+  currentUserId,
+  isHousehold,
+  onDelete,
+  onRetrySend,
+  onOpenExpenseDetails,
+  deleteErrors,
+  draft,
+  setDraft,
+  onKeyDown,
+  onSubmit,
+  expenseDetailsDialog,
+  expenseDetailsMessageId,
+}: ChatPanelLayoutProps) {
+  return (
+    <Flex
+      direction="column"
+      isFullWidth
+      isFullHeight
+      style={{ display: isActive ? 'flex' : 'none', minHeight: 0 }}
+    >
+      <FlexItem
+        grow={1}
+        padding={0}
+        className="full-w"
+        style={{ minHeight: 0 }}
+      >
+        <ChatList
+          messages={messages}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={onLoadMore}
+          currentUserId={currentUserId}
+          renderMessage={msg => (
+            <ChatMessageItem
+              key={msg.id}
+              message={msg}
+              currentUserId={currentUserId}
+              isHousehold={isHousehold}
+              onDelete={onDelete}
+              onRetrySend={onRetrySend}
+              onOpenExpenseDetails={onOpenExpenseDetails}
+              deleteError={Boolean(deleteErrors[msg.id])}
+            />
+          )}
+        />
+      </FlexItem>
+      <Divider thickness="thick" />
+      <Flex
+        as="form"
+        paddingX={1}
+        paddingY={2}
+        isFullWidth
+        gap={1}
+        onSubmit={onSubmit}
+      >
+        <Input
+          multiline
+          autoResize
+          minRows={1}
+          maxRows={3}
+          value={draft}
+          onChange={(
+            event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+          ) => setDraft(event.target.value)}
+          onKeyDown={onKeyDown}
+          suffix={<SendButton />}
+        />
+      </Flex>
+      <ExpenseDetailsDialog
+        controller={expenseDetailsDialog}
+        messageId={expenseDetailsMessageId}
+      />
+    </Flex>
+  );
+}
+
+function PersonalChatPanel({
   userId,
-  initialPersonalMessages,
-  initialHouseholdMessages,
-}: ChatProps) {
+  isActive,
+  initialMessages,
+}: ChatPanelProps) {
   const {
-    activeTab,
-    setActiveTab,
-    isHousehold,
     messages,
     addOptimistic,
     markFailed,
     markPending,
     reconcile,
-    mergeRealtime,
-    mergeBatch,
     mergePersonalBatch,
-    householdCursorRef,
-    personalMessages,
-    householdMessages,
-    removeHouseholdMessage,
     removePersonalMessage,
+    personalMessages,
   } = useChatState({
     userId,
-    householdId,
-    initialPersonalMessages,
-    initialHouseholdMessages,
+    householdId: null,
+    initialPersonalMessages: initialMessages,
+    initialHouseholdMessages: [],
   });
 
-  const [isLoadingMorePersonal, setIsLoadingMorePersonal] = useState(false);
-  const [isLoadingMoreHousehold, setIsLoadingMoreHousehold] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [expenseDetailsMessageId, setExpenseDetailsMessageId] = useState<
     string | null
   >(null);
   const [deleteErrors, setDeleteErrors] = useState<Record<string, boolean>>({});
-  const [personalHasMore, setPersonalHasMore] = useState(
-    initialPersonalMessages.length >= HISTORY_PAGE_SIZE,
+  const [hasMore, setHasMore] = useState(
+    initialMessages.length >= HISTORY_PAGE_SIZE,
   );
-  const [householdHasMore, setHouseholdHasMore] = useState(
-    Boolean(householdId) &&
-      initialHouseholdMessages.length >= HISTORY_PAGE_SIZE,
-  );
-
-  const statusRef = useRef<string | null>(null);
-  const errorStatuses = useRef(
-    new Set(['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED']),
-  );
-
-  const getHouseholdCursor = useCallback(
-    () => householdCursorRef.current,
-    [householdCursorRef],
-  );
-
-  const handleSyncMessages = useCallback(
-    (batch: ChatMessage[]) => {
-      mergeBatch(batch);
-    },
-    [mergeBatch],
-  );
-
-  const { scheduleSync } = useHouseholdSync({
-    householdId,
-    enabled: isHousehold,
-    getCursor: getHouseholdCursor,
-    onMessages: handleSyncMessages,
-  });
 
   const expenseDetailsDialog = useDialogController();
-
-  const handleRealtimeStatus = useCallback(
-    (status: string) => {
-      if (
-        status === 'SUBSCRIBED' &&
-        statusRef.current &&
-        errorStatuses.current.has(statusRef.current)
-      ) {
-        scheduleSync('resubscribed');
-      }
-      statusRef.current = status;
-    },
-    [scheduleSync],
-  );
-
-  useHouseholdRealtime({
-    householdId,
-    isHousehold,
-    onMessage: mergeRealtime,
-    onDelete: message => removeHouseholdMessage(message.id),
-    onStatus: handleRealtimeStatus,
-  });
 
   const handlePersonalMessage = useCallback(
     (message: ChatMessage) => {
@@ -143,30 +194,17 @@ export function Chat({
 
   usePersonalRealtime({
     userId,
-    isPersonal: activeTab === 'personal',
+    isPersonal: isActive,
     onMessage: handlePersonalMessage,
     onDelete: handlePersonalDelete,
-    onStatus: handleRealtimeStatus,
   });
-
-  useEffect(() => {
-    if (!isHousehold) return;
-    const handleVisibility = () => {
-      if (document.visibilityState !== 'visible') return;
-      scheduleSync('visibility');
-    };
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibility);
-    };
-  }, [isHousehold, scheduleSync]);
 
   const handleSend = useCallback(
     async (content: string) => {
       const { tempId } = addOptimistic(content);
       const result = await sendChatMessage({
         content,
-        householdId: isHousehold ? householdId : null,
+        householdId: null,
       });
 
       if (result?.errorCode || !result.message) {
@@ -176,7 +214,7 @@ export function Chat({
 
       reconcile(tempId, result.message);
     },
-    [addOptimistic, householdId, isHousehold, markFailed, reconcile],
+    [addOptimistic, markFailed, reconcile],
   );
 
   const handleRetrySend = useCallback(
@@ -185,7 +223,7 @@ export function Chat({
       markPending(message.id);
       const result = await sendChatMessage({
         content: message.content,
-        householdId: message.household_id ?? null,
+        householdId: null,
       });
 
       if (result?.errorCode || !result.message) {
@@ -208,11 +246,7 @@ export function Chat({
 
   const handleDeleteMessage = useCallback(
     async (message: ChatMessage) => {
-      if (message.household_id) {
-        removeHouseholdMessage(message.id);
-      } else {
-        removePersonalMessage(message.id);
-      }
+      removePersonalMessage(message.id);
       setDeleteErrors(prev => {
         if (!prev[message.id]) return prev;
         const next = { ...prev };
@@ -225,31 +259,21 @@ export function Chat({
           id: message.id,
           error: result.errorCode,
         });
-        if (message.household_id) {
-          mergeBatch([message]);
-        } else {
-          mergePersonalBatch([message]);
-        }
+        mergePersonalBatch([message]);
         setDeleteErrors(prev => ({ ...prev, [message.id]: true }));
-        return;
       }
     },
-    [
-      mergeBatch,
-      mergePersonalBatch,
-      removeHouseholdMessage,
-      removePersonalMessage,
-    ],
+    [mergePersonalBatch, removePersonalMessage],
   );
 
-  const loadOlderPersonal = useCallback(async () => {
-    if (isLoadingMorePersonal || !personalHasMore) return;
+  const loadOlder = useCallback(async () => {
+    if (isLoadingMore || !hasMore) return;
     const oldest = personalMessages[0];
     if (!oldest) {
-      setPersonalHasMore(false);
+      setHasMore(false);
       return;
     }
-    setIsLoadingMorePersonal(true);
+    setIsLoadingMore(true);
     try {
       const batch = await fetchChatHistory({
         householdId: null,
@@ -257,33 +281,223 @@ export function Chat({
         limit: HISTORY_PAGE_SIZE,
       });
       if (!batch.length) {
-        setPersonalHasMore(false);
+        setHasMore(false);
         return;
       }
       mergePersonalBatch(batch);
       if (batch.length < HISTORY_PAGE_SIZE) {
-        setPersonalHasMore(false);
+        setHasMore(false);
       }
     } catch (err) {
       console.warn('[chat] personal history failed', err);
     } finally {
-      setIsLoadingMorePersonal(false);
+      setIsLoadingMore(false);
     }
-  }, [
-    isLoadingMorePersonal,
-    mergePersonalBatch,
-    personalHasMore,
-    personalMessages,
-  ]);
+  }, [hasMore, isLoadingMore, mergePersonalBatch, personalMessages]);
 
-  const loadOlderHousehold = useCallback(async () => {
-    if (isLoadingMoreHousehold || !householdHasMore || !householdId) return;
+  const { draft, setDraft, handleKeyDown, handleSubmit } = useComposer({
+    onSend: handleSend,
+  });
+
+  return (
+    <ChatPanelLayout
+      isActive={isActive}
+      messages={messages}
+      hasMore={hasMore}
+      isLoadingMore={isLoadingMore}
+      onLoadMore={loadOlder}
+      currentUserId={userId}
+      isHousehold={false}
+      onDelete={handleDeleteMessage}
+      onRetrySend={handleRetrySend}
+      onOpenExpenseDetails={handleOpenExpenseDetails}
+      deleteErrors={deleteErrors}
+      draft={draft}
+      setDraft={setDraft}
+      onKeyDown={handleKeyDown}
+      onSubmit={handleSubmit}
+      expenseDetailsDialog={expenseDetailsDialog}
+      expenseDetailsMessageId={expenseDetailsMessageId}
+    />
+  );
+}
+
+function HouseholdChatPanel({
+  userId,
+  householdId = null,
+  isActive,
+  initialMessages,
+}: ChatPanelProps) {
+  const {
+    messages,
+    addOptimistic,
+    markFailed,
+    markPending,
+    reconcile,
+    mergeRealtime,
+    mergeBatch,
+    householdCursorRef,
+    householdMessages,
+    removeHouseholdMessage,
+  } = useChatState({
+    userId,
+    householdId,
+    initialPersonalMessages: [],
+    initialHouseholdMessages: initialMessages,
+  });
+
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [expenseDetailsMessageId, setExpenseDetailsMessageId] = useState<
+    string | null
+  >(null);
+  const [deleteErrors, setDeleteErrors] = useState<Record<string, boolean>>({});
+  const [hasMore, setHasMore] = useState(
+    Boolean(householdId) && initialMessages.length >= HISTORY_PAGE_SIZE,
+  );
+
+  const expenseDetailsDialog = useDialogController();
+
+  const statusRef = useRef<string | null>(null);
+  const errorStatuses = useRef(
+    new Set(['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED']),
+  );
+
+  const getHouseholdCursor = useCallback(
+    () => householdCursorRef.current,
+    [householdCursorRef],
+  );
+
+  const handleSyncMessages = useCallback(
+    (batch: ChatMessage[]) => {
+      mergeBatch(batch);
+    },
+    [mergeBatch],
+  );
+
+  const { scheduleSync } = useHouseholdSync({
+    householdId,
+    enabled: isActive,
+    getCursor: getHouseholdCursor,
+    onMessages: handleSyncMessages,
+  });
+
+  const handleRealtimeStatus = useCallback(
+    (status: string) => {
+      if (
+        status === 'SUBSCRIBED' &&
+        statusRef.current &&
+        errorStatuses.current.has(statusRef.current)
+      ) {
+        scheduleSync('resubscribed');
+      }
+      statusRef.current = status;
+    },
+    [scheduleSync],
+  );
+
+  const handleHouseholdDelete = useCallback(
+    (message: ChatMessage) => {
+      removeHouseholdMessage(message.id);
+    },
+    [removeHouseholdMessage],
+  );
+
+  useHouseholdRealtime({
+    householdId,
+    isHousehold: Boolean(householdId) && isActive,
+    onMessage: mergeRealtime,
+    onDelete: handleHouseholdDelete,
+    onStatus: handleRealtimeStatus,
+  });
+
+  useEffect(() => {
+    if (!isActive) return;
+    if (!householdId) return;
+    const handleVisibility = () => {
+      if (document.visibilityState !== 'visible') return;
+      scheduleSync('visibility');
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [householdId, isActive, scheduleSync]);
+
+  const handleSend = useCallback(
+    async (content: string) => {
+      const { tempId } = addOptimistic(content);
+      const result = await sendChatMessage({
+        content,
+        householdId,
+      });
+
+      if (result?.errorCode || !result.message) {
+        markFailed(tempId);
+        return;
+      }
+
+      reconcile(tempId, result.message);
+    },
+    [addOptimistic, householdId, markFailed, reconcile],
+  );
+
+  const handleRetrySend = useCallback(
+    async (message: ChatMessage) => {
+      if (!message.id.startsWith('tmp-')) return;
+      markPending(message.id);
+      const result = await sendChatMessage({
+        content: message.content,
+        householdId: householdId ?? null,
+      });
+
+      if (result?.errorCode || !result.message) {
+        markFailed(message.id);
+        return;
+      }
+
+      reconcile(message.id, result.message);
+    },
+    [householdId, markFailed, markPending, reconcile],
+  );
+
+  const handleOpenExpenseDetails = useCallback(
+    (message: ChatMessage) => {
+      setExpenseDetailsMessageId(message.id);
+      expenseDetailsDialog.openDialog();
+    },
+    [expenseDetailsDialog],
+  );
+
+  const handleDeleteMessage = useCallback(
+    async (message: ChatMessage) => {
+      removeHouseholdMessage(message.id);
+      setDeleteErrors(prev => {
+        if (!prev[message.id]) return prev;
+        const next = { ...prev };
+        delete next[message.id];
+        return next;
+      });
+      const result = await deleteChatMessage({ messageId: message.id });
+      if (result?.errorCode) {
+        console.warn('[chat] delete failed', {
+          id: message.id,
+          error: result.errorCode,
+        });
+        mergeBatch([message]);
+        setDeleteErrors(prev => ({ ...prev, [message.id]: true }));
+      }
+    },
+    [mergeBatch, removeHouseholdMessage],
+  );
+
+  const loadOlder = useCallback(async () => {
+    if (isLoadingMore || !hasMore || !householdId) return;
     const oldest = householdMessages[0];
     if (!oldest) {
-      setHouseholdHasMore(false);
+      setHasMore(false);
       return;
     }
-    setIsLoadingMoreHousehold(true);
+    setIsLoadingMore(true);
     try {
       const batch = await fetchChatHistory({
         householdId,
@@ -291,105 +505,86 @@ export function Chat({
         limit: HISTORY_PAGE_SIZE,
       });
       if (!batch.length) {
-        setHouseholdHasMore(false);
+        setHasMore(false);
         return;
       }
       mergeBatch(batch);
       if (batch.length < HISTORY_PAGE_SIZE) {
-        setHouseholdHasMore(false);
+        setHasMore(false);
       }
     } catch (err) {
       console.warn('[chat] household history failed', err);
     } finally {
-      setIsLoadingMoreHousehold(false);
+      setIsLoadingMore(false);
     }
-  }, [
-    householdHasMore,
-    householdId,
-    householdMessages,
-    isLoadingMoreHousehold,
-    mergeBatch,
-  ]);
+  }, [hasMore, householdId, householdMessages, isLoadingMore, mergeBatch]);
 
   const { draft, setDraft, handleKeyDown, handleSubmit } = useComposer({
     onSend: handleSend,
   });
 
   return (
-    <>
-      <Panel marginBottom={2} className={styles['momo-chat']}>
-        <Flex
-          isFullHeight
-          isFullWidth
-          direction="column"
-          justifyContent="space-between"
-          style={{ minHeight: 0 }}
-        >
-          <ChatToggle
-            active={activeTab}
-            onChange={setActiveTab}
-            householdName={householdName}
-            showHousehold={Boolean(householdId)}
-          />
-          <Divider thickness="thick" />
-          <FlexItem
-            grow={1}
-            padding={0}
-            className="full-w"
-            style={{ minHeight: 0 }}
-          >
-            <ChatList
-              messages={messages}
-              hasMore={isHousehold ? householdHasMore : personalHasMore}
-              isLoadingMore={
-                isHousehold ? isLoadingMoreHousehold : isLoadingMorePersonal
-              }
-              onLoadMore={isHousehold ? loadOlderHousehold : loadOlderPersonal}
-              currentUserId={userId}
-              renderMessage={msg => (
-                <ChatMessageItem
-                  key={msg.id}
-                  message={msg}
-                  currentUserId={userId}
-                  isHousehold={isHousehold}
-                  onDelete={handleDeleteMessage}
-                  onRetrySend={handleRetrySend}
-                  onOpenExpenseDetails={handleOpenExpenseDetails}
-                  deleteError={Boolean(deleteErrors[msg.id])}
-                />
-              )}
-            />
-          </FlexItem>
-          <Divider thickness="thick" />
-          <Flex
-            as="form"
-            paddingX={1}
-            paddingY={2}
-            isFullWidth
-            gap={1}
-            onSubmit={handleSubmit}
-          >
-            <Input
-              multiline
-              autoResize
-              minRows={1}
-              maxRows={3}
-              value={draft}
-              onChange={(
-                event: React.ChangeEvent<
-                  HTMLTextAreaElement | HTMLInputElement
-                >,
-              ) => setDraft(event.target.value)}
-              onKeyDown={handleKeyDown}
-              suffix={<SendButton />}
-            />
-          </Flex>
-        </Flex>
-      </Panel>
-      <ExpenseDetailsDialog
-        controller={expenseDetailsDialog}
-        messageId={expenseDetailsMessageId}
-      />
-    </>
+    <ChatPanelLayout
+      isActive={isActive}
+      messages={messages}
+      hasMore={hasMore}
+      isLoadingMore={isLoadingMore}
+      onLoadMore={loadOlder}
+      currentUserId={userId}
+      isHousehold
+      onDelete={handleDeleteMessage}
+      onRetrySend={handleRetrySend}
+      onOpenExpenseDetails={handleOpenExpenseDetails}
+      deleteErrors={deleteErrors}
+      draft={draft}
+      setDraft={setDraft}
+      onKeyDown={handleKeyDown}
+      onSubmit={handleSubmit}
+      expenseDetailsDialog={expenseDetailsDialog}
+      expenseDetailsMessageId={expenseDetailsMessageId}
+    />
+  );
+}
+
+export function Chat({
+  householdName,
+  householdId = null,
+  userId,
+  initialPersonalMessages,
+  initialHouseholdMessages,
+}: ChatProps) {
+  const [activeTab, setActiveTab] = useState<'personal' | 'household'>(
+    householdId ? 'household' : 'personal',
+  );
+
+  return (
+    <Panel marginBottom={2} className={styles['momo-chat']}>
+      <Flex
+        isFullHeight
+        isFullWidth
+        direction="column"
+        justifyContent="space-between"
+        style={{ minHeight: 0 }}
+      >
+        <ChatToggle
+          active={activeTab}
+          onChange={setActiveTab}
+          householdName={householdName}
+          showHousehold={Boolean(householdId)}
+        />
+        <Divider thickness="thick" />
+        <HouseholdChatPanel
+          userId={userId}
+          householdId={householdId}
+          isActive={activeTab === 'household'}
+          initialMessages={initialHouseholdMessages}
+        />
+        <PersonalChatPanel
+          userId={userId}
+          isActive={activeTab === 'personal'}
+          initialMessages={initialPersonalMessages}
+        />
+      </Flex>
+    </Panel>
   );
 }

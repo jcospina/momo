@@ -15,7 +15,6 @@ import { getCurrentUser } from '@helpers/user';
 import { getUserPreferences } from '@helpers/user-prefs';
 import { redirect } from 'next/navigation';
 
-import { AIEnabled } from '@/app/home/profile/ai-enabled';
 import { HouseholdForm } from '@/components/household-form/household-form';
 import { Divider } from '@/ui/divider/divider';
 import { createHouseholdInline } from '@actions/households';
@@ -135,7 +134,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           </Typography>
           <CurrencySelect value={prefs?.currency ?? null} />
           <LanguageSelect value={prefs?.language ?? null} />
-          <AIEnabled value={prefs?.ai_enabled || false} />
+          {/* <AIEnabled value={prefs?.ai_enabled || false} /> */}
         </Flex>
         <Divider />
         <Flex padding={3} direction="column" gap={2}>
