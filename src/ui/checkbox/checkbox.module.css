@@ -1,0 +1,101 @@
+.momo-checkbox {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: calc(var(--spacing) * 1);
+  color: var(--color-dark);
+  cursor: pointer;
+}
+
+.momo-checkbox__input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+}
+
+.momo-checkbox__box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: calc(var(--font-size) * 1.25);
+  height: calc(var(--font-size) * 1.25);
+  background-color: var(--color-light);
+  color: var(--color-dark);
+  border: 2px solid var(--color-dark);
+  border-radius: calc(var(--border-radius) / 2);
+  transform: translate(0, 0);
+  box-shadow: none;
+  transition:
+    transform 160ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    box-shadow 160ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.momo-checkbox__icon {
+  width: calc(var(--font-size) * 0.9);
+  height: calc(var(--font-size) * 0.9);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.momo-checkbox__box::after {
+  content: '';
+  position: absolute;
+  width: 70%;
+  height: 2px;
+  background-color: currentColor;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+@media (hover: hover) {
+  .momo-checkbox:hover
+    .momo-checkbox__input:not(:disabled)
+    + .momo-checkbox__box {
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-dark);
+  }
+}
+
+.momo-checkbox__input:checked + .momo-checkbox__box .momo-checkbox__icon {
+  opacity: 1;
+}
+
+.momo-checkbox__input:indeterminate + .momo-checkbox__box .momo-checkbox__icon {
+  opacity: 0;
+}
+
+.momo-checkbox__input:indeterminate + .momo-checkbox__box::after {
+  opacity: 1;
+}
+
+.momo-checkbox__input:not(:disabled):focus-visible + .momo-checkbox__box {
+  outline: none;
+  transform: translate(6px, -6px);
+  box-shadow: -6px 6px 0 var(--color-dark);
+}
+
+.momo-checkbox__input:disabled + .momo-checkbox__box {
+  background-color: var(--color-disabled);
+  color: color-mix(in oklch, var(--color-dark), white 40%);
+  transform: translate(0, 0);
+  box-shadow: none;
+  cursor: not-allowed;
+  transition: none;
+}
+
+.momo-checkbox__input:disabled + .momo-checkbox__box .momo-checkbox__icon,
+.momo-checkbox__input:disabled + .momo-checkbox__box::after {
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-checkbox__box {
+    transition: none;
+  }
+}

@@ -1,0 +1,5 @@
+.momo-divider {
+  height: calc(var(--thickness) * 1px);
+  background-color: var(--color-dark);
+  width: 100%;
+}

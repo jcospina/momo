@@ -1,0 +1,15 @@
+.link {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  font-size: calc(var(--font-size) * 1.25);
+}
+
+.link:hover {
+  text-decoration-thickness: 3px;
+}
+
+@media screen and (min-width: 768px) {
+  .link {
+    font-size: calc(var(--font-size) * 1.5);
+  }
+}

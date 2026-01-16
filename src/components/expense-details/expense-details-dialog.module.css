@@ -1,0 +1,53 @@
+.expense-details__content {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 2);
+}
+
+.expense-details__block {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1.5);
+}
+
+.expense-details__dual-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: calc(var(--spacing) * 1);
+  width: 100%;
+}
+
+.expense-details__field {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 0.5);
+}
+
+.expense-details__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing);
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.expense-details__control {
+  width: 100%;
+}
+
+@media screen and (min-width: 768px) {
+  .expense-details__dual-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .expense-details__row {
+    flex-direction: row;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+  }
+
+  .expense-details__control {
+    max-width: 400px;
+  }
+}

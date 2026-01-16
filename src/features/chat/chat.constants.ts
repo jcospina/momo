@@ -1,0 +1,12 @@
+export const RESUBSCRIBE_BASE_DELAY_MS = 1_000;
+export const RESUBSCRIBE_BACKOFF_FACTOR = 2;
+export const RESUBSCRIBE_MAX_DELAY_MS = 5_000;
+export const RESUBSCRIBE_MAX_ATTEMPTS = 3;
+
+export const STALL_CHECK_INTERVAL_MS = 60_000;
+export const STALL_VISIBLE_THRESHOLD_MS = 90_000;
+export const STALL_HIDDEN_THRESHOLD_MS = 5 * 60 * 1_000;
+
+export const SYNC_COOLDOWN_MS = 10_000;
+export const SYNC_PAGE_LIMIT = 100;
+export const SYNC_MAX_PAGES = 5;

@@ -1,0 +1,103 @@
+import type { ExpenseCategory } from '@lib-types/expenses';
+
+type ExpenseSample = {
+  language: 'en' | 'es';
+  text: string;
+  expectedCategory: ExpenseCategory | null;
+};
+
+export const expenseClassifierSamples: ExpenseSample[] = [
+  { language: 'en', text: 'paid rent 1200', expectedCategory: 'housing' },
+  { language: 'en', text: 'water bill 45', expectedCategory: 'utilities' },
+  {
+    language: 'en',
+    text: 'grocery run at costco 120',
+    expectedCategory: 'groceries',
+  },
+  { language: 'en', text: 'uber ride 18', expectedCategory: 'transportation' },
+  {
+    language: 'en',
+    text: 'auto insurance 80',
+    expectedCategory: 'vehicle',
+  },
+  { language: 'en', text: 'doctor visit 200', expectedCategory: 'health' },
+  { language: 'en', text: 'online course 59', expectedCategory: 'education' },
+  { language: 'en', text: 'amazon order 75', expectedCategory: 'shopping' },
+  {
+    language: 'en',
+    text: 'movie tickets 30',
+    expectedCategory: 'entertainment',
+  },
+  {
+    language: 'en',
+    text: 'netflix subscription 15',
+    expectedCategory: 'subscriptions',
+  },
+  { language: 'en', text: 'flight to miami 320', expectedCategory: 'travel' },
+  { language: 'en', text: 'birthday gift 50', expectedCategory: 'gifts' },
+  { language: 'en', text: 'bank fee 8', expectedCategory: 'fees' },
+  { language: 'en', text: 'paycheck 2000', expectedCategory: 'income' },
+  {
+    language: 'en',
+    text: 'transfer to savings 300',
+    expectedCategory: 'transfer',
+  },
+  {
+    language: 'en',
+    text: 'property tax payment 400',
+    expectedCategory: 'housing',
+  },
+  {
+    language: 'en',
+    text: 'credit card payment 100',
+    expectedCategory: 'transfer',
+  },
+  {
+    language: 'en',
+    text: 'uber eats 22',
+    expectedCategory: 'dining',
+  },
+  { language: 'es', text: 'alquiler 800', expectedCategory: 'housing' },
+  { language: 'es', text: 'agua 20', expectedCategory: 'utilities' },
+  { language: 'es', text: 'supermercado 150', expectedCategory: 'groceries' },
+  { language: 'es', text: 'taxi 12', expectedCategory: 'transportation' },
+  { language: 'es', text: 'gasolina 60', expectedCategory: 'vehicle' },
+  { language: 'es', text: 'clinica 100', expectedCategory: 'health' },
+  { language: 'es', text: 'colegio 200', expectedCategory: 'education' },
+  { language: 'es', text: 'restaurante 45', expectedCategory: 'dining' },
+  { language: 'es', text: 'concierto 70', expectedCategory: 'entertainment' },
+  { language: 'es', text: 'spotify 10', expectedCategory: 'subscriptions' },
+  { language: 'es', text: 'hotel 220', expectedCategory: 'travel' },
+  { language: 'es', text: 'regalo 30', expectedCategory: 'gifts' },
+  { language: 'es', text: 'comision 5', expectedCategory: 'fees' },
+  { language: 'es', text: 'nomina 2500', expectedCategory: 'income' },
+  {
+    language: 'es',
+    text: 'transferencia 300',
+    expectedCategory: 'transfer',
+  },
+  { language: 'es', text: 'internet 40', expectedCategory: 'utilities' },
+  { language: 'es', text: 'luz 35', expectedCategory: 'utilities' },
+  { language: 'es', text: 'vuelo 500', expectedCategory: 'travel' },
+  { language: 'es', text: 'metro 2', expectedCategory: 'transportation' },
+  { language: 'en', text: 'groseries 50', expectedCategory: 'groceries' },
+  { language: 'en', text: 'yber 14', expectedCategory: 'transportation' },
+  { language: 'en', text: 'amzon order 40', expectedCategory: 'shopping' },
+  { language: 'en', text: 'netflx 12', expectedCategory: 'subscriptions' },
+  { language: 'en', text: 'ubir 10', expectedCategory: 'transportation' },
+  { language: 'en', text: 'restarant 25', expectedCategory: 'dining' },
+  { language: 'es', text: 'supermecado 60', expectedCategory: 'groceries' },
+  { language: 'es', text: 'restaurente 30', expectedCategory: 'dining' },
+  { language: 'es', text: 'alquiller 700', expectedCategory: 'housing' },
+  { language: 'es', text: 'mediko 45', expectedCategory: 'health' },
+  { language: 'es', text: 'spofity 9', expectedCategory: 'subscriptions' },
+  { language: 'es', text: 'trasnfer 200', expectedCategory: 'transfer' },
+  { language: 'es', text: 'gasolin 40', expectedCategory: 'vehicle' },
+  { language: 'en', text: 'taksi 9', expectedCategory: null },
+  { language: 'en', text: 'rent uber', expectedCategory: null },
+  { language: 'en', text: '100 200', expectedCategory: null },
+  { language: 'en', text: 'zzzzzz', expectedCategory: null },
+  { language: 'en', text: 'payment 20', expectedCategory: null },
+  { language: 'es', text: 'comida 12', expectedCategory: null },
+  { language: 'en', text: 'gas 40', expectedCategory: null },
+];

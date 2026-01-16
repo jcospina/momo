@@ -1,0 +1,18 @@
+.momo-flex {
+  display: flex;
+  gap: calc(var(--gap) * var(--spacing));
+  row-gap: calc(var(--gapX) * var(--spacing));
+  column-gap: calc(var(--gapY) * var(--spacing));
+}
+
+.momo-flex--full-w {
+  width: 100%;
+}
+
+.momo-flex--full-h {
+  height: 100%;
+}
+
+.momo-flex--inline {
+  display: inline-flex;
+}

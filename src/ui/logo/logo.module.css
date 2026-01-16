@@ -1,0 +1,16 @@
+.momo-logo {
+  --min-size: calc(var(--font-size) * 4);
+  --max-size: calc(var(--font-size) * 8);
+  --slope: calc(
+    ((var(--font-size-base) * 8) - (var(--font-size-base) * 4)) / 1560
+  );
+  --base: calc(((var(--font-size-base) * 4) - (var(--slope) * 360)) * 1px);
+  font-family: var(--font-logo);
+  font-weight: 900;
+  font-size: clamp(
+    var(--min-size),
+    calc(var(--base) + var(--slope) * 100vw),
+    var(--max-size)
+  );
+  line-height: 100%;
+}

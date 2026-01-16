@@ -1,0 +1,170 @@
+.momo-select {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 0.5);
+  width: 100%;
+}
+
+.momo-select__trigger {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--spacing) * 1);
+  padding: calc(var(--spacing) * 1);
+  font-size: var(--font-size);
+  border: 2px solid var(--color-dark);
+  background-color: var(--color-light);
+  color: var(--color-dark);
+  cursor: pointer;
+  transition:
+    transform 160ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    box-shadow 160ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    background-color 120ms ease,
+    color 120ms ease;
+  transform: translate(0, 0);
+  box-shadow: none;
+  text-align: left;
+  border-radius: var(--border-radius);
+}
+
+.momo-select__trigger--open,
+.momo-select__trigger[data-popup-open] {
+  outline: none;
+}
+
+.momo-select__trigger--disabled,
+.momo-select__trigger[data-disabled] {
+  background-color: var(--color-disabled);
+  color: color-mix(in oklch, var(--color-dark), white 40%);
+  cursor: not-allowed;
+  box-shadow: -6px 6px 0 var(--color-dark);
+  transform: translate(0, 0);
+  box-shadow: none;
+}
+
+.momo-select__trigger:focus-visible {
+  outline: none;
+}
+
+.momo-select__value {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 0.5);
+  min-height: 1.5em;
+}
+
+.momo-select__value--placeholder {
+  color: color-mix(in oklch, var(--color-dark), white 35%);
+}
+
+.momo-select__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--spacing) * 2);
+  flex-shrink: 0;
+}
+
+.momo-select__positioner {
+  outline: none;
+  z-index: 1002;
+}
+
+.momo-select__dropdown {
+  box-sizing: border-box;
+  background-color: var(--color-light);
+  border: 2px solid var(--color-dark);
+  box-shadow: -2px 2px 0 var(--color-dark);
+  max-height: 320px;
+  overflow: auto;
+  border-radius: var(--border-radius);
+  min-width: var(--anchor-width);
+  transform-origin: var(--transform-origin);
+}
+.momo-select__dropdown--open,
+.momo-select__dropdown[data-open] {
+  transform: translate(2px, -2px);
+}
+
+.momo-select__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.momo-select__option {
+  padding: calc(var(--spacing) * 1);
+  background-color: var(--color-light);
+  color: var(--color-dark);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+  border-bottom: 2px solid var(--color-dark);
+}
+
+.momo-select__option:last-child {
+  border-bottom: none;
+}
+
+.momo-select__option:hover {
+  background-color: var(--color-dark);
+  color: var(--color-light);
+}
+
+.momo-select__option--selected,
+.momo-select__option[data-selected] {
+  background-color: var(--color-dark);
+  color: var(--color-light);
+}
+
+.momo-select__option--active,
+.momo-select__option[data-highlighted] {
+  outline: 2px solid var(--color-dark);
+  background-color: var(--color-dark);
+  color: var(--color-light);
+}
+
+.momo-select__option--disabled,
+.momo-select__option[data-disabled] {
+  cursor: not-allowed;
+  background-color: var(--color-disabled);
+  color: color-mix(in oklch, var(--color-dark), white 40%);
+}
+
+.momo-select__option--disabled:hover,
+.momo-select__option[data-disabled]:hover {
+  background-color: var(--color-disabled);
+  color: color-mix(in oklch, var(--color-dark), white 40%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-select__trigger {
+    transition: none;
+  }
+}
+
+@media (hover: hover) {
+  .momo-select__trigger:hover:not(.momo-select__trigger--disabled):not(
+      [data-disabled]
+    ),
+  .momo-select__trigger--open:not(.momo-select__trigger--disabled),
+  .momo-select__trigger[data-popup-open]:not([data-disabled]) {
+    outline: none;
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-dark);
+  }
+}
+
+@media (hover: none) {
+  .momo-select__trigger--open:not(.momo-select__trigger--disabled),
+  .momo-select__trigger[data-popup-open]:not([data-disabled]) {
+    transform: translate(2px, -2px);
+    box-shadow: -2px 2px 0 var(--color-dark);
+  }
+}

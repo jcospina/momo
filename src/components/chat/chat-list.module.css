@@ -1,0 +1,16 @@
+.scroller {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.chat-history-loading {
+  display: flex;
+  justify-content: center;
+  padding: calc(var(--spacing) * 0.75) var(--spacing);
+  color: color-mix(in oklch, var(--color-dark), white 40%);
+  text-align: center;
+}

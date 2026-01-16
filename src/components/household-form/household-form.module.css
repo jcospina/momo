@@ -1,0 +1,10 @@
+.household-form__input,
+.household-form__submit {
+  width: 100%;
+}
+
+@media screen and (min-width: 768px) {
+  .household-form__submit {
+    width: fit-content;
+  }
+}

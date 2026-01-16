@@ -1,0 +1,35 @@
+.profile__panel {
+  max-width: 700px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.profile__currency-select {
+  width: 100%;
+}
+
+.profile__settings-row {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1);
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  padding-left: calc(var(--spacing) * 1);
+}
+
+@media screen and (min-width: 768px) {
+  .profile__panel {
+    width: 700px;
+  }
+
+  .profile__currency-select {
+    max-width: 400px;
+  }
+
+  .profile__settings-row {
+    flex-direction: row;
+    align-items: center;
+  }
+}

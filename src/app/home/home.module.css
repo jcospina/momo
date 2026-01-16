@@ -1,0 +1,10 @@
+.home {
+  height: 100svh;
+}
+
+.home__content {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
