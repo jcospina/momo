@@ -9,6 +9,36 @@ type UseHouseholdMessagesArgs = {
   initialHouseholdMessages: ChatMessage[];
 };
 
+const OPTIMISTIC_MATCH_WINDOW_MS = 10_000;
+
+function findOptimisticMatchIndex(
+  messages: ChatMessage[],
+  incoming: ChatMessage,
+) {
+  if (incoming.id.startsWith('tmp-')) return -1;
+  const incomingTime = Date.parse(incoming.created_at);
+  if (Number.isNaN(incomingTime)) return -1;
+  let bestIndex = -1;
+  let bestDelta = Number.POSITIVE_INFINITY;
+
+  messages.forEach((message, index) => {
+    if (!message.id.startsWith('tmp-')) return;
+    if (message.status !== 'pending') return;
+    if (message.user_id !== incoming.user_id) return;
+    if (message.household_id !== incoming.household_id) return;
+    if (message.content.trim() !== incoming.content.trim()) return;
+    const messageTime = Date.parse(message.created_at);
+    if (Number.isNaN(messageTime)) return;
+    const delta = Math.abs(incomingTime - messageTime);
+    if (delta <= OPTIMISTIC_MATCH_WINDOW_MS && delta < bestDelta) {
+      bestDelta = delta;
+      bestIndex = index;
+    }
+  });
+
+  return bestIndex;
+}
+
 export function useHouseholdMessages({
   initialHouseholdMessages,
 }: UseHouseholdMessagesArgs) {
@@ -46,9 +76,17 @@ export function useHouseholdMessages({
     (incoming: ChatMessage) => {
       updateHouseholdCursor(incoming);
       setHouseholdMessages(prev => {
-        const exists = prev.some(m => m.id === incoming.id);
-        if (exists) {
-          return prev.map(m => (m.id === incoming.id ? incoming : m));
+        const existingIndex = prev.findIndex(m => m.id === incoming.id);
+        if (existingIndex >= 0) {
+          const next = prev.slice();
+          next[existingIndex] = incoming;
+          return next;
+        }
+        const optimisticIndex = findOptimisticMatchIndex(prev, incoming);
+        if (optimisticIndex >= 0) {
+          const next = prev.slice();
+          next[optimisticIndex] = incoming;
+          return next;
         }
         return [...prev, incoming];
       });

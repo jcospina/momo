@@ -138,6 +138,34 @@ function toDisplayAmount(amountCents: number, currency: string) {
   return amountCents / divisor;
 }
 
+function formatCompactCurrency(amount: number, currency: string) {
+  const abs = Math.abs(amount);
+  let suffix = '';
+  let scaled = amount;
+
+  if (abs >= 1_000_000_000) {
+    scaled = amount / 1_000_000_000;
+    suffix = 'B';
+  } else if (abs >= 1_000_000) {
+    scaled = amount / 1_000_000;
+    suffix = 'M';
+  } else if (abs >= 1_000) {
+    scaled = amount / 1_000;
+    suffix = 'K';
+  }
+
+  const maximumFractionDigits = abs >= 1_000 ? 1 : currency === 'COP' ? 0 : 2;
+  const formatted = new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency,
+    currencyDisplay: currency === 'COP' ? 'narrowSymbol' : 'symbol',
+    minimumFractionDigits: 0,
+    maximumFractionDigits,
+  }).format(scaled);
+
+  return `${formatted}${suffix}`;
+}
+
 export function MonthlyTotalsBarChart({
   months,
   currency,
@@ -235,7 +263,7 @@ export function MonthlyTotalsBarChart({
         type: 'value',
         axisLabel: {
           formatter: (value: number) =>
-            formatter.format(toDisplayAmount(value, currency)),
+            formatCompactCurrency(toDisplayAmount(value, currency), currency),
         },
       },
       series: series.map(item => ({

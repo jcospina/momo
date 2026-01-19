@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 
 import type { ChatMessage } from '@lib-types/chat';
+import { RealtimeClientProvider } from '@providers/realtime-client-provider';
 import { useHouseholdRealtime } from './use-household-realtime';
 
 type FakeChannel = {
@@ -131,13 +132,19 @@ describe('useHouseholdRealtime', () => {
     const onMessage = jest.fn();
     const onStatus = jest.fn();
 
-    renderHook(() =>
-      useHouseholdRealtime({
-        householdId: 'hid',
-        isHousehold: true,
-        onMessage,
-        onStatus,
-      }),
+    renderHook(
+      () =>
+        useHouseholdRealtime({
+          householdId: 'hid',
+          isHousehold: true,
+          onMessage,
+          onStatus,
+        }),
+      {
+        wrapper({ children }) {
+          return <RealtimeClientProvider>{children}</RealtimeClientProvider>;
+        },
+      },
     );
 
     // wait for initial client creation and subscription

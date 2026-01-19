@@ -1,18 +1,17 @@
 'use client';
 
-import type { ChatMessage } from '@lib-types/chat';
-import type { SyncCursor } from '@lib-types/chat';
+import type { ChatMessage, SyncCursor } from '@lib-types/chat';
 import { isChatMessageArray } from '@utils/chat-message';
 import { SYNC_PAGE_LIMIT } from '../chat.constants';
 
 type FetchChatSyncParams = {
-  householdId: string;
+  householdId?: string | null;
   cursor?: SyncCursor | null;
   limit?: number;
 };
 
 export async function fetchChatSync({
-  householdId,
+  householdId = null,
   cursor,
   limit = SYNC_PAGE_LIMIT,
 }: FetchChatSyncParams): Promise<ChatMessage[]> {
@@ -21,7 +20,7 @@ export async function fetchChatSync({
     headers: { 'Content-Type': 'application/json' },
     cache: 'no-store',
     body: JSON.stringify({
-      household_id: householdId,
+      household_id: householdId ?? null,
       cursor_created_at: cursor?.created_at ?? null,
       cursor_id: cursor?.id ?? null,
       limit,
@@ -35,7 +34,7 @@ export async function fetchChatSync({
   const data = (await res.json()) as { messages?: unknown };
   if (!isChatMessageArray(data.messages)) {
     console.warn('[realtime] chat sync invalid payload', {
-      household_id: householdId,
+      household_id: householdId ?? null,
       cursor,
       limit,
       body: data,
