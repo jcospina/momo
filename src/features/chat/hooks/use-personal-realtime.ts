@@ -3,8 +3,8 @@
 import { useEffect, useRef, type RefObject } from 'react';
 
 import { subscribeToPersonalChat } from '@helpers/chat/chat-realtime';
-import { useRealtimeClient } from '@hooks/use-realtime-client';
-import type { ChatMessage } from '@lib-types/chat';
+import type { ChatMessage, RealtimeState } from '@lib-types/chat';
+import { useRealtimeClientContext } from '@providers/realtime-client-provider';
 import {
   RESUBSCRIBE_BACKOFF_FACTOR,
   RESUBSCRIBE_BASE_DELAY_MS,
@@ -14,7 +14,6 @@ import {
   STALL_HIDDEN_THRESHOLD_MS,
   STALL_VISIBLE_THRESHOLD_MS,
 } from '../chat.constants';
-import type { RealtimeState } from '@lib-types/chat';
 
 type UsePersonalRealtimeArgs = {
   userId: string;
@@ -31,7 +30,7 @@ export function usePersonalRealtime({
   onDelete,
   onStatus,
 }: UsePersonalRealtimeArgs) {
-  const realtime = useRealtimeClient();
+  const realtime = useRealtimeClientContext();
   const { client, error, loading, version, reset } = realtime;
 
   const lastStatusRef = useRef<string | null>(null);
@@ -73,9 +72,9 @@ export function usePersonalRealtime({
 type ChannelLifecycleArgs = {
   userId: string;
   isPersonal: boolean;
-  client: ReturnType<typeof useRealtimeClient>['client'];
-  error: ReturnType<typeof useRealtimeClient>['error'];
-  loading: ReturnType<typeof useRealtimeClient>['loading'];
+  client: ReturnType<typeof useRealtimeClientContext>['client'];
+  error: ReturnType<typeof useRealtimeClientContext>['error'];
+  loading: ReturnType<typeof useRealtimeClientContext>['loading'];
   version: number;
   reset: () => void;
   onMessage: (msg: ChatMessage) => void;

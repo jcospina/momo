@@ -187,6 +187,69 @@ describe('useChatState', () => {
     );
   });
 
+  it('drops optimistic duplicate when realtime arrives before reconcile', () => {
+    const { result } = renderHook(() =>
+      useChatState({
+        userId: 'u1',
+        householdId: 'hid',
+        initialPersonalMessages: [],
+        initialHouseholdMessages: [],
+      }),
+    );
+
+    let tempId = '';
+    const serverMessage = baseMessage({
+      id: 'srv-dup',
+      content: 'race',
+      created_at: '2024-01-01T00:00:01.000Z',
+      user_id: 'u1',
+    });
+
+    act(() => {
+      tempId = result.current.addOptimistic('race').tempId;
+      result.current.mergeRealtime(serverMessage);
+    });
+
+    act(() => {
+      result.current.reconcile(tempId, serverMessage);
+    });
+
+    const ids = result.current.householdMessages.map(m => m.id);
+    expect(ids.filter(id => id === serverMessage.id)).toHaveLength(1);
+    expect(ids.some(id => id === tempId)).toBe(false);
+  });
+
+  it('replaces optimistic message when realtime arrives first', () => {
+    const { result } = renderHook(() =>
+      useChatState({
+        userId: 'u1',
+        householdId: 'hid',
+        initialPersonalMessages: [],
+        initialHouseholdMessages: [],
+      }),
+    );
+
+    let tempId = '';
+    const serverMessage = baseMessage({
+      id: 'srv-rt',
+      content: 'race',
+      created_at: new Date().toISOString(),
+      user_id: 'u1',
+    });
+
+    act(() => {
+      tempId = result.current.addOptimistic('race').tempId;
+    });
+
+    act(() => {
+      result.current.mergeRealtime(serverMessage);
+    });
+
+    const ids = result.current.householdMessages.map(m => m.id);
+    expect(ids).toContain('srv-rt');
+    expect(ids).not.toContain(tempId);
+  });
+
   it('toggles optimistic status between failed and pending', () => {
     const { result } = renderHook(() =>
       useChatState({

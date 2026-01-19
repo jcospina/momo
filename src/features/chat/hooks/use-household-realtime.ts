@@ -3,7 +3,7 @@
 import { useEffect, useRef, type RefObject } from 'react';
 
 import { subscribeToHouseholdChat } from '@helpers/chat/chat-realtime';
-import { useRealtimeClient } from '@hooks/use-realtime-client';
+import { useRealtimeClientContext } from '@providers/realtime-client-provider';
 import type { ChatMessage } from '@lib-types/chat';
 import {
   RESUBSCRIBE_BACKOFF_FACTOR,
@@ -31,7 +31,7 @@ export function useHouseholdRealtime({
   onDelete,
   onStatus,
 }: UseHouseholdRealtimeArgs) {
-  const realtime = useRealtimeClient();
+  const realtime = useRealtimeClientContext();
   const { client, error, loading, version, reset } = realtime;
 
   const lastStatusRef = useRef<string | null>(null);
@@ -73,9 +73,9 @@ export function useHouseholdRealtime({
 type ChannelLifecycleArgs = {
   householdId: string | null;
   isHousehold: boolean;
-  client: ReturnType<typeof useRealtimeClient>['client'];
-  error: ReturnType<typeof useRealtimeClient>['error'];
-  loading: ReturnType<typeof useRealtimeClient>['loading'];
+  client: ReturnType<typeof useRealtimeClientContext>['client'];
+  error: ReturnType<typeof useRealtimeClientContext>['error'];
+  loading: ReturnType<typeof useRealtimeClientContext>['loading'];
   version: number;
   reset: () => void;
   onMessage: (msg: ChatMessage) => void;

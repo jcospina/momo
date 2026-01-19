@@ -44,12 +44,19 @@ export function useRealtimeClient(): UseRealtimeClientResult {
   const [resetCounter, setResetCounter] = useState(0);
   const clientRef = useRef<SupabaseClient | null>(null);
   const refreshTimeout = useRef<NodeJS.Timeout | null>(null);
+  const retryTimeout = useRef<NodeJS.Timeout | null>(null);
+  const retryAttemptRef = useRef(0);
 
   const reset = useCallback(() => {
     if (refreshTimeout.current) {
       clearTimeout(refreshTimeout.current);
       refreshTimeout.current = null;
     }
+    if (retryTimeout.current) {
+      clearTimeout(retryTimeout.current);
+      retryTimeout.current = null;
+    }
+    retryAttemptRef.current = 0;
     if (clientRef.current) {
       clientRef.current.removeAllChannels();
       clientRef.current = null;
@@ -63,8 +70,29 @@ export function useRealtimeClient(): UseRealtimeClientResult {
   useEffect(() => {
     let cancelled = false;
 
+    const scheduleRetry = () => {
+      if (retryTimeout.current || cancelled) return;
+      const baseDelayMs = 1_000;
+      const maxDelayMs = 30_000;
+      const delay = Math.min(
+        baseDelayMs * 2 ** retryAttemptRef.current,
+        maxDelayMs,
+      );
+      retryAttemptRef.current = Math.min(retryAttemptRef.current + 1, 6);
+      retryTimeout.current = setTimeout(() => {
+        retryTimeout.current = null;
+        if (cancelled) return;
+        setLoading(true);
+        setup();
+      }, delay);
+    };
+
     async function setup() {
       try {
+        if (retryTimeout.current) {
+          clearTimeout(retryTimeout.current);
+          retryTimeout.current = null;
+        }
         const token = await fetchRealtimeToken();
         if (cancelled) return;
 
@@ -91,6 +119,7 @@ export function useRealtimeClient(): UseRealtimeClientResult {
         setVersion(v => v + 1);
         setLoading(false);
         setError(null);
+        retryAttemptRef.current = 0;
 
         const bufferMs = 30 * 1000;
         const refreshMs = Math.max(
@@ -107,6 +136,7 @@ export function useRealtimeClient(): UseRealtimeClientResult {
         console.error('[realtime] token fetch failed', { error: message });
         setError(message);
         setLoading(false);
+        scheduleRetry();
       }
     }
 
@@ -116,6 +146,9 @@ export function useRealtimeClient(): UseRealtimeClientResult {
       cancelled = true;
       if (refreshTimeout.current) {
         clearTimeout(refreshTimeout.current);
+      }
+      if (retryTimeout.current) {
+        clearTimeout(retryTimeout.current);
       }
       if (clientRef.current) {
         clientRef.current.removeAllChannels();

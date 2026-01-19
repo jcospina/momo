@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@lib-supabase/server';
 
 type SyncRequest = {
-  household_id: string;
+  household_id?: string | null;
   cursor_created_at?: string | null;
   cursor_id?: string | null;
   limit?: number;
@@ -16,14 +16,10 @@ const MAX_LIMIT = 100;
 
 export async function POST(request: Request) {
   const payload = (await request.json()) as SyncRequest;
-  const householdId = payload?.household_id?.trim?.();
-
-  if (!householdId) {
-    return NextResponse.json(
-      { error: 'household_id_required' },
-      { status: 400 },
-    );
-  }
+  const householdId =
+    typeof payload?.household_id === 'string'
+      ? payload.household_id.trim() || null
+      : null;
 
   const cursorCreatedAt = payload?.cursor_created_at ?? null;
   const cursorId = payload?.cursor_id ?? null;
@@ -33,11 +29,22 @@ export async function POST(request: Request) {
   const limit = Math.min(Math.max(limitInput, 1), MAX_LIMIT);
 
   const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  let query = supabase
-    .from('chat_messages')
-    .select(CHAT_SELECT)
-    .eq('household_id', householdId);
+  if (authError || !user) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+
+  let query = supabase.from('chat_messages').select(CHAT_SELECT);
+
+  if (householdId) {
+    query = query.eq('household_id', householdId);
+  } else {
+    query = query.is('household_id', null).eq('user_id', user.id);
+  }
 
   if (cursorCreatedAt && cursorId) {
     query = query

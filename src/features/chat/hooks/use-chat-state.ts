@@ -12,6 +12,33 @@ type UseChatStateArgs = {
   initialHouseholdMessages: ChatMessage[];
 };
 
+const OPTIMISTIC_MATCH_WINDOW_MS = 10_000;
+
+function findOptimisticMatchId(messages: ChatMessage[], incoming: ChatMessage) {
+  if (incoming.id.startsWith('tmp-')) return null;
+  const incomingTime = Date.parse(incoming.created_at);
+  if (Number.isNaN(incomingTime)) return null;
+  let bestId: string | null = null;
+  let bestDelta = Number.POSITIVE_INFINITY;
+
+  messages.forEach(message => {
+    if (!message.id.startsWith('tmp-')) return;
+    if (message.status !== 'pending') return;
+    if (message.user_id !== incoming.user_id) return;
+    if (message.household_id !== incoming.household_id) return;
+    if (message.content.trim() !== incoming.content.trim()) return;
+    const messageTime = Date.parse(message.created_at);
+    if (Number.isNaN(messageTime)) return;
+    const delta = Math.abs(incomingTime - messageTime);
+    if (delta <= OPTIMISTIC_MATCH_WINDOW_MS && delta < bestDelta) {
+      bestDelta = delta;
+      bestId = message.id;
+    }
+  });
+
+  return bestId;
+}
+
 function createTempId() {
   return `tmp-${Date.now().toString(16)}-${Math.random()
     .toString(16)
@@ -113,6 +140,12 @@ export function useChatState({
         byId.set(message.id, message);
       });
       incoming.forEach(message => {
+        if (!byId.has(message.id)) {
+          const optimisticId = findOptimisticMatchId(prev, message);
+          if (optimisticId) {
+            byId.delete(optimisticId);
+          }
+        }
         byId.set(message.id, message);
       });
       const merged = Array.from(byId.values());
@@ -166,17 +199,28 @@ export function useChatState({
     (tempId: string, message: ChatMessage) => {
       if (isHousehold) {
         setHouseholdMessages(prev => {
-          const index = prev.findIndex(m => m.id === tempId);
-          if (index >= 0) {
+          const tempIndex = prev.findIndex(m => m.id === tempId);
+          const existingIndex = prev.findIndex(m => m.id === message.id);
+          if (existingIndex >= 0) {
             const next = prev.slice();
-            next[index] = message;
+            next[existingIndex] = message;
+            if (tempIndex >= 0 && tempIndex !== existingIndex) {
+              next.splice(tempIndex, 1);
+            }
             if (isAfter(householdCursorRef.current, message)) {
               updateHouseholdCursor(message);
             }
             return next;
           }
-          const filtered = prev.filter(m => m.id !== message.id);
-          const next = insertSorted(filtered, message);
+          if (tempIndex >= 0) {
+            const next = prev.slice();
+            next[tempIndex] = message;
+            if (isAfter(householdCursorRef.current, message)) {
+              updateHouseholdCursor(message);
+            }
+            return next;
+          }
+          const next = insertSorted(prev, message);
           if (isAfter(householdCursorRef.current, message)) {
             updateHouseholdCursor(message);
           }
@@ -184,14 +228,22 @@ export function useChatState({
         });
       } else {
         setPersonalMessages(prev => {
-          const index = prev.findIndex(m => m.id === tempId);
-          if (index >= 0) {
+          const tempIndex = prev.findIndex(m => m.id === tempId);
+          const existingIndex = prev.findIndex(m => m.id === message.id);
+          if (existingIndex >= 0) {
             const next = prev.slice();
-            next[index] = message;
+            next[existingIndex] = message;
+            if (tempIndex >= 0 && tempIndex !== existingIndex) {
+              next.splice(tempIndex, 1);
+            }
             return next;
           }
-          const filtered = prev.filter(m => m.id !== message.id);
-          return insertSorted(filtered, message);
+          if (tempIndex >= 0) {
+            const next = prev.slice();
+            next[tempIndex] = message;
+            return next;
+          }
+          return insertSorted(prev, message);
         });
       }
     },

@@ -14,6 +14,7 @@ import { useComposer } from '@features/chat/hooks/use-composer';
 import { useHouseholdRealtime } from '@features/chat/hooks/use-household-realtime';
 import { useHouseholdSync } from '@features/chat/hooks/use-household-sync';
 import { usePersonalRealtime } from '@features/chat/hooks/use-personal-realtime';
+import { usePersonalSync } from '@features/chat/hooks/use-personal-sync';
 import type { ChatMessage } from '@lib-types/chat';
 import { useDialogController } from '@ui/dialog/dialog';
 import { Divider } from '@ui/divider/divider';
@@ -192,12 +193,69 @@ function PersonalChatPanel({
     [removePersonalMessage],
   );
 
+  const statusRef = useRef<string | null>(null);
+  const errorStatuses = useRef(
+    new Set(['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED']),
+  );
+
+  const handleSyncMessages = useCallback(
+    (batch: ChatMessage[]) => {
+      mergePersonalBatch(batch);
+    },
+    [mergePersonalBatch],
+  );
+
+  const { scheduleSync } = usePersonalSync({
+    userId,
+    enabled: isActive,
+    onMessages: handleSyncMessages,
+  });
+
+  const handleRealtimeStatus = useCallback(
+    (status: string) => {
+      if (
+        status === 'SUBSCRIBED' &&
+        statusRef.current &&
+        errorStatuses.current.has(statusRef.current)
+      ) {
+        scheduleSync('resubscribed');
+      }
+      statusRef.current = status;
+    },
+    [scheduleSync],
+  );
+
   usePersonalRealtime({
     userId,
     isPersonal: isActive,
     onMessage: handlePersonalMessage,
     onDelete: handlePersonalDelete,
+    onStatus: handleRealtimeStatus,
   });
+
+  useEffect(() => {
+    if (!isActive) return;
+    const handleVisibility = () => {
+      if (document.visibilityState !== 'visible') return;
+      scheduleSync('visibility');
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [isActive, scheduleSync]);
+
+  useEffect(() => {
+    if (!isActive) return;
+    const hasPendingServer = personalMessages.some(
+      message => message.status === 'pending' && !message.id.startsWith('tmp-'),
+    );
+    if (!hasPendingServer) return;
+    const timer = setTimeout(() => {
+      scheduleSync('pending');
+    }, 6_000);
+    return () => clearTimeout(timer);
+  }, [isActive, personalMessages, scheduleSync]);
 
   const handleSend = useCallback(
     async (content: string) => {

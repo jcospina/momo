@@ -1,8 +1,7 @@
 'use server';
 
-import { enqueueChatProcessing } from '@helpers/chat/chat-processing-queue';
-import { processChatMessage } from '@helpers/chat/chat-processor';
 import { deleteChatMessage as deleteChatMessageRow } from '@helpers/chat/chat-messages';
+import { processChatMessage } from '@helpers/chat/chat-processor';
 import { createSupabaseServerClient } from '@lib-supabase/server';
 import type {
   DeleteChatMessageResult,
@@ -13,6 +12,9 @@ type SendChatMessageInput = {
   content: string;
   householdId?: string | null;
 };
+
+const CHAT_SELECT =
+  'id, household_id, user_id, content, status, expense_count, created_at, sender_name';
 
 export async function sendChatMessage({
   content,
@@ -40,9 +42,7 @@ export async function sendChatMessage({
       user_id: user.id,
       sender_name: user.user_metadata?.name ?? user.email ?? null,
     })
-    .select(
-      'id, household_id, user_id, content, status, expense_count, created_at, sender_name',
-    )
+    .select(CHAT_SELECT)
     .single();
 
   if (error || !data) {
@@ -54,11 +54,31 @@ export async function sendChatMessage({
     return { errorCode: 'chat_message_send_failed' };
   }
 
-  enqueueChatProcessing(async () => {
+  try {
     await processChatMessage(data);
-  });
+  } catch (err) {
+    console.error('[chat] processing failed', err);
+    await supabase
+      .from('chat_messages')
+      .update({ status: 'failed' })
+      .eq('id', data.id);
+  }
 
-  return { message: data };
+  const { data: updated, error: updatedError } = await supabase
+    .from('chat_messages')
+    .select(CHAT_SELECT)
+    .eq('id', data.id)
+    .single();
+
+  if (updatedError || !updated) {
+    console.warn('[chat] message fetch after processing failed', {
+      error: updatedError?.message ?? 'unknown',
+      id: data.id,
+    });
+    return { message: data };
+  }
+
+  return { message: updated };
 }
 
 type DeleteChatMessageInput = {

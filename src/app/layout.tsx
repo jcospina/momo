@@ -6,6 +6,7 @@ import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
 import { NavigationProgressBar } from '../components/navigation-progress/navigation-progress-bar';
 import { NavigationProgressProvider } from '../providers/navigation-progress-provider';
+import { RealtimeClientProvider } from '../providers/realtime-client-provider';
 import DotGrid from '../ui/dot-grid/dot-grid';
 import './globals.css';
 
@@ -105,17 +106,19 @@ export default async function RootLayout({
       <body
         className={cn('antialiased', outfit.className, bungeeShade.variable)}
       >
-        <NavigationProgressProvider>
-          <NavigationProgressBar />
-          <DotGrid
-            blastStrength={4}
-            blastRadius={100}
-            disableHover={isMobile}
-          />
-          <main style={{ position: 'relative', zIndex: 1 }} className="root">
-            {children}
-          </main>
-        </NavigationProgressProvider>
+        <RealtimeClientProvider>
+          <NavigationProgressProvider>
+            <NavigationProgressBar />
+            <DotGrid
+              blastStrength={4}
+              blastRadius={100}
+              disableHover={isMobile}
+            />
+            <main style={{ position: 'relative', zIndex: 1 }} className="root">
+              {children}
+            </main>
+          </NavigationProgressProvider>
+        </RealtimeClientProvider>
       </body>
     </html>
   );
