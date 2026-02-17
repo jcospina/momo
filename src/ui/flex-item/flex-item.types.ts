@@ -6,14 +6,15 @@ import type {
 } from 'react';
 
 interface BaseFlexItemProps extends PropsWithChildren {
+  /** CSS `order`. @default 0 */
   order?: number;
-  /** flex-grow */
+  /** CSS `flex-grow`. @default 0 */
   grow?: number;
-  /** flex-shrink */
+  /** CSS `flex-shrink`. @default 1 */
   shrink?: number;
-  /** flex-basis */
+  /** CSS `flex-basis`. @default 'auto' */
   basis?: string;
-  /** align-self */
+  /** CSS `align-self` — override the parent Flex's `alignItems` for this child. */
   align?:
     | 'auto'
     | 'flex-start'
@@ -22,7 +23,17 @@ interface BaseFlexItemProps extends PropsWithChildren {
     | 'baseline'
     | 'stretch';
 }
+
+/**
+ * Props for {@link FlexItem}.
+ *
+ * Extends flexbox child properties with spacing (padding + margin) and
+ * polymorphic element support.
+ *
+ * @typeParam T - Polymorphic HTML element. @default 'div'
+ */
 export type FlexItemProps<T extends ElementType = 'div'> = {
+  /** Render as a different HTML element. @default 'div' */
   as?: T;
 } & BaseFlexItemProps &
   Omit<ComponentPropsWithoutRef<T>, keyof BaseFlexItemProps | 'as'> &

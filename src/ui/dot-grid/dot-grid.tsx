@@ -3,17 +3,52 @@ import { useEffect, useRef } from 'react';
 import styles from './dot-grid.module.css';
 
 type DotGridProps = {
-  gridSize?: number; // px between dot centers
-  dotRadius?: number; // radius in px
-  blastRadius?: number; // distance in px for blast effect
-  blastStrength?: number; // extra diameter in px at center
-  baseColor?: string; // rgb string e.g. '255,255,255'
-  baseOpacity?: number; // 0..1
-  hoverOpacity?: number; // 0..1
-  density?: number; // multiplier for dot density (1 = normal)
-  disableHover?: boolean; // disable hover animation
+  /** Spacing in pixels between dot centres. @default 32 */
+  gridSize?: number;
+  /** Base radius of each dot in pixels. @default 2 */
+  dotRadius?: number;
+  /** Radius (px) of the mouse-proximity blast effect. @default 80 */
+  blastRadius?: number;
+  /** Extra diameter (px) added to dots at the blast centre. @default 3 */
+  blastStrength?: number;
+  /** RGB colour string for dots, e.g. `'255,255,255'`. @default '255,255,255' */
+  baseColor?: string;
+  /** Resting opacity of each dot (0–1). @default 0.6 */
+  baseOpacity?: number;
+  /** Opacity of dots at the blast centre on hover (0–1). @default 0.95 */
+  hoverOpacity?: number;
+  /** Multiplier for dot density — values > 1 pack dots tighter. @default 1 */
+  density?: number;
+  /** When `true`, the hover blast animation is disabled. @default false */
+  disableHover?: boolean;
 };
 
+/**
+ * Decorative full-viewport canvas that draws a grid of dots with an
+ * interactive hover "blast" effect.
+ *
+ * Renders a fixed-position `<canvas>` with `pointer-events: none` and
+ * `aria-hidden`, so it sits behind all content as a background decoration.
+ * The grid automatically resizes on window resize and respects
+ * `devicePixelRatio` for crisp rendering on HiDPI displays.
+ *
+ * **Client component** — requires `'use client'`.
+ *
+ * @example Default — subtle white dot grid with hover blast
+ * ```tsx
+ * <DotGrid />
+ * ```
+ *
+ * @example Custom appearance — denser, coral-tinted, static
+ * ```tsx
+ * <DotGrid
+ *   baseColor="255,127,80"
+ *   density={1.5}
+ *   dotRadius={3}
+ *   disableHover
+ * />
+ * ```
+ */
 export default function DotGrid({
   gridSize = 32,
   dotRadius = 2,

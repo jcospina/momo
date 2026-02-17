@@ -1,5 +1,13 @@
 import type { SVGProps } from 'react';
 
+/**
+ * X / close icon — used for dismiss, close, and cancel actions.
+ *
+ * @example
+ * ```tsx
+ * <CloseIcon width={20} height={20} />
+ * ```
+ */
 export function CloseIcon({
   width = 24,
   height = 24,

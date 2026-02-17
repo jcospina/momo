@@ -1,5 +1,13 @@
 import type { SVGProps } from 'react';
 
+/**
+ * Right-pointing chevron icon — used for forward navigation and disclosure.
+ *
+ * @example
+ * ```tsx
+ * <RightIcon width={20} height={20} />
+ * ```
+ */
 export function RightIcon({
   width = 24,
   height = 24,

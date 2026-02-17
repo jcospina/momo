@@ -1,3 +1,11 @@
+/**
+ * Trending-up bar chart icon — used for stats and analytics navigation.
+ *
+ * @example
+ * ```tsx
+ * <ChartIcon width={20} height={20} />
+ * ```
+ */
 export function ChartIcon({
   width = 24,
   height = 24,

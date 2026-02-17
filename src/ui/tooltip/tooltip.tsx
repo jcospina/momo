@@ -26,25 +26,21 @@ import styles from './tooltip.module.css';
 type IntrinsicElement = keyof JSXNamespace.IntrinsicElements;
 
 type TooltipProps<T extends IntrinsicElement = 'span'> = {
-  /**
-   * Underlying element used for the trigger. Must be intrinsic for ref safety.
-   */
+  /** Underlying HTML element for the trigger. Must be intrinsic for ref safety. @default 'span' */
   as?: T;
-  /**
-   * Class applied to the wrapper (controls layout like align-self).
-   */
+  /** Class applied to the outer wrapper `<span>` (controls layout like `align-self`). */
   className?: string;
-  /**
-   * Class applied to the trigger element itself.
-   */
+  /** Class applied directly to the trigger element. */
   triggerClassName?: string;
   children: ReactNode;
   /**
-   * Optional explicit label to show inside the tooltip. Falls back to the
-   * native `title` attribute when not provided.
+   * Explicit content to render inside the tooltip bubble.
+   * Falls back to `title`, then `aria-label` when not provided.
    */
   label?: ReactNode;
+  /** Toggle the tooltip on/off without unmounting. @default true */
   isEnabled?: boolean;
+  /** Native `title` attribute — also used as fallback tooltip content. */
   title?: string;
 } & Omit<
   ComponentPropsWithoutRef<T>,
@@ -55,6 +51,44 @@ type TooltipComponent = <T extends IntrinsicElement = 'span'>(
   props: TooltipProps<T> & { ref?: Ref<ComponentRef<T>> },
 ) => ReactElement | null;
 
+/**
+ * Tooltip that appears on hover / focus after a 500 ms delay.
+ *
+ * Wraps any intrinsic element (default `<span>`) with a positioned tooltip
+ * bubble. The tooltip content resolves from `label` → `title` → `aria-label`,
+ * and is hidden when none are present. Dismisses on `Escape`, blur, or
+ * mouse-leave.
+ *
+ * Uses `aria-describedby` for screen-reader association and auto-assigns
+ * `tabIndex={0}` on `<span>` triggers so they're keyboard-focusable.
+ *
+ * **Client component** — requires `'use client'`.
+ *
+ * @typeParam T - Intrinsic HTML element for the trigger. @default 'span'
+ *
+ * @example Text tooltip
+ * ```tsx
+ * <Tooltip title="Copy to clipboard">
+ *   <Button variant="icon">
+ *     <CopyIcon />
+ *   </Button>
+ * </Tooltip>
+ * ```
+ *
+ * @example Rich label with JSX
+ * ```tsx
+ * <Tooltip label={<><strong>Tip:</strong> Click to edit</>}>
+ *   <Typography>Hover me</Typography>
+ * </Tooltip>
+ * ```
+ *
+ * @example Disabled tooltip
+ * ```tsx
+ * <Tooltip title="Hidden" isEnabled={false}>
+ *   <span>No tooltip</span>
+ * </Tooltip>
+ * ```
+ */
 function TooltipInner<T extends IntrinsicElement = 'span'>(
   props: TooltipProps<T>,
   forwardedRef: ForwardedRef<ComponentRef<T>>,

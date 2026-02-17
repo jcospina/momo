@@ -13,29 +13,56 @@ import type {
 } from './select.types';
 
 /**
- * Accessible, stylable single-select component with controlled and uncontrolled modes.
+ * Accessible, stylable single-select dropdown.
  *
- * Renders a trigger (combobox) that opens a portal-based listbox. Supports custom
- * rendering for trigger value and options, forwards standard select attributes
- * (`name`, `disabled`, `required`, `aria-*`, etc.), and mirrors the selected value to
- * a hidden input for HTML form submissions.
+ * Renders a trigger button that opens a portal-based listbox via Base UI's
+ * `Select`. Works with any option shape — provide accessor functions
+ * (`getOptionLabel`, `getOptionValue`) to tell the component how to read your
+ * data. Supports both controlled and uncontrolled modes. A hidden `<input>`
+ * mirrors the selected value for HTML form submissions.
+ *
+ * **Client component** — requires `'use client'`.
  *
  * @typeParam T - Option item shape.
- * @param props - Component props.
- * @param props.options - Array of options to render.
- * @param props.value - Controlled selected option (or null for no selection).
- * @param props.defaultValue - Initial selected option for uncontrolled usage.
- * @param props.onChange - Called with the next option (or null) when selection changes.
- * @param props.placeholder - Text shown when no selection is present.
- * @param props.getOptionLabel - Returns the display label for an option.
- * @param props.getOptionValue - Returns the form value/key for an option.
- * @param props.getOptionDisabled - Optional predicate to mark options as disabled.
- * @param props.getOptionKey - Optional custom key; defaults to option value.
- * @param props.renderOption - Optional custom renderer for list options.
- * @param props.renderValue - Optional custom renderer for the trigger value.
- * @param props.dropdownClassName - Optional class override for the dropdown wrapper.
- * @param props.onOpenChange - Optional callback fired when the dropdown opens/closes.
- * @param ref - Forwarded ref to the trigger element.
+ *
+ * @example Simple string options (controlled)
+ * ```tsx
+ * type Currency = { code: string; name: string };
+ * const currencies: Currency[] = [
+ *   { code: 'USD', name: 'US Dollar' },
+ *   { code: 'EUR', name: 'Euro' },
+ *   { code: 'COP', name: 'Colombian Peso' },
+ * ];
+ *
+ * const [currency, setCurrency] = useState<Currency | null>(currencies[0]);
+ *
+ * <Select
+ *   options={currencies}
+ *   value={currency}
+ *   onChange={setCurrency}
+ *   getOptionLabel={o => o.name}
+ *   getOptionValue={o => o.code}
+ *   placeholder="Pick a currency"
+ *   name="currency"
+ * />
+ * ```
+ *
+ * @example Custom option rendering
+ * ```tsx
+ * <Select
+ *   options={users}
+ *   getOptionLabel={u => u.name}
+ *   getOptionValue={u => u.id}
+ *   renderOption={(u, { isSelected }) => (
+ *     <Flex gap={1} alignItems="center">
+ *       <Avatar displayName={u.name} size="extra-small" />
+ *       <span>{u.name}</span>
+ *       {isSelected && <CheckIcon width={14} />}
+ *     </Flex>
+ *   )}
+ *   onChange={setSelectedUser}
+ * />
+ * ```
  */
 function SelectInner<T>(props: SelectProps<T>, ref: SelectForwardedRef) {
   const {

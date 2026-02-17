@@ -1,0 +1,4 @@
+interface:
+  display_name: "MoMo UI Builder"
+  short_description: "Build MoMo UI with src/ui component conventions"
+  default_prompt: "Use $momo-ui-builder to implement a MoMo screen with existing src/ui primitives and design-system rules."

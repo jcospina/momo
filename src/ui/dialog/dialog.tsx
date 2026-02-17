@@ -15,6 +15,30 @@ import type {
   DialogTriggerProps,
 } from './dialog.types';
 
+/**
+ * Headless controller hook for {@link Dialog}.
+ *
+ * Returns open/close state, imperative helpers, and pre-built props to
+ * spread onto both the trigger element and the `<Dialog>` component.
+ *
+ * @example
+ * ```tsx
+ * const { triggerProps, dialogProps, closeDialog } = useDialogController();
+ *
+ * <Button variant="primary" {...triggerProps}>Open</Button>
+ * <Dialog
+ *   controller={{ ...triggerProps, dialogProps, closeDialog, ... }}
+ *   title="Confirm"
+ *   content={<p>Are you sure?</p>}
+ *   actions={
+ *     <>
+ *       <Button variant="secondary" onClick={closeDialog}>Cancel</Button>
+ *       <Button variant="primary" onClick={handleConfirm}>Yes</Button>
+ *     </>
+ *   }
+ * />
+ * ```
+ */
 export function useDialogController(
   options: DialogControllerOptions = {},
 ): DialogController {
@@ -78,6 +102,49 @@ export function useDialogController(
   };
 }
 
+/**
+ * Modal dialog with title, content, and action slots.
+ *
+ * Renders a portal-based popup with a backdrop overlay, powered by Base UI's
+ * `Dialog`. Pair with {@link useDialogController} to manage open/close state
+ * and accessibility attributes.
+ *
+ * **Client component** — requires `'use client'`.
+ *
+ * @example Confirmation dialog
+ * ```tsx
+ * const controller = useDialogController();
+ *
+ * <Button variant="secondary" {...controller.triggerProps}>
+ *   Delete expense
+ * </Button>
+ *
+ * <Dialog
+ *   controller={controller}
+ *   title="Delete expense?"
+ *   content={<Typography>This action cannot be undone.</Typography>}
+ *   actions={
+ *     <>
+ *       <Button variant="secondary" onClick={controller.closeDialog}>
+ *         Cancel
+ *       </Button>
+ *       <Button variant="primary" onClick={handleDelete}>
+ *         Delete
+ *       </Button>
+ *     </>
+ *   }
+ * />
+ * ```
+ *
+ * @example Simple info dialog (default close button)
+ * ```tsx
+ * <Dialog
+ *   controller={controller}
+ *   title="About MoMo"
+ *   content={<Typography>Version 1.0</Typography>}
+ * />
+ * ```
+ */
 export function Dialog({
   controller,
   title,

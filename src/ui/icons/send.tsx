@@ -1,5 +1,13 @@
 import type { SVGProps } from 'react';
 
+/**
+ * Paper-plane send icon — used for the chat message send button.
+ *
+ * @example
+ * ```tsx
+ * <SendIcon width={20} height={20} />
+ * ```
+ */
 export function SendIcon({
   width = 24,
   height = 24,

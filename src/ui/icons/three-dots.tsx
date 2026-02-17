@@ -1,3 +1,11 @@
+/**
+ * Vertical ellipsis (three dots) icon — used for "more options" menus.
+ *
+ * @example
+ * ```tsx
+ * <ThreeDotsIcon width={20} height={20} />
+ * ```
+ */
 export function ThreeDotsIcon({
   width,
   height,

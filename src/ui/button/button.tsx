@@ -4,6 +4,13 @@ import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
 import styles from './button.module.css';
 
 type ButtonBaseProps = {
+  /**
+   * Visual variant.
+   * - `'primary'` — filled, high-emphasis action.
+   * - `'secondary'` — outlined, lower-emphasis action.
+   * - `'link'` — inline text-link styling.
+   * - `'icon'` — minimal padding, icon-only button.
+   */
   variant: 'primary' | 'secondary' | 'link' | 'icon';
   className?: string;
 };
@@ -21,6 +28,41 @@ type ButtonAsLinkProps = ButtonBaseProps &
 
 type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
 
+/**
+ * Polymorphic button that renders either a `<button>` or a Next.js `<Link>`.
+ *
+ * Set `asLink` to render as an anchor tag with client-side navigation, while
+ * keeping the same visual styling. All extra props are forwarded to the
+ * underlying element, so you can pass `disabled`, `onClick`, `href`, etc.
+ *
+ * @example Primary button
+ * ```tsx
+ * <Button variant="primary" onClick={handleSave}>
+ *   Save
+ * </Button>
+ * ```
+ *
+ * @example Secondary link-button navigating to a route
+ * ```tsx
+ * <Button variant="secondary" asLink href="/settings">
+ *   Settings
+ * </Button>
+ * ```
+ *
+ * @example Icon-only button
+ * ```tsx
+ * <Button variant="icon" onClick={toggleMenu} aria-label="Menu">
+ *   <ThreeDotsIcon width={20} height={20} />
+ * </Button>
+ * ```
+ *
+ * @example Disabled state
+ * ```tsx
+ * <Button variant="primary" disabled>
+ *   Processing…
+ * </Button>
+ * ```
+ */
 export function Button(props: ButtonProps) {
   const { variant, className, children, ...rest } = props;
   const variantClass = {

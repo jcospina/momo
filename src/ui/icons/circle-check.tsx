@@ -1,5 +1,13 @@
 import type { SVGProps } from 'react';
 
+/**
+ * Circled checkmark icon — used for confirmed/completed states.
+ *
+ * @example
+ * ```tsx
+ * <CircleCheckIcon width={20} height={20} />
+ * ```
+ */
 export function CircleCheckIcon({
   width = 24,
   height = 24,

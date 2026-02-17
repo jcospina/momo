@@ -50,15 +50,39 @@ type InputProps = Omit<
   };
 
 /**
- * Styled input with optional left/right adornments rendered inside the field.
+ * Styled text input / textarea with optional left/right adornments.
  *
- * Example:
+ * Renders a `<div>` wrapper containing optional prefix/suffix adornment
+ * slots and either a native `<input>` or `<textarea>`. When `multiline` is
+ * enabled with `autoResize`, the textarea dynamically grows from `minRows`
+ * to `maxRows` as the user types.
+ *
+ * Forwards a ref to the underlying native element.
+ *
+ * **Client component** — requires `'use client'`.
+ *
+ * @example Single-line input with adornments
  * ```tsx
  * <Input
  *   prefix={<EmojiButton />}
  *   suffix={<UploadIcon />}
  *   placeholder="Add a note…"
  * />
+ * ```
+ *
+ * @example Auto-resizing multiline textarea
+ * ```tsx
+ * <Input
+ *   multiline
+ *   minRows={2}
+ *   maxRows={8}
+ *   placeholder="Describe the expense…"
+ * />
+ * ```
+ *
+ * @example Disabled state
+ * ```tsx
+ * <Input value="Read only" disabled />
  * ```
  */
 export const Input = forwardRef<

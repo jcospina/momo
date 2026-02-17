@@ -15,6 +15,25 @@ type MarginComponentProps<T extends ElementType = 'div'> = {
     keyof PropsWithChildren<MarginProps> | 'as'
   >;
 
+/**
+ * Applies margin via inline styles to a polymorphic wrapper element.
+ *
+ * Spacing values map to a base-unit scale (the conversion happens in
+ * `getSpacingStyles`). Supports `'auto'` for centering patterns.
+ *
+ * @typeParam T - Underlying HTML element. @default 'div'
+ *
+ * @example
+ * ```tsx
+ * <Margin marginBottom={2}>
+ *   <Typography>Spaced below</Typography>
+ * </Margin>
+ *
+ * <Margin as="nav" marginX="auto">
+ *   <Logo />
+ * </Margin>
+ * ```
+ */
 export function Margin<T extends ElementType>({
   as,
   children,
