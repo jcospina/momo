@@ -1,3 +1,11 @@
+/**
+ * Currency/cents badge icon — used for expense and money indicators.
+ *
+ * @example
+ * ```tsx
+ * <CentsIcon width={20} height={20} />
+ * ```
+ */
 export function CentsIcon({
   width,
   height,

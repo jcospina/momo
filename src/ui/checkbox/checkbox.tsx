@@ -6,19 +6,33 @@ import type { ChangeEvent, InputHTMLAttributes } from 'react';
 import { useEffect, useId, useRef } from 'react';
 import styles from './checkbox.module.css';
 
+/** Possible states for a checkbox: checked, unchecked, or indeterminate. */
 export type CheckboxCheckedState = boolean | 'indeterminate';
 
 export interface CheckboxProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
+  /** Show the error/invalid visual treatment. */
   error?: boolean;
+  /** Render the indeterminate (dash) indicator instead of a checkmark. @default false */
   indeterminate?: boolean;
+  /** Size variant. @default 'md' */
   size?: 'sm' | 'md';
+  /** Class applied to the outer `<label>` wrapper. */
   className?: string;
+  /** Class applied directly to the native `<input>`. */
   inputClassName?: string;
+  /** Fires with the next checked state whenever the user toggles the checkbox. */
   onCheckedChange?: (checked: CheckboxCheckedState) => void;
 }
 
 /**
+ * Styled checkbox with support for the indeterminate state.
+ *
+ * Wraps a native `<input type="checkbox">` inside a `<label>` with a custom
+ * check-mark icon. The `indeterminate` prop sets the native property via a
+ * ref effect, and `onCheckedChange` reports the tri-state value.
+ *
+ * **Client component** — requires `'use client'`.
  *
  * @example Controlled usage
  * ```tsx

@@ -2,6 +2,31 @@ import type { FlexItemProps } from '@/ui/flex-item/flex-item.types';
 import { getSpacingStyles } from '@utils/spacing';
 import type { CSSProperties, ElementType } from 'react';
 
+/**
+ * Child of a {@link Flex} container with explicit flex-item properties.
+ *
+ * Applies `flex-grow`, `flex-shrink`, `flex-basis`, `order`, and
+ * `align-self` as inline styles together with optional spacing props.
+ *
+ * @typeParam T - Polymorphic HTML element. @default 'div'
+ *
+ * @example Grow to fill remaining space
+ * ```tsx
+ * <Flex gap={2}>
+ *   <Avatar displayName="A" size="small" />
+ *   <FlexItem grow={1}>
+ *     <Typography>Expandable content</Typography>
+ *   </FlexItem>
+ * </Flex>
+ * ```
+ *
+ * @example Fixed-width sidebar with custom alignment
+ * ```tsx
+ * <FlexItem basis="240px" shrink={0} align="stretch">
+ *   <Nav />
+ * </FlexItem>
+ * ```
+ */
 export function FlexItem<T extends ElementType>({
   className,
   children,

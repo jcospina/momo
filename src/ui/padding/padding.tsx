@@ -15,6 +15,25 @@ type PaddingComponentProps<T extends ElementType = 'div'> = {
     keyof PropsWithChildren<PaddingProps> | 'as'
   >;
 
+/**
+ * Applies padding via inline styles to a polymorphic wrapper element.
+ *
+ * Spacing values map to a base-unit scale (the conversion happens in
+ * `getSpacingStyles`). Accepts all axis/side-specific overrides.
+ *
+ * @typeParam T - Underlying HTML element. @default 'div'
+ *
+ * @example
+ * ```tsx
+ * <Padding padding={3}>
+ *   <Typography>Evenly padded content</Typography>
+ * </Padding>
+ *
+ * <Padding as="section" paddingX={4} paddingY={2}>
+ *   <Chart />
+ * </Padding>
+ * ```
+ */
 export function Padding<T extends ElementType>({
   as,
   children,

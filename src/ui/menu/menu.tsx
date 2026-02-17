@@ -6,6 +6,43 @@ import { useId } from 'react';
 import styles from './menu.module.css';
 import type { MenuProps } from './menu.types';
 
+/**
+ * Dropdown menu powered by Base UI's `Menu`.
+ *
+ * Wraps a trigger element and renders a portal-based popup with a list of
+ * items and optional separators. Supports hover-to-open, configurable
+ * placement, and per-item tone (e.g. danger for destructive actions).
+ *
+ * **Client component** — requires `'use client'`.
+ *
+ * @example Context menu on an avatar
+ * ```tsx
+ * <Menu
+ *   items={[
+ *     { type: 'item', label: 'Profile', onSelect: goToProfile },
+ *     { type: 'separator' },
+ *     { type: 'item', label: 'Log out', onSelect: logout, tone: 'danger' },
+ *   ]}
+ * >
+ *   <Avatar displayName="Alice" />
+ * </Menu>
+ * ```
+ *
+ * @example Hover menu with icon items
+ * ```tsx
+ * <Menu
+ *   openOnHover
+ *   hoverDelay={200}
+ *   side="right"
+ *   items={[
+ *     { type: 'item', label: 'Edit', icon: <EditIcon />, onSelect: edit },
+ *     { type: 'item', label: 'Delete', icon: <CloseIcon />, onSelect: del, tone: 'danger' },
+ *   ]}
+ * >
+ *   <Button variant="icon"><ThreeDotsIcon /></Button>
+ * </Menu>
+ * ```
+ */
 export function Menu({
   children,
   items,

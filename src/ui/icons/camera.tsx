@@ -1,5 +1,13 @@
 import type { SVGProps } from 'react';
 
+/**
+ * Camera icon — used for photo/receipt upload actions.
+ *
+ * @example
+ * ```tsx
+ * <CameraIcon width={20} height={20} />
+ * ```
+ */
 export function CameraIcon({
   width = 24,
   height = 24,

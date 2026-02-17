@@ -15,8 +15,32 @@ function getDividerThickness(thickness: Thickness): number {
 
 type Thickness = 'thin' | 'regular' | 'thick';
 interface DividerProps {
+  /**
+   * Line thickness variant.
+   * - `'thin'` — 1 px
+   * - `'regular'` — 2 px (default)
+   * - `'thick'` — 3 px
+   */
   thickness?: Thickness;
 }
+
+/**
+ * Horizontal rule that visually separates content sections.
+ *
+ * Renders a styled `<div>` whose height is driven by a CSS custom property
+ * (`--thickness`), so the actual pixel value stays in CSS land.
+ *
+ * @example
+ * ```tsx
+ * <Panel>
+ *   <Typography>Section A</Typography>
+ *   <Divider />
+ *   <Typography>Section B</Typography>
+ * </Panel>
+ *
+ * <Divider thickness="thin" />
+ * ```
+ */
 export function Divider({ thickness = 'regular' }: DividerProps) {
   const thicknessStyle = {
     '--thickness': getDividerThickness(thickness),

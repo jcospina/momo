@@ -1,5 +1,13 @@
 import type { SVGProps } from 'react';
 
+/**
+ * Single person icon — used for personal scope indicators and user profiles.
+ *
+ * @example
+ * ```tsx
+ * <PersonIcon width={20} height={20} />
+ * ```
+ */
 export function PersonIcon({
   width = 24,
   height = 24,

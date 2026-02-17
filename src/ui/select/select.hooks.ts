@@ -17,6 +17,14 @@ type DropdownPositionOptions = {
   gap?: number;
 };
 
+/**
+ * Tracks viewport-aware positioning for a dropdown attached to a trigger.
+ *
+ * Calculates `top`, `left`, and `width` based on the trigger's bounding
+ * rect, clamped to the visible viewport. Call `attachPositionListeners`
+ * on open to start tracking resize/scroll, and invoke the returned cleanup
+ * on close.
+ */
 export function useDropdownPosition(options?: DropdownPositionOptions) {
   const gap = options?.gap ?? 6;
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -74,6 +82,13 @@ export function useDropdownPosition(options?: DropdownPositionOptions) {
   };
 }
 
+/**
+ * Keeps the keyboard-active option scrolled into view within a list container.
+ *
+ * Attach `listRef` to the scrollable `<ul>` and `activeOptionRef` to the
+ * currently highlighted `<li>`. Call `ensureVisible(isOpen, activeIndex)`
+ * after each navigation to smooth-scroll the active item into view.
+ */
 export function useActiveOptionScroll() {
   const listRef = useRef<HTMLUListElement | null>(null);
   const activeOptionRef = useRef<HTMLLIElement | null>(null);
@@ -116,6 +131,15 @@ type NavigationArgs<T> = {
   onRequestClose: () => void;
 };
 
+/**
+ * Full keyboard navigation for a listbox-style dropdown.
+ *
+ * Handles `ArrowUp/Down`, `Home/End`, `Enter/Space` (select), `Escape`
+ * (close), and `Tab` (close). Skips disabled options using the provided
+ * `isOptionDisabled` predicate.
+ *
+ * Returns a `handleKeyDown` handler to spread onto the trigger element.
+ */
 export function useKeyboardNavigation<T>({
   disabled,
   isOpen,

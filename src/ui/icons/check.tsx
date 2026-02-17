@@ -1,5 +1,13 @@
 import type { SVGProps } from 'react';
 
+/**
+ * Checkmark icon — used inside {@link Checkbox} and for success indicators.
+ *
+ * @example
+ * ```tsx
+ * <CheckIcon width={16} height={16} />
+ * ```
+ */
 export function CheckIcon({
   width,
   height,

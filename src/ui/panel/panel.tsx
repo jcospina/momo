@@ -5,6 +5,28 @@ import { getSpacingStyles } from '@utils/spacing';
 import type { CSSProperties, ElementType } from 'react';
 import styles from './panel.module.css';
 
+/**
+ * Rounded card/panel container with an optional drop-shadow.
+ *
+ * Use `Panel` to visually group content into a distinct surface.
+ * Supports all padding/margin spacing props and polymorphic rendering.
+ *
+ * @typeParam T - Polymorphic HTML element. @default 'div'
+ *
+ * @example Default card with padding
+ * ```tsx
+ * <Panel padding={3}>
+ *   <Typography>Card content</Typography>
+ * </Panel>
+ * ```
+ *
+ * @example Flat panel (no shadow) as a section
+ * ```tsx
+ * <Panel as="section" shadowless paddingX={4} paddingY={2}>
+ *   <Typography>Section content</Typography>
+ * </Panel>
+ * ```
+ */
 export function Panel<T extends ElementType>({
   className,
   children,

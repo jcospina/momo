@@ -1,5 +1,13 @@
 import type { SVGProps } from 'react';
 
+/**
+ * Group of people icon — used for household scope indicators.
+ *
+ * @example
+ * ```tsx
+ * <GroupIcon width={20} height={20} />
+ * ```
+ */
 export function GroupIcon({
   width = 24,
   height = 24,

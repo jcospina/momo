@@ -1,5 +1,13 @@
 import type { SVGProps } from 'react';
 
+/**
+ * Chat bubble icon — used for chat/message scope indicators.
+ *
+ * @example
+ * ```tsx
+ * <MessageIcon width={20} height={20} />
+ * ```
+ */
 export function MessageIcon({
   width = 24,
   height = 24,

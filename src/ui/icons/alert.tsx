@@ -1,3 +1,11 @@
+/**
+ * Circle-with-exclamation icon — used for warnings and error states.
+ *
+ * @example
+ * ```tsx
+ * <AlertIcon width={20} height={20} />
+ * ```
+ */
 export function AlertIcon({
   width,
   height,

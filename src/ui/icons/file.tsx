@@ -1,5 +1,13 @@
 import type { SVGProps } from 'react';
 
+/**
+ * Paperclip / attachment icon — used for file-upload triggers.
+ *
+ * @example
+ * ```tsx
+ * <FileIcon width={20} height={20} />
+ * ```
+ */
 export function FileIcon({
   width = 24,
   height = 24,

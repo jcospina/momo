@@ -1,5 +1,13 @@
 import type { SVGProps } from 'react';
 
+/**
+ * Left-pointing chevron icon — used for back navigation.
+ *
+ * @example
+ * ```tsx
+ * <LeftIcon width={20} height={20} />
+ * ```
+ */
 export function LeftIcon({
   width = 24,
   height = 24,
