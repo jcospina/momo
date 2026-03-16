@@ -34,7 +34,7 @@ describe('expense-stats months helpers', () => {
       expect(buildMonthlyWindows(months, 6)).toEqual([months]);
     });
 
-    it('chunks windows by the selected range size starting from the start', () => {
+    it('chunks evenly-divisible items into full windows', () => {
       const months = [
         '2025-02',
         '2025-03',
@@ -56,7 +56,7 @@ describe('expense-stats months helpers', () => {
       ]);
     });
 
-    it('keeps a shorter window when the last segment is incomplete', () => {
+    it('places the partial window at the start when the total is not evenly divisible', () => {
       const months = [
         '2024-12',
         '2025-01',
@@ -75,13 +75,13 @@ describe('expense-stats months helpers', () => {
       ];
 
       expect(buildMonthlyWindows(months, 6)).toEqual([
-        ['2024-12', '2025-01', '2025-02', '2025-03', '2025-04', '2025-05'],
-        ['2025-06', '2025-07', '2025-08', '2025-09', '2025-10', '2025-11'],
-        ['2025-12', '2026-01'],
+        ['2024-12', '2025-01'],
+        ['2025-02', '2025-03', '2025-04', '2025-05', '2025-06', '2025-07'],
+        ['2025-08', '2025-09', '2025-10', '2025-11', '2025-12', '2026-01'],
       ]);
     });
 
-    it('places the partial window at the end', () => {
+    it('last window is always full-size so the active window includes the most recent months', () => {
       const months = [
         '2025-01',
         '2025-02',
@@ -95,9 +95,9 @@ describe('expense-stats months helpers', () => {
       ];
 
       expect(buildMonthlyWindows(months, 4)).toEqual([
-        ['2025-01', '2025-02', '2025-03', '2025-04'],
-        ['2025-05', '2025-06', '2025-07', '2025-08'],
-        ['2025-09'],
+        ['2025-01'],
+        ['2025-02', '2025-03', '2025-04', '2025-05'],
+        ['2025-06', '2025-07', '2025-08', '2025-09'],
       ]);
     });
   });
