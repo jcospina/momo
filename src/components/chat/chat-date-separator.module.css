@@ -1,0 +1,17 @@
+.separator {
+  display: flex;
+  justify-content: center;
+  padding: calc(var(--spacing) * 2) 0;
+  width: 100%;
+}
+
+.label {
+  display: inline-block;
+  padding: 2px calc(var(--spacing) * 0.75);
+  background-color: var(--color-white, #fff);
+  border: 2px solid var(--color-dark);
+  border-radius: var(--border-radius);
+  box-shadow: -2px 2px 0 var(--color-dark);
+  color: var(--color-dark);
+  white-space: nowrap;
+}

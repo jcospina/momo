@@ -12,7 +12,10 @@ import styles from './chat-list.module.css';
 
 type ChatListProps = {
   messages: ChatMessage[];
-  renderMessage: (message: ChatMessage) => ReactNode;
+  renderMessage: (
+    message: ChatMessage,
+    previousMessage: ChatMessage | undefined,
+  ) => ReactNode;
   onLoadMore?: () => void;
   hasMore?: boolean;
   isLoadingMore?: boolean;
@@ -114,9 +117,9 @@ export function ChatList({
           </div>
         ),
       }}
-      itemContent={(_, msg) => (
+      itemContent={(index, msg) => (
         <Flex marginBottom={1} isFullWidth>
-          {renderMessage(msg)}
+          {renderMessage(msg, messages[index - 1])}
         </Flex>
       )}
     />

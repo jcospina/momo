@@ -187,7 +187,7 @@ describe('expense-stats actions', () => {
   });
 
   describe('getMonthlyHistory', () => {
-    it('returns all months between earliest and latest rows', async () => {
+    it('extends months to current month even when latest row is in the past', async () => {
       const rows = buildMonthlyByCategoryUserRows({
         startMonth: '2022-11',
         count: 5,
@@ -202,13 +202,11 @@ describe('expense-stats actions', () => {
         householdId: 'household-1',
       });
 
-      expect(result.data.months).toEqual([
-        '2022-11',
-        '2022-12',
-        '2023-01',
-        '2023-02',
-        '2023-03',
-      ]);
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      expect(result.data.months[0]).toBe('2022-11');
+      expect(result.data.months[result.data.months.length - 1]).toBe(
+        currentMonth,
+      );
       expect(result.data.rows).toHaveLength(rows.length);
     });
   });

@@ -22,6 +22,9 @@ import { FlexItem } from '@ui/flex-item/flex-item';
 import { Flex } from '@ui/flex/flex';
 import { Input } from '@ui/input/input';
 import { Panel } from '@ui/panel/panel';
+import { format, getYear, isToday, isYesterday } from 'date-fns';
+
+import { ChatDateSeparator } from './chat-date-separator';
 import { ChatList } from './chat-list';
 
 import styles from './chat.module.css';
@@ -42,6 +45,13 @@ type ChatPanelProps = {
 };
 
 const HISTORY_PAGE_SIZE = 30;
+
+function formatDateSeparatorLabel(date: Date): string {
+  if (isToday(date)) return 'Today';
+  if (isYesterday(date)) return 'Yesterday';
+  if (getYear(date) === getYear(new Date())) return format(date, 'EEE, MMM d');
+  return format(date, 'EEE, MMM d, yyyy');
+}
 
 type ChatPanelLayoutProps = {
   isActive: boolean;
@@ -103,18 +113,31 @@ function ChatPanelLayout({
           isLoadingMore={isLoadingMore}
           onLoadMore={onLoadMore}
           currentUserId={currentUserId}
-          renderMessage={msg => (
-            <ChatMessageItem
-              key={msg.id}
-              message={msg}
-              currentUserId={currentUserId}
-              isHousehold={isHousehold}
-              onDelete={onDelete}
-              onRetrySend={onRetrySend}
-              onOpenExpenseDetails={onOpenExpenseDetails}
-              deleteError={Boolean(deleteErrors[msg.id])}
-            />
-          )}
+          renderMessage={(msg, prevMsg) => {
+            const msgDate = new Date(msg.created_at);
+            const prevDate = prevMsg ? new Date(prevMsg.created_at) : null;
+            const showSeparator =
+              !prevDate || msgDate.toDateString() !== prevDate.toDateString();
+            return (
+              <Flex direction="column" isFullWidth>
+                {showSeparator && (
+                  <ChatDateSeparator
+                    label={formatDateSeparatorLabel(msgDate)}
+                  />
+                )}
+                <ChatMessageItem
+                  key={msg.id}
+                  message={msg}
+                  currentUserId={currentUserId}
+                  isHousehold={isHousehold}
+                  onDelete={onDelete}
+                  onRetrySend={onRetrySend}
+                  onOpenExpenseDetails={onOpenExpenseDetails}
+                  deleteError={Boolean(deleteErrors[msg.id])}
+                />
+              </Flex>
+            );
+          }}
         />
       </FlexItem>
       <Divider thickness="thick" />

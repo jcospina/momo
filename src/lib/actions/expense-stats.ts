@@ -420,7 +420,11 @@ export async function getMonthlyHistory({
   }
 
   const earliest = unique[0];
-  const latest = unique[unique.length - 1];
+  const currentMonth = format(new Date(), 'yyyy-MM');
+  const latest =
+    currentMonth > unique[unique.length - 1]
+      ? currentMonth
+      : unique[unique.length - 1];
   const months = buildMonthSpan(earliest, latest);
 
   return { data: { months, rows } };

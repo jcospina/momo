@@ -22,14 +22,13 @@ export function buildMonthlyWindows<T>(items: T[], windowSize: number): T[][] {
   if (items.length <= size) return [items];
 
   const windows: T[][] = [];
-  let index = 0;
-  while (index + size <= items.length) {
-    windows.push(items.slice(index, index + size));
-    index += size;
+  let index = items.length;
+  while (index - size >= 0) {
+    windows.unshift(items.slice(index - size, index));
+    index -= size;
   }
-
-  if (index < items.length) {
-    windows.push(items.slice(index));
+  if (index > 0) {
+    windows.unshift(items.slice(0, index));
   }
 
   return windows;
