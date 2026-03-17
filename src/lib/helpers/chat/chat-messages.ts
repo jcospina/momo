@@ -22,6 +22,14 @@ type FetchChatHistoryParams = {
   before?: ChatHistoryCursor | null;
 };
 
+type FetchChatMessagesSinceParams = {
+  supabase: SupabaseClient;
+  householdId?: string | null;
+  userId: string;
+  limit?: number;
+  cursor?: ChatHistoryCursor | null;
+};
+
 type DeleteChatMessageParams = {
   supabase: SupabaseClient;
   messageId: string;
@@ -103,6 +111,48 @@ export async function fetchChatHistory({
   }
 
   return (data as ChatMessage[] | null)?.reverse() ?? [];
+}
+
+export async function fetchChatMessagesSince({
+  supabase,
+  householdId = null,
+  userId,
+  limit = 100,
+  cursor = null,
+}: FetchChatMessagesSinceParams): Promise<ChatMessage[]> {
+  let query = supabase.from('chat_messages').select(CHAT_MESSAGE_SELECT);
+
+  if (householdId) {
+    query = query.eq('household_id', householdId);
+  } else {
+    query = query.is('household_id', null).eq('user_id', userId);
+  }
+
+  if (cursor?.created_at && cursor?.id) {
+    query = query
+      .or(
+        `created_at.gt.${cursor.created_at},and(created_at.eq.${cursor.created_at},id.gt.${cursor.id})`,
+      )
+      .order('created_at', { ascending: true })
+      .order('id', { ascending: true })
+      .limit(limit);
+  } else {
+    query = query
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
+      .limit(limit);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('fetchChatMessagesSince failed', error);
+    return [];
+  }
+
+  return cursor?.created_at && cursor?.id
+    ? ((data as ChatMessage[] | null) ?? [])
+    : (((data as ChatMessage[] | null) ?? []).reverse() as ChatMessage[]);
 }
 
 export async function deleteChatMessage({

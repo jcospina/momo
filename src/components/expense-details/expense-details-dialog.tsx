@@ -2,7 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { getExpensesByMessageId, updateExpenses } from '@actions/expenses';
+import {
+  getExpensesByMessageId,
+  updateExpenses,
+} from '@/lib/data/expenses/client';
 import type { ExpenseCategory } from '@lib-types/expenses';
 import { EXPENSE_CATEGORIES } from '@lib-types/expenses';
 import { Button } from '@ui/button/button';

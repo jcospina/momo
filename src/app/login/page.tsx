@@ -2,7 +2,7 @@ import { Button } from '@/ui/button/button';
 import { Logo } from '@/ui/logo/logo';
 import { Panel } from '@/ui/panel/panel';
 import { Typography } from '@/ui/typography/typography';
-import { loginWithProvider } from '@actions/login';
+import { loginWithProvider } from '@/lib/data/auth/server';
 
 import { ERROR_MESSAGES } from '@constants/errors';
 import { Flex } from '@/ui/flex/flex';

@@ -1,3 +1,7 @@
+import { redirect } from 'next/navigation';
+
+import { getInviteInfo, startAcceptFlow } from '@/lib/data/invites/server';
+import type { MomoError } from '@lib-types/errors';
 import { ERROR_MESSAGES } from '@constants/errors';
 import { Button } from '@/ui/button/button';
 import { Flex } from '@/ui/flex/flex';
@@ -5,11 +9,6 @@ import { Logo } from '@/ui/logo/logo';
 import { Margin } from '@/ui/margin/margin';
 import { Panel } from '@/ui/panel/panel';
 import { Typography } from '@/ui/typography/typography';
-import { startInviteAcceptFlow } from '@actions/invites';
-import { fetchInviteInfo } from '@helpers/invites';
-import { createSupabaseServiceRoleClient } from '@lib-supabase/server';
-import type { MomoError } from '@lib-types/errors';
-import { redirect } from 'next/navigation';
 
 import styles from '../invite.module.css';
 
@@ -51,8 +50,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
     redirect('/login');
   }
 
-  const serviceClient = createSupabaseServiceRoleClient();
-  const info = await fetchInviteInfo(serviceClient, token);
+  const info = await getInviteInfo(token);
 
   if (!info || info.status === 'household_invalid') {
     return (
@@ -95,7 +93,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
         <form>
           <Button
             variant="primary"
-            formAction={startInviteAcceptFlow.bind(null, token)}
+            formAction={startAcceptFlow.bind(null, token)}
           >
             Join with Google
           </Button>

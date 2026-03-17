@@ -69,7 +69,7 @@
   color: color-mix(in oklch, var(--color-dark), white 20%);
 }
 
-.momo-chat__icon-button {
+.momo-chat__content-row .momo-chat__icon-button {
   padding: 0;
   min-width: auto;
   min-height: auto;
@@ -78,8 +78,8 @@
   background: none;
 }
 
-.momo-chat__icon-button:hover,
-.momo-chat__icon-button:active {
+.momo-chat__content-row .momo-chat__icon-button:hover,
+.momo-chat__content-row .momo-chat__icon-button:active {
   transform: none;
   box-shadow: none;
   background-color: transparent;

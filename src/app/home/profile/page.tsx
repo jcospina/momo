@@ -1,32 +1,31 @@
+import { redirect } from 'next/navigation';
+
 import { Navbar } from '@/components/navbar/navbar';
+import { getCurrentUser, logout } from '@/lib/data/auth/server';
+import {
+  createInline,
+  getHouseholdForUser,
+  getMembers,
+} from '@/lib/data/households/server';
+import { getUserPreferences } from '@/lib/data/prefs/server';
+import { getProfile } from '@/lib/data/profile/server';
+import { ERROR_MESSAGES } from '@constants/errors';
+import type { MomoError } from '@lib-types/errors';
 import { Avatar } from '@/ui/avatar/avatar';
 import { Button } from '@/ui/button/button';
 import { FlexItem } from '@/ui/flex-item/flex-item';
 import { Flex } from '@/ui/flex/flex';
 import { Panel } from '@/ui/panel/panel';
 import { Typography } from '@/ui/typography/typography';
-import { logout } from '@actions/logout';
-import {
-  fetchHouseholdMembers,
-  getHouseholdForUser,
-} from '@helpers/households';
-import { getUserProfile } from '@helpers/profiles';
-import { getCurrentUser } from '@helpers/user';
-import { getUserPreferences } from '@helpers/user-prefs';
-import { redirect } from 'next/navigation';
 
 import { HouseholdForm } from '@/components/household-form/household-form';
 import { Divider } from '@/ui/divider/divider';
-import { createHouseholdInline } from '@actions/households';
-import { createSupabaseServerClient } from '@lib-supabase/server';
 import { firstName } from '@utils/user';
 import { CurrencySelect } from './currency-select';
 import { InviteLink } from './invite-link';
 import { LanguageSelect } from './language-select';
 import { MemberList } from './member-list';
 
-import { ERROR_MESSAGES } from '@constants/errors';
-import type { MomoError } from '@lib-types/errors';
 import styles from './profile.module.css';
 
 function buildShareUrl(token: string) {
@@ -45,7 +44,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
     redirect('/');
   }
 
-  const profile = await getUserProfile(user.id);
+  const profile = await getProfile(user.id);
 
   if (!profile) {
     redirect('/');
@@ -56,10 +55,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const displayName = profile.display_name;
   const shareUrl = buildShareUrl(profile.invite_token);
   const household = await getHouseholdForUser(user.id);
-  const supabase = await createSupabaseServerClient();
-  const members = household
-    ? await fetchHouseholdMembers(supabase, household.id)
-    : [];
+  const members = household ? await getMembers(household.id) : [];
   const isOwner = household ? household.owner === user.id : false;
   const isFull = members.length >= 5;
 
@@ -122,7 +118,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 <Typography size="xl" weight="bold">
                   Create a household
                 </Typography>
-                <HouseholdForm action={createHouseholdInline} />
+                <HouseholdForm action={createInline} />
               </Flex>
             </Flex>
           </>

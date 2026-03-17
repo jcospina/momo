@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type RefObject } from 'react';
 
-import { subscribeToPersonalChat } from '@helpers/chat/chat-realtime';
+import { subscribe } from '@/lib/data/messages/client';
 import type { ChatMessage, RealtimeState } from '@lib-types/chat';
 import { useRealtimeClientContext } from '@providers/realtime-client-provider';
 import {
@@ -104,9 +104,7 @@ function useChannelLifecycle({
   resubscribeRef,
   stateRef,
 }: ChannelLifecycleArgs) {
-  const channelRef = useRef<ReturnType<typeof subscribeToPersonalChat> | null>(
-    null,
-  );
+  const channelRef = useRef<ReturnType<typeof subscribe> | null>(null);
   const resettingRef = useRef(false);
   const subscribeRef = useRef<(() => void) | null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
@@ -152,14 +150,15 @@ function useChannelLifecycle({
     };
     resubscribeRef.current = scheduleResubscribe;
 
-    const subscribe = () => {
+    const subscribeChannel = () => {
       if (cancelled || !client) return;
       stateRef.current = 'subscribing';
       cleanupChannel();
-      channelRef.current = subscribeToPersonalChat(
+      channelRef.current = subscribe({
+        scope: 'personal',
         userId,
         client,
-        payload => {
+        onChange: payload => {
           if (!payload?.message) return;
           lastMessageAtRef.current = Date.now();
           stallLoggedRef.current = false;
@@ -169,7 +168,7 @@ function useChannelLifecycle({
             onMessage(payload.message as ChatMessage);
           }
         },
-        status => {
+        onStatus: status => {
           lastStatusRef.current = status;
           onStatus?.(status);
           if (status === 'SUBSCRIBED') {
@@ -192,11 +191,11 @@ function useChannelLifecycle({
             scheduleResubscribe();
           }
         },
-      );
+      });
     };
-    subscribeRef.current = subscribe;
+    subscribeRef.current = subscribeChannel;
 
-    subscribe();
+    subscribeChannel();
     return () => {
       cancelled = true;
       if (resubscribeTimer) {

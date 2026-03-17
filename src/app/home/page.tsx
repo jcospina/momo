@@ -1,12 +1,12 @@
+import { redirect } from 'next/navigation';
+
 import { Navbar } from '@/components/navbar/navbar';
+import { getCurrentUser } from '@/lib/data/auth/server';
+import { getHouseholdForUser } from '@/lib/data/households/server';
+import { getList as getChatMessages } from '@/lib/data/messages/server';
 import { Chat } from '@components/chat/chat';
-import { fetchChatMessages } from '@helpers/chat/chat-messages';
-import { getHouseholdForUser } from '@helpers/households';
-import { getCurrentUser } from '@helpers/user';
-import { createSupabaseServerClient } from '@lib-supabase/server';
 import { FlexItem } from '@ui/flex-item/flex-item';
 import { Flex } from '@ui/flex/flex';
-import { redirect } from 'next/navigation';
 import styles from './home.module.css';
 
 export default async function HomePage() {
@@ -15,10 +15,8 @@ export default async function HomePage() {
     redirect('/login');
   }
 
-  const supabase = await createSupabaseServerClient();
   const householdPromise = getHouseholdForUser(user.id);
-  const personalPromise = fetchChatMessages({
-    supabase,
+  const personalPromise = getChatMessages({
     householdId: null,
     userId: user.id,
     limit: 30,
@@ -26,8 +24,7 @@ export default async function HomePage() {
 
   const household = await householdPromise;
   const householdMessagesPromise = household
-    ? fetchChatMessages({
-        supabase,
+    ? getChatMessages({
         householdId: household.id,
         userId: user.id,
         limit: 30,
