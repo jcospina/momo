@@ -3,11 +3,11 @@ import { format } from 'date-fns';
 import {
   getDailyComparisonData,
   getMonthlyHistory,
-} from '@actions/expense-stats';
+} from '@/lib/data/stats/server';
+import { getCurrentUser } from '@/lib/data/auth/server';
+import { getUserPreferences } from '@/lib/data/prefs/server';
 import { Navbar } from '@components/navbar/navbar';
 import { ExpenseScopePanels } from '@components/stats/expense-scope-panels';
-import { getCurrentUser } from '@helpers/user';
-import { getUserPreferences } from '@helpers/user-prefs';
 import { Flex } from '@ui/flex/flex';
 import { redirect } from 'next/navigation';
 

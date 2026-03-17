@@ -3,12 +3,15 @@
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { deleteChatMessage, sendChatMessage } from '@actions/chat-messages';
+import {
+  getList as getChatHistory,
+  remove as removeChatMessage,
+  send as sendChatMessage,
+} from '@/lib/data/messages/client';
 import { ChatMessage as ChatMessageItem } from '@components/chat/chat-message';
 import { SendButton } from '@components/chat/send-button';
 import { ChatToggle } from '@components/chat/toggle/chat-toggle';
 import { ExpenseDetailsDialog } from '@components/expense-details/expense-details-dialog';
-import { fetchChatHistory } from '@features/chat/api/chat-history';
 import { useChatState } from '@features/chat/hooks/use-chat-state';
 import { useComposer } from '@features/chat/hooks/use-composer';
 import { useHouseholdRealtime } from '@features/chat/hooks/use-household-realtime';
@@ -334,7 +337,7 @@ function PersonalChatPanel({
         delete next[message.id];
         return next;
       });
-      const result = await deleteChatMessage({ messageId: message.id });
+      const result = await removeChatMessage({ messageId: message.id });
       if (result?.errorCode) {
         console.warn('[chat] delete failed', {
           id: message.id,
@@ -356,7 +359,7 @@ function PersonalChatPanel({
     }
     setIsLoadingMore(true);
     try {
-      const batch = await fetchChatHistory({
+      const batch = await getChatHistory({
         householdId: null,
         cursor: { created_at: oldest.created_at, id: oldest.id },
         limit: HISTORY_PAGE_SIZE,
@@ -558,7 +561,7 @@ function HouseholdChatPanel({
         delete next[message.id];
         return next;
       });
-      const result = await deleteChatMessage({ messageId: message.id });
+      const result = await removeChatMessage({ messageId: message.id });
       if (result?.errorCode) {
         console.warn('[chat] delete failed', {
           id: message.id,
@@ -580,7 +583,7 @@ function HouseholdChatPanel({
     }
     setIsLoadingMore(true);
     try {
-      const batch = await fetchChatHistory({
+      const batch = await getChatHistory({
         householdId,
         cursor: { created_at: oldest.created_at, id: oldest.id },
         limit: HISTORY_PAGE_SIZE,

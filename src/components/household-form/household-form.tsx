@@ -2,7 +2,7 @@
 
 import { useActionState } from 'react';
 
-import { createHousehold } from '@actions/households';
+import { create } from '@/lib/data/households/client';
 import { Button } from '@/ui/button/button';
 import { Flex } from '@/ui/flex/flex';
 import { Input } from '@/ui/input/input';
@@ -22,9 +22,9 @@ type HouseholdFormProps = PropsWithClassName<{
 
 export function HouseholdForm({
   className,
-  placeholder = "e.g. Papa's little nest",
+  placeholder = "e.g. Mama's little nest",
   submitLabel = 'Create household',
-  action = createHousehold,
+  action = create,
 }: HouseholdFormProps) {
   const [state, formAction, pending] = useActionState(
     action,

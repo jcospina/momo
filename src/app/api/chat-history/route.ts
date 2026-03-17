@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-import { fetchChatHistory } from '@helpers/chat/chat-messages';
+import { getHistory } from '@/lib/data/messages/server';
 import { createSupabaseServerClient } from '@lib-supabase/server';
 
 type HistoryRequest = {
@@ -33,15 +33,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
-  const messages = await fetchChatHistory({
-    supabase,
+  const messages = await getHistory({
     householdId,
     userId: user.id,
     limit,
-    before:
+    cursor:
       cursorCreatedAt && cursorId
         ? { created_at: cursorCreatedAt, id: cursorId }
         : null,
+    options: { supabase },
   });
 
   return NextResponse.json(

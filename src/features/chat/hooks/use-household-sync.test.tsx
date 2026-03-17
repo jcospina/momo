@@ -1,16 +1,15 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 
+import { getSince as getChatSince } from '@/lib/data/messages/client';
 import type { ChatMessage } from '@lib-types/chat';
 import { useHouseholdSync } from './use-household-sync';
 
-jest.mock('../api/chat-sync', () => ({
-  fetchChatSync: jest.fn(),
+jest.mock('@/lib/data/messages/client', () => ({
+  getSince: jest.fn(),
 }));
 
-import { fetchChatSync } from '../api/chat-sync';
-
-const mockFetchChatSync = fetchChatSync as jest.MockedFunction<
-  typeof fetchChatSync
+const mockGetChatSince = getChatSince as jest.MockedFunction<
+  typeof getChatSince
 >;
 
 const sampleMessage = (id: string): ChatMessage => ({
@@ -27,7 +26,7 @@ const sampleMessage = (id: string): ChatMessage => ({
 describe('useHouseholdSync', () => {
   beforeEach(() => {
     jest.useFakeTimers();
-    mockFetchChatSync.mockReset();
+    mockGetChatSince.mockReset();
   });
 
   afterEach(() => {
@@ -36,8 +35,8 @@ describe('useHouseholdSync', () => {
   });
 
   it('queues a second sync during in-flight and runs after completion', async () => {
-    mockFetchChatSync.mockResolvedValueOnce([sampleMessage('m1')]);
-    mockFetchChatSync.mockResolvedValueOnce([sampleMessage('m2')]);
+    mockGetChatSince.mockResolvedValueOnce([sampleMessage('m1')]);
+    mockGetChatSince.mockResolvedValueOnce([sampleMessage('m2')]);
     const onMessages = jest.fn();
     const { result } = renderHook(() =>
       useHouseholdSync({
@@ -53,13 +52,13 @@ describe('useHouseholdSync', () => {
       result.current.scheduleSync('visibility');
     });
 
-    await waitFor(() => expect(mockFetchChatSync).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mockGetChatSince).toHaveBeenCalledTimes(1));
 
     // second call is queued via pending + cooldown; advance timers to run it
     act(() => {
       jest.advanceTimersByTime(10_000);
     });
-    await waitFor(() => expect(mockFetchChatSync).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mockGetChatSince).toHaveBeenCalledTimes(2));
     expect(onMessages).toHaveBeenCalledTimes(2);
     expect(onMessages).toHaveBeenNthCalledWith(
       1,
@@ -72,7 +71,7 @@ describe('useHouseholdSync', () => {
   });
 
   it('honors cooldown and triggers follow-up only when a trigger occurs during cooldown', async () => {
-    mockFetchChatSync.mockResolvedValue([]);
+    mockGetChatSince.mockResolvedValue([]);
     const onMessages = jest.fn();
     const { result } = renderHook(() =>
       useHouseholdSync({
@@ -86,7 +85,7 @@ describe('useHouseholdSync', () => {
     act(() => {
       result.current.scheduleSync('visibility');
     });
-    await waitFor(() => expect(mockFetchChatSync).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mockGetChatSince).toHaveBeenCalledTimes(1));
 
     act(() => {
       result.current.scheduleSync('visibility');
@@ -95,6 +94,6 @@ describe('useHouseholdSync', () => {
       jest.advanceTimersByTime(10_000);
     });
 
-    await waitFor(() => expect(mockFetchChatSync).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mockGetChatSince).toHaveBeenCalledTimes(2));
   });
 });

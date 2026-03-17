@@ -1,11 +1,11 @@
-import { Logo } from '@/ui/logo/logo';
-import { Panel } from '@/ui/panel/panel';
-import { setOnboardingStatus } from '@actions/user-prefs';
-import { getHouseholdMembershipForUser } from '@helpers/households';
-import { getCurrentUser } from '@helpers/user';
 import { redirect } from 'next/navigation';
 
 import { HouseholdForm } from '@/components/household-form/household-form';
+import { getCurrentUser } from '@/lib/data/auth/server';
+import { getMembership } from '@/lib/data/households/server';
+import { setOnboardingStatus } from '@/lib/data/prefs/server';
+import { Logo } from '@/ui/logo/logo';
+import { Panel } from '@/ui/panel/panel';
 import { ERROR_MESSAGES } from '@constants/errors';
 import { Button } from '@/ui/button/button';
 import { Flex } from '@/ui/flex/flex';
@@ -30,7 +30,7 @@ export default async function OnboardingPage({
 
   const { error } = await searchParams;
 
-  const membership = await getHouseholdMembershipForUser(user.id);
+  const membership = await getMembership(user.id);
 
   if (membership) {
     redirect('/home');

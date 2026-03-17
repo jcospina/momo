@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { fetchHouseholdMembership } from '@helpers/households';
+import { getMembership } from '@/lib/data/households/server';
 import type { ProxyContext } from '@proxy/types';
 
 export async function buildProxyContext(
@@ -70,9 +70,7 @@ export async function buildProxyContext(
     console.error('Proxy auth.getUser failed', error.message);
   }
 
-  const membership = user
-    ? await fetchHouseholdMembership(supabase, user.id)
-    : null;
+  const membership = user ? await getMembership(user.id, { supabase }) : null;
 
   // fetch onboarding status from user_prefs; default to 'unknown' when missing
   let onboardingStatus: 'unknown' | 'skipped' | 'completed' = 'unknown';

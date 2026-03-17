@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 
+import { getSince as getChatSince } from '@/lib/data/messages/client';
 import type { ChatMessage, SyncReason } from '@lib-types/chat';
-import { fetchChatSync } from '../api/chat-sync';
 import { SYNC_COOLDOWN_MS, SYNC_PAGE_LIMIT } from '../chat.constants';
 
 type UsePersonalSyncArgs = {
@@ -62,7 +62,7 @@ export function usePersonalSync({
 
       void (async () => {
         try {
-          const batch = await fetchChatSync({
+          const batch = await getChatSince({
             householdId: null,
             cursor: null,
             limit: SYNC_PAGE_LIMIT,

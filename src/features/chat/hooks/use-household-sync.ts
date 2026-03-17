@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 
+import { getSince as getChatSince } from '@/lib/data/messages/client';
 import type { ChatMessage } from '@lib-types/chat';
 import {
   SYNC_COOLDOWN_MS,
@@ -9,7 +10,6 @@ import {
   SYNC_PAGE_LIMIT,
 } from '../chat.constants';
 import type { SyncCursor, SyncReason } from '@lib-types/chat';
-import { fetchChatSync } from '../api/chat-sync';
 
 type UseHouseholdSyncArgs = {
   householdId: string | null;
@@ -73,7 +73,7 @@ export function useHouseholdSync({
         let page = 0;
         try {
           for (; page < SYNC_MAX_PAGES; page += 1) {
-            const batch = await fetchChatSync({
+            const batch = await getChatSince({
               householdId,
               cursor,
               limit: SYNC_PAGE_LIMIT,

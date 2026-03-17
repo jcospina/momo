@@ -29,6 +29,7 @@
   padding: calc(var(--spacing) * 0.5);
   min-width: calc(var(--spacing) * 3);
   min-height: calc(var(--spacing) * 3);
+  border: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;

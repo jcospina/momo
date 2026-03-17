@@ -1,15 +1,13 @@
 // app/auth/callback/route.ts
-import { setOnboardingStatus } from '@actions/user-prefs';
-import { fetchHouseholdMembership } from '@helpers/households';
-import { fetchInviteInfo } from '@helpers/invites';
-import { createUserProfile } from '@helpers/profiles';
-import {
-  createSupabaseServerClient,
-  createSupabaseServiceRoleClient,
-} from '@lib-supabase/server';
-import { redirectWithError } from '@utils/redirect-with-error';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+
+import { getMembership } from '@/lib/data/households/server';
+import { getInviteInfo } from '@/lib/data/invites/server';
+import { setOnboardingStatus } from '@/lib/data/prefs/server';
+import { createProfile } from '@/lib/data/profile/server';
+import { createSupabaseServerClient } from '@lib-supabase/server';
+import { redirectWithError } from '@utils/redirect-with-error';
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
@@ -35,7 +33,7 @@ export async function GET(request: NextRequest) {
     return redirectWithError('/login', 'auth_user_missing');
   }
 
-  const profileError = await createUserProfile(user);
+  const profileError = await createProfile(user);
 
   if (profileError) {
     return redirectWithError('/login', 'profile_create_failed');
@@ -44,11 +42,10 @@ export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
   const inviteToken = cookieStore.get('invite_token')?.value ?? null;
 
-  let membership = await fetchHouseholdMembership(supabase, user.id);
+  let membership = await getMembership(user.id, { supabase });
 
   if (!membership && inviteToken) {
-    const serviceClient = createSupabaseServiceRoleClient();
-    const shareInfo = await fetchInviteInfo(serviceClient, inviteToken);
+    const shareInfo = await getInviteInfo(inviteToken);
 
     if (
       shareInfo &&

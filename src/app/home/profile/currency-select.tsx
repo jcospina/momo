@@ -1,11 +1,11 @@
 'use client';
 import { CURRENCIES } from '@constants/currency';
 import { ERROR_MESSAGES } from '@constants/errors';
+import { setCurrency } from '@/lib/data/prefs/client';
 import { Flex } from '@/ui/flex/flex';
 import { Select } from '@/ui/select/select';
 import { Typography } from '@/ui/typography/typography';
-import { setCurrency } from '@actions/user-prefs';
-import { MomoError } from '@lib-types/errors';
+import type { MomoError } from '@lib-types/errors';
 import type { SupportedCurrency } from '@lib-types/user-preferences';
 import { useCallback, useMemo, useState, useTransition } from 'react';
 
