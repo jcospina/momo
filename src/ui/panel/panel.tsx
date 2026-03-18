@@ -1,9 +1,8 @@
 import { cn } from '@utils/cn';
-import { PanelProps } from './panel.types';
-
 import { getSpacingStyles } from '@utils/spacing';
 import type { CSSProperties, ElementType } from 'react';
 import styles from './panel.module.css';
+import { PanelProps } from './panel.types';
 
 /**
  * Rounded card/panel container with an optional drop-shadow.

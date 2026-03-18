@@ -1,5 +1,3 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-
 import {
   createHousehold as createHouseholdAction,
   createHouseholdInline as createHouseholdInlineAction,
@@ -12,6 +10,7 @@ import {
   getHouseholdMembershipForUser as getHouseholdMembershipForUserHelper,
 } from '@helpers/households';
 import { createSupabaseServerClient } from '@lib-supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 import {
   create,

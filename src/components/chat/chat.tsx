@@ -1,13 +1,5 @@
 'use client';
 
-import type React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-
-import {
-  getList as getChatHistory,
-  remove as removeChatMessage,
-  send as sendChatMessage,
-} from '@/lib/data/messages/client';
 import { ChatMessage as ChatMessageItem } from '@components/chat/chat-message';
 import { SendButton } from '@components/chat/send-button';
 import { ChatToggle } from '@components/chat/toggle/chat-toggle';
@@ -21,16 +13,21 @@ import { usePersonalSync } from '@features/chat/hooks/use-personal-sync';
 import type { ChatMessage } from '@lib-types/chat';
 import { useDialogController } from '@ui/dialog/dialog';
 import { Divider } from '@ui/divider/divider';
-import { FlexItem } from '@ui/flex-item/flex-item';
 import { Flex } from '@ui/flex/flex';
+import { FlexItem } from '@ui/flex-item/flex-item';
 import { Input } from '@ui/input/input';
 import { Panel } from '@ui/panel/panel';
 import { format, getYear, isToday, isYesterday } from 'date-fns';
-
+import type React from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  getList as getChatHistory,
+  remove as removeChatMessage,
+  send as sendChatMessage,
+} from '@/lib/data/messages/client';
+import styles from './chat.module.css';
 import { ChatDateSeparator } from './chat-date-separator';
 import { ChatList } from './chat-list';
-
-import styles from './chat.module.css';
 
 interface ChatProps {
   householdName?: string;

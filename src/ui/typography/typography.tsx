@@ -1,8 +1,7 @@
 import { cn } from '@utils/cn';
-import { TypographyProps } from './typography.types';
-
 import type { ElementType } from 'react';
 import styles from './typography.module.css';
+import { TypographyProps } from './typography.types';
 /**
  * Text rendering primitive with size, weight, and transform tokens.
  *

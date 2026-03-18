@@ -1,15 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
-
-import { getSince as getChatSince } from '@/lib/data/messages/client';
-import type { ChatMessage } from '@lib-types/chat';
 import {
   SYNC_COOLDOWN_MS,
   SYNC_MAX_PAGES,
   SYNC_PAGE_LIMIT,
-} from '../chat.constants';
-import type { SyncCursor, SyncReason } from '@lib-types/chat';
+} from '@features/chat/chat.constants';
+import type { ChatMessage, SyncCursor, SyncReason } from '@lib-types/chat';
+import { useCallback, useEffect, useRef } from 'react';
+import { getSince as getChatSince } from '@/lib/data/messages/client';
 
 type UseHouseholdSyncArgs = {
   householdId: string | null;

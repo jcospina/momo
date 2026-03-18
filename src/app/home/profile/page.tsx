@@ -1,5 +1,8 @@
+import { ERROR_MESSAGES } from '@constants/errors';
+import type { MomoError } from '@lib-types/errors';
+import { firstName } from '@utils/user';
 import { redirect } from 'next/navigation';
-
+import { HouseholdForm } from '@/components/household-form/household-form';
 import { Navbar } from '@/components/navbar/navbar';
 import { getCurrentUser, logout } from '@/lib/data/auth/server';
 import {
@@ -9,18 +12,13 @@ import {
 } from '@/lib/data/households/server';
 import { getUserPreferences } from '@/lib/data/prefs/server';
 import { getProfile } from '@/lib/data/profile/server';
-import { ERROR_MESSAGES } from '@constants/errors';
-import type { MomoError } from '@lib-types/errors';
 import { Avatar } from '@/ui/avatar/avatar';
 import { Button } from '@/ui/button/button';
-import { FlexItem } from '@/ui/flex-item/flex-item';
+import { Divider } from '@/ui/divider/divider';
 import { Flex } from '@/ui/flex/flex';
+import { FlexItem } from '@/ui/flex-item/flex-item';
 import { Panel } from '@/ui/panel/panel';
 import { Typography } from '@/ui/typography/typography';
-
-import { HouseholdForm } from '@/components/household-form/household-form';
-import { Divider } from '@/ui/divider/divider';
-import { firstName } from '@utils/user';
 import { CurrencySelect } from './currency-select';
 import { InviteLink } from './invite-link';
 import { LanguageSelect } from './language-select';

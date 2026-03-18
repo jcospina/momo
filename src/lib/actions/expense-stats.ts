@@ -1,7 +1,5 @@
 'use server';
 
-import { format, isValid, parse, subMonths } from 'date-fns';
-
 import {
   fetchAllMonthlyByCategoryUser,
   fetchDailyTotalsByMonth,
@@ -15,6 +13,7 @@ import type {
   MonthlyByCategoryUserRow,
   UserTotalPoint,
 } from '@lib-types/expense-stats';
+import { format, isValid, parse, subMonths } from 'date-fns';
 
 export type ExpenseStatsScope = 'auto' | 'household' | 'personal';
 

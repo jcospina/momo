@@ -1,9 +1,8 @@
-import type { AuthUser } from '@supabase/supabase-js';
-
 import {
   createUserProfile as createUserProfileHelper,
   getUserProfile as getUserProfileHelper,
 } from '@helpers/profiles';
+import type { AuthUser } from '@supabase/supabase-js';
 
 import { createProfile, getProfile } from './server';
 

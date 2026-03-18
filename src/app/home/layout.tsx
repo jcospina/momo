@@ -1,10 +1,8 @@
+import { ProfileProvider } from '@providers/profile-provider';
 import { redirect } from 'next/navigation';
-
+import type { ReactNode } from 'react';
 import { getCurrentUser } from '@/lib/data/auth/server';
 import { getProfile } from '@/lib/data/profile/server';
-import { ProfileProvider } from '@providers/profile-provider';
-
-import type { ReactNode } from 'react';
 export default async function HomeLayout({
   children,
 }: Readonly<{

@@ -1,9 +1,10 @@
 import type { MarginProps, PaddingProps } from '@lib-types/common';
 import {
-  PropsWithChildren,
   type ComponentPropsWithoutRef,
   type ElementType,
+  PropsWithChildren,
 } from 'react';
+
 interface BaseFlexProps extends PropsWithChildren {
   /** Main-axis direction. @default 'row' */
   direction?: 'column' | 'row' | 'column-reverse' | 'row-reverse';

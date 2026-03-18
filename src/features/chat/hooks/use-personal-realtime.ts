@@ -1,10 +1,5 @@
 'use client';
 
-import { useEffect, useRef, type RefObject } from 'react';
-
-import { subscribe } from '@/lib/data/messages/client';
-import type { ChatMessage, RealtimeState } from '@lib-types/chat';
-import { useRealtimeClientContext } from '@providers/realtime-client-provider';
 import {
   RESUBSCRIBE_BACKOFF_FACTOR,
   RESUBSCRIBE_BASE_DELAY_MS,
@@ -13,7 +8,11 @@ import {
   STALL_CHECK_INTERVAL_MS,
   STALL_HIDDEN_THRESHOLD_MS,
   STALL_VISIBLE_THRESHOLD_MS,
-} from '../chat.constants';
+} from '@features/chat/chat.constants';
+import type { ChatMessage, RealtimeState } from '@lib-types/chat';
+import { useRealtimeClientContext } from '@providers/realtime-client-provider';
+import { type RefObject, useEffect, useRef } from 'react';
+import { subscribe } from '@/lib/data/messages/client';
 
 type UsePersonalRealtimeArgs = {
   userId: string;

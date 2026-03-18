@@ -1,7 +1,6 @@
 import { cn } from '@utils/cn';
-
-import { LoaderProps } from './loader.types';
 import styles from './loader.module.css';
+import { LoaderProps } from './loader.types';
 
 export function MomoLoader({ size = 'md', className }: LoaderProps) {
   const sizeClass = `momo-loader--${size}`;

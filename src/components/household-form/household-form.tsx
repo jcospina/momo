@@ -1,16 +1,16 @@
 'use client';
 
+import type { PropsWithClassName } from '@lib-types/common';
+import type { CreateHouseholdState } from '@lib-types/households';
 import { useActionState } from 'react';
-
 import { create } from '@/lib/data/households/client';
 import { Button } from '@/ui/button/button';
 import { Flex } from '@/ui/flex/flex';
 import { Input } from '@/ui/input/input';
 import { Typography } from '@/ui/typography/typography';
-import type { PropsWithClassName } from '@lib-types/common';
-import type { CreateHouseholdState } from '@lib-types/households';
 
 import styles from './household-form.module.css';
+
 type HouseholdFormProps = PropsWithClassName<{
   placeholder?: string;
   submitLabel?: string;

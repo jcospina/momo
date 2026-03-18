@@ -1,8 +1,7 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-
 import { startInviteAcceptFlow as startInviteAcceptFlowAction } from '@actions/invites';
 import { fetchInviteInfo as fetchInviteInfoHelper } from '@helpers/invites';
 import { createSupabaseServiceRoleClient } from '@lib-supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { getInviteInfo, startAcceptFlow } from './server';
 

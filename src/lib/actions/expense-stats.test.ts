@@ -1,7 +1,7 @@
 import {
   buildMonthList,
   buildMonthlyByCategoryUserRows,
-} from '../../mocks/expense-stats-samples';
+} from '@/mocks/expense-stats-samples';
 import {
   getMonthlyDataBounds,
   getMonthlyHistory,

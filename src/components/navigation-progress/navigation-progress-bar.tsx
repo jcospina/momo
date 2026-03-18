@@ -1,7 +1,7 @@
 'use client';
 
-import { useNavigationProgress } from '@/providers/navigation-progress-provider';
 import { cn } from '@utils/cn';
+import { useNavigationProgress } from '@/providers/navigation-progress-provider';
 import styles from './navigation-progress-bar.module.css';
 
 export function NavigationProgressBar() {

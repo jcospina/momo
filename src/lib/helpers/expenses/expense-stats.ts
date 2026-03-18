@@ -1,9 +1,8 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-
 import type {
   DailyTotalsByMonthRow,
   MonthlyByCategoryUserRow,
 } from '@lib-types/expense-stats';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 type ViewFetchParams = {
   supabase: SupabaseClient;

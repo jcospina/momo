@@ -1,6 +1,7 @@
-import type { Profile } from '@lib-types/profile';
 import { createSupabaseServerClient } from '@lib-supabase/server';
+import type { Profile } from '@lib-types/profile';
 import type { AuthUser, PostgrestError, User } from '@supabase/supabase-js';
+
 function getDisplayName(user: User) {
   const nameFromMetadata = user.user_metadata?.name;
   if (typeof nameFromMetadata === 'string' && nameFromMetadata.trim()) {

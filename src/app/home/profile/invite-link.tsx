@@ -1,7 +1,7 @@
 'use client';
 
-import { useIsMobileLike } from '@/hooks/use-is-mobile-like';
 import { useEffect, useState } from 'react';
+import { useIsMobileLike } from '@/hooks/use-is-mobile-like';
 
 import { Button } from '@/ui/button/button';
 

@@ -1,13 +1,12 @@
+import { NavigationProgressBar } from '@components/navigation-progress/navigation-progress-bar';
+import { NavigationProgressProvider } from '@providers/navigation-progress-provider';
+import { RealtimeClientProvider } from '@providers/realtime-client-provider';
+import DotGrid from '@ui/dot-grid/dot-grid';
+import { cn } from '@utils/cn';
 import type { Metadata, Viewport } from 'next';
 import { Bungee_Shade, Outfit } from 'next/font/google';
-
-import { cn } from '@utils/cn';
 import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
-import { NavigationProgressBar } from '../components/navigation-progress/navigation-progress-bar';
-import { NavigationProgressProvider } from '../providers/navigation-progress-provider';
-import { RealtimeClientProvider } from '../providers/realtime-client-provider';
-import DotGrid from '../ui/dot-grid/dot-grid';
 import './globals.css';
 
 const metadataBase =

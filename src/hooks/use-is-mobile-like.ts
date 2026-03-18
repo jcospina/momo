@@ -1,6 +1,5 @@
-import { useSyncExternalStore } from 'react';
-
 import { isMobileLike } from '@utils/is-mobile';
+import { useSyncExternalStore } from 'react';
 
 const getServerSnapshot = () => false;
 

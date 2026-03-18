@@ -1,13 +1,13 @@
 import { cn } from '@utils/cn';
 import type { CSSProperties } from 'react';
 import styles from './circle.module.css';
+import type { CircleProps } from './circle.types';
 import {
   getCircleBorderWidth,
   getCircleFontSize,
   getCircleShadow,
   getCircleSizeMultiplier,
 } from './circle.utils';
-import type { CircleProps } from './circle.types';
 
 /**
  * Coloured circle primitive used as the building block for {@link Avatar} and

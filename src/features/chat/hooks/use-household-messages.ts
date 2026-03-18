@@ -1,9 +1,7 @@
 'use client';
 
+import type { ChatCursor, ChatMessage } from '@lib-types/chat';
 import { useCallback, useRef, useState } from 'react';
-
-import type { ChatMessage } from '@lib-types/chat';
-import type { ChatCursor } from '@lib-types/chat';
 
 type UseHouseholdMessagesArgs = {
   initialHouseholdMessages: ChatMessage[];

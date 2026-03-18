@@ -1,6 +1,5 @@
-import { Flex } from '@ui/flex/flex';
-
 import DotGrid from '@ui/dot-grid/dot-grid';
+import { Flex } from '@ui/flex/flex';
 import { Logo } from '@ui/logo/logo';
 import { Typography } from '@ui/typography/typography';
 import { headers } from 'next/headers';

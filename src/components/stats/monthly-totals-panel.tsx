@@ -1,9 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
-
-import styles from '@/app/home/stats/stats.module.css';
-import { mq, useMediaQuery } from '@/hooks/use-media-query';
 import { MonthlyTotalsBarChart } from '@components/charts/monthly-totals-bar-chart';
 import { buildMonthlyCategoryTotals } from '@helpers/expenses/expense-stats.aggregations';
 import { formatMonthRange } from '@helpers/expenses/expense-stats.months';
@@ -14,6 +10,9 @@ import { LeftIcon } from '@ui/icons/left';
 import { RightIcon } from '@ui/icons/right';
 import { ToggleGroup } from '@ui/toggle-group/toggle-group';
 import { Typography } from '@ui/typography/typography';
+import { useMemo } from 'react';
+import styles from '@/app/home/stats/stats.module.css';
+import { mq, useMediaQuery } from '@/hooks/use-media-query';
 
 const RANGE_OPTIONS = [
   { label: '3m', value: '3' },

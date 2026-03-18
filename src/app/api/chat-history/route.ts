@@ -1,7 +1,6 @@
-import { NextResponse } from 'next/server';
-
-import { getHistory } from '@/lib/data/messages/server';
 import { createSupabaseServerClient } from '@lib-supabase/server';
+import { NextResponse } from 'next/server';
+import { getHistory } from '@/lib/data/messages/server';
 
 type HistoryRequest = {
   household_id?: string | null;

@@ -2,24 +2,24 @@
 
 import { cn } from '@utils/cn';
 import {
-  createElement,
-  forwardRef,
-  useCallback,
-  useEffect,
-  useId,
-  useRef,
-  useState,
   type ComponentPropsWithoutRef,
   type ComponentPropsWithRef,
   type ComponentRef,
+  createElement,
   type FocusEventHandler,
   type ForwardedRef,
+  forwardRef,
   type JSX as JSXNamespace,
   type KeyboardEventHandler,
   type MouseEventHandler,
   type ReactElement,
   type ReactNode,
   type Ref,
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
 } from 'react';
 import styles from './tooltip.module.css';
 

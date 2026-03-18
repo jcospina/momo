@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 
 import styles from './divider.module.css';
+
 function getDividerThickness(thickness: Thickness): number {
   switch (thickness) {
     case 'thin':

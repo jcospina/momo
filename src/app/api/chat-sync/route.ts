@@ -1,6 +1,5 @@
-import { NextResponse } from 'next/server';
-
 import { createSupabaseServerClient } from '@lib-supabase/server';
+import { NextResponse } from 'next/server';
 
 type SyncRequest = {
   household_id?: string | null;

@@ -1,4 +1,4 @@
-import { buildMonthList } from '../../../mocks/expense-stats-samples';
+import { buildMonthList } from '@/mocks/expense-stats-samples';
 import {
   fetchAllMonthlyByCategoryUser,
   fetchMonthlyBoundsByCategoryUser,

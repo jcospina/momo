@@ -1,6 +1,5 @@
-import { Flex } from '@/ui/flex/flex';
-
 import type { ReactNode } from 'react';
+import { Flex } from '@/ui/flex/flex';
 import styles from './invite.module.css';
 export default function InviteLayout({
   children,

@@ -1,11 +1,5 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-
-import {
-  getExpensesByMessageId,
-  updateExpenses,
-} from '@/lib/data/expenses/client';
 import type { ExpenseCategory } from '@lib-types/expenses';
 import { EXPENSE_CATEGORIES } from '@lib-types/expenses';
 import { Button } from '@ui/button/button';
@@ -16,6 +10,11 @@ import { Flex } from '@ui/flex/flex';
 import { Input } from '@ui/input/input';
 import { Select } from '@ui/select/select';
 import { Typography } from '@ui/typography/typography';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  getExpensesByMessageId,
+  updateExpenses,
+} from '@/lib/data/expenses/client';
 import styles from './expense-details-dialog.module.css';
 
 const uniqueCategories = (() => {

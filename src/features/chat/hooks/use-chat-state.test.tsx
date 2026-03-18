@@ -1,6 +1,5 @@
-import { act, renderHook } from '@testing-library/react';
-
 import type { ChatMessage } from '@lib-types/chat';
+import { act, renderHook } from '@testing-library/react';
 import { useChatState } from './use-chat-state';
 
 const baseMessage = (overrides: Partial<ChatMessage>): ChatMessage => ({

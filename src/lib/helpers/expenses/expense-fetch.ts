@@ -1,6 +1,5 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-
 import type { ExpenseRecord } from '@lib-types/expenses';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 type FetchExpensesByMessageIdParams = {
   supabase: SupabaseClient;

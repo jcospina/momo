@@ -4,7 +4,7 @@ import { Flex } from '@ui/flex/flex';
 import { CloseIcon } from '@ui/icons/close';
 import { Typography } from '@ui/typography/typography';
 import { cn } from '@utils/cn';
-import { useState, type CSSProperties, type PropsWithChildren } from 'react';
+import { type CSSProperties, type PropsWithChildren, useState } from 'react';
 import styles from './toast.module.css';
 
 type ToastVariant = 'error' | 'info' | 'success';

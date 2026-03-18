@@ -1,11 +1,11 @@
 'use client';
 import { ERROR_MESSAGES } from '@constants/errors';
-import { setAiEnabled } from '@/lib/data/prefs/client';
-import { Typography } from '@/ui/typography/typography';
 import type { MomoError } from '@lib-types/errors';
 import { Checkbox } from '@ui/checkbox/checkbox';
 import { Flex } from '@ui/flex/flex';
 import { useCallback, useId, useState, useTransition } from 'react';
+import { setAiEnabled } from '@/lib/data/prefs/client';
+import { Typography } from '@/ui/typography/typography';
 
 type CurrencySelectProps = {
   value?: boolean;
