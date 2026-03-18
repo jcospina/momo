@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { type EChartsType, echarts } from './echarts-init';
 
 const THEME_NAME = 'momo';
+const TOOLTIP_MARGIN = 8;
 
 type DailyPoint = {
   day: number;
@@ -150,6 +151,36 @@ export function DailyComparisonLineChart({
     return {
       tooltip: {
         trigger: 'axis',
+        confine: true,
+        position: (
+          point: number[],
+          _params: unknown,
+          _dom: unknown,
+          _rect: unknown,
+          size: { contentSize: number[]; viewSize: number[] },
+        ) => {
+          const [x, y] = point;
+          const [contentWidth, contentHeight] = size.contentSize;
+          const [viewWidth, viewHeight] = size.viewSize;
+
+          const preferredX = x < viewWidth / 2 ? x + 12 : x - contentWidth - 12;
+          const clampedX = Math.min(
+            Math.max(preferredX, TOOLTIP_MARGIN),
+            Math.max(TOOLTIP_MARGIN, viewWidth - contentWidth - TOOLTIP_MARGIN),
+          );
+
+          const preferredY =
+            y < viewHeight / 2 ? y + 12 : y - contentHeight - 12;
+          const clampedY = Math.min(
+            Math.max(preferredY, TOOLTIP_MARGIN),
+            Math.max(
+              TOOLTIP_MARGIN,
+              viewHeight - contentHeight - TOOLTIP_MARGIN,
+            ),
+          );
+
+          return [clampedX, clampedY];
+        },
         formatter: (params: unknown) => {
           const items = Array.isArray(params) ? params : [];
           const currentItem = items.find(
