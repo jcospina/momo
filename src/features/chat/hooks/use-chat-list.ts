@@ -13,6 +13,7 @@ type UseChatListArgs = {
 };
 
 const PREFETCH_THRESHOLD_ITEMS = 5;
+const INITIAL_FIRST_ITEM_INDEX = 10_000;
 
 export function useChatList({
   messages,
@@ -22,11 +23,14 @@ export function useChatList({
   onLoadMore,
 }: UseChatListArgs) {
   const virtuosoRef = useRef<VirtuosoHandle | null>(null);
+  const [firstItemIndex, setFirstItemIndex] = useState(
+    INITIAL_FIRST_ITEM_INDEX,
+  );
   const prevLastIdRef = useRef<string | null>(
     messages[messages.length - 1]?.id ?? null,
   );
+  const loadStartLengthRef = useRef<number | null>(null);
   const lastTriggeredIdRef = useRef<string | null>(null);
-  const pendingAnchorRef = useRef<string | null>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
 
   const hasMoreToLoad = hasMore && typeof onLoadMore === 'function';
@@ -52,18 +56,20 @@ export function useChatList({
   }, [currentUserId, latestMessageUserId, messages]);
 
   useEffect(() => {
-    const anchorId = pendingAnchorRef.current;
-    if (!anchorId || isLoadingMore) return;
-    const index = messages.findIndex(message => message.id === anchorId);
-    if (index !== -1) {
-      virtuosoRef.current?.scrollToIndex({
-        index,
-        align: 'start',
-        behavior: 'auto',
-      });
+    if (isLoadingMore) {
+      if (loadStartLengthRef.current === null) {
+        loadStartLengthRef.current = messages.length;
+      }
+      return;
     }
-    pendingAnchorRef.current = null;
-  }, [isLoadingMore, messages]);
+
+    if (loadStartLengthRef.current === null) return;
+    const prependedCount = messages.length - loadStartLengthRef.current;
+    if (prependedCount > 0) {
+      setFirstItemIndex(prev => Math.max(prev - prependedCount, 1));
+    }
+    loadStartLengthRef.current = null;
+  }, [isLoadingMore, messages.length]);
 
   const handleRangeChanged = useCallback(
     (range: ListRange) => {
@@ -76,7 +82,6 @@ export function useChatList({
       if (!oldestId) return;
       if (lastTriggeredIdRef.current === oldestId) return;
       lastTriggeredIdRef.current = oldestId;
-      pendingAnchorRef.current = oldestId;
       onLoadMore?.();
     },
     [hasMoreToLoad, isLoadingMore, messages, onLoadMore],
@@ -88,6 +93,7 @@ export function useChatList({
 
   return {
     virtuosoRef,
+    firstItemIndex,
     isAtBottom,
     handleAtBottomChange,
     handleRangeChanged,

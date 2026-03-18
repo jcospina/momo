@@ -31,21 +31,27 @@ export function ChatList({
   isLoadingMore = false,
   currentUserId,
 }: ChatListProps) {
-  const { virtuosoRef, isAtBottom, handleAtBottomChange, handleRangeChanged } =
-    useChatList({
-      messages,
-      currentUserId,
-      hasMore,
-      isLoadingMore,
-      onLoadMore,
-    });
+  const {
+    virtuosoRef,
+    firstItemIndex,
+    isAtBottom,
+    handleAtBottomChange,
+    handleRangeChanged,
+  } = useChatList({
+    messages,
+    currentUserId,
+    hasMore,
+    isLoadingMore,
+    onLoadMore,
+  });
 
   return (
     <Virtuoso
       ref={virtuosoRef}
       data={messages}
+      firstItemIndex={firstItemIndex}
       style={{ height: '100%' }}
-      initialTopMostItemIndex={Math.max(messages.length - 1, 0)}
+      initialTopMostItemIndex={{ index: 'LAST', align: 'end' }}
       atBottomStateChange={handleAtBottomChange}
       atBottomThreshold={AT_BOTTOM_THRESHOLD_PX}
       followOutput={isAtBottom ? 'smooth' : false}
