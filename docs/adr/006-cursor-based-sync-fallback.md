@@ -5,29 +5,32 @@
 
 ## Context
 
-Supabase Realtime connections can drop (network changes, server restarts, mobile backgrounding). When the connection resumes, the client may have missed messages. The system needs a way to catch up without refetching the entire message history.
+Supabase Realtime connections can drop (network changes, app backgrounding, transient channel errors). When the client resumes, messages may be missing locally. We need a catch-up mechanism that avoids full-history refetches.
 
 Options considered:
 
-1. **Full refetch** — Simple but wasteful. Re-downloads all messages on every reconnect.
-2. **Polling** — Periodic fetches at an interval. Adds constant server load regardless of activity.
-3. **Cursor-based sync** — Client tracks its last known message and requests only newer ones.
+1. **Full refetch** — simple but wasteful.
+2. **Polling** — constant load even when idle.
+3. **Cursor-based sync** — request only rows after last known message.
 
 ## Decision
 
-A cursor-based sync endpoint (`/api/chat-sync`) lets the client send the ID of its last known message and receive only messages created after that point. The sync is triggered on realtime reconnection or when the client suspects missed messages.
+Use `POST /api/chat-sync` as fallback sync endpoint.
+
+- Household scope uses cursor-based paging (`created_at`, `id`) for incremental catch-up.
+- Personal scope can also call the same endpoint and pull the latest batch when needed.
+- Sync is triggered by reconnect/visibility/pending recovery paths, not constant polling.
 
 ## Consequences
 
 **Benefits:**
 
-- Bandwidth-efficient — only transfers the delta, not the full history.
-- Resumable — if sync itself fails, the cursor hasn't moved, so retrying is safe.
-- Works for both scopes (personal and household) using the same mechanism.
-- No polling overhead — sync is event-driven (triggered by reconnection).
+- Delta-based transfer keeps reconnect recovery efficient.
+- Safe retries because cursor progression is controlled client-side.
+- Works with existing realtime subscriptions without introducing queue infrastructure.
 
 **Trade-offs:**
 
-- Adds complexity — the client must track a cursor per scope and trigger sync at the right times.
-- If the cursor message has been deleted, the sync needs a fallback strategy (currently falls back to a time-based query).
-- The sync endpoint is an additional API route to maintain alongside the realtime subscription.
+- Client hooks must track sync state (cursor, cooldown, in-flight/pending state).
+- Additional route handler maintenance (`/api/chat-sync`).
+- Sync caps (page size / max pages) can still leave backlog when reconnect gaps are very large.

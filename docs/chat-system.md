@@ -2,89 +2,89 @@
 
 ## Overview
 
-MoMo's primary interface is a chat where users type expenses as messages. The chat supports two scopes (personal and household) with real-time updates and offline resilience.
+MoMo's primary interface is a chat where users type expenses as messages. The chat supports personal and household scopes with realtime updates, optimistic UI, and sync fallback.
 
-## Dual-Scope Architecture
+## Scope Model
 
-Users can toggle between personal and household chat scopes:
+Users can toggle between two scopes:
 
-- **Personal** — Messages where `household_id IS NULL`. Only visible to the sender.
-- **Household** — Messages with a `household_id`. Visible to all household members via RLS.
+- **Personal** — Messages where `household_id IS NULL`, visible only to the sender.
+- **Household** — Messages with a `household_id`, visible to household members via RLS.
 
-Both scopes share the same UI, hooks, and realtime infrastructure.
+The chat UI keeps both datasets in memory, but realtime subscription/sync is enabled for the active tab.
 
 ## Message Lifecycle
 
-### Optimistic Sends
+### Send + Processing Flow
 
-When a user sends a message:
-
-1. The message appears immediately in the UI (optimistic update)
-2. A server action inserts the message with status `pending`
-3. `processChatMessage()` runs synchronously, parsing and creating expenses
-4. The message status updates to its final state
-5. Realtime broadcasts the update to all subscribers
+1. Client adds an optimistic `tmp-*` message with status `pending`.
+2. `messages` facade `send()` calls the internal send action.
+3. The action inserts the row in `chat_messages` with `pending`.
+4. `processChatMessage()` runs synchronously (parse + expense persistence).
+5. Message status becomes final (`processed`, `needs_category`, `no_expense`, or `failed`).
+6. Action returns the latest persisted message and the client reconciles optimistic state.
 
 ### Message Status
 
 | Status | Meaning |
 | -------- | --------- |
-| `pending` | Just inserted, not yet processed |
-| `processed` | Successfully parsed into expenses |
-| `needs_category` | Expenses created but some lack categories |
-| `no_expense` | No parseable expense in the text |
-| `failed` | Processing error |
+| `pending` | Inserted, waiting for processing |
+| `processed` | Expense(s) created and categorized |
+| `needs_category` | Expense(s) created but at least one has no category |
+| `no_expense` | No parseable expense found |
+| `failed` | Processing or persistence error |
 
-### Synchronous Processing
-
-Processing happens within the server action, not in a background job. This is a deliberate choice for serverless environments where background jobs can be lost. See [ADR-001](adr/001-synchronous-chat-processing.md).
+See [ADR-001](adr/001-synchronous-chat-processing.md).
 
 ## Realtime
 
-### Single Shared Client
+### Shared Client
 
-A single Supabase realtime client is shared across the app via `RealtimeClientProvider`. This avoids multiple WebSocket connections and simplifies lifecycle management. See [ADR-002](adr/002-single-shared-realtime-client.md).
+A single Supabase realtime client is shared via `RealtimeClientProvider` and reused by chat hooks. See [ADR-002](adr/002-single-shared-realtime-client.md).
 
-### Dual Subscriptions
+### Subscriptions
 
-The client maintains up to two active subscriptions simultaneously:
+Realtime hooks subscribe to `chat_messages` with `event: '*'` and handle `INSERT`, `UPDATE`, and `DELETE` payloads.
 
-- Personal channel (always active when authenticated)
-- Household channel (active when the user belongs to a household)
+- Personal channel filter: `user_id=eq.<current-user>` plus client-side `household_id == null` guard.
+- Household channel filter: `household_id=eq.<active-household-id>`.
 
-Both channels listen for `INSERT`, `UPDATE`, and `DELETE` events on `chat_messages` filtered by scope.
+### Reconnect + Stall Strategy
 
-### Stall Detection
+Current constants (`src/features/chat/chat.constants.ts`):
 
-The realtime hooks monitor subscription health with a stall detector:
-
-- **Active tab:** resubscribe if no heartbeat for 30s
-- **Hidden tab:** resubscribe if no heartbeat for 60s
-- **Check interval:** every 5s
-- **Reconnect backoff:** base 100ms, factor 1.5, max 30s, up to 5 attempts
+- Stall check interval: **60s**
+- Stall threshold (visible tab): **90s**
+- Stall threshold (hidden tab): **5m**
+- Resubscribe backoff: base **1s**, factor **2**, max delay **5s**, max attempts **3**
 
 ### Deduplication
 
-When a user sends a message, the response arrives both from the server action (optimistic update) and from the realtime subscription. The hooks deduplicate by matching optimistic `tmp-*` IDs against incoming server IDs within a 10-second window.
+Incoming server messages are reconciled against optimistic `tmp-*` messages by matching content/user/scope and timestamp proximity (10s window).
 
 ## Sync Fallback
 
-For unreliable connections, a sync endpoint provides catch-up:
+The sync path uses `POST /api/chat-sync` via `messages` facade `getSince()`.
 
-- **`/api/chat-sync`** — Cursor-based pagination endpoint. The client sends the ID of its last known message; the server returns all newer messages (up to 50 per page, max 5 pages per sync cycle).
-- Rate-limited to one sync per 3 seconds (cooldown).
-- Triggered on reconnection or when the realtime subscription may have missed messages.
-- See [ADR-006](adr/006-cursor-based-sync-fallback.md) for design rationale.
+- Default/max page limit: **100** messages
+- Household sync uses cursor pagination and can fetch up to **5 pages** per sync run.
+- Sync cooldown: **10s** between runs.
+- Triggered on reconnection (error -> subscribed), tab visibility return, and pending-message recovery paths.
 
-### History Loading
+See [ADR-006](adr/006-cursor-based-sync-fallback.md).
 
-The `/api/chat-history` endpoint loads older messages with cursor-based pagination for infinite scroll.
+## History Loading
+
+Older messages are loaded through `POST /api/chat-history` with cursor pagination.
+
+- Default page limit: **30**
+- Max page limit: **100**
 
 ## Feature Hooks
 
-Chat logic is encapsulated in feature hooks under `src/features/chat/hooks/`:
+Chat logic lives in `src/features/chat/hooks/`:
 
-- Message list management (state, optimistic updates, deduplication)
-- Realtime subscription management (connect, reconnect, event handling)
-- Sync and history fetching (cursor tracking, loading states)
-- Send/delete operations (server action calls with optimistic UI)
+- state + optimistic lifecycle (`use-chat-state`)
+- realtime lifecycle (`use-personal-realtime`, `use-household-realtime`)
+- sync fallback (`use-personal-sync`, `use-household-sync`)
+- composer behavior (`use-composer`)
