@@ -89,7 +89,7 @@ type TooltipComponent = <T extends IntrinsicElement = 'span'>(
  * </Tooltip>
  * ```
  */
-function TooltipInner<T extends IntrinsicElement = 'span'>(
+function useTooltipInner<T extends IntrinsicElement = 'span'>(
   props: TooltipProps<T>,
   forwardedRef: ForwardedRef<ComponentRef<T>>,
 ) {
@@ -227,4 +227,4 @@ function TooltipInner<T extends IntrinsicElement = 'span'>(
   );
 }
 
-export const Tooltip = forwardRef(TooltipInner) as TooltipComponent;
+export const Tooltip = forwardRef(useTooltipInner) as TooltipComponent;

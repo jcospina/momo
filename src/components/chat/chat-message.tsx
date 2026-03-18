@@ -399,7 +399,10 @@ export function ChatMessage({
     if (!isOwn) return;
     onOpenExpenseDetails?.(message);
   };
-  const handleExpenseFailed = () => {};
+  const handleExpenseFailed = () => {
+    if (!isOwn) return;
+    onOpenExpenseDetails?.(message);
+  };
   const handleDelete = () => {
     onDelete?.(message);
   };

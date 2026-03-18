@@ -41,11 +41,12 @@ export function useRealtimeClient(): UseRealtimeClientResult {
   const [error, setError] = useState<string | null>(null);
   const [client, setClient] = useState<SupabaseClient | null>(null);
   const [version, setVersion] = useState(0);
-  const [resetCounter, setResetCounter] = useState(0);
   const clientRef = useRef<SupabaseClient | null>(null);
   const refreshTimeout = useRef<NodeJS.Timeout | null>(null);
   const retryTimeout = useRef<NodeJS.Timeout | null>(null);
   const retryAttemptRef = useRef(0);
+  const setupRef = useRef<(() => void) | null>(null);
+  const setupRunIdRef = useRef(0);
 
   const reset = useCallback(() => {
     if (refreshTimeout.current) {
@@ -57,6 +58,7 @@ export function useRealtimeClient(): UseRealtimeClientResult {
       retryTimeout.current = null;
     }
     retryAttemptRef.current = 0;
+    setupRunIdRef.current += 1;
     if (clientRef.current) {
       clientRef.current.removeAllChannels();
       clientRef.current = null;
@@ -64,7 +66,7 @@ export function useRealtimeClient(): UseRealtimeClientResult {
     setLoading(true);
     setError(null);
     setClient(null);
-    setResetCounter(counter => counter + 1);
+    setupRef.current?.();
   }, []);
 
   useEffect(() => {
@@ -83,18 +85,19 @@ export function useRealtimeClient(): UseRealtimeClientResult {
         retryTimeout.current = null;
         if (cancelled) return;
         setLoading(true);
-        setup();
+        setupRef.current?.();
       }, delay);
     };
 
     async function setup() {
+      const runId = ++setupRunIdRef.current;
       try {
         if (retryTimeout.current) {
           clearTimeout(retryTimeout.current);
           retryTimeout.current = null;
         }
         const token = await fetchRealtimeToken();
-        if (cancelled) return;
+        if (cancelled || runId !== setupRunIdRef.current) return;
 
         const instance = createClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -112,9 +115,16 @@ export function useRealtimeClient(): UseRealtimeClientResult {
             // },
           },
         );
-        clientRef.current = instance;
 
         await instance.realtime.setAuth(token.access_token);
+        if (cancelled || runId !== setupRunIdRef.current) {
+          instance.removeAllChannels();
+          return;
+        }
+        if (clientRef.current && clientRef.current !== instance) {
+          clientRef.current.removeAllChannels();
+        }
+        clientRef.current = instance;
         setClient(instance);
         setVersion(v => v + 1);
         setLoading(false);
@@ -127,11 +137,12 @@ export function useRealtimeClient(): UseRealtimeClientResult {
           10_000,
         );
         refreshTimeout.current = setTimeout(() => {
+          if (cancelled) return;
           setLoading(true);
-          setup();
+          setupRef.current?.();
         }, refreshMs);
       } catch (err) {
-        if (cancelled) return;
+        if (cancelled || runId !== setupRunIdRef.current) return;
         const message = (err as Error).message;
         console.error('[realtime] token fetch failed', { error: message });
         setError(message);
@@ -140,10 +151,14 @@ export function useRealtimeClient(): UseRealtimeClientResult {
       }
     }
 
-    setup();
+    setupRef.current = () => {
+      setup();
+    };
+    setupRef.current();
 
     return () => {
       cancelled = true;
+      setupRef.current = null;
       if (refreshTimeout.current) {
         clearTimeout(refreshTimeout.current);
       }
@@ -156,7 +171,7 @@ export function useRealtimeClient(): UseRealtimeClientResult {
         setClient(null);
       }
     };
-  }, [resetCounter]);
+  }, []);
 
   if (loading || error) {
     return { client: null, loading, error, version, reset };
