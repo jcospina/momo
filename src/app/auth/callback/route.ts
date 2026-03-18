@@ -1,13 +1,13 @@
 // app/auth/callback/route.ts
+
+import { createSupabaseServerClient } from '@lib-supabase/server';
+import { redirectWithError } from '@utils/redirect-with-error';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-
 import { getMembership } from '@/lib/data/households/server';
 import { getInviteInfo } from '@/lib/data/invites/server';
 import { setOnboardingStatus } from '@/lib/data/prefs/server';
 import { createProfile } from '@/lib/data/profile/server';
-import { createSupabaseServerClient } from '@lib-supabase/server';
-import { redirectWithError } from '@utils/redirect-with-error';
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);

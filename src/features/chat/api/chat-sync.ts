@@ -1,8 +1,8 @@
 'use client';
 
+import { SYNC_PAGE_LIMIT } from '@features/chat/chat.constants';
 import type { ChatMessage, SyncCursor } from '@lib-types/chat';
 import { isChatMessageArray } from '@utils/chat-message';
-import { SYNC_PAGE_LIMIT } from '../chat.constants';
 
 type FetchChatSyncParams = {
   householdId?: string | null;

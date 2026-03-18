@@ -1,7 +1,6 @@
-import type { NextRequest } from 'next/server';
-
 import { buildProxyContext } from '@proxy/context';
 import { proxyRules } from '@proxy/rules';
+import type { NextRequest } from 'next/server';
 
 export async function proxy(request: NextRequest) {
   const ctx = await buildProxyContext(request);

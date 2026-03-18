@@ -1,11 +1,10 @@
 import { createSupabaseServerClient } from '@lib-supabase/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
-
 import type {
   Household,
   HouseholdMemberProfile,
   HouseholdMembership,
 } from '@lib-types/households';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export async function fetchHouseholdMembership(
   supabase: SupabaseClient,

@@ -1,8 +1,8 @@
 import type { MarginProps, PaddingProps } from '@lib-types/common';
 import {
-  PropsWithChildren,
   type ComponentPropsWithoutRef,
   type ElementType,
+  PropsWithChildren,
 } from 'react';
 
 interface BasePanelProps extends PropsWithChildren {

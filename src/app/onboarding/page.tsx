@@ -1,18 +1,17 @@
+import { Toast } from '@components/toast/toast';
+import { ERROR_MESSAGES } from '@constants/errors';
+import type { MomoError } from '@lib-types/errors';
 import { redirect } from 'next/navigation';
-
 import { HouseholdForm } from '@/components/household-form/household-form';
 import { getCurrentUser } from '@/lib/data/auth/server';
 import { getMembership } from '@/lib/data/households/server';
 import { setOnboardingStatus } from '@/lib/data/prefs/server';
-import { Logo } from '@/ui/logo/logo';
-import { Panel } from '@/ui/panel/panel';
-import { ERROR_MESSAGES } from '@constants/errors';
 import { Button } from '@/ui/button/button';
 import { Flex } from '@/ui/flex/flex';
+import { Logo } from '@/ui/logo/logo';
+import { Panel } from '@/ui/panel/panel';
 import { Tooltip } from '@/ui/tooltip/tooltip';
 import { Typography } from '@/ui/typography/typography';
-import { Toast } from '@components/toast/toast';
-import type { MomoError } from '@lib-types/errors';
 import styles from './onboarding.module.css';
 
 type OnboardingPageProps = {

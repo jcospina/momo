@@ -1,12 +1,11 @@
+import { Chat } from '@components/chat/chat';
+import { Flex } from '@ui/flex/flex';
+import { FlexItem } from '@ui/flex-item/flex-item';
 import { redirect } from 'next/navigation';
-
 import { Navbar } from '@/components/navbar/navbar';
 import { getCurrentUser } from '@/lib/data/auth/server';
 import { getHouseholdForUser } from '@/lib/data/households/server';
 import { getList as getChatMessages } from '@/lib/data/messages/server';
-import { Chat } from '@components/chat/chat';
-import { FlexItem } from '@ui/flex-item/flex-item';
-import { Flex } from '@ui/flex/flex';
 import styles from './home.module.css';
 
 export default async function HomePage() {

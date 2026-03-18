@@ -1,7 +1,6 @@
-import { act, renderHook, waitFor } from '@testing-library/react';
-
 import type { ChatMessage } from '@lib-types/chat';
 import { RealtimeClientProvider } from '@providers/realtime-client-provider';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { useHouseholdRealtime } from './use-household-realtime';
 
 type FakeChannel = {

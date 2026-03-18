@@ -1,10 +1,10 @@
 import {
-  useCallback,
-  useRef,
-  useState,
   type Dispatch,
   type KeyboardEvent,
   type SetStateAction,
+  useCallback,
+  useRef,
+  useState,
 } from 'react';
 
 type DropdownPosition = {

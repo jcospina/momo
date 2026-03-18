@@ -1,7 +1,6 @@
+import type { HouseholdMembership } from '@lib-types/households';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import type { NextRequest, NextResponse } from 'next/server';
-
-import type { HouseholdMembership } from '@lib-types/households';
 
 export type ProxyContext = {
   request: NextRequest;

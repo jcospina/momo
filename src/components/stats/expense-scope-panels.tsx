@@ -1,9 +1,5 @@
 'use client';
 
-import { format, isValid, parse } from 'date-fns';
-import { useState } from 'react';
-
-import styles from '@/app/home/stats/stats.module.css';
 import { DailyComparisonLineChart } from '@components/charts/daily-comparison-line-chart';
 import { MonthlyTotalsPanel } from '@components/stats/monthly-totals-panel';
 import {
@@ -15,6 +11,9 @@ import { Flex } from '@ui/flex/flex';
 import { Panel } from '@ui/panel/panel';
 import { ToggleGroup } from '@ui/toggle-group/toggle-group';
 import { Typography } from '@ui/typography/typography';
+import { format, isValid, parse } from 'date-fns';
+import { useState } from 'react';
+import styles from '@/app/home/stats/stats.module.css';
 
 type DailyComparisonData = {
   currentMonth: string;

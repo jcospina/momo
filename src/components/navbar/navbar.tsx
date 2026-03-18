@@ -1,16 +1,15 @@
 'use client';
-import { Avatar } from '@/ui/avatar/avatar';
-import { Flex } from '@/ui/flex/flex';
 import { useProfile } from '@providers/profile-provider';
-
-import { mq, useMediaQuery } from '@/hooks/use-media-query';
-import { Logo } from '@/ui/logo/logo';
 import { Circle } from '@ui/circle/circle';
 import { ChartIcon } from '@ui/icons/chart';
 import { MessageIcon } from '@ui/icons/message';
 import { cn } from '@utils/cn';
 import { usePathname } from 'next/navigation';
+import { mq, useMediaQuery } from '@/hooks/use-media-query';
 import { useNavigationProgress } from '@/providers/navigation-progress-provider';
+import { Avatar } from '@/ui/avatar/avatar';
+import { Flex } from '@/ui/flex/flex';
+import { Logo } from '@/ui/logo/logo';
 import styles from './navbar.module.css';
 
 export function Navbar() {

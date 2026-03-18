@@ -1,8 +1,8 @@
+import type { HouseholdMemberProfile } from '@lib-types/households';
+import { firstName } from '@utils/user';
 import { Avatar } from '@/ui/avatar/avatar';
 import { Flex } from '@/ui/flex/flex';
 import { Typography } from '@/ui/typography/typography';
-import type { HouseholdMemberProfile } from '@lib-types/households';
-import { firstName } from '@utils/user';
 
 type MemberListProps = {
   userEmail: string;

@@ -1,10 +1,9 @@
 'use server';
 
 import { createSupabaseServerClient } from '@lib-supabase/server';
+import type { CreateHouseholdState } from '@lib-types/households';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-
-import type { CreateHouseholdState } from '@lib-types/households';
 
 async function insertHousehold(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,

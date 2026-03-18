@@ -1,16 +1,14 @@
-import { redirect } from 'next/navigation';
-
-import { getInviteInfo, startAcceptFlow } from '@/lib/data/invites/server';
-import type { MomoError } from '@lib-types/errors';
 import { ERROR_MESSAGES } from '@constants/errors';
+import type { MomoError } from '@lib-types/errors';
+import { redirect } from 'next/navigation';
+import styles from '@/app/invite/invite.module.css';
+import { getInviteInfo, startAcceptFlow } from '@/lib/data/invites/server';
 import { Button } from '@/ui/button/button';
 import { Flex } from '@/ui/flex/flex';
 import { Logo } from '@/ui/logo/logo';
 import { Margin } from '@/ui/margin/margin';
 import { Panel } from '@/ui/panel/panel';
 import { Typography } from '@/ui/typography/typography';
-
-import styles from '../invite.module.css';
 
 type InvitePageProps = {
   params: Promise<{ token: string }>;

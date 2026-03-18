@@ -1,10 +1,9 @@
-import { FlexProps } from '@/ui/flex/flex.types';
 import type { PropsWithClassName } from '@lib-types/common';
 import { cn } from '@utils/cn';
-import { getSpacingStyles } from '@utils/spacing';
-
 import { getGapStyles } from '@utils/gap';
+import { getSpacingStyles } from '@utils/spacing';
 import type { CSSProperties, ElementType } from 'react';
+import { FlexProps } from '@/ui/flex/flex.types';
 import styles from './flex.module.css';
 
 /**

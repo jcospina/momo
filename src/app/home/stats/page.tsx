@@ -1,15 +1,14 @@
+import { Navbar } from '@components/navbar/navbar';
+import { ExpenseScopePanels } from '@components/stats/expense-scope-panels';
+import { Flex } from '@ui/flex/flex';
 import { format } from 'date-fns';
-
+import { redirect } from 'next/navigation';
+import { getCurrentUser } from '@/lib/data/auth/server';
+import { getUserPreferences } from '@/lib/data/prefs/server';
 import {
   getDailyComparisonData,
   getMonthlyHistory,
 } from '@/lib/data/stats/server';
-import { getCurrentUser } from '@/lib/data/auth/server';
-import { getUserPreferences } from '@/lib/data/prefs/server';
-import { Navbar } from '@components/navbar/navbar';
-import { ExpenseScopePanels } from '@components/stats/expense-scope-panels';
-import { Flex } from '@ui/flex/flex';
-import { redirect } from 'next/navigation';
 
 export default async function StatsPage() {
   const user = await getCurrentUser();

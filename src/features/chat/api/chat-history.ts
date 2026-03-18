@@ -1,7 +1,6 @@
 'use client';
 
-import type { ChatMessage } from '@lib-types/chat';
-import type { ChatCursor } from '@lib-types/chat';
+import type { ChatCursor, ChatMessage } from '@lib-types/chat';
 import { isChatMessageArray } from '@utils/chat-message';
 
 type FetchChatHistoryParams = {

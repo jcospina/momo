@@ -1,10 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
-
-import { getSince as getChatSince } from '@/lib/data/messages/client';
+import {
+  SYNC_COOLDOWN_MS,
+  SYNC_PAGE_LIMIT,
+} from '@features/chat/chat.constants';
 import type { ChatMessage, SyncReason } from '@lib-types/chat';
-import { SYNC_COOLDOWN_MS, SYNC_PAGE_LIMIT } from '../chat.constants';
+import { useCallback, useEffect, useRef } from 'react';
+import { getSince as getChatSince } from '@/lib/data/messages/client';
 
 type UsePersonalSyncArgs = {
   userId: string;

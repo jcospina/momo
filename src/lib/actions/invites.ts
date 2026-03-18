@@ -1,9 +1,8 @@
 'use server';
 
-import { cookies } from 'next/headers';
-
 import { loginWithProvider } from '@actions/login';
 import { redirectWithError } from '@utils/redirect-with-error';
+import { cookies } from 'next/headers';
 
 export async function startInviteAcceptFlow(token: string) {
   if (typeof token !== 'string' || !token) {

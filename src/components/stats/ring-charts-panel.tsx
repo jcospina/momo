@@ -1,9 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
-
-import styles from '@/app/home/stats/stats.module.css';
-import { mq, useMediaQuery } from '@/hooks/use-media-query';
 import { CategoryRingChart } from '@components/charts/category-ring-chart';
 import { UserTotalsRingChart } from '@components/charts/user-totals-ring-chart';
 import { buildCategoryUserWindowData } from '@helpers/expenses/expense-stats.aggregations';
@@ -17,6 +13,9 @@ import { Panel } from '@ui/panel/panel';
 import { ToggleGroup } from '@ui/toggle-group/toggle-group';
 import { Typography } from '@ui/typography/typography';
 import { cn } from '@utils/cn';
+import { useMemo } from 'react';
+import styles from '@/app/home/stats/stats.module.css';
+import { mq, useMediaQuery } from '@/hooks/use-media-query';
 
 const RANGE_OPTIONS = [
   { label: '1m', value: '1' },

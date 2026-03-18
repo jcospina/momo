@@ -1,9 +1,8 @@
+import type { ProxyContext } from '@proxy/types';
 import { createServerClient } from '@supabase/ssr';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-
 import { getMembership } from '@/lib/data/households/server';
-import type { ProxyContext } from '@proxy/types';
 
 export async function buildProxyContext(
   request: NextRequest,

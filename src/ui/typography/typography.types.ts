@@ -1,7 +1,7 @@
 import {
-  PropsWithChildren,
   type ComponentPropsWithoutRef,
   type ElementType,
+  PropsWithChildren,
 } from 'react';
 
 /** Font-size scale tokens. */

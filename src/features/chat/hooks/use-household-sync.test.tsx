@@ -1,7 +1,6 @@
-import { act, renderHook, waitFor } from '@testing-library/react';
-
-import { getSince as getChatSince } from '@/lib/data/messages/client';
 import type { ChatMessage } from '@lib-types/chat';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { getSince as getChatSince } from '@/lib/data/messages/client';
 import { useHouseholdSync } from './use-household-sync';
 
 jest.mock('@/lib/data/messages/client', () => ({

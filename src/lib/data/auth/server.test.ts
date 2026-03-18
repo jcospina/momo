@@ -1,8 +1,7 @@
-import type { User } from '@supabase/supabase-js';
-
 import { loginWithProvider as loginWithProviderAction } from '@actions/login';
 import { logout as logoutAction } from '@actions/logout';
 import { getCurrentUser as getCurrentUserHelper } from '@helpers/user';
+import type { User } from '@supabase/supabase-js';
 
 import { getCurrentUser, loginWithProvider, logout } from './server';
 

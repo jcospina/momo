@@ -1,13 +1,11 @@
 'use client';
 
-import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
-import { Virtuoso } from 'react-virtuoso';
-
+import { MomoLoader } from '@components/loader/loader';
 import { useChatList } from '@features/chat/hooks/use-chat-list';
 import type { ChatMessage } from '@lib-types/chat';
 import { Flex } from '@ui/flex/flex';
-
-import { MomoLoader } from '@components/loader/loader';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import { Virtuoso } from 'react-virtuoso';
 import styles from './chat-list.module.css';
 
 type ChatListProps = {

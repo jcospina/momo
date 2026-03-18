@@ -1,7 +1,7 @@
 'use client';
 
 import type { Profile } from '@lib-types/profile';
-import { createContext, useContext, type PropsWithChildren } from 'react';
+import { createContext, type PropsWithChildren, useContext } from 'react';
 
 const Context = createContext<Profile | null>(null);
 

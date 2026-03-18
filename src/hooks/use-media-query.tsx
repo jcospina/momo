@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+
 type Px = `${number}px`;
 type Ratio = `${number}/${number}`;
 type Dppx = `${number}dppx`;

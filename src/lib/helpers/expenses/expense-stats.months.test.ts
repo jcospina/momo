@@ -2,7 +2,7 @@ import type { MonthlyByCategoryUserRow } from '@lib-types/expense-stats';
 import {
   buildMonthList,
   buildMonthlyByCategoryUserRows,
-} from '../../../mocks/expense-stats-samples';
+} from '@/mocks/expense-stats-samples';
 import {
   buildMonthlyWindows,
   createMonthlyWindowCache,
