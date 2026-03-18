@@ -1,4 +1,5 @@
-import type { EChartsOption, EChartsType } from 'echarts';
+import type { EChartsOption } from 'echarts';
+import type { EChartsType } from './echarts-init';
 
 export function safeResize(
   chart: EChartsType,
