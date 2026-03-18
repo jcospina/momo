@@ -12,7 +12,17 @@
     "format": "biome check --write .",
     "format:check": "biome check .",
     "prepare": "husky",
-    "test": "jest"
+    "test": "jest",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:new": "bash scripts/db-new.sh",
+    "db:reset": "supabase db reset --local",
+    "db:lint": "supabase db lint --local",
+    "db:push:dry-run": "bash scripts/db-push-dry-run.sh",
+    "db:push": "bash scripts/db-push.sh",
+    "db:schema:snapshot": "bash scripts/db-schema-snapshot.sh",
+    "db:baseline:pull": "bash scripts/db-baseline-pull.sh",
+    "supabase": "supabase"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
@@ -43,6 +53,7 @@
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
     "lint-staged": "^16.2.6",
+    "supabase": "^2.81.3",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "typescript": "^5"
