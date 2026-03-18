@@ -1,20 +1,11 @@
 'use client';
 
-import type { EChartsOption, EChartsType } from 'echarts';
-import * as echarts from 'echarts';
+import type { EChartsOption } from 'echarts';
 import { useEffect, useMemo, useRef } from 'react';
 
-import chartTheme from './theme.json';
+import { type EChartsType, echarts } from './echarts-init';
 
 const THEME_NAME = 'momo';
-let themeRegistered = false;
-
-function ensureThemeRegistered() {
-  if (!themeRegistered && typeof window !== 'undefined') {
-    echarts.registerTheme(THEME_NAME, chartTheme);
-    themeRegistered = true;
-  }
-}
 
 type DailyPoint = {
   day: number;
@@ -276,8 +267,6 @@ export function DailyComparisonLineChart({
 
   useEffect(() => {
     if (!containerRef.current) return;
-
-    ensureThemeRegistered();
 
     const chart = echarts.init(containerRef.current, THEME_NAME, {
       renderer: 'canvas',

@@ -1,5 +1,3 @@
-import { format } from 'date-fns';
-
 import type { ChatMessage as ChatMessageRecord } from '@lib-types/chat';
 import { Avatar } from '@ui/avatar/avatar';
 import { Button } from '@ui/button/button';
@@ -14,6 +12,7 @@ import { Padding } from '@ui/padding/padding';
 import { Typography } from '@ui/typography/typography';
 import { cn } from '@utils/cn';
 import { firstName } from '@utils/user';
+import { format } from 'date-fns';
 import styles from './chat-message.module.css';
 
 type StatusTone = 'error' | 'warning' | 'expense';

@@ -1,21 +1,11 @@
 'use client';
 
-import type { EChartsOption, EChartsType } from 'echarts';
-import * as echarts from 'echarts';
+import type { EChartsOption } from 'echarts';
 import { useEffect, useMemo, useRef, useState } from 'react';
-
+import { type EChartsType, echarts } from './echarts-init';
 import { safeResize, safeSetOption } from './echarts-safe';
-import chartTheme from './theme.json';
 
 const THEME_NAME = 'momo';
-let themeRegistered = false;
-
-function ensureThemeRegistered() {
-  if (!themeRegistered && typeof window !== 'undefined') {
-    echarts.registerTheme(THEME_NAME, chartTheme);
-    themeRegistered = true;
-  }
-}
 
 export type RingChartItem = {
   name: string;
@@ -108,8 +98,6 @@ export function RingChart({
 
   useEffect(() => {
     if (!containerRef.current) return;
-
-    ensureThemeRegistered();
 
     const chart = echarts.init(containerRef.current, THEME_NAME, {
       renderer: 'canvas',
