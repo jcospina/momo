@@ -34,9 +34,15 @@ The app runs at [http://localhost:3000](http://localhost:3000).
 ```bash
 pnpm dev              # Dev server
 pnpm build            # Production build
-pnpm lint             # ESLint
-pnpm format           # Prettier (write)
+pnpm lint             # Lint checks
+pnpm format           # Formatter (write)
 pnpm test             # Jest tests
+
+# Database migrations
+pnpm db:new -- <name> # Create migration
+pnpm db:reset         # Replay migrations locally
+pnpm db:lint          # Lint local SQL
+pnpm db:push          # Apply to linked hosted project (guarded)
 ```
 
 ## Project Structure

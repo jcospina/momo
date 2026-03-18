@@ -45,3 +45,11 @@ next-env.d.ts
 
 # internal docs
 .internal/
+
+# supabase local artifacts
+supabase/.temp/
+supabase/.branches/
+supabase/.history/
+
+# database backups
+backups/db/

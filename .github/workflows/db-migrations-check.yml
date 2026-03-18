@@ -1,0 +1,39 @@
+name: DB Migrations Check
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "supabase/**"
+      - "scripts/db-*.sh"
+      - "package.json"
+      - ".github/workflows/db-migrations-check.yml"
+  workflow_dispatch:
+
+jobs:
+  migrations-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase
+        run: supabase start
+
+      - name: Reset local DB from migrations
+        run: supabase db reset --local
+
+      - name: Lint DB SQL
+        run: supabase db lint --local
+
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop

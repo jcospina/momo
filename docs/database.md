@@ -1,6 +1,50 @@
 # Database
 
-This document explains the design rationale behind the database schema. For the actual SQL DDL, see the `schema/` directory.
+This document explains the design rationale behind the database schema.
+
+- Canonical executable SQL: `supabase/migrations/*.sql`
+- Human-readable snapshot docs: `schema/momo_snapshot.sql` (generated, do not edit manually)
+
+## Migration Workflow
+
+### Single Environment Caveat
+
+MoMo currently uses one hosted Supabase project for all branches. Branch names do not isolate database changes: any hosted migration apply impacts production data immediately.
+
+### Setup (One-Time)
+
+1. Install Docker Desktop and Supabase CLI.
+2. Authenticate and link the repository to your project:
+   - `pnpm supabase login`
+   - `pnpm supabase link --project-ref <your-project-ref>`
+3. Export database password locally:
+   - `export SUPABASE_DB_PASSWORD=<your-db-password>`
+4. Create baseline migration from your current hosted schema:
+   - `pnpm db:baseline:pull`
+   - When prompted about updating migration history on remote, answer `Y`.
+5. Generate/update schema snapshot docs:
+   - `pnpm db:schema:snapshot`
+
+### Day-to-Day Commands
+
+- Create a migration: `pnpm db:new -- <migration_name>`
+- Start local Supabase: `pnpm db:start`
+- Validate full replay locally: `pnpm db:reset`
+- Lint SQL locally: `pnpm db:lint`
+- Preview hosted apply: `pnpm db:push:dry-run`
+- Apply hosted migrations (guarded, `development` branch only): `pnpm db:push`
+- Refresh snapshot docs: `pnpm db:schema:snapshot`
+
+`schema/` should contain only `momo_snapshot.sql`. Do not add per-table/manual SQL files there.
+
+### Rollback / Recovery Runbook
+
+1. Take a hosted backup before risky changes:
+   - `pnpm supabase db dump --linked --schema public -f backups/db/pre_migration_$(date +%Y%m%d%H%M%S).sql`
+2. If a migration fails and migration history state is incorrect:
+   - Inspect migration state with `pnpm supabase migration list --linked`.
+   - Repair history with `pnpm supabase migration repair --status reverted <migration_version>`.
+3. Prefer forward-fix migrations over editing already-applied migration files.
 
 ## Tables
 
