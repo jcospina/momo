@@ -2,86 +2,90 @@
 
 ## Tech Stack
 
-- **Next.js 16** (App Router) — pages, server actions, API routes
-- **React 19** — UI composition
+- **Next.js 16** (App Router)
+- **React 19**
 - **Supabase** — Postgres, RLS, Google OAuth, Realtime
-- **ECharts** — data visualizations (ring, bar, line charts)
-- **CSS Modules** — component-scoped styles with BEM naming
+- **ECharts** — stats visualizations
+- **CSS Modules** — component-scoped styling
+- **Biome** — linting and formatting
+- **Jest** — unit/integration tests
 
 ## Data Flow
 
 ```txt
-UI Components → Feature Hooks → Server Actions/API Routes → Supabase (Postgres + RLS)
-                              → Realtime Hooks → Supabase Realtime
+UI Layers (app/components/features/hooks/providers)
+  -> Data Facades (src/lib/data/<domain>/{server,client}.ts)
+  -> Transport Internals (actions/helpers/api routes/realtime helpers)
+  -> Supabase (Postgres + RLS + Realtime)
 ```
 
-The UI is split into personal and household scopes with a scope toggle on stats and chat. Server actions handle all mutations and return typed results. Supabase Realtime powers live chat updates via a single shared client.
+For migrated UI scopes, data access goes through `src/lib/data/*` facades instead of direct transport imports.
+
+## Data Boundary
+
+`src/lib/data/` is the explicit boundary between presentation and transport.
+
+- UI layers should import only facade entrypoints (`server.ts` or `client.ts` as appropriate).
+- Client code must not import `src/lib/data/**/server.ts`.
+- Server code must not import `src/lib/data/**/client.ts`.
+- `src/ui/` stays presentational and transport-agnostic.
+- Migrated UI scopes must not import `@actions/*`, `@helpers/*`, `@lib-supabase/*`, `@supabase/*`, or raw `/api/*` fetches.
+
+Enforced by `scripts/check-data-boundaries.mjs` (runs in `pnpm lint`).
 
 ## Module Inventory
 
 ### `src/app/`
 
-Next.js App Router pages and API routes. Protected area under `home/`. API routes include `chat-history` and `chat-sync` for catch-up and resilience.
+App Router pages + route handlers. API routes currently include `chat-history`, `chat-sync`, `realtime-token`, and `client-log`.
+
+### `src/lib/data/`
+
+Domain facades for environment-safe data access:
+
+- `auth`
+- `prefs`
+- `profile`
+- `households`
+- `invites`
+- `expenses`
+- `stats`
+- `messages`
 
 ### `src/lib/actions/`
 
-Server actions (`'use server'`). All mutations go through here. Organized by domain: `auth/`, `chat/`, `stats/`, etc.
-
-**Result pattern:** Every server action returns a discriminated union:
-
-```ts
-{ ok: true, data: T } | { ok: false, errorCode: string }
-```
+Internal server-action transport layer (`'use server'`) used behind facades.
 
 ### `src/lib/helpers/`
 
-Pure utility functions with no side effects. Key modules:
+Domain helpers for parsing, persistence, stats shaping/query helpers, and shared server utilities.
 
-- `expenses/expense-parser.ts` — text-to-expense parsing pipeline
-- `expenses/expense-category.ts` — n-gram category scoring
-- `expenses/expense-normalize.ts` — text normalization
-- `expenses/expense-persistence.ts` — expense creation helpers
-- `expenses/expense-stats.ts` — stats data shaping
+### `src/lib/proxy/` + `src/proxy.ts`
 
-### `src/lib/types/`
-
-Shared TypeScript types organized per domain.
-
-### `src/lib/constants/`
-
-Application constants including the expense category dictionary (`expenses/dictionary`).
-
-### `src/components/`
-
-Feature-specific components organized by domain: `chat/`, `charts/`, `stats/`, `navbar/`.
-
-### `src/ui/`
-
-Reusable, unstyled/headless UI primitives (button, dialog, input, select, checkbox, tooltip, etc.). No data fetching in this layer.
-
-**`PropsWithClassName` pattern:** UI components accept `className` for composition. Most extend a base type that includes `className` and `style`.
+Route protection and redirects (unauthenticated redirects, root redirect, onboarding/home guards).
 
 ### `src/features/`
 
-Complex feature modules with dedicated hooks. Currently: `chat/` with hooks for message management, realtime subscriptions, and sync.
+Feature-level logic, currently chat hooks/realtime/sync behavior.
 
 ### `src/providers/`
 
-React context providers:
+App-level React providers (profile, navigation progress, shared realtime client).
 
-- `profile-provider.tsx` — user profile and preferences
-- `realtime-client-provider.tsx` — shared Supabase realtime client
-- Navigation progress provider
+### `src/components/`
 
-### `src/hooks/`
+Feature components (chat, stats, charts, profile, household, etc.).
 
-Generic reusable hooks not tied to a specific feature.
+### `src/ui/`
+
+Reusable UI primitives, intentionally data-source agnostic.
 
 ## Path Aliases
 
 | Alias | Path |
-| ------- | -------------- |
+| ------- | ------- |
 | `@actions/*` | `src/lib/actions/*` |
+| `@auth/*` | `src/lib/auth/*` |
 | `@components/*` | `src/components/*` |
 | `@constants/*` | `src/lib/constants/*` |
 | `@helpers/*` | `src/lib/helpers/*` |
@@ -93,10 +97,11 @@ Generic reusable hooks not tied to a specific feature.
 | `@lib-supabase/*` | `src/lib/supabase/*` |
 | `@ui/*` | `src/ui/*` |
 | `@utils/*` | `src/lib/utils/*` |
+| `@/*` | `src/*` |
 
-## Key Conventions
+## Conventions
 
-- **Server action results:** `{ ok: true, data }` or `{ ok: false, errorCode }` — never throw from server actions.
-- **CSS Modules with BEM:** Component styles use `.momo-component__element--modifier` naming.
-- **`PropsWithClassName`:** UI primitives accept `className` for external styling.
-- **Supabase clients:** `@lib-supabase/server.ts` (server-side with session/RLS) and `@lib-supabase/service-role.ts` (admin, bypasses RLS).
+- Facade/action results keep backward-compatible payloads with optional `errorCode`.
+- Chat message statuses follow: `pending -> processed | needs_category | failed | no_expense`.
+- Realtime is shared through `RealtimeClientProvider` and paired with `/api/chat-sync` fallback.
+- Route protection behavior is defined in `src/proxy.ts` and `src/lib/proxy/rules/*`.

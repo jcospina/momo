@@ -5,23 +5,23 @@
 
 ## Context
 
-MoMo's chat requires realtime updates for two scopes simultaneously: personal messages and household messages. Each scope needs its own Supabase Realtime channel subscription. The question was whether to create per-component realtime clients or share a single client across the app.
+MoMo chat supports personal and household scopes. The active scope can change as users toggle tabs, and each scope uses its own channel filter. The decision point was whether to create isolated realtime clients per hook/component or share one realtime client across the app.
 
 ## Decision
 
-A single Supabase Realtime client is created and shared via `RealtimeClientProvider` (React context). Components and hooks subscribe to channels through this shared client rather than creating their own connections.
+Create and share a single Supabase realtime client via `RealtimeClientProvider` (React context). Chat hooks subscribe/unsubscribe channels on this shared client based on active scope state.
 
 ## Consequences
 
 **Benefits:**
 
-- Single WebSocket connection — reduces resource usage and avoids connection limits.
-- Centralized lifecycle — connect/disconnect/reconnect logic lives in one place.
-- Dual-scope subscriptions coexist naturally on the same client.
-- Easier to implement connection status monitoring and reconnection handling.
+- Single WebSocket connection for app-level realtime.
+- Centralized lifecycle and token handling.
+- Consistent reconnect semantics across personal and household channels.
+- Lower risk of duplicate subscriptions from component-level client creation.
 
 **Trade-offs:**
 
-- Channel management must be careful — subscribing and unsubscribing channels on a shared client requires tracking active subscriptions to avoid premature cleanup.
-- A reconnection event affects all subscriptions simultaneously, which is actually desirable (all channels need to re-sync) but adds complexity to the reconnect handler.
-- The provider must be mounted high enough in the component tree that all consumers can access it, coupling the realtime lifecycle to the app's mount lifecycle.
+- Shared client requires careful channel cleanup when scope changes.
+- Reconnects affect all active channels at once.
+- Provider placement couples realtime lifecycle to app layout mount.
