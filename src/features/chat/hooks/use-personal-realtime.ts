@@ -30,7 +30,7 @@ export function usePersonalRealtime({
   onStatus,
 }: UsePersonalRealtimeArgs) {
   const realtime = useRealtimeClientContext();
-  const { client, error, loading, version, reset } = realtime;
+  const { client, error, loading, reset } = realtime;
 
   const lastStatusRef = useRef<string | null>(null);
   const lastMessageAtRef = useRef<number | null>(null);
@@ -44,7 +44,6 @@ export function usePersonalRealtime({
     client,
     error,
     loading,
-    version,
     reset,
     onMessage,
     onDelete,
@@ -74,7 +73,6 @@ type ChannelLifecycleArgs = {
   client: ReturnType<typeof useRealtimeClientContext>['client'];
   error: ReturnType<typeof useRealtimeClientContext>['error'];
   loading: ReturnType<typeof useRealtimeClientContext>['loading'];
-  version: number;
   reset: () => void;
   onMessage: (msg: ChatMessage) => void;
   onDelete?: (msg: ChatMessage) => void;
@@ -92,7 +90,6 @@ function useChannelLifecycle({
   client,
   error,
   loading,
-  version,
   reset,
   onMessage,
   onDelete,
@@ -216,7 +213,6 @@ function useChannelLifecycle({
     onStatus,
     reset,
     userId,
-    version,
     resubscribeRef,
     lastMessageAtRef,
     lastStatusRef,
@@ -228,10 +224,10 @@ function useChannelLifecycle({
 type StallMonitorArgs = {
   userId: string;
   isPersonal: boolean;
-  lastStatusRef: React.MutableRefObject<string | null>;
-  lastMessageAtRef: React.MutableRefObject<number | null>;
-  stallLoggedRef: React.MutableRefObject<boolean>;
-  resubscribeRef: React.MutableRefObject<(() => void) | null>;
+  lastStatusRef: React.RefObject<string | null>;
+  lastMessageAtRef: React.RefObject<number | null>;
+  stallLoggedRef: React.RefObject<boolean>;
+  resubscribeRef: React.RefObject<(() => void) | null>;
 };
 
 function useStallMonitor({

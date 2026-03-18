@@ -57,7 +57,9 @@ function makeFakeChannel(): FakeChannel {
         return channel;
       },
     ),
-    unsubscribe: jest.fn<ReturnType<FakeChannel['unsubscribe']>, []>(() => {}),
+    unsubscribe: jest.fn<ReturnType<FakeChannel['unsubscribe']>, []>(() => {
+      // noop fake channel unsubscribe
+    }),
     triggerStatus: status => {
       statusCb?.(status);
     },

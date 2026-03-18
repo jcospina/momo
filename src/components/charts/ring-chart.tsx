@@ -1,6 +1,5 @@
 'use client';
 
-import type { EChartsOption } from 'echarts';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { type EChartsType, echarts } from './echarts-init';
 import { safeResize, safeSetOption } from './echarts-safe';
@@ -103,86 +102,11 @@ export function RingChart({
       renderer: 'canvas',
     });
     chartRef.current = chart;
-
-    const option: EChartsOption = {
-      legend: {
-        show: true,
-        icon: 'circle',
-        itemHeight: 14,
-        itemWidth: 14,
-        itemGap: 12,
-        ...layout.legend,
-      },
-      tooltip: {
-        show: true,
-        confine: true,
-        position: (
-          point: number[],
-          _params: unknown,
-          _dom: unknown,
-          _rect: unknown,
-          size: { contentSize: number[]; viewSize: number[] },
-        ) => {
-          const [x, y] = point;
-          const [contentWidth, contentHeight] = size.contentSize;
-          const [viewWidth, viewHeight] = size.viewSize;
-          const clampedX = Math.min(
-            Math.max(x, 8),
-            Math.max(8, viewWidth - contentWidth - 8),
-          );
-          const clampedY = Math.min(
-            Math.max(y, 8),
-            Math.max(8, viewHeight - contentHeight - 8),
-          );
-          return [clampedX, clampedY];
-        },
-        formatter: (params: unknown) => {
-          const p = params as {
-            name?: string;
-            value?: number;
-            percent?: number;
-          };
-          if (!p || typeof p.value !== 'number' || !p.name) return '';
-          const amount = formatCurrency(
-            toDisplayAmount(p.value, currency),
-            currency,
-          );
-          const percent = Number.isFinite(p.percent) ? p.percent : 0;
-          const extra =
-            getTooltipLines?.({ name: p.name, value: p.value }) ?? [];
-          return [
-            `<strong>${p.name}</strong>`,
-            `${amount} (${percent!.toFixed(1)}%)`,
-            ...extra,
-          ].join('<br/>');
-        },
-      },
-      series: [
-        {
-          type: 'pie',
-          radius: layout.radius,
-          center: [layout.centerX, layout.centerY],
-          avoidLabelOverlap: false,
-          label: {
-            show: false,
-          },
-          labelLine: {
-            show: false,
-          },
-          itemStyle: {
-            borderRadius: 6,
-            borderWidth: 1,
-          },
-          emphasis: {
-            scale: true,
-            scaleSize: 6,
-          },
-          data: seriesData,
-        },
-      ],
-    };
-
-    safeSetOption(chart, option, 'RingChart', true);
+    const initialRect = containerRef.current.getBoundingClientRect();
+    setContainerSize({
+      width: initialRect.width,
+      height: initialRect.height,
+    });
 
     const resizeObserver = new ResizeObserver(entries => {
       const entry = entries[0];
@@ -201,7 +125,6 @@ export function RingChart({
       chart.dispose();
       chartRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -256,7 +179,7 @@ export function RingChart({
       chart.off('legendselectchanged', handleLegendChange);
       chart.off('click', handleClick);
     };
-  }, [centerLabel, currency, getTooltipLines, items, onItemClick, totalCents]);
+  }, [centerLabel, currency, items, onItemClick, totalCents]);
 
   useEffect(() => {
     const chart = chartRef.current;
@@ -340,6 +263,8 @@ export function RingChart({
       true,
     );
   }, [
+    currency,
+    getTooltipLines,
     layout.centerX,
     layout.centerY,
     layout.legend,

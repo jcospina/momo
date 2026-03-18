@@ -30,7 +30,7 @@ export function useHouseholdRealtime({
   onStatus,
 }: UseHouseholdRealtimeArgs) {
   const realtime = useRealtimeClientContext();
-  const { client, error, loading, version, reset } = realtime;
+  const { client, error, loading, reset } = realtime;
 
   const lastStatusRef = useRef<string | null>(null);
   const lastMessageAtRef = useRef<number | null>(null);
@@ -44,7 +44,6 @@ export function useHouseholdRealtime({
     client,
     error,
     loading,
-    version,
     reset,
     onMessage,
     onDelete,
@@ -74,7 +73,6 @@ type ChannelLifecycleArgs = {
   client: ReturnType<typeof useRealtimeClientContext>['client'];
   error: ReturnType<typeof useRealtimeClientContext>['error'];
   loading: ReturnType<typeof useRealtimeClientContext>['loading'];
-  version: number;
   reset: () => void;
   onMessage: (msg: ChatMessage) => void;
   onDelete?: (msg: ChatMessage) => void;
@@ -92,7 +90,6 @@ function useChannelLifecycle({
   client,
   error,
   loading,
-  version,
   reset,
   onMessage,
   onDelete,
@@ -216,7 +213,6 @@ function useChannelLifecycle({
     onDelete,
     onStatus,
     reset,
-    version,
     resubscribeRef,
     lastMessageAtRef,
     lastStatusRef,

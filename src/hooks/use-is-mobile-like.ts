@@ -6,7 +6,9 @@ const getServerSnapshot = () => false;
 const getSnapshot = () =>
   typeof window === 'undefined' ? false : isMobileLike();
 
-const subscribe = () => () => {};
+const subscribe = () => () => {
+  // noop: mobile-like snapshot has no event source
+};
 
 export function useIsMobileLike() {
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);

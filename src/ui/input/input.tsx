@@ -104,6 +104,8 @@ export const Input = forwardRef<
     },
     ref,
   ) => {
+    const controlledValue = props.value;
+    const defaultValue = props.defaultValue;
     const wrapperClass = cn(
       styles['momo-input-wrapper'],
       {
@@ -170,7 +172,13 @@ export const Input = forwardRef<
 
     useEffect(() => {
       resize();
-    }, [resize, props.value, props.defaultValue]);
+    }, [resize]);
+
+    useEffect(() => {
+      if (!multiline || !autoResize) return;
+      if (controlledValue === undefined && defaultValue === undefined) return;
+      resize();
+    }, [autoResize, controlledValue, defaultValue, multiline, resize]);
 
     const { rows, cols, wrap, onInput, type, ...restProps } =
       props as TextareaHTMLAttributes<HTMLTextAreaElement> &

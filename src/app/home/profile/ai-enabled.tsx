@@ -33,7 +33,7 @@ export function AIEnabled({ value = true }: CurrencySelectProps) {
         }
       });
     },
-    [checked, startTransition],
+    [checked],
   );
 
   const errorId = error ? `${checkboxId}-error` : undefined;

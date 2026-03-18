@@ -64,7 +64,7 @@ import type {
  * />
  * ```
  */
-function SelectInner<T>(props: SelectProps<T>, ref: SelectForwardedRef) {
+function useSelectInner<T>(props: SelectProps<T>, ref: SelectForwardedRef) {
   const {
     className,
     style,
@@ -276,7 +276,6 @@ function SelectInner<T>(props: SelectProps<T>, ref: SelectForwardedRef) {
                               styles['momo-select__option'],
                               itemProps.className,
                             )}
-                            aria-label={optionLabel}
                             title={optionLabel}
                           >
                             {content}
@@ -295,4 +294,4 @@ function SelectInner<T>(props: SelectProps<T>, ref: SelectForwardedRef) {
   );
 }
 
-export const Select = forwardRef(SelectInner) as SelectComponent;
+export const Select = forwardRef(useSelectInner) as SelectComponent;

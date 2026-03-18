@@ -47,7 +47,9 @@ export function useMediaQuery<T extends MediaQuery>(query: T): boolean {
       typeof window === 'undefined' ||
       typeof window.matchMedia !== 'function'
     ) {
-      return () => {};
+      return () => {
+        // noop: media query listeners unavailable
+      };
     }
     const mql = window.matchMedia(query);
     mql.addEventListener('change', cb);
