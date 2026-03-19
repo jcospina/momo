@@ -30,12 +30,23 @@ MoMo currently uses one hosted Supabase project for all branches. Branch names d
 - Create a migration: `pnpm db:new -- <migration_name>`
 - Start local Supabase: `pnpm db:start`
 - Validate full replay locally: `pnpm db:reset`
+- Reset + seed local dev fixture data: `pnpm db:seed`
 - Lint SQL locally: `pnpm db:lint`
 - Preview hosted apply: `pnpm db:push:dry-run`
 - Apply hosted migrations (guarded, `development` branch only): `pnpm db:push`
 - Refresh snapshot docs: `pnpm db:schema:snapshot`
 
 `schema/` should contain only `momo_snapshot.sql`. Do not add per-table/manual SQL files there.
+
+### Local Seed Workflow
+
+- Keep `db:reset` clean and deterministic (migrations only).
+- Keep production credentials in `.env`; use `.env.local` for local overrides.
+- `pnpm dev` uses `.env.local` overrides; `pnpm dev:app` runs against `.env` by temporarily disabling `.env.local`.
+- Use `db:seed` when you need preloaded users/household/preferences for local UI testing.
+- `db:seed` resets first, then seeds.
+- `db:seed` expects seed users to already exist in `auth.users` (recommended for Google-only auth). Set `MOMO_DEV_SEED_CREATE_MISSING_USERS=true` only if you intentionally want email/password bootstrap users.
+- `db:seed` has a safety check and will fail when pointed to non-local Supabase URLs.
 
 ### Rollback / Recovery Runbook
 

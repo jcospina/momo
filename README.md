@@ -32,7 +32,8 @@ The app runs at [http://localhost:3000](http://localhost:3000).
 ### Commands
 
 ```bash
-pnpm dev              # Dev server
+pnpm dev              # Start local Supabase (if needed) + dev server (.env.local active)
+pnpm dev:app          # Dev server only using .env (temporarily ignores .env.local)
 pnpm build            # Production build
 pnpm lint             # Lint checks
 pnpm format           # Formatter (write)
@@ -40,7 +41,9 @@ pnpm test             # Jest tests
 
 # Database migrations
 pnpm db:new -- <name> # Create migration
+pnpm db:start         # Start local Supabase containers
 pnpm db:reset         # Replay migrations locally
+pnpm db:seed          # Reset local DB + seed users/household/preferences
 pnpm db:lint          # Lint local SQL
 pnpm db:push          # Apply to linked hosted project (guarded)
 ```
