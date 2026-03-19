@@ -9,12 +9,29 @@ import { scoreExpenseCategory } from './expense-category';
 import { normalizeExpenseText } from './expense-normalize';
 
 export const normalizeInput = normalizeExpenseText;
+const EXPLICIT_INCOME_REGEX =
+  /(?:^|\s)\+\s*[0-9]+(?:\.[0-9]+)?(?:[kKmM])?(?:$|[\s.])/;
 
 export function splitEntries(normalized: string) {
   return normalized
     .split(',')
     .map(entry => entry.trim())
     .filter(Boolean);
+}
+
+function classifyEntryType(
+  entry: string,
+  category: ParsedEntry['category'],
+): Pick<ParsedEntry, 'entry_type' | 'has_uncertain_type'> {
+  if (EXPLICIT_INCOME_REGEX.test(entry)) {
+    return { entry_type: 'income', has_uncertain_type: false };
+  }
+
+  if (category === 'income') {
+    return { entry_type: 'income', has_uncertain_type: true };
+  }
+
+  return { entry_type: 'expense', has_uncertain_type: false };
 }
 
 function toMinorUnits(value: number, currency: SupportedCurrency) {
@@ -69,6 +86,8 @@ export function parseChatEntries(
 
     const { tags, category } = scoreExpenseCategory(entry);
 
+    const entryType = classifyEntryType(entry, category);
+
     parsed.push({
       raw: entry,
       normalized: entry,
@@ -77,6 +96,8 @@ export function parseChatEntries(
       currency,
       tags,
       category,
+      entry_type: entryType.entry_type,
+      has_uncertain_type: entryType.has_uncertain_type,
     });
   });
 

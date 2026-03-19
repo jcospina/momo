@@ -2,6 +2,8 @@ import type { SupportedCurrency } from '@lib-types/user-preferences';
 
 export type ParseErrorCode = 'amount_missing' | 'amount_non_positive';
 
+export type ExpenseEntryType = 'expense' | 'income';
+
 export type ParsedEntry = {
   raw: string;
   normalized: string;
@@ -10,6 +12,8 @@ export type ParsedEntry = {
   currency: SupportedCurrency;
   tags: string[];
   category: ExpenseCategory | null;
+  entry_type: ExpenseEntryType;
+  has_uncertain_type: boolean;
 };
 
 export type ExpenseRecord = {
