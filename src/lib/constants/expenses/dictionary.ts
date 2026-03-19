@@ -359,6 +359,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'strong',
     },
   ],
+  bono: [
+    {
+      category: 'income',
+      match: 'strong',
+    },
+  ],
   bonus: [
     {
       category: 'income',
@@ -1485,6 +1491,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
       match: 'weak',
     },
   ],
+  honorarios: [
+    {
+      category: 'income',
+      match: 'strong',
+    },
+  ],
   hospital: [
     {
       category: 'health',
@@ -1548,6 +1560,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
     },
   ],
   income: [
+    {
+      category: 'income',
+      match: 'strong',
+    },
+  ],
+  ingreso: [
     {
       category: 'income',
       match: 'strong',
@@ -2568,6 +2586,12 @@ export const EXPENSE_INVERTED_INDEX: ExpenseInvertedIndex = {
   ropa: [
     {
       category: 'shopping',
+      match: 'strong',
+    },
+  ],
+  salario: [
+    {
+      category: 'income',
       match: 'strong',
     },
   ],
