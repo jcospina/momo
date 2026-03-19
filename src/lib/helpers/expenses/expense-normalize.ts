@@ -3,5 +3,5 @@ export function normalizeExpenseText(input: string) {
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^0-9a-z\s.,]/g, '');
+    .replace(/[^0-9a-z\s.,+]/g, '');
 }
