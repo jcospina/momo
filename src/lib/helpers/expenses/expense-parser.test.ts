@@ -6,6 +6,8 @@ describe('parseChatEntries', () => {
     expect(result.status).toBe('parsed');
     if (result.status === 'parsed') {
       expect(result.entries[0].amount_minor).toBe(1250);
+      expect(result.entries[0].entry_type).toBe('expense');
+      expect(result.entries[0].has_uncertain_type).toBe(false);
     }
   });
 
@@ -23,6 +25,8 @@ describe('parseChatEntries', () => {
     expect(result.status).toBe('parsed');
     if (result.status === 'parsed') {
       expect(result.entries[0].amount_minor).toBe(10_000);
+      expect(result.entries[0].entry_type).toBe('expense');
+      expect(result.entries[0].has_uncertain_type).toBe(false);
     }
   });
 
@@ -33,6 +37,33 @@ describe('parseChatEntries', () => {
       expect(result.entries).toHaveLength(2);
       expect(result.entries[0].amount_minor).toBe(2000);
       expect(result.entries[1].amount_minor).toBe(1000);
+    }
+  });
+
+  it('classifies +amount as certain income', () => {
+    const result = parseChatEntries('+2000 paycheck');
+    expect(result.status).toBe('parsed');
+    if (result.status === 'parsed') {
+      expect(result.entries[0].entry_type).toBe('income');
+      expect(result.entries[0].has_uncertain_type).toBe(false);
+    }
+  });
+
+  it('uses text inference as uncertain income fallback when + is absent', () => {
+    const result = parseChatEntries('salary 2000');
+    expect(result.status).toBe('parsed');
+    if (result.status === 'parsed') {
+      expect(result.entries[0].entry_type).toBe('income');
+      expect(result.entries[0].has_uncertain_type).toBe(true);
+    }
+  });
+
+  it('prioritizes explicit + over text inference', () => {
+    const result = parseChatEntries('+1500 groceries');
+    expect(result.status).toBe('parsed');
+    if (result.status === 'parsed') {
+      expect(result.entries[0].entry_type).toBe('income');
+      expect(result.entries[0].has_uncertain_type).toBe(false);
     }
   });
 

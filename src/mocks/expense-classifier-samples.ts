@@ -36,6 +36,9 @@ export const expenseClassifierSamples: ExpenseSample[] = [
   { language: 'en', text: 'flight to miami 320', expectedCategory: 'travel' },
   { language: 'en', text: 'birthday gift 50', expectedCategory: 'gifts' },
   { language: 'en', text: 'bank fee 8', expectedCategory: 'fees' },
+  { language: 'en', text: 'salary 2000', expectedCategory: 'income' },
+  { language: 'en', text: 'income 2000', expectedCategory: 'income' },
+  { language: 'en', text: 'bonus 800', expectedCategory: 'income' },
   { language: 'en', text: 'paycheck 2000', expectedCategory: 'income' },
   {
     language: 'en',
@@ -70,6 +73,9 @@ export const expenseClassifierSamples: ExpenseSample[] = [
   { language: 'es', text: 'hotel 220', expectedCategory: 'travel' },
   { language: 'es', text: 'regalo 30', expectedCategory: 'gifts' },
   { language: 'es', text: 'comision 5', expectedCategory: 'fees' },
+  { language: 'es', text: 'salario 2500', expectedCategory: 'income' },
+  { language: 'es', text: 'ingreso 2500', expectedCategory: 'income' },
+  { language: 'es', text: 'bono 500', expectedCategory: 'income' },
   { language: 'es', text: 'nomina 2500', expectedCategory: 'income' },
   {
     language: 'es',
