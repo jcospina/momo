@@ -15,7 +15,6 @@ type LoginPageProps = {
 
 export default async function Home({ searchParams }: LoginPageProps) {
   const { error } = await searchParams;
-  console.log(error);
   return (
     <Flex
       direction="column"

@@ -8,6 +8,16 @@ type TokenResponse = {
   expires_in: number;
 };
 
+class RealtimeTokenError extends Error {
+  status: number;
+
+  constructor(status: number) {
+    super(`token_failed_${status}`);
+    this.name = 'RealtimeTokenError';
+    this.status = status;
+  }
+}
+
 type UseRealtimeClientResult =
   | {
       client: SupabaseClient;
@@ -31,7 +41,7 @@ async function fetchRealtimeToken(): Promise<TokenResponse> {
     cache: 'no-store',
   });
   if (!res.ok) {
-    throw new Error(`token_failed_${res.status}`);
+    throw new RealtimeTokenError(res.status);
   }
   return res.json();
 }
@@ -143,9 +153,18 @@ export function useRealtimeClient(): UseRealtimeClientResult {
         }, refreshMs);
       } catch (err) {
         if (cancelled || runId !== setupRunIdRef.current) return;
+        const status =
+          err instanceof RealtimeTokenError ? err.status : undefined;
         const message = (err as Error).message;
-        console.error('[realtime] token fetch failed', { error: message });
-        setError(message);
+
+        // When there is no authenticated session (e.g. login page), 401 is expected.
+        if (status === 401) {
+          setError(null);
+        } else {
+          console.error('[realtime] token fetch failed', { error: message });
+          setError(message);
+        }
+
         setLoading(false);
         scheduleRetry();
       }
@@ -173,7 +192,7 @@ export function useRealtimeClient(): UseRealtimeClientResult {
     };
   }, []);
 
-  if (loading || error) {
+  if (loading || error || !client) {
     return { client: null, loading, error, version, reset };
   }
 

@@ -1,4 +1,5 @@
 import { ProfileProvider } from '@providers/profile-provider';
+import { RealtimeClientProvider } from '@providers/realtime-client-provider';
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { getCurrentUser } from '@/lib/data/auth/server';
@@ -16,5 +17,9 @@ export default async function HomeLayout({
   if (!profile) {
     redirect('/login');
   }
-  return <ProfileProvider profile={profile}>{children}</ProfileProvider>;
+  return (
+    <RealtimeClientProvider>
+      <ProfileProvider profile={profile}>{children}</ProfileProvider>
+    </RealtimeClientProvider>
+  );
 }
