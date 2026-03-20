@@ -2,6 +2,7 @@
 
 import { CategoryRingChart } from '@components/charts/category-ring-chart';
 import { UserTotalsRingChart } from '@components/charts/user-totals-ring-chart';
+import { STATS_RANGE_OPTIONS } from '@constants/stats/range-options';
 import { buildCategoryUserWindowData } from '@helpers/expenses/expense-stats.aggregations';
 import { formatMonthRange } from '@helpers/expenses/expense-stats.months';
 import { useMonthlyWindows } from '@hooks/use-monthly-windows';
@@ -16,13 +17,6 @@ import { cn } from '@utils/cn';
 import { useMemo } from 'react';
 import styles from '@/app/home/stats/stats.module.css';
 import { mq, useMediaQuery } from '@/hooks/use-media-query';
-
-const RANGE_OPTIONS = [
-  { label: '1m', value: '1' },
-  { label: '3m', value: '3' },
-  { label: '6m', value: '6' },
-  { label: '12m', value: '12' },
-];
 
 type RingChartsPanelProps = {
   months: string[];
@@ -128,7 +122,7 @@ export function CategoryRingPanel({
           </Typography>
           <Flex alignItems="center" gap={2} wrap={isNarrow ? 'wrap' : 'nowrap'}>
             <ToggleGroup
-              items={RANGE_OPTIONS}
+              items={STATS_RANGE_OPTIONS}
               value={[selectedRange]}
               onValueChange={value => {
                 const next = value[0];
@@ -243,7 +237,7 @@ export function RingChartsPanel({
                 wrap={isNarrow ? 'wrap' : 'nowrap'}
               >
                 <ToggleGroup
-                  items={RANGE_OPTIONS}
+                  items={STATS_RANGE_OPTIONS}
                   value={[selectedRange]}
                   onValueChange={value => {
                     const next = value[0];
@@ -311,7 +305,7 @@ export function RingChartsPanel({
               wrap={isNarrow ? 'wrap' : 'nowrap'}
             >
               <ToggleGroup
-                items={RANGE_OPTIONS}
+                items={STATS_RANGE_OPTIONS}
                 value={[selectedRange]}
                 onValueChange={value => {
                   const next = value[0];

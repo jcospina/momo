@@ -2,6 +2,7 @@
 
 import {
   fetchAllMonthlyByCategoryUser,
+  fetchAllMonthlyCashflowNet,
   fetchDailyTotalsByMonth,
   fetchMonthlyBoundsByCategoryUser,
   fetchMonthlyByCategoryUser,
@@ -30,6 +31,19 @@ export type MonthlyCategoryTotals = {
 export type DailyPoint = {
   day: number;
   totalCents: number;
+};
+
+export type MonthlyCashflowPoint = {
+  month: string;
+  incomeCents: number;
+  expenseCents: number;
+  netCents: number;
+};
+
+export type CumulativeSavingsPoint = {
+  month: string;
+  netCents: number;
+  cumulativeCents: number;
 };
 
 type MonthRangeInput = {
@@ -186,6 +200,113 @@ function buildDailyPoints(
       day: row.day,
       totalCents: row.cumulative_cents ?? row.total_cents ?? 0,
     }));
+}
+
+function toCents(value: number | string | null | undefined): number {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : 0;
+}
+
+function buildMonthlyCashflowPoints(
+  months: string[],
+  rows: Array<{
+    month: string;
+    income_cents: number;
+    expense_cents: number;
+    net_cents: number;
+  }>,
+): MonthlyCashflowPoint[] {
+  const monthMap = new Map<string, MonthlyCashflowPoint>();
+
+  rows.forEach(row => {
+    const existing = monthMap.get(row.month) ?? {
+      month: row.month,
+      incomeCents: 0,
+      expenseCents: 0,
+      netCents: 0,
+    };
+
+    existing.incomeCents += toCents(row.income_cents);
+    existing.expenseCents += toCents(row.expense_cents);
+    existing.netCents += toCents(row.net_cents);
+    monthMap.set(row.month, existing);
+  });
+
+  return months.map(month => {
+    const monthData = monthMap.get(month);
+    if (monthData) {
+      return monthData;
+    }
+
+    return {
+      month,
+      incomeCents: 0,
+      expenseCents: 0,
+      netCents: 0,
+    };
+  });
+}
+
+function buildCumulativeSavingsPoints(
+  monthlyPoints: MonthlyCashflowPoint[],
+): CumulativeSavingsPoint[] {
+  let runningTotal = 0;
+  return monthlyPoints.map(point => {
+    runningTotal += point.netCents;
+    return {
+      month: point.month,
+      netCents: point.netCents,
+      cumulativeCents: runningTotal,
+    };
+  });
+}
+
+async function getMonthlyCashflowHistory({
+  scope,
+  householdId,
+}: ScopeInput): Promise<ActionResult<{ months: MonthlyCashflowPoint[] }>> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { data: { months: [] }, errorCode: 'auth_required' };
+  }
+
+  const resolved = await resolveScope({
+    scope,
+    householdId,
+    userId: user.id,
+    supabase,
+  });
+  if ('errorCode' in resolved && resolved.errorCode) {
+    return { data: { months: [] }, errorCode: resolved.errorCode };
+  }
+
+  const rows = await fetchAllMonthlyCashflowNet({
+    supabase,
+    householdId: resolved.householdId,
+  });
+
+  const monthsFromRows = rows
+    .map(row => row.month)
+    .filter((month): month is string => Boolean(month));
+  const unique = uniqueMonths(monthsFromRows);
+  if (!unique.length) {
+    return { data: { months: [] } };
+  }
+
+  const earliest = unique[0];
+  const currentMonth = format(new Date(), 'yyyy-MM');
+  const latest =
+    currentMonth > unique[unique.length - 1]
+      ? currentMonth
+      : unique[unique.length - 1];
+  const months = buildMonthSpan(earliest, latest);
+  const points = buildMonthlyCashflowPoints(months, rows);
+
+  return { data: { months: points } };
 }
 
 export async function getRingChartData({
@@ -601,6 +722,29 @@ export async function getDailyComparisonData({
       previousMonth: normalizedPrevious,
       current: buildDailyPoints(currentRows),
       previous: buildDailyPoints(previousRows),
+    },
+  };
+}
+
+export async function getMonthlyIncomeVsExpenseData({
+  scope,
+  householdId,
+}: ScopeInput): Promise<ActionResult<{ months: MonthlyCashflowPoint[] }>> {
+  return getMonthlyCashflowHistory({ scope, householdId });
+}
+
+export async function getCumulativeSavingsData({
+  scope,
+  householdId,
+}: ScopeInput): Promise<ActionResult<{ months: CumulativeSavingsPoint[] }>> {
+  const history = await getMonthlyCashflowHistory({ scope, householdId });
+  if (history.errorCode) {
+    return { data: { months: [] }, errorCode: history.errorCode };
+  }
+
+  return {
+    data: {
+      months: buildCumulativeSavingsPoints(history.data.months),
     },
   };
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { MonthlyTotalsBarChart } from '@components/charts/monthly-totals-bar-chart';
+import { STATS_RANGE_OPTIONS_NO_1M } from '@constants/stats/range-options';
 import { buildMonthlyCategoryTotals } from '@helpers/expenses/expense-stats.aggregations';
 import { formatMonthRange } from '@helpers/expenses/expense-stats.months';
 import { useMonthlyWindows } from '@hooks/use-monthly-windows';
@@ -13,12 +14,6 @@ import { Typography } from '@ui/typography/typography';
 import { useMemo } from 'react';
 import styles from '@/app/home/stats/stats.module.css';
 import { mq, useMediaQuery } from '@/hooks/use-media-query';
-
-const RANGE_OPTIONS = [
-  { label: '3m', value: '3' },
-  { label: '6m', value: '6' },
-  { label: '12m', value: '12' },
-];
 
 type MonthlyTotalsPanelProps = {
   months: string[];
@@ -86,7 +81,7 @@ export function MonthlyTotalsPanel({
           </Typography>
           <Flex alignItems="center" gap={2} wrap={isNarrow ? 'wrap' : 'nowrap'}>
             <ToggleGroup
-              items={RANGE_OPTIONS}
+              items={STATS_RANGE_OPTIONS_NO_1M}
               value={[selectedRange]}
               onValueChange={handleRangeChange}
             />

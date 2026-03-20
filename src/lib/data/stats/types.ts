@@ -21,6 +21,19 @@ export type DailyPoint = {
   totalCents: number;
 };
 
+export type MonthlyCashflowPoint = {
+  month: string;
+  incomeCents: number;
+  expenseCents: number;
+  netCents: number;
+};
+
+export type CumulativeSavingsPoint = {
+  month: string;
+  netCents: number;
+  cumulativeCents: number;
+};
+
 export type MonthRangeInput = {
   months?: string[];
   endMonth?: string;
@@ -88,6 +101,14 @@ export type GetDailyComparisonData = (
     previous: DailyPoint[];
   }>
 >;
+
+export type GetMonthlyIncomeVsExpenseData = (
+  input: ScopeInput,
+) => Promise<StatsActionResult<{ months: MonthlyCashflowPoint[] }>>;
+
+export type GetCumulativeSavingsData = (
+  input: ScopeInput,
+) => Promise<StatsActionResult<{ months: CumulativeSavingsPoint[] }>>;
 
 export type GetUserTotalsForMonth = (
   input: { month?: string } & ScopeInput,
