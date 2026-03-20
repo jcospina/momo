@@ -1,10 +1,12 @@
 import {
+  getCumulativeSavingsData as getCumulativeSavingsDataAction,
   getDailyComparisonData as getDailyComparisonDataAction,
   getMonthlyCategoryRange as getMonthlyCategoryRangeAction,
   getMonthlyCategoryUserBreakdown as getMonthlyCategoryUserBreakdownAction,
   getMonthlyCategoryUserRange as getMonthlyCategoryUserRangeAction,
   getMonthlyDataBounds as getMonthlyDataBoundsAction,
   getMonthlyHistory as getMonthlyHistoryAction,
+  getMonthlyIncomeVsExpenseData as getMonthlyIncomeVsExpenseDataAction,
   getMonthlyTotalsRange as getMonthlyTotalsRangeAction,
   getMonthlyWindow as getMonthlyWindowAction,
   getRingChartData as getRingChartDataAction,
@@ -12,12 +14,16 @@ import {
 } from '@actions/expense-stats';
 
 import {
+  getCumulativeSavingsData,
   getDailyComparisonData,
   getMonthlyHistory,
+  getMonthlyIncomeVsExpenseData,
   getRingChartData,
 } from './server';
 
 jest.mock('@actions/expense-stats', () => ({
+  getMonthlyIncomeVsExpenseData: jest.fn(),
+  getCumulativeSavingsData: jest.fn(),
   getRingChartData: jest.fn(),
   getMonthlyCategoryRange: jest.fn(),
   getMonthlyCategoryUserRange: jest.fn(),
@@ -31,6 +37,12 @@ jest.mock('@actions/expense-stats', () => ({
 }));
 
 describe('data/stats/server facade', () => {
+  const getMonthlyIncomeVsExpenseDataMock = jest.mocked(
+    getMonthlyIncomeVsExpenseDataAction,
+  );
+  const getCumulativeSavingsDataMock = jest.mocked(
+    getCumulativeSavingsDataAction,
+  );
   const getRingChartDataMock = jest.mocked(getRingChartDataAction);
   const getMonthlyCategoryRangeMock = jest.mocked(
     getMonthlyCategoryRangeAction,
@@ -60,6 +72,28 @@ describe('data/stats/server facade', () => {
     const actual = await getMonthlyHistory(payload);
 
     expect(getMonthlyHistoryMock).toHaveBeenCalledWith(payload);
+    expect(actual).toEqual(result);
+  });
+
+  it('delegates monthly income-vs-expense reads', async () => {
+    const payload = { scope: 'personal' as const };
+    const result = { data: { months: [] } };
+    getMonthlyIncomeVsExpenseDataMock.mockResolvedValue(result);
+
+    const actual = await getMonthlyIncomeVsExpenseData(payload);
+
+    expect(getMonthlyIncomeVsExpenseDataMock).toHaveBeenCalledWith(payload);
+    expect(actual).toEqual(result);
+  });
+
+  it('delegates cumulative savings reads', async () => {
+    const payload = { scope: 'household' as const };
+    const result = { data: { months: [] } };
+    getCumulativeSavingsDataMock.mockResolvedValue(result);
+
+    const actual = await getCumulativeSavingsData(payload);
+
+    expect(getCumulativeSavingsDataMock).toHaveBeenCalledWith(payload);
     expect(actual).toEqual(result);
   });
 
@@ -93,6 +127,8 @@ describe('data/stats/server facade', () => {
   });
 
   it('declares every facade dependency in the action mock', () => {
+    expect(getMonthlyIncomeVsExpenseDataMock).toBeDefined();
+    expect(getCumulativeSavingsDataMock).toBeDefined();
     expect(getMonthlyCategoryRangeMock).toBeDefined();
     expect(getMonthlyCategoryUserRangeMock).toBeDefined();
     expect(getMonthlyWindowMock).toBeDefined();

@@ -38,3 +38,11 @@ export type DailyTotalsByMonthRow = {
   total_cents: number;
   cumulative_cents: number | null;
 };
+
+export type MonthlyCashflowNetRow = {
+  household_id: string | null;
+  month: string;
+  income_cents: number;
+  expense_cents: number;
+  net_cents: number;
+};
