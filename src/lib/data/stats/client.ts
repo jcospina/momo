@@ -1,10 +1,12 @@
 import {
+  getCumulativeSavingsData as getCumulativeSavingsDataAction,
   getDailyComparisonData as getDailyComparisonDataAction,
   getMonthlyCategoryRange as getMonthlyCategoryRangeAction,
   getMonthlyCategoryUserBreakdown as getMonthlyCategoryUserBreakdownAction,
   getMonthlyCategoryUserRange as getMonthlyCategoryUserRangeAction,
   getMonthlyDataBounds as getMonthlyDataBoundsAction,
   getMonthlyHistory as getMonthlyHistoryAction,
+  getMonthlyIncomeVsExpenseData as getMonthlyIncomeVsExpenseDataAction,
   getMonthlyTotalsRange as getMonthlyTotalsRangeAction,
   getMonthlyWindow as getMonthlyWindowAction,
   getRingChartData as getRingChartDataAction,
@@ -12,17 +14,25 @@ import {
 } from '@actions/expense-stats';
 
 import type {
+  GetCumulativeSavingsData,
   GetDailyComparisonData,
   GetMonthlyCategoryRange,
   GetMonthlyCategoryUserBreakdown,
   GetMonthlyCategoryUserRange,
   GetMonthlyDataBounds,
   GetMonthlyHistory,
+  GetMonthlyIncomeVsExpenseData,
   GetMonthlyTotalsRange,
   GetMonthlyWindow,
   GetRingChartData,
   GetUserTotalsForMonth,
 } from './types';
+
+export const getMonthlyIncomeVsExpenseData: GetMonthlyIncomeVsExpenseData =
+  async input => getMonthlyIncomeVsExpenseDataAction(input);
+
+export const getCumulativeSavingsData: GetCumulativeSavingsData = async input =>
+  getCumulativeSavingsDataAction(input);
 
 export const getRingChartData: GetRingChartData = async input =>
   getRingChartDataAction(input);

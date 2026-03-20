@@ -3,8 +3,10 @@ import {
   buildMonthlyByCategoryUserRows,
 } from '@/mocks/expense-stats-samples';
 import {
+  getCumulativeSavingsData,
   getMonthlyDataBounds,
   getMonthlyHistory,
+  getMonthlyIncomeVsExpenseData,
   getMonthlyWindow,
 } from './expense-stats';
 
@@ -122,7 +124,82 @@ function createHistorySupabase(rows: Array<{ month: string }>) {
   };
 }
 
+function createCashflowSupabase(
+  rows: Array<{
+    household_id: string | null;
+    month: string;
+    income_cents: number;
+    expense_cents: number;
+    net_cents: number;
+  }>,
+) {
+  const tracker = {
+    fromCalls: [] as string[],
+    eqCalls: [] as Array<{ column: string; value: string }>,
+    isCalls: [] as Array<{ column: string; value: null }>,
+  };
+
+  const builder = {
+    selectedMonths: [] as string[],
+    householdFilter: undefined as string | null | undefined,
+    select() {
+      return this;
+    },
+    in(column: string, value: string[]) {
+      if (column === 'month') {
+        this.selectedMonths = value;
+      }
+      return this;
+    },
+    eq(column: string, value: string) {
+      if (column === 'household_id') {
+        this.householdFilter = value;
+        tracker.eqCalls.push({ column, value });
+      }
+      return this;
+    },
+    is(column: string, value: null) {
+      if (column === 'household_id') {
+        this.householdFilter = value;
+        tracker.isCalls.push({ column, value });
+      }
+      return this;
+    },
+    order() {
+      const selected =
+        this.selectedMonths.length > 0 ? new Set(this.selectedMonths) : null;
+      const filtered = rows
+        .filter(row => (selected ? selected.has(row.month) : true))
+        .filter(row => {
+          if (this.householdFilter === undefined) return true;
+          if (this.householdFilter === null) return row.household_id === null;
+          return row.household_id === this.householdFilter;
+        })
+        .sort((left, right) => left.month.localeCompare(right.month));
+
+      return Promise.resolve({ data: filtered, error: null });
+    },
+  };
+
+  return {
+    tracker,
+    supabase: {
+      auth: {
+        getUser: () => Promise.resolve({ data: { user: { id: 'user-1' } } }),
+      },
+      from(table: string) {
+        tracker.fromCalls.push(table);
+        return builder;
+      },
+    },
+  };
+}
+
 describe('expense-stats actions', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('getMonthlyDataBounds', () => {
     beforeEach(() => {
       jest.useFakeTimers();
@@ -208,6 +285,137 @@ describe('expense-stats actions', () => {
         currentMonth,
       );
       expect(result.data.rows).toHaveLength(rows.length);
+    });
+  });
+
+  describe('cashflow datasets', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('2024-06-15T12:00:00Z'));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('returns monthly income-vs-expense data for personal scope with zero-filled months', async () => {
+      const { supabase, tracker } = createCashflowSupabase([
+        {
+          household_id: null,
+          month: '2024-04',
+          income_cents: 150000,
+          expense_cents: 90000,
+          net_cents: 60000,
+        },
+        {
+          household_id: null,
+          month: '2024-06',
+          income_cents: 120000,
+          expense_cents: 100000,
+          net_cents: 20000,
+        },
+        {
+          household_id: 'household-1',
+          month: '2024-05',
+          income_cents: 999999,
+          expense_cents: 111111,
+          net_cents: 888888,
+        },
+      ]);
+
+      createSupabaseServerClient.mockResolvedValue(supabase);
+
+      const result = await getMonthlyIncomeVsExpenseData({
+        scope: 'personal',
+      });
+
+      expect(tracker.fromCalls).toContain('monthly_cashflow_net');
+      expect(tracker.isCalls).toEqual([
+        { column: 'household_id', value: null },
+      ]);
+      expect(result.errorCode).toBeUndefined();
+      expect(result.data.months).toEqual([
+        {
+          month: '2024-04',
+          incomeCents: 150000,
+          expenseCents: 90000,
+          netCents: 60000,
+        },
+        {
+          month: '2024-05',
+          incomeCents: 0,
+          expenseCents: 0,
+          netCents: 0,
+        },
+        {
+          month: '2024-06',
+          incomeCents: 120000,
+          expenseCents: 100000,
+          netCents: 20000,
+        },
+      ]);
+    });
+
+    it('returns cumulative savings data for household scope with running net sums', async () => {
+      const { supabase, tracker } = createCashflowSupabase([
+        {
+          household_id: 'household-1',
+          month: '2024-04',
+          income_cents: 200000,
+          expense_cents: 120000,
+          net_cents: 80000,
+        },
+        {
+          household_id: 'household-1',
+          month: '2024-05',
+          income_cents: 180000,
+          expense_cents: 210000,
+          net_cents: -30000,
+        },
+        {
+          household_id: 'household-1',
+          month: '2024-06',
+          income_cents: 260000,
+          expense_cents: 160000,
+          net_cents: 100000,
+        },
+        {
+          household_id: 'household-2',
+          month: '2024-06',
+          income_cents: 999999,
+          expense_cents: 1,
+          net_cents: 999998,
+        },
+      ]);
+
+      createSupabaseServerClient.mockResolvedValue(supabase);
+
+      const result = await getCumulativeSavingsData({
+        scope: 'household',
+        householdId: 'household-1',
+      });
+
+      expect(tracker.eqCalls).toEqual([
+        { column: 'household_id', value: 'household-1' },
+      ]);
+      expect(result.errorCode).toBeUndefined();
+      expect(result.data.months).toEqual([
+        {
+          month: '2024-04',
+          netCents: 80000,
+          cumulativeCents: 80000,
+        },
+        {
+          month: '2024-05',
+          netCents: -30000,
+          cumulativeCents: 50000,
+        },
+        {
+          month: '2024-06',
+          netCents: 100000,
+          cumulativeCents: 150000,
+        },
+      ]);
     });
   });
 });

@@ -1,6 +1,7 @@
 import type {
   DailyTotalsByMonthRow,
   MonthlyByCategoryUserRow,
+  MonthlyCashflowNetRow,
 } from '@lib-types/expense-stats';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -105,6 +106,30 @@ export async function fetchDailyTotalsByMonth({
   }
 
   return (data as DailyTotalsByMonthRow[]) ?? [];
+}
+
+export async function fetchAllMonthlyCashflowNet({
+  supabase,
+  householdId,
+}: AllFetchParams): Promise<MonthlyCashflowNetRow[]> {
+  const query = supabase
+    .from('monthly_cashflow_net')
+    .select('household_id, month, income_cents, expense_cents, net_cents');
+
+  if (householdId) {
+    query.eq('household_id', householdId);
+  } else {
+    query.is('household_id', null);
+  }
+
+  const { data, error } = await query.order('month', { ascending: true });
+
+  if (error) {
+    console.error('fetchAllMonthlyCashflowNet failed', error);
+    return [];
+  }
+
+  return (data as MonthlyCashflowNetRow[]) ?? [];
 }
 
 export async function fetchMonthlyBoundsByCategoryUser({
