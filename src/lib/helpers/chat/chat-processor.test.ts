@@ -44,8 +44,6 @@ function buildEntry(overrides: Partial<ParsedEntry> = {}): ParsedEntry {
     currency: 'USD',
     tags: ['groceries'],
     category: 'groceries',
-    entry_type: 'expense',
-    has_uncertain_type: false,
     ...overrides,
   };
 }
@@ -82,13 +80,11 @@ describe('processChatMessage', () => {
     expect(mockPersistParsedExpenses).not.toHaveBeenCalled();
   });
 
-  it('persists uncertain income entries as processed with uncertainty flag', async () => {
+  it('persists income-category entries as processed', async () => {
     const message = buildMessage({ content: 'salary 2000' });
     const incomeEntry = buildEntry({
       raw: 'salary 2000',
       category: 'income',
-      entry_type: 'income',
-      has_uncertain_type: true,
     });
     mockParseChatEntries.mockReturnValue({
       status: 'parsed',
@@ -103,7 +99,6 @@ describe('processChatMessage', () => {
       message,
       [incomeEntry],
       'processed',
-      true,
     );
   });
 
@@ -112,14 +107,10 @@ describe('processChatMessage', () => {
     const uncertainIncome = buildEntry({
       raw: 'salary 2000',
       category: 'income',
-      entry_type: 'income',
-      has_uncertain_type: true,
     });
     const uncategorizedExpense = buildEntry({
       raw: 'taxi 20',
       category: null,
-      entry_type: 'expense',
-      has_uncertain_type: false,
     });
     mockParseChatEntries.mockReturnValue({
       status: 'parsed',
@@ -133,7 +124,6 @@ describe('processChatMessage', () => {
       message,
       [uncertainIncome, uncategorizedExpense],
       'needs_category',
-      true,
     );
   });
 });

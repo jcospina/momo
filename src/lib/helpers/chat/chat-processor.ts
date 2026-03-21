@@ -20,18 +20,8 @@ export async function processChatMessage(message: ChatMessage) {
     }
     return result;
   }
-  const needsCategory = result.entries.some(
-    entry => entry.entry_type === 'expense' && !entry.category,
-  );
-  const hasUncertainType = result.entries.some(
-    entry => entry.has_uncertain_type,
-  );
+  const needsCategory = result.entries.some(entry => !entry.category);
   const nextStatus = needsCategory ? 'needs_category' : 'processed';
-  await persistParsedExpenses(
-    message,
-    result.entries,
-    nextStatus,
-    hasUncertainType,
-  );
+  await persistParsedExpenses(message, result.entries, nextStatus);
   return result;
 }
