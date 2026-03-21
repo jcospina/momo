@@ -6,8 +6,7 @@ describe('parseChatEntries', () => {
     expect(result.status).toBe('parsed');
     if (result.status === 'parsed') {
       expect(result.entries[0].amount_minor).toBe(1250);
-      expect(result.entries[0].entry_type).toBe('expense');
-      expect(result.entries[0].has_uncertain_type).toBe(false);
+      expect(result.entries[0].category).toBeNull();
     }
   });
 
@@ -25,8 +24,7 @@ describe('parseChatEntries', () => {
     expect(result.status).toBe('parsed');
     if (result.status === 'parsed') {
       expect(result.entries[0].amount_minor).toBe(10_000);
-      expect(result.entries[0].entry_type).toBe('expense');
-      expect(result.entries[0].has_uncertain_type).toBe(false);
+      expect(result.entries[0].category).toBe('groceries');
     }
   });
 
@@ -40,21 +38,27 @@ describe('parseChatEntries', () => {
     }
   });
 
-  it('classifies +amount as certain income', () => {
+  it('classifies +amount as income category', () => {
     const result = parseChatEntries('+2000 paycheck');
     expect(result.status).toBe('parsed');
     if (result.status === 'parsed') {
-      expect(result.entries[0].entry_type).toBe('income');
-      expect(result.entries[0].has_uncertain_type).toBe(false);
+      expect(result.entries[0].category).toBe('income');
     }
   });
 
-  it('uses text inference as uncertain income fallback when + is absent', () => {
+  it('uses text inference when dictionary match resolves income', () => {
     const result = parseChatEntries('salary 2000');
     expect(result.status).toBe('parsed');
     if (result.status === 'parsed') {
-      expect(result.entries[0].entry_type).toBe('income');
-      expect(result.entries[0].has_uncertain_type).toBe(true);
+      expect(result.entries[0].category).toBe('income');
+    }
+  });
+
+  it('treats salario dictionary matches as income', () => {
+    const result = parseChatEntries('salario 1m');
+    expect(result.status).toBe('parsed');
+    if (result.status === 'parsed') {
+      expect(result.entries[0].category).toBe('income');
     }
   });
 
@@ -62,8 +66,15 @@ describe('parseChatEntries', () => {
     const result = parseChatEntries('+1500 groceries');
     expect(result.status).toBe('parsed');
     if (result.status === 'parsed') {
-      expect(result.entries[0].entry_type).toBe('income');
-      expect(result.entries[0].has_uncertain_type).toBe(false);
+      expect(result.entries[0].category).toBe('income');
+    }
+  });
+
+  it('forces income category when explicit + is present and no dictionary match exists', () => {
+    const result = parseChatEntries('+4m pagaron');
+    expect(result.status).toBe('parsed');
+    if (result.status === 'parsed') {
+      expect(result.entries[0].category).toBe('income');
     }
   });
 
