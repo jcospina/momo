@@ -92,12 +92,17 @@ export async function updateExpenses({
     if (amountCents === null) {
       return { error: 'expense_amount_invalid' as const };
     }
+
+    const hasNote = Object.hasOwn(update, 'note');
+    const normalizedNote = hasNote ? update.note?.trim() || null : undefined;
+
     return {
       id: update.id,
       amount_cents: amountCents,
       expense_date: update.expense_date,
       category: update.category ?? null,
       merchant: update.merchant?.trim() || null,
+      note: normalizedNote,
     };
   });
 
@@ -113,6 +118,7 @@ export async function updateExpenses({
       expense_date: string;
       category: string | null;
       merchant: string | null;
+      note?: string | null;
     }>,
   });
 

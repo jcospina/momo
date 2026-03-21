@@ -67,6 +67,10 @@ function formatExpenseNote(note: string, fallback: string) {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 }
 
+function isIncomeCategory(category: ExpenseCategory | null) {
+  return category === 'income';
+}
+
 export function ExpenseDetailsDialog({
   controller,
   messageId,
@@ -130,14 +134,25 @@ export function ExpenseDetailsDialog({
       return;
     }
     setIsSaving(true);
-    const updates = expenseDrafts.map(draft => ({
-      id: draft.id,
-      amount: draft.amount,
-      expense_date: draft.expenseDate,
-      category: draft.category,
-      merchant: draft.merchant || null,
-      currency: draft.currency,
-    }));
+    const updates = expenseDrafts.map(draft => {
+      const baseUpdate = {
+        id: draft.id,
+        amount: draft.amount,
+        expense_date: draft.expenseDate,
+        category: draft.category,
+        merchant: draft.merchant || null,
+        currency: draft.currency,
+      };
+
+      if (isIncomeCategory(draft.category)) {
+        return {
+          ...baseUpdate,
+          note: draft.note || null,
+        };
+      }
+
+      return baseUpdate;
+    });
     await updateExpenses({ updates, messageId });
     setIsSaving(false);
     controller.closeDialog();
@@ -173,6 +188,8 @@ export function ExpenseDetailsDialog({
         const dateId = `expense-date-${expense.id}`;
         const categoryId = `expense-category-${expense.id}`;
         const merchantId = `expense-merchant-${expense.id}`;
+        const noteId = `expense-note-${expense.id}`;
+        const incomeFields = isIncomeCategory(expense.category);
         const selectedCategory = categoryOptions.find(
           option => option.value === expense.category,
         );
@@ -181,7 +198,10 @@ export function ExpenseDetailsDialog({
           <div key={expense.id} className={styles['expense-details__block']}>
             {visibleExpenses.length > 1 ? (
               <Typography as="h3" size="sm" weight="bold">
-                {formatExpenseNote(expense.note, `Expense ${index + 1}`)}
+                {formatExpenseNote(
+                  expense.note,
+                  `${incomeFields ? 'Income' : 'Expense'} ${index + 1}`,
+                )}
               </Typography>
             ) : null}
             <div className={styles['expense-details__dual-row']}>
@@ -252,18 +272,39 @@ export function ExpenseDetailsDialog({
                 weight="bold"
                 htmlFor={merchantId}
               >
-                Merchant
+                {incomeFields ? 'Source' : 'Merchant'}
               </Typography>
               <Input
                 id={merchantId}
                 className={styles['expense-details__control']}
                 value={expense.merchant}
-                placeholder="Add merchant"
+                placeholder={incomeFields ? 'Add source' : 'Add merchant'}
                 onChange={event =>
                   updateDraft(expense.id, { merchant: event.target.value })
                 }
               />
             </div>
+            {incomeFields ? (
+              <div
+                className={`${styles['expense-details__row']} ${styles['expense-details__row--top']}`}
+              >
+                <Typography as="label" size="sm" weight="bold" htmlFor={noteId}>
+                  Note
+                </Typography>
+                <Input
+                  id={noteId}
+                  className={styles['expense-details__control']}
+                  multiline
+                  minRows={2}
+                  maxRows={4}
+                  value={expense.note}
+                  placeholder="Add note"
+                  onChange={event =>
+                    updateDraft(expense.id, { note: event.target.value })
+                  }
+                />
+              </div>
+            ) : null}
             {index < visibleExpenses.length - 1 ? (
               <Divider thickness="thin" />
             ) : null}

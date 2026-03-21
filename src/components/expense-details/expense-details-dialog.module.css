@@ -28,12 +28,15 @@
   flex-direction: column;
   gap: var(--spacing);
   align-items: flex-start;
-  justify-content: space-between;
   width: 100%;
 }
 
 .expense-details__control {
   width: 100%;
+}
+
+.expense-details__row--top {
+  align-items: flex-start;
 }
 
 @media screen and (min-width: 768px) {
@@ -42,12 +45,19 @@
   }
 
   .expense-details__row {
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
     align-items: center;
-    gap: calc(var(--spacing) * 3);
+    column-gap: calc(var(--spacing) * 3);
+    row-gap: var(--spacing);
   }
 
   .expense-details__control {
     max-width: 400px;
+    justify-self: start;
+  }
+
+  .expense-details__row--top {
+    align-items: flex-start;
   }
 }
