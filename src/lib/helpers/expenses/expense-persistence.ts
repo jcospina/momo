@@ -15,7 +15,6 @@ type ExpenseInsertRow = {
   expense_date: string;
   note: string;
   tags: string[];
-  entry_type: ParsedEntry['entry_type'];
   category?: string;
 };
 
@@ -39,7 +38,6 @@ function buildExpenseRows(
       expense_date: expenseDate,
       note: entry.raw,
       tags: entry.tags ?? [],
-      entry_type: entry.entry_type,
     };
     if (entry.category) {
       row.category = entry.category;
@@ -60,7 +58,6 @@ export async function persistParsedExpenses(
   message: ChatMessage,
   entries: ParsedEntry[],
   status?: ChatMessageStatus,
-  hasUncertainType = false,
 ): Promise<PersistResult | null> {
   if (!entries.length) {
     return { expenseIds: [] };
@@ -87,7 +84,6 @@ export async function persistParsedExpenses(
     .update({
       status: nextStatus,
       expense_count: expenseRows.length,
-      has_uncertain_type: hasUncertainType,
     })
     .eq('id', message.id);
 

@@ -19,19 +19,15 @@ export function splitEntries(normalized: string) {
     .filter(Boolean);
 }
 
-function classifyEntryType(
+function resolveCategory(
   entry: string,
   category: ParsedEntry['category'],
-): Pick<ParsedEntry, 'entry_type' | 'has_uncertain_type'> {
+): Pick<ParsedEntry, 'category'> {
   if (EXPLICIT_INCOME_REGEX.test(entry)) {
-    return { entry_type: 'income', has_uncertain_type: false };
+    return { category: 'income' };
   }
 
-  if (category === 'income') {
-    return { entry_type: 'income', has_uncertain_type: true };
-  }
-
-  return { entry_type: 'expense', has_uncertain_type: false };
+  return { category };
 }
 
 function toMinorUnits(value: number, currency: SupportedCurrency) {
@@ -86,7 +82,7 @@ export function parseChatEntries(
 
     const { tags, category } = scoreExpenseCategory(entry);
 
-    const entryType = classifyEntryType(entry, category);
+    const entryClassification = resolveCategory(entry, category);
 
     parsed.push({
       raw: entry,
@@ -95,9 +91,7 @@ export function parseChatEntries(
       multiplier,
       currency,
       tags,
-      category,
-      entry_type: entryType.entry_type,
-      has_uncertain_type: entryType.has_uncertain_type,
+      category: entryClassification.category,
     });
   });
 

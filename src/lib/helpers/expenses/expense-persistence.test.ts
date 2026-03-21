@@ -31,8 +31,6 @@ function buildEntry(overrides: Partial<ParsedEntry> = {}): ParsedEntry {
     currency: 'USD',
     tags: ['uber'],
     category: 'transportation',
-    entry_type: 'expense',
-    has_uncertain_type: false,
     ...overrides,
   };
 }
@@ -80,14 +78,12 @@ describe('persistParsedExpenses', () => {
           note: entry.raw,
           tags: entry.tags,
           category: entry.category,
-          entry_type: entry.entry_type,
         }),
       ]),
     );
     expect(chatQuery.update).toHaveBeenCalledWith({
       status: 'processed',
       expense_count: 1,
-      has_uncertain_type: false,
     });
     expect(result?.expenseIds).toEqual(['exp-1']);
   });
@@ -115,7 +111,6 @@ describe('persistParsedExpenses', () => {
     expect(chatQuery.update).toHaveBeenCalledWith({
       status: 'processed',
       expense_count: 2,
-      has_uncertain_type: false,
     });
     expect(result?.expenseIds).toEqual(['exp-1', 'exp-2']);
   });
@@ -130,37 +125,11 @@ describe('persistParsedExpenses', () => {
       message,
       [entry],
       'needs_category',
-      false,
     );
 
     expect(chatQuery.update).toHaveBeenCalledWith({
       status: 'needs_category',
       expense_count: 1,
-      has_uncertain_type: false,
-    });
-    expect(result?.expenseIds).toEqual(['exp-1']);
-  });
-
-  it('writes has_uncertain_type when provided', async () => {
-    expensesQuery.select.mockResolvedValue({ data: [{ id: 'exp-1' }] });
-    chatQuery.eq.mockResolvedValue({ error: null });
-    const message = buildMessage();
-    const entry = buildEntry({
-      entry_type: 'income',
-      has_uncertain_type: true,
-    });
-
-    const result = await persistParsedExpenses(
-      message,
-      [entry],
-      'processed',
-      true,
-    );
-
-    expect(chatQuery.update).toHaveBeenCalledWith({
-      status: 'processed',
-      expense_count: 1,
-      has_uncertain_type: true,
     });
     expect(result?.expenseIds).toEqual(['exp-1']);
   });
@@ -193,7 +162,6 @@ describe('persistParsedExpenses', () => {
     expect(chatQuery.update).toHaveBeenNthCalledWith(1, {
       status: 'processed',
       expense_count: 1,
-      has_uncertain_type: false,
     });
     expect(chatQuery.update).toHaveBeenNthCalledWith(2, { status: 'failed' });
     expect(result).toBeNull();
