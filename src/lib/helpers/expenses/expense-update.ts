@@ -6,6 +6,7 @@ type ExpenseUpdateRow = {
   expense_date: string;
   category: string | null;
   merchant: string | null;
+  note?: string | null;
 };
 
 type UpdateExpensesParams = {
@@ -28,14 +29,26 @@ export async function updateExpenses({
 
   const results = await Promise.all(
     updates.map(async update => {
+      const payload: {
+        amount_cents: number;
+        expense_date: string;
+        category: string | null;
+        merchant: string | null;
+        note?: string | null;
+      } = {
+        amount_cents: update.amount_cents,
+        expense_date: update.expense_date,
+        category: update.category,
+        merchant: update.merchant,
+      };
+
+      if (update.note !== undefined) {
+        payload.note = update.note;
+      }
+
       const { data, error } = await supabase
         .from('expenses')
-        .update({
-          amount_cents: update.amount_cents,
-          expense_date: update.expense_date,
-          category: update.category,
-          merchant: update.merchant,
-        })
+        .update(payload)
         .eq('id', update.id)
         .select('id')
         .single();
