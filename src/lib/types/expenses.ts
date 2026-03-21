@@ -99,6 +99,7 @@ export type ExpenseUpdateInput = {
   expense_date: string;
   category: ExpenseCategory | null;
   merchant: string | null;
+  note?: string | null;
   currency: string;
 };
 
