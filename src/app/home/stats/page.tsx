@@ -6,8 +6,10 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/data/auth/server';
 import { getUserPreferences } from '@/lib/data/prefs/server';
 import {
+  getCumulativeSavingsData,
   getDailyComparisonData,
   getMonthlyHistory,
+  getMonthlyIncomeVsExpenseData,
 } from '@/lib/data/stats/server';
 
 export default async function StatsPage() {
@@ -42,6 +44,28 @@ export default async function StatsPage() {
         }),
   ]);
 
+  const [
+    personalIncomeVsExpense,
+    householdIncomeVsExpense,
+    personalCumulativeSavings,
+    householdCumulativeSavings,
+  ] = await Promise.all([
+    getMonthlyIncomeVsExpenseData({ scope: 'personal' }),
+    householdAvailable
+      ? getMonthlyIncomeVsExpenseData({ scope: 'household' })
+      : Promise.resolve({
+          data: { months: [] },
+          errorCode: 'no_household' as const,
+        }),
+    getCumulativeSavingsData({ scope: 'personal' }),
+    householdAvailable
+      ? getCumulativeSavingsData({ scope: 'household' })
+      : Promise.resolve({
+          data: { months: [] },
+          errorCode: 'no_household' as const,
+        }),
+  ]);
+
   return (
     <Flex direction="column" padding={3} gap={5}>
       <Navbar />
@@ -52,11 +76,19 @@ export default async function StatsPage() {
           months: personalMonthly.data.months,
           rows: personalMonthly.data.rows,
           daily: personalDaily.data,
+          cashflow: {
+            monthlyIncomeVsExpense: personalIncomeVsExpense.data.months,
+            cumulativeSavings: personalCumulativeSavings.data.months,
+          },
         }}
         household={{
           months: householdMonthly.data.months,
           rows: householdMonthly.data.rows,
           daily: householdDaily.data,
+          cashflow: {
+            monthlyIncomeVsExpense: householdIncomeVsExpense.data.months,
+            cumulativeSavings: householdCumulativeSavings.data.months,
+          },
         }}
       />
     </Flex>
