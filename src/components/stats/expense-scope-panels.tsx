@@ -1,6 +1,7 @@
 'use client';
 
 import { DailyComparisonLineChart } from '@components/charts/daily-comparison-line-chart';
+import { CashflowPanels } from '@components/stats/cashflow-panels';
 import { MonthlyTotalsPanel } from '@components/stats/monthly-totals-panel';
 import {
   CategoryRingPanel,
@@ -14,6 +15,10 @@ import { Typography } from '@ui/typography/typography';
 import { format, isValid, parse } from 'date-fns';
 import { useState } from 'react';
 import styles from '@/app/home/stats/stats.module.css';
+import type {
+  CumulativeSavingsPoint,
+  MonthlyCashflowPoint,
+} from '@/lib/data/stats/types';
 
 type DailyComparisonData = {
   currentMonth: string;
@@ -26,6 +31,10 @@ type ScopeData = {
   months: string[];
   rows: MonthlyByCategoryUserRow[];
   daily: DailyComparisonData;
+  cashflow: {
+    monthlyIncomeVsExpense: MonthlyCashflowPoint[];
+    cumulativeSavings: CumulativeSavingsPoint[];
+  };
 };
 
 type ExpenseScopePanelsProps = {
@@ -61,6 +70,11 @@ function ScopePanels({
 
   return (
     <>
+      <CashflowPanels
+        monthlyIncomeVsExpense={data.cashflow.monthlyIncomeVsExpense}
+        cumulativeSavings={data.cashflow.cumulativeSavings}
+        currency={currency}
+      />
       <RingChartsPanel
         months={data.months}
         breakdownRows={data.rows}
@@ -107,6 +121,11 @@ function PersonalScopePanels({ data, currency }: PersonalScopePanelsProps) {
 
   return (
     <>
+      <CashflowPanels
+        monthlyIncomeVsExpense={data.cashflow.monthlyIncomeVsExpense}
+        cumulativeSavings={data.cashflow.cumulativeSavings}
+        currency={currency}
+      />
       <div className={styles['stats__personal-row']}>
         <CategoryRingPanel
           months={data.months}
