@@ -19,6 +19,7 @@
     "db:new": "bash scripts/db-new.sh",
     "db:reset": "supabase db reset --local",
     "db:seed": "pnpm db:reset && NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 node scripts/db-seed.mjs",
+    "db:seed:sample": "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 node scripts/db-seed-sample-data.mjs",
     "db:lint": "supabase db lint --local",
     "db:push:dry-run": "bash scripts/db-push-dry-run.sh",
     "db:push": "bash scripts/db-push.sh",
