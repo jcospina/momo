@@ -62,6 +62,34 @@ function formatCompactCurrency(amount: number, currency: string) {
   return `${formatted}${suffix}`;
 }
 
+type YAxisBounds = {
+  min: number;
+  max: number;
+};
+
+function buildYAxisBounds(values: number[]): YAxisBounds {
+  if (!values.length) {
+    return { min: -1, max: 1 };
+  }
+
+  const baseMin = Math.min(0, ...values);
+  const baseMax = Math.max(0, ...values);
+
+  if (baseMin === baseMax) {
+    const padding = Math.max(Math.abs(baseMin) * 0.1, 1);
+    return {
+      min: baseMin - padding,
+      max: baseMax + padding,
+    };
+  }
+
+  const padding = Math.max((baseMax - baseMin) * 0.05, 1);
+  return {
+    min: baseMin - padding,
+    max: baseMax + padding,
+  };
+}
+
 export function CumulativeSavingsLineChart({
   months,
   currency,
@@ -69,8 +97,18 @@ export function CumulativeSavingsLineChart({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<EChartsType | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const useSingleMonthSeries = months.length === 1;
 
-  const monthKeys = useMemo(() => months.map(point => point.month), [months]);
+  const chartMonths = useMemo(() => {
+    if (!useSingleMonthSeries) return months;
+    const point = months[0];
+    return point ? [point, point] : [];
+  }, [months, useSingleMonthSeries]);
+
+  const monthKeys = useMemo(
+    () => chartMonths.map(point => point.month),
+    [chartMonths],
+  );
 
   const monthFormatter = useMemo(() => {
     const widthPerLabel =
@@ -103,7 +141,8 @@ export function CumulativeSavingsLineChart({
   );
 
   const options = useMemo<EChartsOption>(() => {
-    const cumulativeValues = months.map(point => point.cumulativeCents);
+    const cumulativeValues = chartMonths.map(point => point.cumulativeCents);
+    const yAxisBounds = buildYAxisBounds(cumulativeValues);
 
     return {
       tooltip: {
@@ -114,7 +153,7 @@ export function CumulativeSavingsLineChart({
           const index = Number(items[0]?.dataIndex);
           if (!Number.isFinite(index) || index < 0) return '';
 
-          const point = months[index];
+          const point = chartMonths[index];
           if (!point) return '';
           const parsedMonth = parseMonthKey(point.month);
           const monthLabel = parsedMonth
@@ -150,7 +189,8 @@ export function CumulativeSavingsLineChart({
         boundaryGap: false,
         axisLabel: {
           interval: 0,
-          formatter: (value: string) => {
+          formatter: (value: string, index: number) => {
+            if (useSingleMonthSeries && index > 0) return '';
             const parsed = parseMonthKey(value);
             if (!parsed) return value;
             return monthFormatter.format(
@@ -161,6 +201,8 @@ export function CumulativeSavingsLineChart({
       },
       yAxis: {
         type: 'value',
+        min: yAxisBounds.min,
+        max: yAxisBounds.max,
         axisLabel: {
           formatter: (value: number) =>
             formatCompactCurrency(toDisplayAmount(value, currency), currency),
@@ -172,7 +214,8 @@ export function CumulativeSavingsLineChart({
           type: 'line',
           data: cumulativeValues,
           smooth: true,
-          showSymbol: false,
+          showSymbol: useSingleMonthSeries,
+          symbolSize: useSingleMonthSeries ? 7 : 4,
           areaStyle: {
             opacity: 0.14,
           },
@@ -183,12 +226,13 @@ export function CumulativeSavingsLineChart({
       ],
     };
   }, [
+    chartMonths,
     currency,
     formatter,
     monthFormatter,
     monthKeys,
-    months,
     tooltipMonthFormatter,
+    useSingleMonthSeries,
   ]);
 
   useEffect(() => {
