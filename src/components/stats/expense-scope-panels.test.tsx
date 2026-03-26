@@ -104,6 +104,12 @@ describe('ExpenseScopePanels', () => {
     );
 
     expect(screen.getByTestId('scope-toggle')).toBeInTheDocument();
+    const personalToggle = screen.getByRole('button', { name: 'Personal' });
+    const householdToggle = screen.getByRole('button', { name: 'Household' });
+    expect(personalToggle).toBeInTheDocument();
+    expect(householdToggle).toBeInTheDocument();
+    expect(personalToggle).toHaveAttribute('data-selected', 'false');
+    expect(householdToggle).toHaveAttribute('data-selected', 'true');
     expect(screen.getByTestId('cashflow-panels')).toBeInTheDocument();
     expect(screen.getByTestId('ring-charts-panel')).toHaveTextContent(
       'household',
@@ -111,13 +117,17 @@ describe('ExpenseScopePanels', () => {
     expect(screen.getByTestId('monthly-totals-panel')).toBeInTheDocument();
     expect(screen.getByTestId('daily-comparison-chart')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Personal' }));
+    fireEvent.click(personalToggle);
+    expect(personalToggle).toHaveAttribute('data-selected', 'true');
+    expect(householdToggle).toHaveAttribute('data-selected', 'false');
     expect(screen.queryByTestId('ring-charts-panel')).not.toBeInTheDocument();
     expect(screen.getByTestId('category-ring-panel')).toBeInTheDocument();
     expect(screen.getByTestId('monthly-totals-panel')).toBeInTheDocument();
     expect(screen.getByTestId('daily-comparison-chart')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Household' }));
+    fireEvent.click(householdToggle);
+    expect(personalToggle).toHaveAttribute('data-selected', 'false');
+    expect(householdToggle).toHaveAttribute('data-selected', 'true');
     expect(screen.getByTestId('ring-charts-panel')).toHaveTextContent(
       'household',
     );

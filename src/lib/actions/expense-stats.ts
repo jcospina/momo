@@ -3,9 +3,14 @@
 import {
   fetchAllMonthlyByCategoryUser,
   fetchAllMonthlyCashflowNet,
+  fetchAllPersonalRollupMonthlyByCategoryUser,
+  fetchAllPersonalRollupMonthlyCashflowNet,
   fetchDailyTotalsByMonth,
   fetchMonthlyBoundsByCategoryUser,
   fetchMonthlyByCategoryUser,
+  fetchPersonalRollupDailyTotalsByMonth,
+  fetchPersonalRollupMonthlyBoundsByCategoryUser,
+  fetchPersonalRollupMonthlyByCategoryUser,
 } from '@helpers/expenses/expense-stats';
 import { fetchHouseholdMembership } from '@helpers/households';
 import { createSupabaseServerClient } from '@lib-supabase/server';
@@ -284,10 +289,16 @@ async function getMonthlyCashflowHistory({
     return { data: { months: [] }, errorCode: resolved.errorCode };
   }
 
-  const rows = await fetchAllMonthlyCashflowNet({
-    supabase,
-    householdId: resolved.householdId,
-  });
+  const rows =
+    scope === 'personal'
+      ? await fetchAllPersonalRollupMonthlyCashflowNet({
+          supabase,
+          userId: user.id,
+        })
+      : await fetchAllMonthlyCashflowNet({
+          supabase,
+          householdId: resolved.householdId,
+        });
 
   const monthsFromRows = rows
     .map(row => row.month)
@@ -346,11 +357,18 @@ export async function getRingChartData({
     };
   }
 
-  const rows = await fetchMonthlyByCategoryUser({
-    supabase,
-    householdId: resolved.householdId,
-    months: [targetMonth],
-  });
+  const rows =
+    scope === 'personal'
+      ? await fetchPersonalRollupMonthlyByCategoryUser({
+          supabase,
+          userId: user.id,
+          months: [targetMonth],
+        })
+      : await fetchMonthlyByCategoryUser({
+          supabase,
+          householdId: resolved.householdId,
+          months: [targetMonth],
+        });
 
   const categoryTotals = new Map<string, number>();
   rows.forEach(row => {
@@ -403,11 +421,18 @@ export async function getMonthlyCategoryRange({
     return { data: { months: [] }, errorCode: resolved.errorCode };
   }
 
-  const rows = await fetchMonthlyByCategoryUser({
-    supabase,
-    householdId: resolved.householdId,
-    months: range,
-  });
+  const rows =
+    scope === 'personal'
+      ? await fetchPersonalRollupMonthlyByCategoryUser({
+          supabase,
+          userId: user.id,
+          months: range,
+        })
+      : await fetchMonthlyByCategoryUser({
+          supabase,
+          householdId: resolved.householdId,
+          months: range,
+        });
 
   const categoryRows = rows.map(row => ({
     month: row.month,
@@ -452,11 +477,18 @@ export async function getMonthlyCategoryUserRange({
     return { data: { months: [], rows: [] }, errorCode: resolved.errorCode };
   }
 
-  const rows = await fetchMonthlyByCategoryUser({
-    supabase,
-    householdId: resolved.householdId,
-    months: range,
-  });
+  const rows =
+    scope === 'personal'
+      ? await fetchPersonalRollupMonthlyByCategoryUser({
+          supabase,
+          userId: user.id,
+          months: range,
+        })
+      : await fetchMonthlyByCategoryUser({
+          supabase,
+          householdId: resolved.householdId,
+          months: range,
+        });
 
   return { data: { months: range, rows } };
 }
@@ -492,11 +524,18 @@ export async function getMonthlyWindow({
     return { data: { months: [], rows: [] }, errorCode: resolved.errorCode };
   }
 
-  const rows = await fetchMonthlyByCategoryUser({
-    supabase,
-    householdId: resolved.householdId,
-    months: range,
-  });
+  const rows =
+    scope === 'personal'
+      ? await fetchPersonalRollupMonthlyByCategoryUser({
+          supabase,
+          userId: user.id,
+          months: range,
+        })
+      : await fetchMonthlyByCategoryUser({
+          supabase,
+          householdId: resolved.householdId,
+          months: range,
+        });
 
   return { data: { months: range, rows } };
 }
@@ -526,10 +565,16 @@ export async function getMonthlyHistory({
     return { data: { months: [], rows: [] }, errorCode: resolved.errorCode };
   }
 
-  const rows = await fetchAllMonthlyByCategoryUser({
-    supabase,
-    householdId: resolved.householdId,
-  });
+  const rows =
+    scope === 'personal'
+      ? await fetchAllPersonalRollupMonthlyByCategoryUser({
+          supabase,
+          userId: user.id,
+        })
+      : await fetchAllMonthlyByCategoryUser({
+          supabase,
+          householdId: resolved.householdId,
+        });
 
   const monthsFromRows = rows
     .map(row => row.month)
@@ -582,10 +627,16 @@ export async function getMonthlyDataBounds({
     };
   }
 
-  const bounds = await fetchMonthlyBoundsByCategoryUser({
-    supabase,
-    householdId: resolved.householdId,
-  });
+  const bounds =
+    scope === 'personal'
+      ? await fetchPersonalRollupMonthlyBoundsByCategoryUser({
+          supabase,
+          userId: user.id,
+        })
+      : await fetchMonthlyBoundsByCategoryUser({
+          supabase,
+          householdId: resolved.householdId,
+        });
 
   return {
     data: {
@@ -628,11 +679,18 @@ export async function getMonthlyTotalsRange({
     return { data: { months: [] }, errorCode: resolved.errorCode };
   }
 
-  const rows = await fetchMonthlyByCategoryUser({
-    supabase,
-    householdId: resolved.householdId,
-    months: range,
-  });
+  const rows =
+    scope === 'personal'
+      ? await fetchPersonalRollupMonthlyByCategoryUser({
+          supabase,
+          userId: user.id,
+          months: range,
+        })
+      : await fetchMonthlyByCategoryUser({
+          supabase,
+          householdId: resolved.householdId,
+          months: range,
+        });
 
   const totalsMap = new Map<string, number>();
   rows.forEach(row => {
@@ -707,11 +765,18 @@ export async function getDailyComparisonData({
     };
   }
 
-  const rows = await fetchDailyTotalsByMonth({
-    supabase,
-    householdId: resolved.householdId,
-    months: [normalizedCurrent, normalizedPrevious],
-  });
+  const rows =
+    scope === 'personal'
+      ? await fetchPersonalRollupDailyTotalsByMonth({
+          supabase,
+          userId: user.id,
+          months: [normalizedCurrent, normalizedPrevious],
+        })
+      : await fetchDailyTotalsByMonth({
+          supabase,
+          householdId: resolved.householdId,
+          months: [normalizedCurrent, normalizedPrevious],
+        });
 
   const currentRows = rows.filter(row => row.month === normalizedCurrent);
   const previousRows = rows.filter(row => row.month === normalizedPrevious);
@@ -786,11 +851,18 @@ export async function getUserTotalsForMonth({
     };
   }
 
-  const rows = await fetchMonthlyByCategoryUser({
-    supabase,
-    householdId: resolved.householdId,
-    months: [targetMonth],
-  });
+  const rows =
+    scope === 'personal'
+      ? await fetchPersonalRollupMonthlyByCategoryUser({
+          supabase,
+          userId: user.id,
+          months: [targetMonth],
+        })
+      : await fetchMonthlyByCategoryUser({
+          supabase,
+          householdId: resolved.householdId,
+          months: [targetMonth],
+        });
 
   const userTotals = new Map<string, number>();
   rows.forEach(row => {
@@ -842,11 +914,18 @@ export async function getMonthlyCategoryUserBreakdown({
     };
   }
 
-  const rows = await fetchMonthlyByCategoryUser({
-    supabase,
-    householdId: resolved.householdId,
-    months: [targetMonth],
-  });
+  const rows =
+    scope === 'personal'
+      ? await fetchPersonalRollupMonthlyByCategoryUser({
+          supabase,
+          userId: user.id,
+          months: [targetMonth],
+        })
+      : await fetchMonthlyByCategoryUser({
+          supabase,
+          householdId: resolved.householdId,
+          months: [targetMonth],
+        });
 
   return { data: { month: targetMonth, rows } };
 }

@@ -212,4 +212,24 @@ describe('CashflowPanels', () => {
 
     expect(screen.getAllByText('No data yet')).toHaveLength(2);
   });
+
+  it('does not show empty overlays when cumulative savings values are negative', () => {
+    const negativeSavings = [
+      { month: '2026-05', netCents: -120_000, cumulativeCents: -120_000 },
+      { month: '2026-06', netCents: -80_000, cumulativeCents: -200_000 },
+    ];
+
+    render(
+      <CashflowPanels
+        monthlyIncomeVsExpense={buildMonthlyIncomeVsExpense()}
+        cumulativeSavings={negativeSavings}
+        currency="USD"
+      />,
+    );
+
+    expect(screen.queryByText('No data yet')).not.toBeInTheDocument();
+    expect(screen.getByTestId('cumulative-savings-chart')).toHaveTextContent(
+      '2026-05,2026-06',
+    );
+  });
 });
