@@ -2,8 +2,8 @@
 
 import { MonthlyTotalsBarChart } from '@components/charts/monthly-totals-bar-chart';
 import { STATS_RANGE_OPTIONS_NO_1M } from '@constants/stats/range-options';
-import { buildMonthlyCategoryTotals } from '@helpers/expenses/expense-stats.aggregations';
-import { formatMonthRange } from '@helpers/expenses/expense-stats.months';
+import { buildMonthlyCategoryTotals } from '@helpers/expenses-stats/aggregations';
+import { formatMonthRange } from '@helpers/expenses-stats/months';
 import { useMonthlyWindows } from '@hooks/use-monthly-windows';
 import type { MonthlyByCategoryUserRow } from '@lib-types/expense-stats';
 import { Flex } from '@ui/flex/flex';

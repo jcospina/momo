@@ -3,7 +3,7 @@
 import { CumulativeSavingsLineChart } from '@components/charts/cumulative-savings-line-chart';
 import { MonthlyIncomeVsExpenseBarChart } from '@components/charts/monthly-income-vs-expense-bar-chart';
 import { STATS_RANGE_OPTIONS } from '@constants/stats/range-options';
-import { formatMonthRange } from '@helpers/expenses/expense-stats.months';
+import { formatMonthRange } from '@helpers/expenses-stats/months';
 import { useMonthlyWindows } from '@hooks/use-monthly-windows';
 import { Flex } from '@ui/flex/flex';
 import { LeftIcon } from '@ui/icons/left';

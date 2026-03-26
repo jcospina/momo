@@ -1,14 +1,14 @@
 import { buildMonthList } from '@/mocks/expense-stats-samples';
 import {
-  fetchAllMonthlyByCategoryUser,
-  fetchMonthlyBoundsByCategoryUser,
-} from './expense-stats';
-import {
   buildCategoryUserWindowData,
   buildMonthlyCategoryTotals,
   formatCategoryLabel,
   toFirstName,
-} from './expense-stats.aggregations';
+} from './aggregations';
+import {
+  fetchAllMonthlyByCategoryUser,
+  fetchMonthlyBoundsByCategoryUser,
+} from './index';
 
 function createBoundsSupabase(months: string[]) {
   const builder = {
