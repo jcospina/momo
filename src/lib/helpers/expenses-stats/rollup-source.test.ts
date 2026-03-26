@@ -4,7 +4,7 @@ import {
   fetchPersonalRollupDailyTotalsByMonth,
   fetchPersonalRollupMonthlyBoundsByCategoryUser,
   fetchPersonalRollupMonthlyByCategoryUser,
-} from './expense-stats';
+} from './index';
 
 type PersonalRollupExpenseRow = {
   user_id: string;

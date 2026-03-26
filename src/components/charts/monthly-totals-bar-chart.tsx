@@ -1,6 +1,6 @@
 'use client';
 
-import { formatCategoryLabel } from '@helpers/expenses/expense-stats.aggregations';
+import { formatCategoryLabel } from '@helpers/expenses-stats/aggregations';
 import type { EChartsOption } from 'echarts';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { type EChartsType, echarts } from './echarts-init';

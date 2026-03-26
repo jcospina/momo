@@ -3,8 +3,8 @@
 import { CategoryRingChart } from '@components/charts/category-ring-chart';
 import { UserTotalsRingChart } from '@components/charts/user-totals-ring-chart';
 import { STATS_RANGE_OPTIONS } from '@constants/stats/range-options';
-import { buildCategoryUserWindowData } from '@helpers/expenses/expense-stats.aggregations';
-import { formatMonthRange } from '@helpers/expenses/expense-stats.months';
+import { buildCategoryUserWindowData } from '@helpers/expenses-stats/aggregations';
+import { formatMonthRange } from '@helpers/expenses-stats/months';
 import { useMonthlyWindows } from '@hooks/use-monthly-windows';
 import type { MonthlyByCategoryUserRow } from '@lib-types/expense-stats';
 import { Flex } from '@ui/flex/flex';

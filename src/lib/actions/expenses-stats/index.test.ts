@@ -8,7 +8,7 @@ import {
   getMonthlyHistory,
   getMonthlyIncomeVsExpenseData,
   getMonthlyWindow,
-} from './expense-stats';
+} from './index';
 
 jest.mock('@lib-supabase/server', () => ({
   createSupabaseServerClient: jest.fn(),
