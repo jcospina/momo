@@ -12,7 +12,7 @@ export type MonthlyTotalsRow = {
 };
 
 export type MonthlyByCategoryUserRow = {
-  household_id: string;
+  household_id: string | null;
   month: string;
   category: string;
   user_label: string;

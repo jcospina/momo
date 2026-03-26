@@ -9,10 +9,10 @@ const NON_EXISTING_ROW_CODE = 'PGRST116';
 const USERS_PAGE_SIZE = 200;
 
 const defaults = {
-  ownerEmail: 'dev.owner@momo.local',
-  ownerName: 'Dev Owner',
-  memberEmail: 'dev.member@momo.local',
-  memberName: 'Dev Member',
+  ownerEmail: 'owner@momo.local',
+  ownerName: 'Owner',
+  memberEmail: 'member@momo.local',
+  memberName: 'Member',
   householdName: 'Dev Household',
 };
 

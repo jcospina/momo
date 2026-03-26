@@ -195,6 +195,83 @@ function createCashflowSupabase(
   };
 }
 
+function createPersonalRollupCashflowSupabase(
+  rows: Array<{
+    user_id: string;
+    expense_date: string;
+    category: string | null;
+    amount_cents: number;
+  }>,
+) {
+  const tracker = {
+    fromCalls: [] as string[],
+    eqCalls: [] as Array<{ column: string; value: string }>,
+    neqCalls: [] as Array<{ column: string; value: string }>,
+    isCalls: [] as Array<{ column: string; value: null }>,
+  };
+
+  return {
+    tracker,
+    supabase: {
+      auth: {
+        getUser: () => Promise.resolve({ data: { user: { id: 'user-1' } } }),
+      },
+      from(table: string) {
+        tracker.fromCalls.push(table);
+
+        let selectedUserId: string | null = null;
+        let excludedCategory: string | null = null;
+
+        return {
+          select() {
+            return this;
+          },
+          in() {
+            return this;
+          },
+          eq(column: string, value: string) {
+            if (column === 'user_id') {
+              selectedUserId = value;
+            }
+            tracker.eqCalls.push({ column, value });
+            return this;
+          },
+          neq(column: string, value: string) {
+            if (column === 'category') {
+              excludedCategory = value;
+            }
+            tracker.neqCalls.push({ column, value });
+            return this;
+          },
+          is(column: string, value: null) {
+            tracker.isCalls.push({ column, value });
+            return this;
+          },
+          order() {
+            const filtered = rows
+              .filter(row => !selectedUserId || row.user_id === selectedUserId)
+              .filter(row =>
+                excludedCategory === null
+                  ? true
+                  : row.category !== excludedCategory,
+              )
+              .sort((left, right) =>
+                left.expense_date.localeCompare(right.expense_date),
+              )
+              .map(({ expense_date, category, amount_cents }) => ({
+                expense_date,
+                category,
+                amount_cents,
+              }));
+
+            return Promise.resolve({ data: filtered, error: null });
+          },
+        };
+      },
+    },
+  };
+}
+
 describe('expense-stats actions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -299,27 +376,36 @@ describe('expense-stats actions', () => {
     });
 
     it('returns monthly income-vs-expense data for personal scope with zero-filled months', async () => {
-      const { supabase, tracker } = createCashflowSupabase([
+      const { supabase, tracker } = createPersonalRollupCashflowSupabase([
         {
-          household_id: null,
-          month: '2024-04',
-          income_cents: 150000,
-          expense_cents: 90000,
-          net_cents: 60000,
+          user_id: 'user-1',
+          expense_date: '2024-04-02',
+          category: 'income',
+          amount_cents: 150000,
         },
         {
-          household_id: null,
-          month: '2024-06',
-          income_cents: 120000,
-          expense_cents: 100000,
-          net_cents: 20000,
+          user_id: 'user-1',
+          expense_date: '2024-04-10',
+          category: 'rent',
+          amount_cents: 90000,
         },
         {
-          household_id: 'household-1',
-          month: '2024-05',
-          income_cents: 999999,
-          expense_cents: 111111,
-          net_cents: 888888,
+          user_id: 'user-1',
+          expense_date: '2024-06-03',
+          category: 'income',
+          amount_cents: 120000,
+        },
+        {
+          user_id: 'user-1',
+          expense_date: '2024-06-07',
+          category: 'groceries',
+          amount_cents: 100000,
+        },
+        {
+          user_id: 'user-2',
+          expense_date: '2024-05-01',
+          category: 'income',
+          amount_cents: 999999,
         },
       ]);
 
@@ -329,10 +415,13 @@ describe('expense-stats actions', () => {
         scope: 'personal',
       });
 
-      expect(tracker.fromCalls).toContain('monthly_cashflow_net');
-      expect(tracker.isCalls).toEqual([
-        { column: 'household_id', value: null },
-      ]);
+      expect(tracker.fromCalls).toContain('expenses');
+      expect(tracker.fromCalls).not.toContain('monthly_cashflow_net');
+      expect(tracker.eqCalls).toContainEqual({
+        column: 'user_id',
+        value: 'user-1',
+      });
+      expect(tracker.isCalls).toHaveLength(0);
       expect(result.errorCode).toBeUndefined();
       expect(result.data.months).toEqual([
         {

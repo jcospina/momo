@@ -358,6 +358,7 @@ CREATE OR REPLACE VIEW "public"."daily_totals_by_month" WITH ("security_invoker"
     "sum"("amount_cents") AS "total_cents",
     "sum"("sum"("amount_cents")) OVER (PARTITION BY "household_id", ("to_char"(("expense_date")::timestamp with time zone, 'YYYY-MM'::"text")) ORDER BY ((EXTRACT(day FROM "expense_date"))::integer)) AS "cumulative_cents"
    FROM "public"."expenses"
+  WHERE ("category" IS DISTINCT FROM 'income'::"text")
   GROUP BY "household_id", ("to_char"(("expense_date")::timestamp with time zone, 'YYYY-MM'::"text")), ((EXTRACT(day FROM "expense_date"))::integer);
 
 
@@ -391,6 +392,7 @@ CREATE OR REPLACE VIEW "public"."monthly_by_category" WITH ("security_invoker"='
     "category",
     "sum"("amount_cents") AS "total_cents"
    FROM "public"."expenses"
+  WHERE ("category" IS DISTINCT FROM 'income'::"text")
   GROUP BY "household_id", ("to_char"("date_trunc"('month'::"text", ("expense_date")::timestamp with time zone), 'YYYY-MM'::"text")), "category";
 
 
@@ -404,11 +406,52 @@ CREATE OR REPLACE VIEW "public"."monthly_by_category_user" WITH ("security_invok
     "public"."get_user_label"("user_id") AS "user_label",
     "sum"("amount_cents") AS "total_cents"
    FROM "public"."expenses" "e"
-  WHERE ((("household_id" IS NOT NULL) AND "public"."is_member_definer_uid"("household_id", ( SELECT "auth"."uid"() AS "uid"))) OR (("household_id" IS NULL) AND ("user_id" = ( SELECT "auth"."uid"() AS "uid"))))
+  WHERE (((("household_id" IS NOT NULL) AND "public"."is_member_definer_uid"("household_id", ( SELECT "auth"."uid"() AS "uid"))) OR (("household_id" IS NULL) AND ("user_id" = ( SELECT "auth"."uid"() AS "uid")))) AND ("category" IS DISTINCT FROM 'income'::"text"))
   GROUP BY "household_id", ("to_char"("date_trunc"('month'::"text", ("expense_date")::timestamp with time zone), 'YYYY-MM'::"text")), COALESCE("category", 'uncategorized'::"text"), ("public"."get_user_label"("user_id"));
 
 
 ALTER VIEW "public"."monthly_by_category_user" OWNER TO "postgres";
+
+
+CREATE OR REPLACE VIEW "public"."monthly_cashflow_expense" WITH ("security_invoker"='true') AS
+ SELECT "household_id",
+    "to_char"("date_trunc"('month'::"text", ("expense_date")::timestamp with time zone), 'YYYY-MM'::"text") AS "month",
+    "sum"("amount_cents") AS "total_cents"
+   FROM "public"."expenses"
+  WHERE ("category" IS DISTINCT FROM 'income'::"text")
+  GROUP BY "household_id", ("to_char"("date_trunc"('month'::"text", ("expense_date")::timestamp with time zone), 'YYYY-MM'::"text"));
+
+
+ALTER VIEW "public"."monthly_cashflow_expense" OWNER TO "postgres";
+
+
+CREATE OR REPLACE VIEW "public"."monthly_cashflow_income" WITH ("security_invoker"='true') AS
+ SELECT "household_id",
+    "to_char"("date_trunc"('month'::"text", ("expense_date")::timestamp with time zone), 'YYYY-MM'::"text") AS "month",
+    "sum"("amount_cents") AS "total_cents"
+   FROM "public"."expenses"
+  WHERE ("category" = 'income'::"text")
+  GROUP BY "household_id", ("to_char"("date_trunc"('month'::"text", ("expense_date")::timestamp with time zone), 'YYYY-MM'::"text"));
+
+
+ALTER VIEW "public"."monthly_cashflow_income" OWNER TO "postgres";
+
+
+CREATE OR REPLACE VIEW "public"."monthly_cashflow_net" WITH ("security_invoker"='true') AS
+ SELECT "household_id",
+    "to_char"("date_trunc"('month'::"text", ("expense_date")::timestamp with time zone), 'YYYY-MM'::"text") AS "month",
+    COALESCE("sum"("amount_cents") FILTER (WHERE ("category" = 'income'::"text")), ((0)::bigint)::numeric) AS "income_cents",
+    COALESCE("sum"("amount_cents") FILTER (WHERE ("category" IS DISTINCT FROM 'income'::"text")), ((0)::bigint)::numeric) AS "expense_cents",
+    COALESCE("sum"(
+        CASE
+            WHEN ("category" = 'income'::"text") THEN "amount_cents"
+            ELSE (- "amount_cents")
+        END), ((0)::bigint)::numeric) AS "net_cents"
+   FROM "public"."expenses"
+  GROUP BY "household_id", ("to_char"("date_trunc"('month'::"text", ("expense_date")::timestamp with time zone), 'YYYY-MM'::"text"));
+
+
+ALTER VIEW "public"."monthly_cashflow_net" OWNER TO "postgres";
 
 
 CREATE OR REPLACE VIEW "public"."monthly_totals" WITH ("security_invoker"='true') AS
@@ -416,6 +459,7 @@ CREATE OR REPLACE VIEW "public"."monthly_totals" WITH ("security_invoker"='true'
     "to_char"("date_trunc"('month'::"text", ("expense_date")::timestamp with time zone), 'YYYY-MM'::"text") AS "month",
     "sum"("amount_cents") AS "total_cents"
    FROM "public"."expenses"
+  WHERE ("category" IS DISTINCT FROM 'income'::"text")
   GROUP BY "household_id", ("to_char"("date_trunc"('month'::"text", ("expense_date")::timestamp with time zone), 'YYYY-MM'::"text"));
 
 
@@ -428,7 +472,7 @@ CREATE OR REPLACE VIEW "public"."monthly_totals_by_user" WITH ("security_invoker
     "to_char"("date_trunc"('month'::"text", ("expense_date")::timestamp with time zone), 'YYYY-MM'::"text") AS "month",
     "sum"("amount_cents") AS "total_cents"
    FROM "public"."expenses" "e"
-  WHERE (("household_id" IS NOT NULL) AND "public"."is_member_definer_uid"("household_id", ( SELECT "auth"."uid"() AS "uid")))
+  WHERE (("household_id" IS NOT NULL) AND "public"."is_member_definer_uid"("household_id", ( SELECT "auth"."uid"() AS "uid")) AND ("category" IS DISTINCT FROM 'income'::"text"))
   GROUP BY "household_id", ("public"."get_user_label"("user_id")), ("to_char"("date_trunc"('month'::"text", ("expense_date")::timestamp with time zone), 'YYYY-MM'::"text"));
 
 
@@ -520,6 +564,14 @@ CREATE INDEX "idx_chat_messages_user_created" ON "public"."chat_messages" USING 
 
 
 CREATE INDEX "idx_expenses_chat_message_id" ON "public"."expenses" USING "btree" ("chat_message_id");
+
+
+
+CREATE INDEX "idx_expenses_household_category_expense_date" ON "public"."expenses" USING "btree" ("household_id", "category", "expense_date") WHERE ("household_id" IS NOT NULL);
+
+
+
+CREATE INDEX "idx_expenses_personal_user_category_expense_date" ON "public"."expenses" USING "btree" ("user_id", "category", "expense_date") WHERE ("household_id" IS NULL);
 
 
 
@@ -797,6 +849,24 @@ GRANT ALL ON TABLE "public"."monthly_by_category" TO "service_role";
 GRANT ALL ON TABLE "public"."monthly_by_category_user" TO "anon";
 GRANT ALL ON TABLE "public"."monthly_by_category_user" TO "authenticated";
 GRANT ALL ON TABLE "public"."monthly_by_category_user" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."monthly_cashflow_expense" TO "anon";
+GRANT ALL ON TABLE "public"."monthly_cashflow_expense" TO "authenticated";
+GRANT ALL ON TABLE "public"."monthly_cashflow_expense" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."monthly_cashflow_income" TO "anon";
+GRANT ALL ON TABLE "public"."monthly_cashflow_income" TO "authenticated";
+GRANT ALL ON TABLE "public"."monthly_cashflow_income" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."monthly_cashflow_net" TO "anon";
+GRANT ALL ON TABLE "public"."monthly_cashflow_net" TO "authenticated";
+GRANT ALL ON TABLE "public"."monthly_cashflow_net" TO "service_role";
 
 
 
