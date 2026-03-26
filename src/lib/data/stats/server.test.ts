@@ -11,7 +11,7 @@ import {
   getMonthlyWindow as getMonthlyWindowAction,
   getRingChartData as getRingChartDataAction,
   getUserTotalsForMonth as getUserTotalsForMonthAction,
-} from '@actions/expense-stats';
+} from '@actions/expenses-stats';
 
 import {
   getCumulativeSavingsData,
@@ -21,7 +21,7 @@ import {
   getRingChartData,
 } from './server';
 
-jest.mock('@actions/expense-stats', () => ({
+jest.mock('@actions/expenses-stats', () => ({
   getMonthlyIncomeVsExpenseData: jest.fn(),
   getCumulativeSavingsData: jest.fn(),
   getRingChartData: jest.fn(),

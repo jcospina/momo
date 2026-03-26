@@ -1,4 +1,4 @@
-import { buildMonthlyWindows } from '@helpers/expenses/expense-stats.months';
+import { buildMonthlyWindows } from '@helpers/expenses-stats/months';
 import { useCallback, useMemo, useState } from 'react';
 
 type UseMonthlyWindowsOptions = {

@@ -8,7 +8,7 @@ import {
   createMonthlyWindowCache,
   formatMonthLabel,
   formatMonthRange,
-} from './expense-stats.months';
+} from './months';
 
 describe('expense-stats months helpers', () => {
   describe('month formatting', () => {

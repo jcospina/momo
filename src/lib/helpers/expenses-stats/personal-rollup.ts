@@ -4,22 +4,15 @@ import type {
   MonthlyCashflowNetRow,
 } from '@lib-types/expense-stats';
 import type { SupabaseClient } from '@supabase/supabase-js';
-
-type ViewFetchParams = {
-  supabase: SupabaseClient;
-  householdId: string | null;
-  months: string[];
-};
-
-type BoundsFetchParams = {
-  supabase: SupabaseClient;
-  householdId: string | null;
-};
-
-type AllFetchParams = {
-  supabase: SupabaseClient;
-  householdId: string | null;
-};
+import {
+  buildMonthDateBounds,
+  type ExpenseRollupRow,
+  normalizeCategory,
+  sortMonths,
+  toCents,
+  toDay,
+  toMonth,
+} from './shared';
 
 type PersonalRollupFetchParams = {
   supabase: SupabaseClient;
@@ -31,74 +24,6 @@ type PersonalRollupAllFetchParams = {
   supabase: SupabaseClient;
   userId: string;
 };
-
-type ExpenseRollupRow = {
-  expense_date: string;
-  category: string | null;
-  amount_cents: number | string | null;
-};
-
-function toCents(value: number | string | null | undefined): number {
-  const numeric = Number(value);
-  return Number.isFinite(numeric) ? numeric : 0;
-}
-
-function toMonth(expenseDate: string): string | null {
-  if (!expenseDate || expenseDate.length < 7) {
-    return null;
-  }
-  const month = expenseDate.slice(0, 7);
-  return /^\d{4}-\d{2}$/.test(month) ? month : null;
-}
-
-function toDay(expenseDate: string): number | null {
-  const parts = expenseDate.split('-');
-  if (parts.length !== 3) {
-    return null;
-  }
-  const day = Number(parts[2]);
-  return Number.isInteger(day) && day > 0 ? day : null;
-}
-
-function normalizeCategory(category: string | null): string {
-  const trimmed = category?.trim();
-  return trimmed && trimmed.length > 0 ? trimmed : 'uncategorized';
-}
-
-function sortMonths(months: string[]): string[] {
-  return [...months].sort((left, right) => left.localeCompare(right));
-}
-
-function buildMonthDateBounds(months: string[]): {
-  startDate: string;
-  endDate: string;
-} | null {
-  if (!months.length) {
-    return null;
-  }
-
-  const sorted = sortMonths(months);
-  const first = sorted[0];
-  const last = sorted[sorted.length - 1];
-  if (!first || !last) {
-    return null;
-  }
-
-  const [yearString, monthString] = last.split('-');
-  const year = Number(yearString);
-  const month = Number(monthString);
-  if (!Number.isInteger(year) || !Number.isInteger(month)) {
-    return null;
-  }
-
-  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
-  const paddedDay = String(lastDay).padStart(2, '0');
-
-  return {
-    startDate: `${first}-01`,
-    endDate: `${last}-${paddedDay}`,
-  };
-}
 
 async function fetchPersonalRollupExpenseRows({
   supabase,
@@ -183,61 +108,6 @@ function buildPersonalMonthlyByCategoryRows(
     });
 }
 
-export async function fetchMonthlyByCategoryUser({
-  supabase,
-  householdId,
-  months,
-}: ViewFetchParams): Promise<MonthlyByCategoryUserRow[]> {
-  if (!months.length) {
-    return [];
-  }
-
-  const query = supabase
-    .from('monthly_by_category_user')
-    .select('household_id, month, category, user_label, total_cents')
-    .in('month', months);
-
-  if (householdId) {
-    query.eq('household_id', householdId);
-  } else {
-    query.is('household_id', null);
-  }
-
-  const { data, error } = await query.order('month', { ascending: true });
-
-  if (error) {
-    console.error('fetchMonthlyByCategoryUser failed', error);
-    return [];
-  }
-
-  return (data as MonthlyByCategoryUserRow[]) ?? [];
-}
-
-export async function fetchAllMonthlyByCategoryUser({
-  supabase,
-  householdId,
-}: AllFetchParams): Promise<MonthlyByCategoryUserRow[]> {
-  const query = supabase
-    .from('monthly_by_category_user')
-    .select('household_id, month, category, user_label, total_cents')
-    .order('month', { ascending: true });
-
-  if (householdId) {
-    query.eq('household_id', householdId);
-  } else {
-    query.is('household_id', null);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error('fetchAllMonthlyByCategoryUser failed', error);
-    return [];
-  }
-
-  return (data as MonthlyByCategoryUserRow[]) ?? [];
-}
-
 export async function fetchPersonalRollupMonthlyByCategoryUser({
   supabase,
   userId,
@@ -270,38 +140,6 @@ export async function fetchAllPersonalRollupMonthlyByCategoryUser({
   return buildPersonalMonthlyByCategoryRows(rows);
 }
 
-export async function fetchDailyTotalsByMonth({
-  supabase,
-  householdId,
-  months,
-}: ViewFetchParams): Promise<DailyTotalsByMonthRow[]> {
-  if (!months.length) {
-    return [];
-  }
-
-  const query = supabase
-    .from('daily_totals_by_month')
-    .select('household_id, month, day, total_cents, cumulative_cents')
-    .in('month', months);
-
-  if (householdId) {
-    query.eq('household_id', householdId);
-  } else {
-    query.is('household_id', null);
-  }
-
-  const { data, error } = await query
-    .order('month', { ascending: true })
-    .order('day', { ascending: true });
-
-  if (error) {
-    console.error('fetchDailyTotalsByMonth failed', error);
-    return [];
-  }
-
-  return (data as DailyTotalsByMonthRow[]) ?? [];
-}
-
 export async function fetchPersonalRollupDailyTotalsByMonth({
   supabase,
   userId,
@@ -317,6 +155,7 @@ export async function fetchPersonalRollupDailyTotalsByMonth({
     months,
     includeIncome: false,
   });
+
   const monthFilter = new Set(months);
   const dailyTotals = new Map<string, number>();
 
@@ -375,30 +214,6 @@ export async function fetchPersonalRollupDailyTotalsByMonth({
   return result;
 }
 
-export async function fetchAllMonthlyCashflowNet({
-  supabase,
-  householdId,
-}: AllFetchParams): Promise<MonthlyCashflowNetRow[]> {
-  const query = supabase
-    .from('monthly_cashflow_net')
-    .select('household_id, month, income_cents, expense_cents, net_cents');
-
-  if (householdId) {
-    query.eq('household_id', householdId);
-  } else {
-    query.is('household_id', null);
-  }
-
-  const { data, error } = await query.order('month', { ascending: true });
-
-  if (error) {
-    console.error('fetchAllMonthlyCashflowNet failed', error);
-    return [];
-  }
-
-  return (data as MonthlyCashflowNetRow[]) ?? [];
-}
-
 export async function fetchAllPersonalRollupMonthlyCashflowNet({
   supabase,
   userId,
@@ -445,49 +260,6 @@ export async function fetchAllPersonalRollupMonthlyCashflowNet({
       net_cents: totals.incomeCents - totals.expenseCents,
     }))
     .sort((left, right) => left.month.localeCompare(right.month));
-}
-
-export async function fetchMonthlyBoundsByCategoryUser({
-  supabase,
-  householdId,
-}: BoundsFetchParams): Promise<{
-  earliestMonth: string | null;
-  latestMonth: string | null;
-}> {
-  const buildQuery = (ascending: boolean) => {
-    const query = supabase
-      .from('monthly_by_category_user')
-      .select('month')
-      .limit(1);
-
-    if (householdId) {
-      query.eq('household_id', householdId);
-    } else {
-      query.is('household_id', null);
-    }
-
-    return query.order('month', { ascending });
-  };
-
-  const [
-    { data: earliestData, error: earliestError },
-    { data: latestData, error: latestError },
-  ] = await Promise.all([buildQuery(true), buildQuery(false)]);
-
-  if (earliestError || latestError) {
-    console.error('fetchMonthlyBoundsByCategoryUser failed', {
-      earliestError,
-      latestError,
-    });
-    return { earliestMonth: null, latestMonth: null };
-  }
-
-  const earliestMonth =
-    (earliestData?.[0] as { month?: string } | undefined)?.month ?? null;
-  const latestMonth =
-    (latestData?.[0] as { month?: string } | undefined)?.month ?? null;
-
-  return { earliestMonth, latestMonth };
 }
 
 export async function fetchPersonalRollupMonthlyBoundsByCategoryUser({

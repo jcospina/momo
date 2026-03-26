@@ -1,6 +1,6 @@
 'use client';
 
-import { formatCategoryLabel } from '@helpers/expenses/expense-stats.aggregations';
+import { formatCategoryLabel } from '@helpers/expenses-stats/aggregations';
 import { useCallback, useMemo } from 'react';
 
 import { RingChart, type RingChartItem } from './ring-chart';

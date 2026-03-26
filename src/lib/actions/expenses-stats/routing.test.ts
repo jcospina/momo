@@ -3,7 +3,7 @@ import {
   getMonthlyDataBounds,
   getMonthlyHistory,
   getMonthlyIncomeVsExpenseData,
-} from './expense-stats';
+} from './index';
 
 jest.mock('@lib-supabase/server', () => ({
   createSupabaseServerClient: jest.fn(),
@@ -13,7 +13,7 @@ jest.mock('@helpers/households', () => ({
   fetchHouseholdMembership: jest.fn(),
 }));
 
-jest.mock('@helpers/expenses/expense-stats', () => ({
+jest.mock('@helpers/expenses-stats', () => ({
   fetchAllMonthlyByCategoryUser: jest.fn(),
   fetchAllMonthlyCashflowNet: jest.fn(),
   fetchAllPersonalRollupMonthlyByCategoryUser: jest.fn(),
@@ -30,9 +30,7 @@ const { createSupabaseServerClient } = jest.requireMock(
   '@lib-supabase/server',
 ) as { createSupabaseServerClient: jest.Mock };
 
-const expenseStatsHelpers = jest.requireMock(
-  '@helpers/expenses/expense-stats',
-) as {
+const expenseStatsHelpers = jest.requireMock('@helpers/expenses-stats') as {
   fetchAllMonthlyByCategoryUser: jest.Mock;
   fetchAllMonthlyCashflowNet: jest.Mock;
   fetchAllPersonalRollupMonthlyByCategoryUser: jest.Mock;

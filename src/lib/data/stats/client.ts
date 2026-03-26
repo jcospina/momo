@@ -11,7 +11,7 @@ import {
   getMonthlyWindow as getMonthlyWindowAction,
   getRingChartData as getRingChartDataAction,
   getUserTotalsForMonth as getUserTotalsForMonthAction,
-} from '@actions/expense-stats';
+} from '@actions/expenses-stats';
 
 import type {
   GetCumulativeSavingsData,
