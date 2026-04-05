@@ -44,27 +44,11 @@ export default async function StatsPage() {
         }),
   ]);
 
-  const [
-    personalIncomeVsExpense,
-    householdIncomeVsExpense,
-    personalCumulativeSavings,
-    householdCumulativeSavings,
-  ] = await Promise.all([
-    getMonthlyIncomeVsExpenseData({ scope: 'personal' }),
-    householdAvailable
-      ? getMonthlyIncomeVsExpenseData({ scope: 'household' })
-      : Promise.resolve({
-          data: { months: [] },
-          errorCode: 'no_household' as const,
-        }),
-    getCumulativeSavingsData({ scope: 'personal' }),
-    householdAvailable
-      ? getCumulativeSavingsData({ scope: 'household' })
-      : Promise.resolve({
-          data: { months: [] },
-          errorCode: 'no_household' as const,
-        }),
-  ]);
+  const [personalIncomeVsExpense, personalCumulativeSavings] =
+    await Promise.all([
+      getMonthlyIncomeVsExpenseData({ scope: 'personal' }),
+      getCumulativeSavingsData({ scope: 'personal' }),
+    ]);
 
   return (
     <Flex direction="column" padding={3} gap={5}>
@@ -86,8 +70,8 @@ export default async function StatsPage() {
           rows: householdMonthly.data.rows,
           daily: householdDaily.data,
           cashflow: {
-            monthlyIncomeVsExpense: householdIncomeVsExpense.data.months,
-            cumulativeSavings: householdCumulativeSavings.data.months,
+            monthlyIncomeVsExpense: [],
+            cumulativeSavings: [],
           },
         }}
       />
