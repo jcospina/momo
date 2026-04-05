@@ -70,11 +70,6 @@ function ScopePanels({
 
   return (
     <>
-      <CashflowPanels
-        monthlyIncomeVsExpense={data.cashflow.monthlyIncomeVsExpense}
-        cumulativeSavings={data.cashflow.cumulativeSavings}
-        currency={currency}
-      />
       <RingChartsPanel
         months={data.months}
         breakdownRows={data.rows}
