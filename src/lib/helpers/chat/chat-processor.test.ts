@@ -6,6 +6,9 @@ const mockParseChatEntries = jest.fn();
 const mockPersistParsedExpenses = jest.fn();
 const mockUpdateMessageStatus = jest.fn();
 const mockGetUserPreferences = jest.fn();
+const mockCreateSupabaseServerClient = jest.fn();
+const mockFetchCategoryRules = jest.fn();
+const mockSupabaseClient = { from: jest.fn() };
 
 jest.mock('@helpers/expenses/expense-parser', () => ({
   parseChatEntries: (...args: unknown[]) => mockParseChatEntries(...args),
@@ -19,6 +22,15 @@ jest.mock('@helpers/expenses/expense-persistence', () => ({
 
 jest.mock('@helpers/user-prefs', () => ({
   getUserPreferences: (...args: unknown[]) => mockGetUserPreferences(...args),
+}));
+
+jest.mock('@helpers/expenses/category-rules', () => ({
+  fetchCategoryRules: (...args: unknown[]) => mockFetchCategoryRules(...args),
+}));
+
+jest.mock('@lib-supabase/server', () => ({
+  createSupabaseServerClient: (...args: unknown[]) =>
+    mockCreateSupabaseServerClient(...args),
 }));
 
 function buildMessage(overrides: Partial<ChatMessage> = {}): ChatMessage {
@@ -54,6 +66,8 @@ describe('processChatMessage', () => {
     mockGetUserPreferences.mockResolvedValue({ currency: 'USD' });
     mockPersistParsedExpenses.mockResolvedValue({ expenseIds: ['exp-1'] });
     mockUpdateMessageStatus.mockResolvedValue({});
+    mockCreateSupabaseServerClient.mockResolvedValue(mockSupabaseClient);
+    mockFetchCategoryRules.mockResolvedValue(new Map());
   });
 
   it('marks chat as no_expense when parser finds no amounts', async () => {
@@ -98,6 +112,77 @@ describe('processChatMessage', () => {
     expect(mockPersistParsedExpenses).toHaveBeenCalledWith(
       message,
       [incomeEntry],
+      'processed',
+    );
+  });
+
+  it('applies learned rules over dictionary category matches', async () => {
+    const message = buildMessage({ content: 'uber 20' });
+    const dictionaryEntry = buildEntry({
+      raw: 'uber 20',
+      normalized: 'uber 20',
+      category: 'transportation',
+    });
+    mockParseChatEntries.mockReturnValue({
+      status: 'parsed',
+      entries: [dictionaryEntry],
+      errors: [],
+    });
+    mockFetchCategoryRules.mockResolvedValue(new Map([['uber', 'dining']]));
+
+    await processChatMessage(message);
+
+    expect(mockFetchCategoryRules).toHaveBeenCalledWith({
+      supabase: mockSupabaseClient,
+      userId: message.user_id,
+      householdId: message.household_id,
+      normalizedTexts: ['uber'],
+    });
+    expect(mockPersistParsedExpenses).toHaveBeenCalledWith(
+      message,
+      [buildEntry({ ...dictionaryEntry, category: 'dining' })],
+      'processed',
+    );
+  });
+
+  it('keeps explicit-income entries as income and excludes them from rule lookup', async () => {
+    const message = buildMessage({ content: '+2000 salary, taxi 20' });
+    const explicitIncomeEntry = buildEntry({
+      raw: '+2000 salary',
+      normalized: '+2000 salary',
+      category: 'income',
+    });
+    const uncategorizedExpense = buildEntry({
+      raw: 'taxi 20',
+      normalized: 'taxi 20',
+      category: null,
+    });
+    mockParseChatEntries.mockReturnValue({
+      status: 'parsed',
+      entries: [explicitIncomeEntry, uncategorizedExpense],
+      errors: [],
+    });
+    mockFetchCategoryRules.mockResolvedValue(
+      new Map([
+        ['salary', 'groceries'],
+        ['taxi', 'transportation'],
+      ]),
+    );
+
+    await processChatMessage(message);
+
+    expect(mockFetchCategoryRules).toHaveBeenCalledWith({
+      supabase: mockSupabaseClient,
+      userId: message.user_id,
+      householdId: message.household_id,
+      normalizedTexts: ['taxi'],
+    });
+    expect(mockPersistParsedExpenses).toHaveBeenCalledWith(
+      message,
+      [
+        explicitIncomeEntry,
+        buildEntry({ ...uncategorizedExpense, category: 'transportation' }),
+      ],
       'processed',
     );
   });

@@ -65,7 +65,7 @@ describe('/home/stats page', () => {
   const getCumulativeSavingsDataMock = jest.mocked(getCumulativeSavingsData);
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('passes personal rollup data and household-wide data into scope panels', async () => {
@@ -127,54 +127,29 @@ describe('/home/stats page', () => {
           previous: [{ day: 1, totalCents: 4000 }],
         },
       });
-    getMonthlyIncomeVsExpenseDataMock
-      .mockResolvedValueOnce({
-        data: {
-          months: [
-            {
-              month: '2026-03',
-              incomeCents: 100_000,
-              expenseCents: 30_000,
-              netCents: 70_000,
-            },
-          ],
-        },
-      })
-      .mockResolvedValueOnce({
-        data: {
-          months: [
-            {
-              month: '2026-03',
-              incomeCents: 200_000,
-              expenseCents: 90_000,
-              netCents: 110_000,
-            },
-          ],
-        },
-      });
-    getCumulativeSavingsDataMock
-      .mockResolvedValueOnce({
-        data: {
-          months: [
-            {
-              month: '2026-03',
-              netCents: 70_000,
-              cumulativeCents: 70_000,
-            },
-          ],
-        },
-      })
-      .mockResolvedValueOnce({
-        data: {
-          months: [
-            {
-              month: '2026-03',
-              netCents: 110_000,
-              cumulativeCents: 110_000,
-            },
-          ],
-        },
-      });
+    getMonthlyIncomeVsExpenseDataMock.mockResolvedValueOnce({
+      data: {
+        months: [
+          {
+            month: '2026-03',
+            incomeCents: 100_000,
+            expenseCents: 30_000,
+            netCents: 70_000,
+          },
+        ],
+      },
+    });
+    getCumulativeSavingsDataMock.mockResolvedValueOnce({
+      data: {
+        months: [
+          {
+            month: '2026-03',
+            netCents: 70_000,
+            cumulativeCents: 70_000,
+          },
+        ],
+      },
+    });
 
     render(await StatsPage());
 
@@ -195,17 +170,13 @@ describe('/home/stats page', () => {
       currentMonth,
       scope: 'household',
     });
-    expect(getMonthlyIncomeVsExpenseDataMock).toHaveBeenNthCalledWith(1, {
+    expect(getMonthlyIncomeVsExpenseDataMock).toHaveBeenCalledTimes(1);
+    expect(getMonthlyIncomeVsExpenseDataMock).toHaveBeenCalledWith({
       scope: 'personal',
     });
-    expect(getMonthlyIncomeVsExpenseDataMock).toHaveBeenNthCalledWith(2, {
-      scope: 'household',
-    });
-    expect(getCumulativeSavingsDataMock).toHaveBeenNthCalledWith(1, {
+    expect(getCumulativeSavingsDataMock).toHaveBeenCalledTimes(1);
+    expect(getCumulativeSavingsDataMock).toHaveBeenCalledWith({
       scope: 'personal',
-    });
-    expect(getCumulativeSavingsDataMock).toHaveBeenNthCalledWith(2, {
-      scope: 'household',
     });
 
     expect(expenseScopePanelsSpy).toHaveBeenCalledWith({
@@ -248,21 +219,8 @@ describe('/home/stats page', () => {
           previous: [{ day: 1, totalCents: 4000 }],
         },
         cashflow: {
-          monthlyIncomeVsExpense: [
-            {
-              month: '2026-03',
-              incomeCents: 200_000,
-              expenseCents: 90_000,
-              netCents: 110_000,
-            },
-          ],
-          cumulativeSavings: [
-            {
-              month: '2026-03',
-              netCents: 110_000,
-              cumulativeCents: 110_000,
-            },
-          ],
+          monthlyIncomeVsExpense: [],
+          cumulativeSavings: [],
         },
       },
     });
