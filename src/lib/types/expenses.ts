@@ -66,6 +66,7 @@ export const EXPENSE_CATEGORIES = [
   'self_care',
   'pets',
   'kids',
+  'debt',
 ] as const;
 
 export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
