@@ -2,6 +2,7 @@ import { fetchCategoryRules } from '@helpers/expenses/category-rules';
 import {
   buildCategoryKey,
   isExplicitIncomeEntry,
+  scoreExpenseCategory,
 } from '@helpers/expenses/expense-category';
 import { parseChatEntries } from '@helpers/expenses/expense-parser';
 import {
@@ -67,12 +68,14 @@ async function applyLearnedRules(
 
     const key = buildCategoryKey(input);
     const learnedCategory = key ? rules.get(key) : null;
-    if (!learnedCategory || entry.category === learnedCategory) {
+    if (!learnedCategory) {
       return entry;
     }
 
+    const nonFuzzyScore = scoreExpenseCategory(input, { allowFuzzy: false });
     return {
       ...entry,
+      tags: nonFuzzyScore.tags,
       category: learnedCategory as ParsedEntry['category'],
     };
   });

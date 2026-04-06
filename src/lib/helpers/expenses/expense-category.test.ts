@@ -13,6 +13,21 @@ describe('scoreExpenseCategory', () => {
     const result = scoreExpenseCategory(text);
     expect(result.category).toBe(expectedCategory);
   });
+
+  it('resolves one-edit typos', () => {
+    const result = scoreExpenseCategory('yber 14');
+    expect(result.category).toBe('transportation');
+  });
+
+  it('does not resolve two-edit typos', () => {
+    const result = scoreExpenseCategory('yyber 14');
+    expect(result.category).toBeNull();
+  });
+
+  it('does not apply fuzzy correction when disabled', () => {
+    const result = scoreExpenseCategory('yber 14', { allowFuzzy: false });
+    expect(result.category).toBeNull();
+  });
 });
 
 describe('buildCategoryKey', () => {

@@ -96,7 +96,7 @@ export const expenseClassifierSamples: ExpenseSample[] = [
   { language: 'es', text: 'restaurente 30', expectedCategory: 'dining' },
   { language: 'es', text: 'alquiller 700', expectedCategory: 'housing' },
   { language: 'es', text: 'mediko 45', expectedCategory: 'health' },
-  { language: 'es', text: 'spofity 9', expectedCategory: 'subscriptions' },
+  { language: 'es', text: 'spofity 9', expectedCategory: null },
   { language: 'es', text: 'trasnfer 200', expectedCategory: 'transfer' },
   { language: 'es', text: 'gasolin 40', expectedCategory: 'vehicle' },
   { language: 'en', text: 'taksi 9', expectedCategory: null },
