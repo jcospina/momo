@@ -23,6 +23,8 @@ type ScoreMap = Record<ExpenseCategory, number>;
 const termBigramMap = new Map<string, Set<string>>();
 const misspellingCache = new Map<string, string | null>();
 const AMOUNT_TOKEN_REGEX = new RegExp(`\\b${AMOUNT_REGEX.source}\\b`, 'gi');
+const EXPLICIT_INCOME_REGEX =
+  /(?:^|\s)\+\s*[0-9]+(?:\.[0-9]+)?(?:[kKmM])?(?:$|[\s.])/;
 
 function initScoreMap(): ScoreMap {
   return EXPENSE_CATEGORIES.reduce((acc, category) => {
@@ -40,6 +42,18 @@ function tokenize(text: string) {
     .replace(/[^a-z0-9\s]/g, ' ')
     .split(/\s+/)
     .filter(Boolean);
+}
+
+export function buildCategoryKey(input: string): string {
+  const normalized = normalizeExpenseText(input ?? '');
+  const withoutAmounts = stripAmountTokens(normalized);
+  const tokens = tokenize(withoutAmounts);
+  return tokens.join(' ');
+}
+
+export function isExplicitIncomeEntry(input: string): boolean {
+  const normalized = normalizeExpenseText(input ?? '');
+  return EXPLICIT_INCOME_REGEX.test(normalized);
 }
 
 type NgramSpan = {

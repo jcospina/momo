@@ -110,7 +110,7 @@ describe('ExpenseScopePanels', () => {
     expect(householdToggle).toBeInTheDocument();
     expect(personalToggle).toHaveAttribute('data-selected', 'false');
     expect(householdToggle).toHaveAttribute('data-selected', 'true');
-    expect(screen.getByTestId('cashflow-panels')).toBeInTheDocument();
+    expect(screen.queryByTestId('cashflow-panels')).not.toBeInTheDocument();
     expect(screen.getByTestId('ring-charts-panel')).toHaveTextContent(
       'household',
     );
@@ -121,6 +121,7 @@ describe('ExpenseScopePanels', () => {
     expect(personalToggle).toHaveAttribute('data-selected', 'true');
     expect(householdToggle).toHaveAttribute('data-selected', 'false');
     expect(screen.queryByTestId('ring-charts-panel')).not.toBeInTheDocument();
+    expect(screen.getByTestId('cashflow-panels')).toBeInTheDocument();
     expect(screen.getByTestId('category-ring-panel')).toBeInTheDocument();
     expect(screen.getByTestId('monthly-totals-panel')).toBeInTheDocument();
     expect(screen.getByTestId('daily-comparison-chart')).toBeInTheDocument();
@@ -131,6 +132,7 @@ describe('ExpenseScopePanels', () => {
     expect(screen.getByTestId('ring-charts-panel')).toHaveTextContent(
       'household',
     );
+    expect(screen.queryByTestId('cashflow-panels')).not.toBeInTheDocument();
     expect(screen.queryByTestId('category-ring-panel')).not.toBeInTheDocument();
   });
 });

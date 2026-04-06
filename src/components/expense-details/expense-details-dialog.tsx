@@ -1,5 +1,6 @@
 'use client';
 
+import type { ChatMessageStatus } from '@lib-types/chat';
 import type { ExpenseCategory } from '@lib-types/expenses';
 import { EXPENSE_CATEGORIES } from '@lib-types/expenses';
 import { Button } from '@ui/button/button';
@@ -36,6 +37,10 @@ type CategoryOption = {
 type ExpenseDetailsDialogProps = {
   controller: DialogController;
   messageId: string | null;
+  onSaved?: (payload: {
+    messageId: string;
+    status: Extract<ChatMessageStatus, 'processed' | 'needs_category'>;
+  }) => void;
 };
 
 type ExpenseDraft = {
@@ -74,6 +79,7 @@ function isIncomeCategory(category: ExpenseCategory | null) {
 export function ExpenseDetailsDialog({
   controller,
   messageId,
+  onSaved,
 }: ExpenseDetailsDialogProps) {
   const [expenseDrafts, setExpenseDrafts] = useState<ExpenseDraft[]>([]);
   const [loadedMessageId, setLoadedMessageId] = useState<string | null>(null);
@@ -153,7 +159,14 @@ export function ExpenseDetailsDialog({
 
       return baseUpdate;
     });
-    await updateExpenses({ updates, messageId });
+    const result = await updateExpenses({ updates, messageId });
+    if (!result.errorCode && messageId) {
+      const needsCategory = expenseDrafts.some(draft => !draft.category);
+      onSaved?.({
+        messageId,
+        status: needsCategory ? 'needs_category' : 'processed',
+      });
+    }
     setIsSaving(false);
     controller.closeDialog();
   };

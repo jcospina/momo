@@ -5,12 +5,13 @@ import {
 } from '@constants/expenses/amounts';
 import type { EntryError, ParsedEntry, ParseResult } from '@lib-types/expenses';
 import type { SupportedCurrency } from '@lib-types/user-preferences';
-import { scoreExpenseCategory } from './expense-category';
+import {
+  isExplicitIncomeEntry,
+  scoreExpenseCategory,
+} from './expense-category';
 import { normalizeExpenseText } from './expense-normalize';
 
 export const normalizeInput = normalizeExpenseText;
-const EXPLICIT_INCOME_REGEX =
-  /(?:^|\s)\+\s*[0-9]+(?:\.[0-9]+)?(?:[kKmM])?(?:$|[\s.])/;
 
 export function splitEntries(normalized: string) {
   return normalized
@@ -23,7 +24,7 @@ function resolveCategory(
   entry: string,
   category: ParsedEntry['category'],
 ): Pick<ParsedEntry, 'category'> {
-  if (EXPLICIT_INCOME_REGEX.test(entry)) {
+  if (isExplicitIncomeEntry(entry)) {
     return { category: 'income' };
   }
 

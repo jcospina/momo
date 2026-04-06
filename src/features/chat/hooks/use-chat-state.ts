@@ -194,6 +194,29 @@ export function useChatState({
     [isHousehold, setHouseholdMessages],
   );
 
+  const setMessageStatus = useCallback(
+    (
+      messageId: string,
+      status: Extract<ChatMessage['status'], 'processed' | 'needs_category'>,
+    ) => {
+      if (isHousehold) {
+        setHouseholdMessages(prev =>
+          prev.map(message =>
+            message.id === messageId ? { ...message, status } : message,
+          ),
+        );
+        return;
+      }
+
+      setPersonalMessages(prev =>
+        prev.map(message =>
+          message.id === messageId ? { ...message, status } : message,
+        ),
+      );
+    },
+    [isHousehold, setHouseholdMessages],
+  );
+
   const reconcile = useCallback(
     (tempId: string, message: ChatMessage) => {
       if (isHousehold) {
@@ -270,6 +293,7 @@ export function useChatState({
     addOptimistic,
     markFailed,
     markPending,
+    setMessageStatus,
     reconcile,
     mergeRealtime,
     mergeBatch,

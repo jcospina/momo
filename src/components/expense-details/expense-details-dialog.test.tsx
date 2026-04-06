@@ -236,4 +236,55 @@ describe('ExpenseDetailsDialog category-driven variants', () => {
       }),
     );
   });
+
+  it('notifies save status as processed when all expenses are categorized', async () => {
+    getExpensesByMessageIdMock.mockResolvedValue({
+      expenses: [buildExpense({ category: null })],
+    });
+    const onSaved = jest.fn();
+
+    render(
+      <ExpenseDetailsDialog
+        controller={buildController()}
+        messageId="message-1"
+        onSaved={onSaved}
+      />,
+    );
+
+    const categorySelect = await screen.findByLabelText('Expense category');
+    fireEvent.change(categorySelect, { target: { value: 'groceries' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() =>
+      expect(onSaved).toHaveBeenCalledWith({
+        messageId: 'message-1',
+        status: 'processed',
+      }),
+    );
+  });
+
+  it('notifies save status as needs_category when uncategorized rows remain', async () => {
+    getExpensesByMessageIdMock.mockResolvedValue({
+      expenses: [buildExpense({ category: null })],
+    });
+    const onSaved = jest.fn();
+
+    render(
+      <ExpenseDetailsDialog
+        controller={buildController()}
+        messageId="message-1"
+        onSaved={onSaved}
+      />,
+    );
+
+    await screen.findByLabelText('Expense category');
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() =>
+      expect(onSaved).toHaveBeenCalledWith({
+        messageId: 'message-1',
+        status: 'needs_category',
+      }),
+    );
+  });
 });

@@ -73,6 +73,10 @@ type ChatPanelLayoutProps = {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   expenseDetailsDialog: ReturnType<typeof useDialogController>;
   expenseDetailsMessageId: string | null;
+  onExpenseDetailsSaved: (payload: {
+    messageId: string;
+    status: 'processed' | 'needs_category';
+  }) => void;
 };
 
 function ChatPanelLayout({
@@ -93,6 +97,7 @@ function ChatPanelLayout({
   onSubmit,
   expenseDetailsDialog,
   expenseDetailsMessageId,
+  onExpenseDetailsSaved,
 }: ChatPanelLayoutProps) {
   return (
     <Flex
@@ -165,6 +170,7 @@ function ChatPanelLayout({
       <ExpenseDetailsDialog
         controller={expenseDetailsDialog}
         messageId={expenseDetailsMessageId}
+        onSaved={onExpenseDetailsSaved}
       />
     </Flex>
   );
@@ -184,6 +190,7 @@ function PersonalChatPanel({
     mergePersonalBatch,
     removePersonalMessage,
     personalMessages,
+    setMessageStatus,
   } = useChatState({
     userId,
     householdId: null,
@@ -347,6 +354,20 @@ function PersonalChatPanel({
     [mergePersonalBatch, removePersonalMessage],
   );
 
+  const handleExpenseDetailsSaved = useCallback(
+    ({
+      messageId,
+      status,
+    }: {
+      messageId: string;
+      status: 'processed' | 'needs_category';
+    }) => {
+      setMessageStatus(messageId, status);
+      scheduleSync('pending');
+    },
+    [scheduleSync, setMessageStatus],
+  );
+
   const loadOlder = useCallback(async () => {
     if (isLoadingMore || !hasMore) return;
     const oldest = personalMessages[0];
@@ -399,6 +420,7 @@ function PersonalChatPanel({
       onSubmit={handleSubmit}
       expenseDetailsDialog={expenseDetailsDialog}
       expenseDetailsMessageId={expenseDetailsMessageId}
+      onExpenseDetailsSaved={handleExpenseDetailsSaved}
     />
   );
 }
@@ -420,6 +442,7 @@ function HouseholdChatPanel({
     householdCursorRef,
     householdMessages,
     removeHouseholdMessage,
+    setMessageStatus,
   } = useChatState({
     userId,
     householdId,
@@ -571,6 +594,20 @@ function HouseholdChatPanel({
     [mergeBatch, removeHouseholdMessage],
   );
 
+  const handleExpenseDetailsSaved = useCallback(
+    ({
+      messageId,
+      status,
+    }: {
+      messageId: string;
+      status: 'processed' | 'needs_category';
+    }) => {
+      setMessageStatus(messageId, status);
+      scheduleSync('pending');
+    },
+    [scheduleSync, setMessageStatus],
+  );
+
   const loadOlder = useCallback(async () => {
     if (isLoadingMore || !hasMore || !householdId) return;
     const oldest = householdMessages[0];
@@ -623,6 +660,7 @@ function HouseholdChatPanel({
       onSubmit={handleSubmit}
       expenseDetailsDialog={expenseDetailsDialog}
       expenseDetailsMessageId={expenseDetailsMessageId}
+      onExpenseDetailsSaved={handleExpenseDetailsSaved}
     />
   );
 }
