@@ -19,12 +19,20 @@ import {
 import { normalizeExpenseText } from './expense-normalize';
 
 type ScoreMap = Record<ExpenseCategory, number>;
+type ScoreExpenseCategoryOptions = {
+  allowFuzzy?: boolean;
+};
 
 const termBigramMap = new Map<string, Set<string>>();
 const misspellingCache = new Map<string, string | null>();
 const AMOUNT_TOKEN_REGEX = new RegExp(`\\b${AMOUNT_REGEX.source}\\b`, 'gi');
 const EXPLICIT_INCOME_REGEX =
   /(?:^|\s)\+\s*[0-9]+(?:\.[0-9]+)?(?:[kKmM])?(?:$|[\s.])/;
+const MAX_ONE_EDIT_DISTANCE = 1;
+const MAX_ALLOWED_FUZZY_DISTANCE = Math.min(
+  MAX_EDIT_DISTANCE,
+  MAX_ONE_EDIT_DISTANCE,
+);
 
 function initScoreMap(): ScoreMap {
   return EXPENSE_CATEGORIES.reduce((acc, category) => {
@@ -155,7 +163,7 @@ function resolveMisspelling(term: string) {
   let bestOverlap = 0;
 
   for (const candidate of expenseTerms) {
-    if (Math.abs(candidate.length - term.length) > MAX_EDIT_DISTANCE) {
+    if (Math.abs(candidate.length - term.length) > MAX_ALLOWED_FUZZY_DISTANCE) {
       continue;
     }
     const candidateGrams = termBigramMap.get(candidate);
@@ -178,7 +186,9 @@ function resolveMisspelling(term: string) {
   }
 
   const resolved =
-    bestCandidate && bestDistance <= MAX_EDIT_DISTANCE ? bestCandidate : null;
+    bestCandidate && bestDistance <= MAX_ALLOWED_FUZZY_DISTANCE
+      ? bestCandidate
+      : null;
   misspellingCache.set(term, resolved);
   return resolved;
 }
@@ -196,7 +206,11 @@ function applyMatches(
   });
 }
 
-export function scoreExpenseCategory(input: string): ExpenseScoreResult {
+export function scoreExpenseCategory(
+  input: string,
+  options: ScoreExpenseCategoryOptions = {},
+): ExpenseScoreResult {
+  const { allowFuzzy = true } = options;
   const normalized = normalizeExpenseText(input ?? '');
   const withoutAmounts = stripAmountTokens(normalized);
   const tokens = tokenize(withoutAmounts);
@@ -229,7 +243,7 @@ export function scoreExpenseCategory(input: string): ExpenseScoreResult {
     }
   });
 
-  if (!hasExactMatch) {
+  if (allowFuzzy && !hasExactMatch) {
     const fuzzyMatchedTerms = new Set<string>();
     const fuzzyClaimedTokens = new Set<number>();
     ngrams.forEach(({ text, start, end }) => {

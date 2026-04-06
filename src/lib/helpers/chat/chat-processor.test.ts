@@ -140,7 +140,33 @@ describe('processChatMessage', () => {
     });
     expect(mockPersistParsedExpenses).toHaveBeenCalledWith(
       message,
-      [buildEntry({ ...dictionaryEntry, category: 'dining' })],
+      [buildEntry({ ...dictionaryEntry, category: 'dining', tags: ['uber'] })],
+      'processed',
+    );
+  });
+
+  it('re-scores learned-rule matches without fuzzy correction', async () => {
+    const message = buildMessage({ content: 'yber 20' });
+    const fuzzyResolvedEntry = buildEntry({
+      raw: 'yber 20',
+      normalized: 'yber 20',
+      tags: ['uber'],
+      category: 'transportation',
+    });
+    mockParseChatEntries.mockReturnValue({
+      status: 'parsed',
+      entries: [fuzzyResolvedEntry],
+      errors: [],
+    });
+    mockFetchCategoryRules.mockResolvedValue(
+      new Map([['yber', 'transportation']]),
+    );
+
+    await processChatMessage(message);
+
+    expect(mockPersistParsedExpenses).toHaveBeenCalledWith(
+      message,
+      [buildEntry({ ...fuzzyResolvedEntry, tags: [] })],
       'processed',
     );
   });
@@ -181,7 +207,11 @@ describe('processChatMessage', () => {
       message,
       [
         explicitIncomeEntry,
-        buildEntry({ ...uncategorizedExpense, category: 'transportation' }),
+        buildEntry({
+          ...uncategorizedExpense,
+          category: 'transportation',
+          tags: ['taxi'],
+        }),
       ],
       'processed',
     );
