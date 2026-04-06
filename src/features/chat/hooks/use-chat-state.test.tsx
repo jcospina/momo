@@ -275,4 +275,30 @@ describe('useChatState', () => {
     const pending = result.current.householdMessages.find(m => m.id === tempId);
     expect(pending?.status).toBe('pending');
   });
+
+  it('updates a message status in-place', () => {
+    const { result } = renderHook(() =>
+      useChatState({
+        userId: 'u1',
+        householdId: 'hid',
+        initialPersonalMessages: [],
+        initialHouseholdMessages: [
+          baseMessage({
+            id: 'm-status',
+            status: 'needs_category',
+            expense_count: 1,
+          }),
+        ],
+      }),
+    );
+
+    act(() => {
+      result.current.setMessageStatus('m-status', 'processed');
+    });
+
+    const updated = result.current.householdMessages.find(
+      message => message.id === 'm-status',
+    );
+    expect(updated?.status).toBe('processed');
+  });
 });
