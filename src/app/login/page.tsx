@@ -1,6 +1,6 @@
 import { Toast } from '@components/toast/toast';
-import { ERROR_MESSAGES } from '@constants/errors';
 import type { MomoError } from '@lib-types/errors';
+import { getTranslations } from 'next-intl/server';
 import { loginWithProvider } from '@/lib/data/auth/server';
 import { Button } from '@/ui/button/button';
 import { Flex } from '@/ui/flex/flex';
@@ -15,6 +15,8 @@ type LoginPageProps = {
 
 export default async function Home({ searchParams }: LoginPageProps) {
   const { error } = await searchParams;
+  const tAuth = await getTranslations('auth.login');
+  const tErrors = await getTranslations('errors');
   return (
     <Flex
       direction="column"
@@ -38,21 +40,21 @@ export default async function Home({ searchParams }: LoginPageProps) {
             justifyContent="center"
             className={styles['login__header']}
           >
-            <Typography>Welcome to</Typography>
+            <Typography>{tAuth('welcome')}</Typography>
             <Logo className={styles['login__logo']} />
-            <Typography>More money, More fun</Typography>
+            <Typography>{tAuth('tagline')}</Typography>
           </Flex>
           <form>
             <Button
               variant="primary"
               formAction={loginWithProvider.bind(null, 'google')}
             >
-              Sign in with Google
+              {tAuth('signInGoogle')}
             </Button>
           </form>
         </Flex>
       </Panel>
-      {error && <Toast variant="error">{ERROR_MESSAGES[error]}</Toast>}
+      {error && <Toast variant="error">{tErrors(error)}</Toast>}
     </Flex>
   );
 }

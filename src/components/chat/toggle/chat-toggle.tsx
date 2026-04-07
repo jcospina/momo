@@ -3,6 +3,7 @@ import { GroupIcon } from '@ui/icons/group';
 import { PersonIcon } from '@ui/icons/person';
 import { Typography } from '@ui/typography/typography';
 import { cn } from '@utils/cn';
+import { useTranslations } from 'next-intl';
 import styles from './chat-toggle.module.css';
 
 export type ChatTab = 'personal' | 'household';
@@ -20,6 +21,7 @@ export function ChatToggle({
   householdName,
   showHousehold = true,
 }: ChatToggleProps) {
+  const t = useTranslations('chat.tabs');
   const isPersonal = active === 'personal';
 
   return (
@@ -41,7 +43,7 @@ export function ChatToggle({
         <PersonIcon />
         {isPersonal ? (
           <Typography as="span" size="lg">
-            Personal
+            {t('personal')}
           </Typography>
         ) : null}
       </button>
@@ -59,7 +61,7 @@ export function ChatToggle({
           <GroupIcon />
           {!isPersonal ? (
             <Typography as="span" size="lg">
-              {householdName || 'Household'}
+              {householdName || t('household')}
             </Typography>
           ) : null}
         </button>

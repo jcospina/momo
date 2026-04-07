@@ -1,0 +1,148 @@
+{
+  "auth": {
+    "login": {
+      "welcome": "Welcome to",
+      "tagline": "More money, More fun",
+      "signInGoogle": "Sign in with Google"
+    },
+    "onboarding": {
+      "householdPrompt": "Let's set up your household so you can start tracking expenses together with your loved ones.",
+      "skipTooltip": "You don't want to share your spending habits with your family, I respect that and won't judge.",
+      "skip": "Skip household creation."
+    }
+  },
+  "errors": {
+    "auth_provider_failed": "Something went wrong with Google, this one is not on me.",
+    "auth_user_missing": "For some reason you got in but I cannot find you.",
+    "auth_exchange_failed": "You almost got in but something failed. This one is on me. Sorry.",
+    "auth_required": "Aha! You tried creating something you are not supposed to. Sneaky sneaky.",
+    "logout_failed": "Something is preventing me from letting you out. Sorry.",
+    "household_name_required": "Who doesn't put a name to their home?",
+    "household_create_failed": "This one is my fault, I cannot create your household. Sorry.",
+    "household_membership_create_failed": "",
+    "household_full": "This household is overcrowded, you cannot get in.",
+    "household_invalid": "There is something very wrong about the household you just tried to join.",
+    "no_household": "Someone tricked you into believing this invite was valid. Shame on them.",
+    "user_has_a_household": "You already belong to one home, no cheating please.",
+    "profile_create_failed": "I cannot create your profile. This one is on me.",
+    "user_pref_update_failed": "I cannot update your preferences, sorry mate."
+  },
+  "chat": {
+    "tabs": {
+      "personal": "Personal",
+      "household": "Household"
+    },
+    "message": {
+      "actionsAriaLabel": "Message actions",
+      "deleteTitle": "Delete message?",
+      "deleteConfirmBody": "This will remove the message permanently.",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "retry": "Retry",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteError": "Damn, I cannot delete that"
+    },
+    "status": {
+      "sendFailed": "send failed",
+      "needsCategory": "needs category",
+      "expenseFailed": "expense failed",
+      "expenseCreated": "expense created",
+      "expensesCreated": "expenses created"
+    }
+  },
+  "expenses": {
+    "detail": {
+      "title": "Expense details",
+      "loading": "Loading expenses...",
+      "empty": "No expenses found.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "amountLabel": "Amount",
+      "dateLabel": "Date",
+      "categoryLabel": "Category",
+      "categoryAriaLabel": "Expense category",
+      "categoryPlaceholder": "Select a category",
+      "merchantLabel": "Merchant",
+      "sourceLabel": "Source",
+      "merchantPlaceholder": "Add merchant",
+      "sourcePlaceholder": "Add source",
+      "noteLabel": "Note",
+      "notePlaceholder": "Add note",
+      "income": "Income",
+      "expense": "Expense"
+    }
+  },
+  "stats": {
+    "expensesByCategory": "Expenses by category",
+    "householdTotalsByMember": "Household totals by member",
+    "incomeVsExpenses": "Income vs expenses",
+    "cumulativeSavings": "Cumulative savings",
+    "runningMonthlyNet": "Running monthly net",
+    "monthlyTotals": "Monthly totals",
+    "dailyComparison": "Daily comparison",
+    "noData": "No data yet",
+    "nav": {
+      "prevMonths": "Previous months",
+      "nextMonths": "Next months",
+      "prevCashflow": "Previous months income vs expenses",
+      "nextCashflow": "Next months income vs expenses",
+      "prevSavings": "Previous months cumulative savings",
+      "nextSavings": "Next months cumulative savings"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "noHousehold": "It seems you don't have a household yet. If you decided sharing with family is good, then create one below",
+    "createHousehold": "Create a household",
+    "memberEmpty": "What is the point of a household if you don't bring in your family?",
+    "aiEnabled": "AI Enabled",
+    "currency": {
+      "label": "Currency",
+      "placeholder": "Select your currency",
+      "ariaLabel": "Preferred currency"
+    },
+    "language": {
+      "label": "Language",
+      "placeholder": "Select your language",
+      "ariaLabel": "Preferred language",
+      "en": "English",
+      "es": "Spanish"
+    },
+    "invite": {
+      "linkCopied": "Link copied",
+      "shared": "Shared!",
+      "copyFailed": "Copy failed",
+      "share": "Share invite link",
+      "copy": "Copy invite link",
+      "shareTitle": "Join my household on MoMo",
+      "shareText": "Use this link to join my household on MoMo."
+    }
+  },
+  "household": {
+    "form": {
+      "nameLabel": "Household name",
+      "namePlaceholder": "e.g. Mama's little nest",
+      "submit": "Create household",
+      "creating": "Creating..."
+    }
+  },
+  "invite": {
+    "notFound": "Invite not found",
+    "full": "Household is full",
+    "goToLogin": "Go to login",
+    "joinHeading": "Join <highlight>{inviter}</highlight> and {count, plural, one {# other} other {# others}} in <b>{household}</b>.",
+    "joinHeadingSingle": "<highlight>{inviter}</highlight> invited you to join <b>{household}</b>.",
+    "joinWithGoogle": "Join with Google"
+  },
+  "common": {
+    "loading": "Loading",
+    "notFound": {
+      "message": "You just found a page that doesn't exist, and by finding it you brought it into existence.",
+      "tagline": "Pretty neat huh!"
+    }
+  }
+}

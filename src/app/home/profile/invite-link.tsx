@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useIsMobileLike } from '@/hooks/use-is-mobile-like';
 
@@ -14,15 +15,16 @@ type InviteLinkProps = {
 
 type StatusCode = 'idle' | 'copied' | 'shared' | 'copy_failed';
 
-const STATUS_TEXT: Record<Exclude<StatusCode, 'idle'>, string> = {
-  copied: 'Link copied',
-  shared: 'Shared!',
-  copy_failed: 'Copy failed',
-};
-
 export function InviteLink({ url }: InviteLinkProps) {
+  const t = useTranslations('profile.invite');
   const isMobile = useIsMobileLike();
   const [status, setStatus] = useState<StatusCode>('idle');
+
+  const statusText: Record<Exclude<StatusCode, 'idle'>, string> = {
+    copied: t('linkCopied'),
+    shared: t('shared'),
+    copy_failed: t('copyFailed'),
+  };
 
   async function copy() {
     try {
@@ -43,8 +45,8 @@ export function InviteLink({ url }: InviteLinkProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Join my household on MoMo',
-          text: 'Use this link to join my household on MoMo.',
+          title: t('shareTitle'),
+          text: t('shareText'),
           url,
         });
         setStatus('shared');
@@ -69,10 +71,10 @@ export function InviteLink({ url }: InviteLinkProps) {
   return (
     <Flex gap={2} alignItems="flex-start" direction="column">
       <Button variant="primary" type="button" onClick={share}>
-        {isMobile ? 'Share' : 'Copy'} invite link
+        {isMobile ? t('share') : t('copy')}
       </Button>
       {status !== 'idle' ? (
-        <div className={styles.status}>{STATUS_TEXT[status]}</div>
+        <div className={styles.status}>{statusText[status]}</div>
       ) : null}
     </Flex>
   );

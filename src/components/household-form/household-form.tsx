@@ -2,6 +2,7 @@
 
 import type { PropsWithClassName } from '@lib-types/common';
 import type { CreateHouseholdState } from '@lib-types/households';
+import { useTranslations } from 'next-intl';
 import { useActionState } from 'react';
 import { create } from '@/lib/data/households/client';
 import { Button } from '@/ui/button/button';
@@ -22,14 +23,18 @@ type HouseholdFormProps = PropsWithClassName<{
 
 export function HouseholdForm({
   className,
-  placeholder = "e.g. Mama's little nest",
-  submitLabel = 'Create household',
+  placeholder,
+  submitLabel,
   action = create,
 }: HouseholdFormProps) {
+  const t = useTranslations('household.form');
   const [state, formAction, pending] = useActionState(
     action,
     {} as CreateHouseholdState,
   );
+
+  const resolvedPlaceholder = placeholder ?? t('namePlaceholder');
+  const resolvedSubmitLabel = submitLabel ?? t('submit');
 
   return (
     <Flex
@@ -41,7 +46,7 @@ export function HouseholdForm({
       isFullWidth
     >
       <Typography as="label" htmlFor="householdName" size="lg" weight="bold">
-        Household name
+        {t('nameLabel')}
       </Typography>
       <Flex direction="column" gap={1} isFullWidth>
         <Input
@@ -49,7 +54,7 @@ export function HouseholdForm({
           id="householdName"
           name="name"
           type="text"
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           required
           autoComplete="name"
           disabled={pending}
@@ -66,7 +71,7 @@ export function HouseholdForm({
         type="submit"
         disabled={pending}
       >
-        {pending ? 'Creating...' : submitLabel}
+        {pending ? t('creating') : resolvedSubmitLabel}
       </Button>
     </Flex>
   );

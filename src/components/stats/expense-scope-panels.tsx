@@ -13,6 +13,7 @@ import { Panel } from '@ui/panel/panel';
 import { ToggleGroup } from '@ui/toggle-group/toggle-group';
 import { Typography } from '@ui/typography/typography';
 import { format, isValid, parse } from 'date-fns';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import styles from '@/app/home/stats/stats.module.css';
 import type {
@@ -44,11 +45,6 @@ type ExpenseScopePanelsProps = {
   householdAvailable: boolean;
 };
 
-const SCOPE_OPTIONS = [
-  { label: 'Personal', value: 'personal' },
-  { label: 'Household', value: 'household' },
-];
-
 function formatMonthLabel(month: string) {
   const parsed = parse(month, 'yyyy-MM', new Date());
   if (!isValid(parsed)) return month;
@@ -66,6 +62,7 @@ function ScopePanels({
   currency,
   showHouseholdTotals,
 }: ScopePanelsProps) {
+  const t = useTranslations('stats');
   const dailyLabel = formatMonthLabel(data.daily.currentMonth);
 
   return (
@@ -86,7 +83,7 @@ function ScopePanels({
       <Panel shadowless className={styles['stats__panel']}>
         <Flex direction="column" gap={1} padding={3}>
           <Typography as="h2" size="lg" weight="bold">
-            Daily comparison
+            {t('dailyComparison')}
           </Typography>
           <Typography size="sm">
             {formatMonthLabel(data.daily.currentMonth)} vs{' '}
@@ -112,6 +109,7 @@ type PersonalScopePanelsProps = {
 };
 
 function PersonalScopePanels({ data, currency }: PersonalScopePanelsProps) {
+  const t = useTranslations('stats');
   const dailyLabel = formatMonthLabel(data.daily.currentMonth);
 
   return (
@@ -130,7 +128,7 @@ function PersonalScopePanels({ data, currency }: PersonalScopePanelsProps) {
         <Panel shadowless className={styles['stats__panel']}>
           <Flex direction="column" gap={1} padding={3}>
             <Typography as="h2" size="lg" weight="bold">
-              Daily comparison
+              {t('dailyComparison')}
             </Typography>
             <Typography size="sm">
               {formatMonthLabel(data.daily.currentMonth)} vs{' '}
@@ -164,9 +162,15 @@ export function ExpenseScopePanels({
   currency,
   householdAvailable,
 }: ExpenseScopePanelsProps) {
+  const t = useTranslations('chat.tabs');
   const [scope, setScope] = useState<'personal' | 'household'>(
     householdAvailable ? 'household' : 'personal',
   );
+
+  const scopeOptions = [
+    { label: t('personal'), value: 'personal' },
+    { label: t('household'), value: 'household' },
+  ];
 
   return (
     <Flex direction="column" gap={5} isFullWidth>
@@ -178,7 +182,7 @@ export function ExpenseScopePanels({
           isFullWidth
         >
           <ToggleGroup
-            items={SCOPE_OPTIONS}
+            items={scopeOptions}
             value={[scope]}
             onValueChange={value => {
               const next = value[0];

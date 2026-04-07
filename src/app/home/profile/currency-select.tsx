@@ -1,8 +1,8 @@
 'use client';
 import { CURRENCIES } from '@constants/currency';
-import { ERROR_MESSAGES } from '@constants/errors';
 import type { MomoError } from '@lib-types/errors';
 import type { SupportedCurrency } from '@lib-types/user-preferences';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState, useTransition } from 'react';
 import { setCurrency } from '@/lib/data/prefs/client';
 import { Flex } from '@/ui/flex/flex';
@@ -29,6 +29,9 @@ type CurrencySelectProps = {
 };
 
 export function CurrencySelect({ value }: CurrencySelectProps) {
+  const t = useTranslations('profile.currency');
+  const tErrors = useTranslations('errors');
+
   const initial = useMemo(
     () => options.find(option => option.code === value) ?? null,
     [value],
@@ -51,15 +54,15 @@ export function CurrencySelect({ value }: CurrencySelectProps) {
   return (
     <div className={styles['profile__settings-row']}>
       <Typography as="label" size="md" weight="bold">
-        Currency
+        {t('label')}
       </Typography>
       <Select
         className={styles['profile__currency-select']}
         name="currency"
-        aria-label="Preferred currency"
+        aria-label={t('ariaLabel')}
         options={options}
         value={selected}
-        placeholder="Select your currency"
+        placeholder={t('placeholder')}
         getOptionLabel={option => `${option.symbol} ${option.name}`}
         getOptionValue={option => option.code}
         onChange={handleChange}
@@ -76,7 +79,7 @@ export function CurrencySelect({ value }: CurrencySelectProps) {
       />
       {error && (
         <Typography size="sm" className="momo-error">
-          {ERROR_MESSAGES[error]}
+          {tErrors(error)}
         </Typography>
       )}
     </div>

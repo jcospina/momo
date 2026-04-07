@@ -14,6 +14,7 @@ import { Panel } from '@ui/panel/panel';
 import { ToggleGroup } from '@ui/toggle-group/toggle-group';
 import { Typography } from '@ui/typography/typography';
 import { cn } from '@utils/cn';
+import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import styles from '@/app/home/stats/stats.module.css';
 import { mq, useMediaQuery } from '@/hooks/use-media-query';
@@ -74,6 +75,7 @@ export function CategoryRingPanel({
   currency,
   showMemberTooltip = false,
 }: CategoryRingPanelProps) {
+  const t = useTranslations('stats');
   const isNarrow = useMediaQuery(mq('(max-width: 768px)'));
 
   const {
@@ -118,7 +120,7 @@ export function CategoryRingPanel({
           className={styles['stats__header-row']}
         >
           <Typography as="h2" size="lg" weight="bold">
-            Expenses by category
+            {t('expensesByCategory')}
           </Typography>
           <Flex alignItems="center" gap={2} wrap={isNarrow ? 'wrap' : 'nowrap'}>
             <ToggleGroup
@@ -137,7 +139,7 @@ export function CategoryRingPanel({
       <div className={styles['stats__chart-shell']}>
         <button
           type="button"
-          aria-label="Previous months"
+          aria-label={t('nav.prevMonths')}
           onClick={handlePrev}
           className={styles['stats__nav-button']}
           data-hidden={canGoPrev ? 'false' : 'true'}
@@ -160,7 +162,7 @@ export function CategoryRingPanel({
         </div>
         <button
           type="button"
-          aria-label="Next months"
+          aria-label={t('nav.nextMonths')}
           onClick={handleNext}
           className={styles['stats__nav-button']}
           data-hidden={canGoNext ? 'false' : 'true'}
@@ -178,6 +180,7 @@ export function RingChartsPanel({
   currency,
   showHouseholdTotals = true,
 }: RingChartsPanelProps) {
+  const t = useTranslations('stats');
   const isNarrow = useMediaQuery(mq('(max-width: 768px)'));
 
   const {
@@ -229,7 +232,7 @@ export function RingChartsPanel({
               className={styles['stats__header-row']}
             >
               <Typography as="h2" size="lg" weight="bold">
-                Household totals by member
+                {t('householdTotalsByMember')}
               </Typography>
               <Flex
                 alignItems="center"
@@ -252,7 +255,7 @@ export function RingChartsPanel({
           <div className={styles['stats__chart-shell']}>
             <button
               type="button"
-              aria-label="Previous months"
+              aria-label={t('nav.prevMonths')}
               onClick={handlePrev}
               className={styles['stats__nav-button']}
               data-hidden={canGoPrev ? 'false' : 'true'}
@@ -268,7 +271,7 @@ export function RingChartsPanel({
             </div>
             <button
               type="button"
-              aria-label="Next months"
+              aria-label={t('nav.nextMonths')}
               onClick={handleNext}
               className={styles['stats__nav-button']}
               data-hidden={canGoNext ? 'false' : 'true'}
@@ -297,7 +300,7 @@ export function RingChartsPanel({
             className={styles['stats__header-row']}
           >
             <Typography as="h2" size="lg" weight="bold">
-              Expenses by category
+              {t('expensesByCategory')}
             </Typography>
             <Flex
               alignItems="center"
@@ -320,7 +323,7 @@ export function RingChartsPanel({
         <div className={styles['stats__chart-shell']}>
           <button
             type="button"
-            aria-label="Previous months"
+            aria-label={t('nav.prevMonths')}
             onClick={handlePrev}
             className={styles['stats__nav-button']}
             data-hidden={canGoPrev ? 'false' : 'true'}
@@ -343,7 +346,7 @@ export function RingChartsPanel({
           </div>
           <button
             type="button"
-            aria-label="Next months"
+            aria-label={t('nav.nextMonths')}
             onClick={handleNext}
             className={styles['stats__nav-button']}
             data-hidden={canGoNext ? 'false' : 'true'}

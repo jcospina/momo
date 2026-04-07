@@ -11,6 +11,7 @@ import { LeftIcon } from '@ui/icons/left';
 import { RightIcon } from '@ui/icons/right';
 import { ToggleGroup } from '@ui/toggle-group/toggle-group';
 import { Typography } from '@ui/typography/typography';
+import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import styles from '@/app/home/stats/stats.module.css';
 import { mq, useMediaQuery } from '@/hooks/use-media-query';
@@ -26,6 +27,7 @@ export function MonthlyTotalsPanel({
   breakdownRows,
   currency,
 }: MonthlyTotalsPanelProps) {
+  const t = useTranslations('stats');
   const isNarrow = useMediaQuery(mq('(max-width: 768px)'));
 
   const monthlyTotals = useMemo(
@@ -77,7 +79,7 @@ export function MonthlyTotalsPanel({
           className={styles['stats__header-row']}
         >
           <Typography as="h2" size="lg" weight="bold">
-            Monthly totals
+            {t('monthlyTotals')}
           </Typography>
           <Flex alignItems="center" gap={2} wrap={isNarrow ? 'wrap' : 'nowrap'}>
             <ToggleGroup
@@ -96,7 +98,7 @@ export function MonthlyTotalsPanel({
       <div className={styles['stats__chart-shell']}>
         <button
           type="button"
-          aria-label="Previous months"
+          aria-label={t('nav.prevMonths')}
           onClick={handlePrev}
           className={styles['stats__nav-button']}
           data-hidden={canGoPrev ? 'false' : 'true'}
@@ -107,11 +109,11 @@ export function MonthlyTotalsPanel({
           <MonthlyTotalsBarChart months={activeWindow} currency={currency} />
         </div>
         {!hasData ? (
-          <div className={styles['stats__chart-empty']}>No data yet</div>
+          <div className={styles['stats__chart-empty']}>{t('noData')}</div>
         ) : null}
         <button
           type="button"
-          aria-label="Next months"
+          aria-label={t('nav.nextMonths')}
           onClick={handleNext}
           className={styles['stats__nav-button']}
           data-hidden={canGoNext ? 'false' : 'true'}

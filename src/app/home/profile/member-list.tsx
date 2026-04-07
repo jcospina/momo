@@ -1,5 +1,6 @@
 import type { HouseholdMemberProfile } from '@lib-types/households';
 import { firstName } from '@utils/user';
+import { getTranslations } from 'next-intl/server';
 import { Avatar } from '@/ui/avatar/avatar';
 import { Flex } from '@/ui/flex/flex';
 import { Typography } from '@/ui/typography/typography';
@@ -9,14 +10,11 @@ type MemberListProps = {
   members: HouseholdMemberProfile[];
 };
 
-export function MemberList({ userEmail, members }: MemberListProps) {
+export async function MemberList({ userEmail, members }: MemberListProps) {
+  const t = await getTranslations('profile');
   const otherMembers = members.filter(member => member.email !== userEmail);
   if (!otherMembers.length) {
-    return (
-      <Typography>
-        What is the point of a household if you don&apos;t bring in your family?
-      </Typography>
-    );
+    return <Typography>{t('memberEmpty')}</Typography>;
   }
 
   return (

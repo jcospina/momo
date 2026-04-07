@@ -1,3 +1,5 @@
+'use client';
+
 import type { ChatMessage as ChatMessageRecord } from '@lib-types/chat';
 import { Avatar } from '@ui/avatar/avatar';
 import { Button } from '@ui/button/button';
@@ -13,6 +15,7 @@ import { Typography } from '@ui/typography/typography';
 import { cn } from '@utils/cn';
 import { firstName } from '@utils/user';
 import { format } from 'date-fns';
+import { useTranslations } from 'next-intl';
 import styles from './chat-message.module.css';
 
 type StatusTone = 'error' | 'warning' | 'expense';
@@ -25,8 +28,8 @@ type StatusKind =
 
 type StatusDisplay = {
   kind: StatusKind;
-  label: string;
   tone: StatusTone;
+  expenseCount?: number;
 };
 
 type ChatMessageProps = {
@@ -69,43 +72,30 @@ function getStatusDisplay(
     if (hasExpenses) {
       return {
         kind: 'expense_created',
-        label:
-          message.expense_count > 1 ? 'expenses created' : 'expense created',
         tone: 'expense',
+        expenseCount: message.expense_count,
       };
     }
     return null;
   }
 
   if (isLocalError) {
-    return {
-      kind: 'retry_send',
-      label: 'send failed',
-      tone: 'error',
-    };
+    return { kind: 'retry_send', tone: 'error' };
   }
 
   if (isFailed) {
-    return {
-      kind: 'expense_failed',
-      label: 'expense failed',
-      tone: 'error',
-    };
+    return { kind: 'expense_failed', tone: 'error' };
   }
 
   if (needsCategory) {
-    return {
-      kind: 'needs_category',
-      label: 'needs category',
-      tone: 'warning',
-    };
+    return { kind: 'needs_category', tone: 'warning' };
   }
 
   if (hasExpenses) {
     return {
       kind: 'expense_created',
-      label: message.expense_count > 1 ? 'expenses created' : 'expense created',
       tone: 'expense',
+      expenseCount: message.expense_count,
     };
   }
 
@@ -120,7 +110,7 @@ type StatusButtonProps = {
 
 function RetrySendButton({ label, className, onClick }: StatusButtonProps) {
   return (
-    <Menu items={[{ type: 'item', label: 'Retry', onSelect: onClick }]}>
+    <Menu items={[{ type: 'item', label, onSelect: onClick }]}>
       <Button
         type="button"
         variant="icon"
@@ -182,14 +172,28 @@ function ExpenseCreatedButton({
 type ActionsTriggerButtonProps = {
   onDelete: () => void;
   onEdit: () => void;
+  ariaLabel: string;
+  editLabel: string;
+  deleteLabel: string;
 };
 
-function ActionsTriggerButton({ onDelete, onEdit }: ActionsTriggerButtonProps) {
+function ActionsTriggerButton({
+  onDelete,
+  onEdit,
+  ariaLabel,
+  editLabel,
+  deleteLabel,
+}: ActionsTriggerButtonProps) {
   return (
     <Menu
       items={[
-        { type: 'item', label: 'Edit', onSelect: onEdit },
-        { type: 'item', label: 'Delete', tone: 'danger', onSelect: onDelete },
+        { type: 'item', label: editLabel, onSelect: onEdit },
+        {
+          type: 'item',
+          label: deleteLabel,
+          tone: 'danger',
+          onSelect: onDelete,
+        },
       ]}
     >
       <Button
@@ -199,7 +203,7 @@ function ActionsTriggerButton({ onDelete, onEdit }: ActionsTriggerButtonProps) {
           styles['momo-chat__icon-button'],
           styles['momo-chat__actions-trigger'],
         )}
-        aria-label="Message actions"
+        aria-label={ariaLabel}
       >
         <ThreeDotsIcon width={16} height={16} />
       </Button>
@@ -222,12 +226,25 @@ function ChatMessageBubble({
   onExpenseFailed,
   onDelete,
 }: ChatMessageBubbleProps) {
+  const tChat = useTranslations('chat');
   const name = firstName(senderName, null);
   const baseStatusClass = cn(
     styles['momo-chat__icon-button'],
     styles['momo-chat__status-icon'],
   );
   const deleteDialog = useDialogController();
+
+  const statusLabel = status
+    ? status.kind === 'retry_send'
+      ? tChat('status.sendFailed')
+      : status.kind === 'expense_failed'
+        ? tChat('status.expenseFailed')
+        : status.kind === 'needs_category'
+          ? tChat('status.needsCategory')
+          : (status.expenseCount ?? 0) > 1
+            ? tChat('status.expensesCreated')
+            : tChat('status.expenseCreated')
+    : '';
 
   const statusClassName = status?.tone
     ? cn(baseStatusClass, styles[`momo-chat__status-icon--${status.tone}`])
@@ -280,28 +297,28 @@ function ChatMessageBubble({
             <div className={styles['momo-chat__content-row']}>
               {status?.kind === 'retry_send' ? (
                 <RetrySendButton
-                  label={status.label}
+                  label={statusLabel}
                   className={statusClassName}
                   onClick={onRetrySend}
                 />
               ) : null}
               {status?.kind === 'needs_category' ? (
                 <NeedsCategoryButton
-                  label={status.label}
+                  label={statusLabel}
                   className={statusClassName}
                   onClick={onNeedsCategory}
                 />
               ) : null}
               {status?.kind === 'expense_failed' ? (
                 <ExpenseFailedButton
-                  label={status.label}
+                  label={statusLabel}
                   className={statusClassName}
                   onClick={onExpenseFailed}
                 />
               ) : null}
               {status?.kind === 'expense_created' ? (
                 <ExpenseCreatedButton
-                  label={status.label}
+                  label={statusLabel}
                   className={statusClassName}
                   onClick={onExpenseDetails}
                 />
@@ -317,6 +334,9 @@ function ChatMessageBubble({
                 <ActionsTriggerButton
                   onEdit={onExpenseDetails}
                   onDelete={deleteDialog.openDialog}
+                  ariaLabel={tChat('message.actionsAriaLabel')}
+                  editLabel={tChat('message.edit')}
+                  deleteLabel={tChat('message.delete')}
                 />
               ) : null}
             </div>
@@ -346,22 +366,22 @@ function ChatMessageBubble({
                   : styles['momo-chat__delete-error--incoming'],
               )}
             >
-              Damn, I cannot delete that
+              {tChat('message.deleteError')}
             </Typography>
           ) : null}
         </Flex>
       </Flex>
       <Dialog
         controller={deleteDialog}
-        title="Delete message?"
-        content="This will remove the message permanently."
+        title={tChat('message.deleteTitle')}
+        content={tChat('message.deleteConfirmBody')}
         actions={
           <>
             <Button variant="secondary" onClick={deleteDialog.closeDialog}>
-              Cancel
+              {tChat('message.cancel')}
             </Button>
             <Button variant="primary" onClick={handleConfirmDelete}>
-              Confirm
+              {tChat('message.confirm')}
             </Button>
           </>
         }

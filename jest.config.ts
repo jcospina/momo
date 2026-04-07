@@ -10,6 +10,8 @@ const config: Config = {
   coverageProvider: 'v8',
   testEnvironment: 'jsdom',
   moduleNameMapper: {
+    '^next-intl$': '<rootDir>/src/__mocks__/next-intl.ts',
+    '^next-intl/(.*)$': '<rootDir>/src/__mocks__/next-intl.ts',
     '^@lib-supabase/(.*)$': '<rootDir>/src/lib/supabase/$1',
     '^@actions/(.*)$': '<rootDir>/src/lib/actions/$1',
     '^@auth/(.*)$': '<rootDir>/src/lib/auth/$1',
@@ -24,6 +26,7 @@ const config: Config = {
     '^@ui/(.*)$': '<rootDir>/src/ui/$1',
     '^@utils/(.*)$': '<rootDir>/src/lib/utils/$1',
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@messages/(.*)$': '<rootDir>/messages/$1',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/'],

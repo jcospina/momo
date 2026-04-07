@@ -1,0 +1,148 @@
+{
+  "auth": {
+    "login": {
+      "welcome": "Bienvenido a",
+      "tagline": "Más plata, más diversión",
+      "signInGoogle": "Entrar con Google"
+    },
+    "onboarding": {
+      "householdPrompt": "Vamos a configurar tu hogar para que puedas registrar gastos junto a tus seres queridos.",
+      "skipTooltip": "Entiendo que no quieres compartir tus hábitos de gasto con tu familia. Lo respeto y no te juzgo.",
+      "skip": "Saltarse la creación del hogar."
+    }
+  },
+  "errors": {
+    "auth_provider_failed": "Algo salió mal con Google, eso no es cosa mía.",
+    "auth_user_missing": "Por alguna razón entraste pero no puedo encontrarte.",
+    "auth_exchange_failed": "Casi lo lograste pero algo falló. Eso sí es culpa mía. Lo siento.",
+    "auth_required": "¡Ajá! Intentaste crear algo que no deberías. Qué pillo.",
+    "logout_failed": "Algo me impide dejarte salir. Perdona.",
+    "household_name_required": "¿Quién no le pone nombre a su hogar?",
+    "household_create_failed": "Esto es culpa mía, no pude crear tu hogar. Lo siento.",
+    "household_membership_create_failed": "",
+    "household_full": "Este hogar está lleno, no puedes entrar.",
+    "household_invalid": "Algo está muy mal con el hogar al que intentas unirte.",
+    "no_household": "Alguien te engañó haciéndote creer que esta invitación era válida. Qué vergüenza de su parte.",
+    "user_has_a_household": "Ya perteneces a un hogar, nada de trampas por favor.",
+    "profile_create_failed": "No puedo crear tu perfil. La culpa es mía.",
+    "user_pref_update_failed": "No puedo actualizar tus preferencias, perdona."
+  },
+  "chat": {
+    "tabs": {
+      "personal": "Personal",
+      "household": "Hogar"
+    },
+    "message": {
+      "actionsAriaLabel": "Acciones del mensaje",
+      "deleteTitle": "¿Eliminar mensaje?",
+      "deleteConfirmBody": "Esto eliminará el mensaje de forma permanente.",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "retry": "Reintentar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "deleteError": "Vaya, no puedo eliminar eso"
+    },
+    "status": {
+      "sendFailed": "envío fallido",
+      "needsCategory": "falta categoría",
+      "expenseFailed": "gasto fallido",
+      "expenseCreated": "gasto creado",
+      "expensesCreated": "gastos creados"
+    }
+  },
+  "expenses": {
+    "detail": {
+      "title": "Detalles del gasto",
+      "loading": "Cargando gastos...",
+      "empty": "No se encontraron gastos.",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "amountLabel": "Monto",
+      "dateLabel": "Fecha",
+      "categoryLabel": "Categoría",
+      "categoryAriaLabel": "Categoría del gasto",
+      "categoryPlaceholder": "Selecciona una categoría",
+      "merchantLabel": "Comercio",
+      "sourceLabel": "Fuente",
+      "merchantPlaceholder": "Agregar comercio",
+      "sourcePlaceholder": "Agregar fuente",
+      "noteLabel": "Nota",
+      "notePlaceholder": "Agregar nota",
+      "income": "Ingreso",
+      "expense": "Gasto"
+    }
+  },
+  "stats": {
+    "expensesByCategory": "Gastos por categoría",
+    "householdTotalsByMember": "Totales del hogar por miembro",
+    "incomeVsExpenses": "Ingresos vs gastos",
+    "cumulativeSavings": "Ahorros acumulados",
+    "runningMonthlyNet": "Neto mensual acumulado",
+    "monthlyTotals": "Totales mensuales",
+    "dailyComparison": "Comparación diaria",
+    "noData": "Sin datos aún",
+    "nav": {
+      "prevMonths": "Meses anteriores",
+      "nextMonths": "Meses siguientes",
+      "prevCashflow": "Meses anteriores de ingresos vs gastos",
+      "nextCashflow": "Meses siguientes de ingresos vs gastos",
+      "prevSavings": "Meses anteriores de ahorros acumulados",
+      "nextSavings": "Meses siguientes de ahorros acumulados"
+    }
+  },
+  "profile": {
+    "title": "Perfil",
+    "settings": "Configuración",
+    "logout": "Cerrar sesión",
+    "noHousehold": "Parece que aún no tienes un hogar. Si decidiste compartir con tu familia, crea uno abajo",
+    "createHousehold": "Crear un hogar",
+    "memberEmpty": "¿De qué sirve un hogar si no invitas a tu familia?",
+    "aiEnabled": "IA activada",
+    "currency": {
+      "label": "Moneda",
+      "placeholder": "Selecciona tu moneda",
+      "ariaLabel": "Moneda preferida"
+    },
+    "language": {
+      "label": "Idioma",
+      "placeholder": "Selecciona tu idioma",
+      "ariaLabel": "Idioma preferido",
+      "en": "Inglés",
+      "es": "Español"
+    },
+    "invite": {
+      "linkCopied": "Enlace copiado",
+      "shared": "¡Compartido!",
+      "copyFailed": "Error al copiar",
+      "share": "Compartir enlace de invitación",
+      "copy": "Copiar enlace de invitación",
+      "shareTitle": "Únete a mi hogar en MoMo",
+      "shareText": "Usa este enlace para unirte a mi hogar en MoMo."
+    }
+  },
+  "household": {
+    "form": {
+      "nameLabel": "Nombre del hogar",
+      "namePlaceholder": "ej. El nidito de mamá",
+      "submit": "Crear hogar",
+      "creating": "Creando..."
+    }
+  },
+  "invite": {
+    "notFound": "Invitación no encontrada",
+    "full": "El hogar está lleno",
+    "goToLogin": "Ir al inicio de sesión",
+    "joinHeading": "Únete a <highlight>{inviter}</highlight> y {count, plural, one {# persona más} other {# personas más}} en <b>{household}</b>.",
+    "joinHeadingSingle": "<highlight>{inviter}</highlight> te invitó a unirte a <b>{household}</b>.",
+    "joinWithGoogle": "Unirse con Google"
+  },
+  "common": {
+    "loading": "Cargando",
+    "notFound": {
+      "message": "Encontraste una página que no existe, y al encontrarla la trajiste a la existencia.",
+      "tagline": "¡Curioso, ¿verdad?!"
+    }
+  }
+}
