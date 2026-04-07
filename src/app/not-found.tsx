@@ -3,11 +3,13 @@ import { Flex } from '@ui/flex/flex';
 import { Logo } from '@ui/logo/logo';
 import { Typography } from '@ui/typography/typography';
 import { headers } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import styles from './not-found.module.css';
 
 export default async function NotFound() {
   const ua = (await headers()).get('user-agent') || '';
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+  const t = await getTranslations('common.notFound');
   return (
     <Flex
       direction="column"
@@ -27,11 +29,10 @@ export default async function NotFound() {
         <Logo text="404" />
         <Flex direction="column" gap={2}>
           <Typography size="xl" as="h1">
-            You just found a page that doesn&apos;t exist, and by finding it you
-            brought it into existence.
+            {t('message')}
           </Typography>
           <Typography size="xl" as="h2">
-            Pretty neat huh!
+            {t('tagline')}
           </Typography>
         </Flex>
       </Flex>

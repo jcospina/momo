@@ -1,8 +1,8 @@
 'use client';
 
-import { ERROR_MESSAGES } from '@constants/errors';
 import type { MomoError } from '@lib-types/errors';
 import type { SupportedLanguage } from '@lib-types/user-preferences';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState, useTransition } from 'react';
 import { setLanguage } from '@/lib/data/prefs/client';
 import { Flex } from '@/ui/flex/flex';
@@ -16,19 +16,25 @@ type LanguageOption = {
   label: string;
 };
 
-const options: LanguageOption[] = [
-  { code: 'en', label: 'English' },
-  { code: 'es', label: 'Spanish' },
-];
-
 type LanguageSelectProps = {
   value?: SupportedLanguage | null;
 };
 
 export function LanguageSelect({ value }: LanguageSelectProps) {
+  const t = useTranslations('profile.language');
+  const tErrors = useTranslations('errors');
+
+  const options: LanguageOption[] = useMemo(
+    () => [
+      { code: 'en', label: t('en') },
+      { code: 'es', label: t('es') },
+    ],
+    [t],
+  );
+
   const initial = useMemo(
     () => options.find(option => option.code === value) ?? null,
-    [value],
+    [options, value],
   );
   const [selected, setSelected] = useState<LanguageOption | null>(initial);
   const [error, setError] = useState<MomoError | null>(null);
@@ -48,15 +54,15 @@ export function LanguageSelect({ value }: LanguageSelectProps) {
   return (
     <div className={styles['profile__settings-row']}>
       <Typography as="label" size="md" weight="bold">
-        Language
+        {t('label')}
       </Typography>
       <Select
         className={styles['profile__currency-select']}
         name="language"
-        aria-label="Preferred language"
+        aria-label={t('ariaLabel')}
         options={options}
         value={selected}
-        placeholder="Select your language"
+        placeholder={t('placeholder')}
         getOptionLabel={option => option.label}
         getOptionValue={option => option.code}
         onChange={handleChange}
@@ -73,7 +79,7 @@ export function LanguageSelect({ value }: LanguageSelectProps) {
       />
       {error && (
         <Typography size="sm" className="momo-error">
-          {ERROR_MESSAGES[error]}
+          {tErrors(error)}
         </Typography>
       )}
     </div>

@@ -1,7 +1,7 @@
 import { Toast } from '@components/toast/toast';
-import { ERROR_MESSAGES } from '@constants/errors';
 import type { MomoError } from '@lib-types/errors';
 import { redirect } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { HouseholdForm } from '@/components/household-form/household-form';
 import { getCurrentUser } from '@/lib/data/auth/server';
 import { getMembership } from '@/lib/data/households/server';
@@ -35,6 +35,9 @@ export default async function OnboardingPage({
     redirect('/home');
   }
 
+  const tOnboarding = await getTranslations('auth.onboarding');
+  const tErrors = await getTranslations('errors');
+
   return (
     <Flex
       direction="column"
@@ -53,27 +56,24 @@ export default async function OnboardingPage({
           isFullWidth
         >
           <Logo />
-          <Typography>
-            Let&apos;s set up your household so you can start tracking expenses
-            together with your loved ones.
-          </Typography>
+          <Typography>{tOnboarding('householdPrompt')}</Typography>
           <HouseholdForm />
           <Tooltip
             className={styles['onboarding__skip-link']}
-            label="You don't want to share your spending habits with your family, I respect that and won't judge."
+            label={tOnboarding('skipTooltip')}
           >
             <form>
               <Button
                 variant="link"
                 formAction={setOnboardingStatus.bind(null, 'skipped')}
               >
-                Skip household creation.
+                {tOnboarding('skip')}
               </Button>
             </form>
           </Tooltip>
         </Flex>
       </Panel>
-      {error && <Toast variant="error">{ERROR_MESSAGES[error]}</Toast>}
+      {error && <Toast variant="error">{tErrors(error)}</Toast>}
     </Flex>
   );
 }

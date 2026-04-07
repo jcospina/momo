@@ -11,6 +11,7 @@ import { RightIcon } from '@ui/icons/right';
 import { Panel } from '@ui/panel/panel';
 import { ToggleGroup } from '@ui/toggle-group/toggle-group';
 import { Typography } from '@ui/typography/typography';
+import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import styles from '@/app/home/stats/stats.module.css';
 import { mq, useMediaQuery } from '@/hooks/use-media-query';
@@ -43,6 +44,7 @@ export function CashflowPanels({
   cumulativeSavings,
   currency,
 }: CashflowPanelsProps) {
+  const t = useTranslations('stats');
   const isNarrow = useMediaQuery(mq('(max-width: 768px)'));
 
   const {
@@ -99,7 +101,7 @@ export function CashflowPanels({
             className={styles['stats__header-row']}
           >
             <Typography as="h2" size="lg" weight="bold">
-              Income vs expenses
+              {t('incomeVsExpenses')}
             </Typography>
             <Flex
               alignItems="center"
@@ -122,7 +124,7 @@ export function CashflowPanels({
         <div className={styles['stats__chart-shell']}>
           <button
             type="button"
-            aria-label="Previous months income vs expenses"
+            aria-label={t('nav.prevCashflow')}
             onClick={() => {
               if (!canGoIncomePrev) return;
               setIncomeActiveIndex(incomeActiveIndex - 1);
@@ -139,11 +141,11 @@ export function CashflowPanels({
             />
           </div>
           {!showIncomeData ? (
-            <div className={styles['stats__chart-empty']}>No data yet</div>
+            <div className={styles['stats__chart-empty']}>{t('noData')}</div>
           ) : null}
           <button
             type="button"
-            aria-label="Next months income vs expenses"
+            aria-label={t('nav.nextCashflow')}
             onClick={() => {
               if (!canGoIncomeNext) return;
               setIncomeActiveIndex(incomeActiveIndex + 1);
@@ -167,7 +169,7 @@ export function CashflowPanels({
             className={styles['stats__header-row']}
           >
             <Typography as="h2" size="lg" weight="bold">
-              Cumulative savings
+              {t('cumulativeSavings')}
             </Typography>
             <Flex
               alignItems="center"
@@ -187,13 +189,13 @@ export function CashflowPanels({
           </Flex>
           <Typography size="sm">
             {savingsMonthRange}
-            {savingsMonthRange ? ' - Running monthly net' : ''}
+            {savingsMonthRange ? ` - ${t('runningMonthlyNet')}` : ''}
           </Typography>
         </Flex>
         <div className={styles['stats__chart-shell']}>
           <button
             type="button"
-            aria-label="Previous months cumulative savings"
+            aria-label={t('nav.prevSavings')}
             onClick={() => {
               if (!canGoSavingsPrev) return;
               setSavingsActiveIndex(savingsActiveIndex - 1);
@@ -210,11 +212,11 @@ export function CashflowPanels({
             />
           </div>
           {!showSavingsData ? (
-            <div className={styles['stats__chart-empty']}>No data yet</div>
+            <div className={styles['stats__chart-empty']}>{t('noData')}</div>
           ) : null}
           <button
             type="button"
-            aria-label="Next months cumulative savings"
+            aria-label={t('nav.nextSavings')}
             onClick={() => {
               if (!canGoSavingsNext) return;
               setSavingsActiveIndex(savingsActiveIndex + 1);

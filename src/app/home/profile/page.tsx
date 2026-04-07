@@ -1,7 +1,7 @@
-import { ERROR_MESSAGES } from '@constants/errors';
 import type { MomoError } from '@lib-types/errors';
 import { firstName } from '@utils/user';
 import { redirect } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { HouseholdForm } from '@/components/household-form/household-form';
 import { Navbar } from '@/components/navbar/navbar';
 import { getCurrentUser, logout } from '@/lib/data/auth/server';
@@ -37,6 +37,8 @@ type ProfilePageProps = {
 
 export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const { error } = await searchParams;
+  const t = await getTranslations('profile');
+  const tErrors = await getTranslations('errors');
   const user = await getCurrentUser();
   if (!user) {
     redirect('/');
@@ -68,7 +70,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           alignItems="center"
         >
           <Typography as="label" size="xl" weight="bold">
-            Profile
+            {t('title')}
           </Typography>
           <Flex alignItems="center" gap={2}>
             <FlexItem shrink={0}>
@@ -103,10 +105,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               padding={3}
               gap={1}
             >
-              <Typography size="sm">
-                It seems you don&apos;t have a household yet. If you decided
-                sharing with family is good, then create one below
-              </Typography>
+              <Typography size="sm">{t('noHousehold')}</Typography>
               <Flex
                 isFullWidth
                 direction="column"
@@ -114,7 +113,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 gap={2}
               >
                 <Typography size="xl" weight="bold">
-                  Create a household
+                  {t('createHousehold')}
                 </Typography>
                 <HouseholdForm action={createInline} />
               </Flex>
@@ -124,7 +123,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         <Divider />
         <Flex direction="column" padding={3} gap={2}>
           <Typography size="lg" weight="bold">
-            Settings
+            {t('settings')}
           </Typography>
           <CurrencySelect value={prefs?.currency ?? null} />
           <LanguageSelect value={prefs?.language ?? null} />
@@ -134,12 +133,12 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         <Flex padding={3} direction="column" gap={2}>
           <form>
             <Button variant="secondary" formAction={logout}>
-              Logout
+              {t('logout')}
             </Button>
           </form>
           {error && (
             <Typography size="sm" className="momo-error">
-              {ERROR_MESSAGES[error]}
+              {tErrors(error)}
             </Typography>
           )}
         </Flex>

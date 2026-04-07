@@ -8,6 +8,7 @@ import type {
 } from '@lib-types/user-preferences';
 import { OnboardingStatus } from '@lib-types/user-preferences';
 import { redirectWithError } from '@utils/redirect-with-error';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 export async function setOnboardingStatus(
@@ -117,6 +118,9 @@ export async function setLanguage(
       errorCode: 'user_pref_update_failed',
     };
   }
+
+  const cookieStore = await cookies();
+  cookieStore.set('NEXT_LOCALE', language, { path: '/', sameSite: 'lax' });
 
   return {};
 }

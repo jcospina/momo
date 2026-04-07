@@ -11,6 +11,7 @@ import { Flex } from '@ui/flex/flex';
 import { Input } from '@ui/input/input';
 import { Select } from '@ui/select/select';
 import { Typography } from '@ui/typography/typography';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   getExpensesByMessageId,
@@ -81,6 +82,7 @@ export function ExpenseDetailsDialog({
   messageId,
   onSaved,
 }: ExpenseDetailsDialogProps) {
+  const t = useTranslations('expenses.detail');
   const [expenseDrafts, setExpenseDrafts] = useState<ExpenseDraft[]>([]);
   const [loadedMessageId, setLoadedMessageId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -192,10 +194,8 @@ export function ExpenseDetailsDialog({
       gap={2}
       className={styles['expense-details__content']}
     >
-      {showLoading ? (
-        <Typography size="sm">Loading expenses...</Typography>
-      ) : null}
-      {showEmpty ? <Typography size="sm">No expenses found.</Typography> : null}
+      {showLoading ? <Typography size="sm">{t('loading')}</Typography> : null}
+      {showEmpty ? <Typography size="sm">{t('empty')}</Typography> : null}
       {visibleExpenses.map((expense, index) => {
         const amountId = `expense-amount-${expense.id}`;
         const dateId = `expense-date-${expense.id}`;
@@ -213,7 +213,7 @@ export function ExpenseDetailsDialog({
               <Typography as="h3" size="sm" weight="bold">
                 {formatExpenseNote(
                   expense.note,
-                  `${incomeFields ? 'Income' : 'Expense'} ${index + 1}`,
+                  `${incomeFields ? t('income') : t('expense')} ${index + 1}`,
                 )}
               </Typography>
             ) : null}
@@ -225,7 +225,7 @@ export function ExpenseDetailsDialog({
                   weight="bold"
                   htmlFor={amountId}
                 >
-                  Amount
+                  {t('amountLabel')}
                 </Typography>
                 <Input
                   id={amountId}
@@ -241,7 +241,7 @@ export function ExpenseDetailsDialog({
               </div>
               <div className={styles['expense-details__field']}>
                 <Typography as="label" size="sm" weight="bold" htmlFor={dateId}>
-                  Date
+                  {t('dateLabel')}
                 </Typography>
                 <Input
                   id={dateId}
@@ -261,16 +261,16 @@ export function ExpenseDetailsDialog({
                 weight="bold"
                 htmlFor={categoryId}
               >
-                Category
+                {t('categoryLabel')}
               </Typography>
               <Select
                 id={categoryId}
                 className={styles['expense-details__control']}
                 name={categoryId}
-                aria-label="Expense category"
+                aria-label={t('categoryAriaLabel')}
                 options={categoryOptions}
                 value={selectedCategory ?? null}
-                placeholder="Select a category"
+                placeholder={t('categoryPlaceholder')}
                 getOptionLabel={option => option.label}
                 getOptionValue={option => option.value}
                 onChange={option =>
@@ -285,13 +285,17 @@ export function ExpenseDetailsDialog({
                 weight="bold"
                 htmlFor={merchantId}
               >
-                {incomeFields ? 'Source' : 'Merchant'}
+                {incomeFields ? t('sourceLabel') : t('merchantLabel')}
               </Typography>
               <Input
                 id={merchantId}
                 className={styles['expense-details__control']}
                 value={expense.merchant}
-                placeholder={incomeFields ? 'Add source' : 'Add merchant'}
+                placeholder={
+                  incomeFields
+                    ? t('sourcePlaceholder')
+                    : t('merchantPlaceholder')
+                }
                 onChange={event =>
                   updateDraft(expense.id, { merchant: event.target.value })
                 }
@@ -302,7 +306,7 @@ export function ExpenseDetailsDialog({
                 className={`${styles['expense-details__row']} ${styles['expense-details__row--top']}`}
               >
                 <Typography as="label" size="sm" weight="bold" htmlFor={noteId}>
-                  Note
+                  {t('noteLabel')}
                 </Typography>
                 <Input
                   id={noteId}
@@ -311,7 +315,7 @@ export function ExpenseDetailsDialog({
                   minRows={2}
                   maxRows={4}
                   value={expense.note}
-                  placeholder="Add note"
+                  placeholder={t('notePlaceholder')}
                   onChange={event =>
                     updateDraft(expense.id, { note: event.target.value })
                   }
@@ -330,15 +334,15 @@ export function ExpenseDetailsDialog({
   return (
     <Dialog
       controller={controller}
-      title="Expense details"
+      title={t('title')}
       content={content}
       actions={
         <>
           <Button variant="secondary" onClick={handleClose}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button variant="primary" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Saving...' : 'Save'}
+            {isSaving ? t('saving') : t('save')}
           </Button>
         </>
       }

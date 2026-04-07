@@ -1,8 +1,8 @@
 'use client';
-import { ERROR_MESSAGES } from '@constants/errors';
 import type { MomoError } from '@lib-types/errors';
 import { Checkbox } from '@ui/checkbox/checkbox';
 import { Flex } from '@ui/flex/flex';
+import { useTranslations } from 'next-intl';
 import { useCallback, useId, useState, useTransition } from 'react';
 import { setAiEnabled } from '@/lib/data/prefs/client';
 import { Typography } from '@/ui/typography/typography';
@@ -12,6 +12,8 @@ type CurrencySelectProps = {
 };
 
 export function AIEnabled({ value = true }: CurrencySelectProps) {
+  const t = useTranslations('profile');
+  const tErrors = useTranslations('errors');
   const [error, setError] = useState<MomoError | null>(null);
   const [checked, setChecked] = useState<boolean>(value);
   const [, startTransition] = useTransition();
@@ -41,7 +43,7 @@ export function AIEnabled({ value = true }: CurrencySelectProps) {
   return (
     <Flex paddingLeft={1} isFullWidth justifyContent="space-between">
       <Typography as="label" size="md" weight="bold" htmlFor={checkboxId}>
-        AI Enabled
+        {t('aiEnabled')}
       </Typography>
       <Checkbox
         id={checkboxId}
@@ -52,7 +54,7 @@ export function AIEnabled({ value = true }: CurrencySelectProps) {
       />
       {error && (
         <Typography id={errorId} size="sm" className="momo-error">
-          {ERROR_MESSAGES[error]}
+          {tErrors(error)}
         </Typography>
       )}
     </Flex>

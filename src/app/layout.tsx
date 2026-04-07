@@ -5,6 +5,8 @@ import { cn } from '@utils/cn';
 import type { Metadata, Viewport } from 'next';
 import { Bungee_Shade, Outfit } from 'next/font/google';
 import { headers } from 'next/headers';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import './globals.css';
 
@@ -98,23 +100,26 @@ export default async function RootLayout({
 }>) {
   const ua = (await headers()).get('user-agent') || '';
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+  const messages = await getMessages();
 
   return (
     <html lang="en">
       <body
         className={cn('antialiased', outfit.className, bungeeShade.variable)}
       >
-        <NavigationProgressProvider>
-          <NavigationProgressBar />
-          <DotGrid
-            blastStrength={4}
-            blastRadius={100}
-            disableHover={isMobile}
-          />
-          <main style={{ position: 'relative', zIndex: 1 }} className="root">
-            {children}
-          </main>
-        </NavigationProgressProvider>
+        <NextIntlClientProvider messages={messages}>
+          <NavigationProgressProvider>
+            <NavigationProgressBar />
+            <DotGrid
+              blastStrength={4}
+              blastRadius={100}
+              disableHover={isMobile}
+            />
+            <main style={{ position: 'relative', zIndex: 1 }} className="root">
+              {children}
+            </main>
+          </NavigationProgressProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

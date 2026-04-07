@@ -32,7 +32,8 @@
       "@lib-supabase/*": ["./src/lib/supabase/*"],
       "@ui/*": ["./src/ui/*"],
       "@utils/*": ["./src/lib/utils/*"],
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@messages/*": ["./messages/*"]
     }
   },
   "include": [
