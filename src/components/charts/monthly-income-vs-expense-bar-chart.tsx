@@ -10,6 +10,8 @@ const THEME_NAME = 'momo';
 const STROKE_COLOR = 'rgb(2, 0, 32)';
 const STROKE_WIDTH = 2;
 const BAR_MAX_WIDTH = 28;
+const BAR_GAP = '30%';
+const BAR_CATEGORY_GAP = '20%';
 
 type MonthlyIncomeVsExpenseBarChartProps = {
   months: MonthlyCashflowPoint[];
@@ -63,6 +65,10 @@ function formatCompactCurrency(amount: number, currency: string) {
   }).format(scaled);
 
   return `${formatted}${suffix}`;
+}
+
+function snapToPixel(value: number, dpr: number) {
+  return Math.round(value * dpr) / dpr;
 }
 
 export function MonthlyIncomeVsExpenseBarChart({
@@ -220,6 +226,8 @@ export function MonthlyIncomeVsExpenseBarChart({
           type: 'bar' as const,
           data: incomeValues,
           barMaxWidth: BAR_MAX_WIDTH,
+          barGap: BAR_GAP,
+          barCategoryGap: BAR_CATEGORY_GAP,
           itemStyle: {
             borderWidth: 0,
           },
@@ -232,6 +240,8 @@ export function MonthlyIncomeVsExpenseBarChart({
           type: 'bar' as const,
           data: expenseValues,
           barMaxWidth: BAR_MAX_WIDTH,
+          barGap: BAR_GAP,
+          barCategoryGap: BAR_CATEGORY_GAP,
           itemStyle: {
             borderWidth: 0,
           },
@@ -264,21 +274,28 @@ export function MonthlyIncomeVsExpenseBarChart({
             if (!barLayout) return null;
             const slots = barLayout({
               count: 2,
-              barWidth: slotWidth,
+              barMaxWidth: slotWidth,
+              barGap: BAR_GAP,
+              barCategoryGap: BAR_CATEGORY_GAP,
             });
             const slot = slots[0];
             if (!slot) return null;
-            const leftX = bottom[0] + slot.offset;
-            const rightX = leftX + slot.width;
+            const dpr = api.getDevicePixelRatio();
+            const centerX = bottom[0] + slot.offsetCenter;
+            const leftX = snapToPixel(centerX - slot.width / 2, dpr);
+            const rightX = snapToPixel(centerX + slot.width / 2, dpr);
+            const topY = snapToPixel(top[1], dpr);
+            const bottomY = snapToPixel(bottom[1], dpr);
+            if (rightX <= leftX) return null;
 
             return {
               type: 'polyline',
               shape: {
                 points: [
-                  [leftX, bottom[1]],
-                  [leftX, top[1]],
-                  [rightX, top[1]],
-                  [rightX, bottom[1]],
+                  [leftX, bottomY],
+                  [leftX, topY],
+                  [rightX, topY],
+                  [rightX, bottomY],
                 ],
               },
               style: {
@@ -324,21 +341,28 @@ export function MonthlyIncomeVsExpenseBarChart({
             if (!barLayout) return null;
             const slots = barLayout({
               count: 2,
-              barWidth: slotWidth,
+              barMaxWidth: slotWidth,
+              barGap: BAR_GAP,
+              barCategoryGap: BAR_CATEGORY_GAP,
             });
             const slot = slots[1];
             if (!slot) return null;
-            const leftX = bottom[0] + slot.offset;
-            const rightX = leftX + slot.width;
+            const dpr = api.getDevicePixelRatio();
+            const centerX = bottom[0] + slot.offsetCenter;
+            const leftX = snapToPixel(centerX - slot.width / 2, dpr);
+            const rightX = snapToPixel(centerX + slot.width / 2, dpr);
+            const topY = snapToPixel(top[1], dpr);
+            const bottomY = snapToPixel(bottom[1], dpr);
+            if (rightX <= leftX) return null;
 
             return {
               type: 'polyline',
               shape: {
                 points: [
-                  [leftX, bottom[1]],
-                  [leftX, top[1]],
-                  [rightX, top[1]],
-                  [rightX, bottom[1]],
+                  [leftX, bottomY],
+                  [leftX, topY],
+                  [rightX, topY],
+                  [rightX, bottomY],
                 ],
               },
               style: {

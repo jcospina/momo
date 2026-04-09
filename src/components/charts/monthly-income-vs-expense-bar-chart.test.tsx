@@ -22,6 +22,8 @@ const mockSafeSetOption = jest.mocked(safeSetOption);
 type BarSeriesOption = {
   name?: string;
   type?: string;
+  barGap?: string;
+  barCategoryGap?: string;
   itemStyle?: {
     borderWidth?: number;
     borderColor?: string;
@@ -29,6 +31,7 @@ type BarSeriesOption = {
   tooltip?: {
     show?: boolean;
   };
+  renderItem?: (_params: unknown, api: unknown) => unknown;
 };
 
 type AxisOption = {
@@ -108,6 +111,8 @@ describe('MonthlyIncomeVsExpenseBarChart', () => {
     expect(filledBarSeries).toHaveLength(2);
     filledBarSeries.forEach(entry => {
       expect(entry.type).toBe('bar');
+      expect(entry.barGap).toBe('30%');
+      expect(entry.barCategoryGap).toBe('20%');
       expect(entry.itemStyle?.borderWidth).toBe(0);
     });
     expect(outlineSeries).toHaveLength(2);
@@ -126,5 +131,57 @@ describe('MonthlyIncomeVsExpenseBarChart', () => {
       color: 'rgb(2, 0, 32)',
       width: 2,
     });
+  });
+
+  it('builds outline geometry from bar layout slot centers for perfect edge alignment', async () => {
+    renderChart([
+      {
+        month: '2026-01',
+        incomeCents: 300_000,
+        expenseCents: 200_000,
+        netCents: 100_000,
+      },
+    ]);
+
+    await waitFor(() => {
+      expect(mockSafeSetOption).toHaveBeenCalled();
+    });
+
+    const options = getLastAppliedOptions();
+    const outlineSeries = (options.series ?? []).filter(
+      entry => entry.type === 'custom',
+    );
+    const incomeOutline = outlineSeries.find(
+      entry => entry.name === '__income_outline__',
+    );
+    expect(incomeOutline?.renderItem).toBeDefined();
+
+    const renderResult = incomeOutline?.renderItem?.(
+      {},
+      {
+        value: (dim: number) => (dim === 0 ? 0 : 300_000),
+        coord: (point: [number, number]) =>
+          point[1] === 0 ? [100.3, 220.6] : [100.3, 120.2],
+        size: () => [80, 0],
+        barLayout: () => [
+          { width: 28, offset: -999, offsetCenter: -14, bandWidth: 80 },
+          { width: 28, offset: 999, offsetCenter: 14, bandWidth: 80 },
+        ],
+        getDevicePixelRatio: () => 1,
+      },
+    ) as
+      | {
+          type?: string;
+          shape?: { points?: number[][] };
+        }
+      | undefined;
+
+    expect(renderResult?.type).toBe('polyline');
+    expect(renderResult?.shape?.points).toEqual([
+      [72, 221],
+      [72, 120],
+      [100, 120],
+      [100, 221],
+    ]);
   });
 });

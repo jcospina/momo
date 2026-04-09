@@ -163,6 +163,7 @@ export function DailyComparisonLineChart({
       persistentMarkerDay === null
         ? null
         : {
+            name: 'today-marker-current',
             xAxis: persistentMarkerDay - 1,
             yAxis: currentValues[persistentMarkerDay - 1] ?? 0,
           };
@@ -170,11 +171,12 @@ export function DailyComparisonLineChart({
       persistentMarkerDay === null
         ? null
         : {
+            name: 'today-marker-previous',
             xAxis: persistentMarkerDay - 1,
             yAxis: previousValues[persistentMarkerDay - 1] ?? 0,
           };
     const buildPersistentMarker = (
-      markerData: { xAxis: number; yAxis: number } | null,
+      markerData: { name: string; xAxis: number; yAxis: number } | null,
     ) =>
       markerData
         ? {
