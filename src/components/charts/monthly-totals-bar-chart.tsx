@@ -7,6 +7,9 @@ import { type EChartsType, echarts } from './echarts-init';
 import { safeResize, safeSetOption } from './echarts-safe';
 
 const THEME_NAME = 'momo';
+const STROKE_COLOR = 'rgb(2, 0, 32)';
+const STROKE_WIDTH = 2;
+const BAR_MAX_WIDTH = 32;
 
 type MonthEntry = {
   month: string;
@@ -224,6 +227,11 @@ export function MonthlyTotalsBarChart({
         itemHeight: 12,
         itemWidth: 12,
         itemGap: 10,
+        data: series.map(item => item.name),
+        itemStyle: {
+          borderColor: STROKE_COLOR,
+          borderWidth: STROKE_WIDTH,
+        },
         formatter: (name: string) => formatCategoryLabel(name),
         ...legendLayout,
       },
@@ -237,6 +245,20 @@ export function MonthlyTotalsBarChart({
       xAxis: {
         type: 'category',
         data: monthKeys,
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: STROKE_COLOR,
+            width: STROKE_WIDTH,
+          },
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: STROKE_COLOR,
+            width: STROKE_WIDTH,
+          },
+        },
         axisLabel: {
           interval: 0,
           formatter: (value: string) => {
@@ -250,20 +272,107 @@ export function MonthlyTotalsBarChart({
       },
       yAxis: {
         type: 'value',
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: STROKE_COLOR,
+            width: STROKE_WIDTH,
+          },
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: STROKE_COLOR,
+            width: STROKE_WIDTH,
+          },
+        },
         axisLabel: {
           formatter: (value: number) =>
             formatCompactCurrency(toDisplayAmount(value, currency), currency),
         },
       },
-      series: series.map(item => ({
-        name: item.name,
-        type: 'bar',
-        stack: 'total',
-        data: item.data,
-        barMaxWidth: 32,
-      })),
+      series: [
+        ...series.map(item => ({
+          name: item.name,
+          type: 'bar' as const,
+          stack: 'total',
+          data: item.data,
+          barMaxWidth: BAR_MAX_WIDTH,
+          itemStyle: {
+            borderWidth: 0,
+          },
+        })),
+        {
+          name: '__stack_outline__',
+          type: 'custom' as const,
+          data: totals.map((total, index) => [index, total]),
+          renderItem: (_params, api) => {
+            const xIndex = Number(api.value(0));
+            const total = Number(api.value(1));
+            if (!Number.isFinite(xIndex) || !Number.isFinite(total)) {
+              return null;
+            }
+            if (total <= 0) return null;
+
+            const top = api.coord([xIndex, total]);
+            const bottom = api.coord([xIndex, 0]);
+            const sizeFn = api.size;
+            if (!sizeFn) return null;
+            const size = sizeFn([1, 0]);
+            const categoryWidth = Math.abs(
+              Array.isArray(size) ? size[0] : size,
+            );
+            const barWidth = Math.min(BAR_MAX_WIDTH, categoryWidth * 0.72);
+            const barLayout = api.barLayout;
+            if (!barLayout) return null;
+            const slots = barLayout({
+              count: 1,
+              barWidth,
+            });
+            const slot = slots[0];
+            if (!slot) return null;
+            const leftX = bottom[0] + slot.offset;
+            const rightX = leftX + slot.width;
+
+            return {
+              type: 'polyline',
+              shape: {
+                points: [
+                  [leftX, bottom[1]],
+                  [leftX, top[1]],
+                  [rightX, top[1]],
+                  [rightX, bottom[1]],
+                ],
+              },
+              style: {
+                stroke: STROKE_COLOR,
+                lineWidth: STROKE_WIDTH,
+                fill: 'transparent',
+              },
+            };
+          },
+          encode: {
+            x: 0,
+            y: 1,
+          },
+          z: 11,
+          silent: true,
+          legendHoverLink: false,
+          tooltip: {
+            show: false,
+          },
+        },
+      ],
     };
-  }, [currency, formatter, legendLayout, monthFormatter, monthKeys, series]);
+  }, [
+    currency,
+    formatter,
+    legendLayout,
+    monthFormatter,
+    monthKeys,
+    series,
+    totals,
+  ]);
 
   useEffect(() => {
     if (!containerRef.current) return;

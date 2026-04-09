@@ -7,6 +7,9 @@ import { type EChartsType, echarts } from './echarts-init';
 import { safeResize, safeSetOption } from './echarts-safe';
 
 const THEME_NAME = 'momo';
+const STROKE_COLOR = 'rgb(2, 0, 32)';
+const STROKE_WIDTH = 2;
+const BAR_MAX_WIDTH = 28;
 
 type MonthlyIncomeVsExpenseBarChartProps = {
   months: MonthlyCashflowPoint[];
@@ -151,6 +154,7 @@ export function MonthlyIncomeVsExpenseBarChart({
         itemHeight: 12,
         itemWidth: 12,
         itemGap: 10,
+        data: ['Income', 'Expenses'],
         left: 'center',
         bottom: 10,
       },
@@ -164,6 +168,20 @@ export function MonthlyIncomeVsExpenseBarChart({
       xAxis: {
         type: 'category',
         data: monthKeys,
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: STROKE_COLOR,
+            width: STROKE_WIDTH,
+          },
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: STROKE_COLOR,
+            width: STROKE_WIDTH,
+          },
+        },
         axisLabel: {
           interval: 0,
           formatter: (value: string) => {
@@ -177,6 +195,20 @@ export function MonthlyIncomeVsExpenseBarChart({
       },
       yAxis: {
         type: 'value',
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: STROKE_COLOR,
+            width: STROKE_WIDTH,
+          },
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: STROKE_COLOR,
+            width: STROKE_WIDTH,
+          },
+        },
         axisLabel: {
           formatter: (value: number) =>
             formatCompactCurrency(toDisplayAmount(value, currency), currency),
@@ -185,20 +217,146 @@ export function MonthlyIncomeVsExpenseBarChart({
       series: [
         {
           name: 'Income',
-          type: 'bar',
+          type: 'bar' as const,
           data: incomeValues,
-          barMaxWidth: 28,
+          barMaxWidth: BAR_MAX_WIDTH,
+          itemStyle: {
+            borderWidth: 0,
+          },
           emphasis: {
             focus: 'none',
           },
         },
         {
           name: 'Expenses',
-          type: 'bar',
+          type: 'bar' as const,
           data: expenseValues,
-          barMaxWidth: 28,
+          barMaxWidth: BAR_MAX_WIDTH,
+          itemStyle: {
+            borderWidth: 0,
+          },
           emphasis: {
             focus: 'none',
+          },
+        },
+        {
+          name: '__income_outline__',
+          type: 'custom' as const,
+          data: incomeValues.map((value, index) => [index, value]),
+          renderItem: (_params, api) => {
+            const xIndex = Number(api.value(0));
+            const value = Number(api.value(1));
+            if (!Number.isFinite(xIndex) || !Number.isFinite(value)) {
+              return null;
+            }
+            if (value <= 0) return null;
+
+            const top = api.coord([xIndex, value]);
+            const bottom = api.coord([xIndex, 0]);
+            const sizeFn = api.size;
+            if (!sizeFn) return null;
+            const size = sizeFn([1, 0]);
+            const categoryWidth = Math.abs(
+              Array.isArray(size) ? size[0] : size,
+            );
+            const slotWidth = Math.min(BAR_MAX_WIDTH, categoryWidth * 0.32);
+            const barLayout = api.barLayout;
+            if (!barLayout) return null;
+            const slots = barLayout({
+              count: 2,
+              barWidth: slotWidth,
+            });
+            const slot = slots[0];
+            if (!slot) return null;
+            const leftX = bottom[0] + slot.offset;
+            const rightX = leftX + slot.width;
+
+            return {
+              type: 'polyline',
+              shape: {
+                points: [
+                  [leftX, bottom[1]],
+                  [leftX, top[1]],
+                  [rightX, top[1]],
+                  [rightX, bottom[1]],
+                ],
+              },
+              style: {
+                stroke: STROKE_COLOR,
+                lineWidth: STROKE_WIDTH,
+                fill: 'transparent',
+              },
+            };
+          },
+          encode: {
+            x: 0,
+            y: 1,
+          },
+          z: 11,
+          silent: true,
+          legendHoverLink: false,
+          tooltip: {
+            show: false,
+          },
+        },
+        {
+          name: '__expenses_outline__',
+          type: 'custom' as const,
+          data: expenseValues.map((value, index) => [index, value]),
+          renderItem: (_params, api) => {
+            const xIndex = Number(api.value(0));
+            const value = Number(api.value(1));
+            if (!Number.isFinite(xIndex) || !Number.isFinite(value)) {
+              return null;
+            }
+            if (value <= 0) return null;
+
+            const top = api.coord([xIndex, value]);
+            const bottom = api.coord([xIndex, 0]);
+            const sizeFn = api.size;
+            if (!sizeFn) return null;
+            const size = sizeFn([1, 0]);
+            const categoryWidth = Math.abs(
+              Array.isArray(size) ? size[0] : size,
+            );
+            const slotWidth = Math.min(BAR_MAX_WIDTH, categoryWidth * 0.32);
+            const barLayout = api.barLayout;
+            if (!barLayout) return null;
+            const slots = barLayout({
+              count: 2,
+              barWidth: slotWidth,
+            });
+            const slot = slots[1];
+            if (!slot) return null;
+            const leftX = bottom[0] + slot.offset;
+            const rightX = leftX + slot.width;
+
+            return {
+              type: 'polyline',
+              shape: {
+                points: [
+                  [leftX, bottom[1]],
+                  [leftX, top[1]],
+                  [rightX, top[1]],
+                  [rightX, bottom[1]],
+                ],
+              },
+              style: {
+                stroke: STROKE_COLOR,
+                lineWidth: STROKE_WIDTH,
+                fill: 'transparent',
+              },
+            };
+          },
+          encode: {
+            x: 0,
+            y: 1,
+          },
+          z: 11,
+          silent: true,
+          legendHoverLink: false,
+          tooltip: {
+            show: false,
           },
         },
       ],
