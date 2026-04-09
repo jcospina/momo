@@ -6,6 +6,7 @@
     "dev": "pnpm db:start && NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 next dev",
     "dev:app": "next dev",
     "build": "next build",
+    "typecheck": "tsc --noEmit",
     "start": "next start",
     "lint": "pnpm lint:biome && pnpm lint:data-boundaries",
     "lint:biome": "biome lint .",
