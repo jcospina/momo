@@ -13,7 +13,7 @@ jest.mock('./echarts-safe', () => ({
 }));
 
 import { CumulativeSavingsLineChart } from './cumulative-savings-line-chart';
-import { echarts } from './echarts-init';
+import { type EChartsType, echarts } from './echarts-init';
 import { safeSetOption } from './echarts-safe';
 
 const mockInit = jest.mocked(echarts.init);
@@ -28,6 +28,13 @@ type AxisOption = {
 type SeriesOption = {
   type?: string;
   data?: number[];
+  lineStyle?: {
+    width?: number;
+  };
+  itemStyle?: {
+    borderWidth?: number;
+    borderColor?: string;
+  };
 };
 
 type ChartOptions = {
@@ -58,7 +65,7 @@ describe('CumulativeSavingsLineChart', () => {
     jest.clearAllMocks();
     mockInit.mockReturnValue({
       dispose: jest.fn(),
-    });
+    } as unknown as EChartsType);
 
     Object.defineProperty(window, 'ResizeObserver', {
       writable: true,
@@ -124,5 +131,8 @@ describe('CumulativeSavingsLineChart', () => {
     expect(xAxis?.boundaryGap).toBe(false);
     expect(firstSeries?.type).toBe('line');
     expect(firstSeries?.data).toEqual([-75_000, -75_000]);
+    expect(firstSeries?.lineStyle?.width).toBe(3);
+    expect(firstSeries?.itemStyle?.borderWidth).toBe(2);
+    expect(firstSeries?.itemStyle?.borderColor).toBe('rgb(2, 0, 32)');
   });
 });

@@ -7,6 +7,8 @@ import { type EChartsType, echarts } from './echarts-init';
 
 const THEME_NAME = 'momo';
 const TOOLTIP_MARGIN = 8;
+const STROKE_COLOR = 'rgb(2, 0, 32)';
+const STROKE_WIDTH = 2;
 
 type DailyPoint = {
   day: number;
@@ -247,6 +249,20 @@ export function DailyComparisonLineChart({
         type: 'category',
         data: days,
         boundaryGap: false,
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: STROKE_COLOR,
+            width: STROKE_WIDTH,
+          },
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: STROKE_COLOR,
+            width: STROKE_WIDTH,
+          },
+        },
         axisLabel: {
           formatter: (value: string | number) => {
             const day = Number(value);
@@ -257,6 +273,20 @@ export function DailyComparisonLineChart({
       },
       yAxis: {
         type: 'value',
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: STROKE_COLOR,
+            width: STROKE_WIDTH,
+          },
+        },
+        axisTick: {
+          show: true,
+          lineStyle: {
+            color: STROKE_COLOR,
+            width: STROKE_WIDTH,
+          },
+        },
         axisLabel: {
           formatter: (value: number) =>
             formatCompactCurrency(toDisplayAmount(value, currency), currency),
@@ -269,6 +299,13 @@ export function DailyComparisonLineChart({
           data: currentValues,
           smooth: true,
           showSymbol: false,
+          lineStyle: {
+            width: 3,
+          },
+          itemStyle: {
+            borderWidth: 2,
+            borderColor: 'rgb(2, 0, 32)',
+          },
           emphasis: {
             focus: 'none',
           },
@@ -279,6 +316,13 @@ export function DailyComparisonLineChart({
           data: previousValues,
           smooth: true,
           showSymbol: false,
+          lineStyle: {
+            width: 3,
+          },
+          itemStyle: {
+            borderWidth: 2,
+            borderColor: 'rgb(2, 0, 32)',
+          },
           emphasis: {
             focus: 'none',
           },

@@ -249,7 +249,8 @@ export function RingChart({
             },
             itemStyle: {
               borderRadius: 6,
-              borderWidth: 1,
+              borderWidth: 2,
+              borderColor: 'rgb(2, 0, 32)',
             },
             emphasis: {
               scale: true,

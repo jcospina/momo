@@ -215,7 +215,15 @@ export function CumulativeSavingsLineChart({
           data: cumulativeValues,
           smooth: true,
           showSymbol: useSingleMonthSeries,
-          symbolSize: useSingleMonthSeries ? 7 : 4,
+          symbol: 'emptyCircle',
+          symbolSize: useSingleMonthSeries ? 7 : 6,
+          lineStyle: {
+            width: 3,
+          },
+          itemStyle: {
+            borderWidth: 2,
+            borderColor: 'rgb(2, 0, 32)',
+          },
           areaStyle: {
             opacity: 0.14,
           },

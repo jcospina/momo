@@ -1,4 +1,4 @@
-import { BarChart, LineChart, PieChart } from 'echarts/charts';
+import { BarChart, CustomChart, LineChart, PieChart } from 'echarts/charts';
 import {
   GridComponent,
   LegendComponent,
@@ -12,6 +12,7 @@ import chartTheme from './theme.json';
 echarts.use([
   LineChart,
   BarChart,
+  CustomChart,
   PieChart,
   TooltipComponent,
   LegendComponent,

@@ -19,12 +19,13 @@
   },
   "line": {
     "itemStyle": {
-      "borderWidth": 1
+      "borderWidth": 2,
+      "borderColor": "rgb(2, 0, 32)"
     },
     "lineStyle": {
-      "width": 2
+      "width": 3
     },
-    "symbolSize": 4,
+    "symbolSize": 6,
     "symbol": "emptyCircle",
     "smooth": false
   },
@@ -41,14 +42,14 @@
   },
   "bar": {
     "itemStyle": {
-      "barBorderWidth": 0,
-      "barBorderColor": "#ccc"
+      "barBorderWidth": 2,
+      "barBorderColor": "rgb(2, 0, 32)"
     }
   },
   "pie": {
     "itemStyle": {
-      "borderWidth": 0,
-      "borderColor": "#ccc"
+      "borderWidth": 2,
+      "borderColor": "rgb(2, 0, 32)"
     }
   },
   "scatter": {
@@ -164,23 +165,26 @@
     "axisLine": {
       "show": true,
       "lineStyle": {
-        "color": "#54555a"
+        "color": "rgb(2, 0, 32)",
+        "width": 2
       }
     },
     "axisTick": {
       "show": true,
       "lineStyle": {
-        "color": "#54555a"
+        "color": "rgb(2, 0, 32)",
+        "width": 2
       }
     },
     "axisLabel": {
       "show": true,
-      "color": "#54555a"
+      "color": "rgb(2, 0, 32)"
     },
     "splitLine": {
       "show": false,
       "lineStyle": {
-        "color": ["#dbdee4"]
+        "color": ["rgba(2, 0, 32, 0.18)"],
+        "width": 1
       }
     },
     "splitArea": {
@@ -192,25 +196,28 @@
   },
   "valueAxis": {
     "axisLine": {
-      "show": false,
+      "show": true,
       "lineStyle": {
-        "color": "#54555a"
+        "color": "rgb(2, 0, 32)",
+        "width": 2
       }
     },
     "axisTick": {
-      "show": false,
+      "show": true,
       "lineStyle": {
-        "color": "#54555a"
+        "color": "rgb(2, 0, 32)",
+        "width": 2
       }
     },
     "axisLabel": {
       "show": true,
-      "color": "#54555a"
+      "color": "rgb(2, 0, 32)"
     },
     "splitLine": {
       "show": true,
       "lineStyle": {
-        "color": ["#dbdee4"]
+        "color": ["rgba(2, 0, 32, 0.16)"],
+        "width": 1
       }
     },
     "splitArea": {
@@ -222,25 +229,28 @@
   },
   "logAxis": {
     "axisLine": {
-      "show": false,
+      "show": true,
       "lineStyle": {
-        "color": "#54555a"
+        "color": "rgb(2, 0, 32)",
+        "width": 2
       }
     },
     "axisTick": {
-      "show": false,
+      "show": true,
       "lineStyle": {
-        "color": "#54555a"
+        "color": "rgb(2, 0, 32)",
+        "width": 2
       }
     },
     "axisLabel": {
       "show": true,
-      "color": "#54555a"
+      "color": "rgb(2, 0, 32)"
     },
     "splitLine": {
       "show": true,
       "lineStyle": {
-        "color": ["#dbdee4"]
+        "color": ["rgba(2, 0, 32, 0.16)"],
+        "width": 1
       }
     },
     "splitArea": {
@@ -254,23 +264,26 @@
     "axisLine": {
       "show": true,
       "lineStyle": {
-        "color": "#54555a"
+        "color": "rgb(2, 0, 32)",
+        "width": 2
       }
     },
     "axisTick": {
       "show": true,
       "lineStyle": {
-        "color": "#54555a"
+        "color": "rgb(2, 0, 32)",
+        "width": 2
       }
     },
     "axisLabel": {
       "show": true,
-      "color": "#54555a"
+      "color": "rgb(2, 0, 32)"
     },
     "splitLine": {
       "show": false,
       "lineStyle": {
-        "color": ["#dbdee4"]
+        "color": ["rgba(2, 0, 32, 0.18)"],
+        "width": 1
       }
     },
     "splitArea": {
@@ -300,14 +313,21 @@
     "bottom": 15
   },
   "tooltip": {
+    "backgroundColor": "rgb(246, 245, 236)",
+    "borderColor": "rgb(2, 0, 32)",
+    "borderWidth": 2,
+    "textStyle": {
+      "color": "rgb(2, 0, 32)",
+      "fontWeight": 600
+    },
     "axisPointer": {
       "lineStyle": {
-        "color": "#ccc",
-        "width": 1
+        "color": "rgb(2, 0, 32)",
+        "width": 2
       },
       "crossStyle": {
-        "color": "#ccc",
-        "width": 1
+        "color": "rgb(2, 0, 32)",
+        "width": 2
       }
     }
   },
