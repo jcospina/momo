@@ -132,6 +132,15 @@ export function DailyComparisonLineChart({
     () => buildSeries(previous, maxDay),
     [previous, maxDay],
   );
+  const persistentMarkerDay = useMemo(() => {
+    const now = new Date();
+    const day = now.getDate();
+    if (day < 1 || day > maxDay) {
+      return null;
+    }
+
+    return day;
+  }, [maxDay]);
 
   const formatter = useMemo(
     () =>
@@ -149,6 +158,45 @@ export function DailyComparisonLineChart({
     for (let day = 5; day < maxDay; day += 5) {
       tickLabels.add(day);
     }
+
+    const currentMarkerData =
+      persistentMarkerDay === null
+        ? null
+        : {
+            xAxis: persistentMarkerDay - 1,
+            yAxis: currentValues[persistentMarkerDay - 1] ?? 0,
+          };
+    const previousMarkerData =
+      persistentMarkerDay === null
+        ? null
+        : {
+            xAxis: persistentMarkerDay - 1,
+            yAxis: previousValues[persistentMarkerDay - 1] ?? 0,
+          };
+    const buildPersistentMarker = (
+      markerData: { xAxis: number; yAxis: number } | null,
+    ) =>
+      markerData
+        ? {
+            data: [markerData],
+            symbol: 'emptyCircle',
+            symbolSize: 8,
+            silent: true,
+            label: {
+              show: false,
+            },
+            tooltip: {
+              show: false,
+            },
+            itemStyle: {
+              borderWidth: 2,
+              borderColor: STROKE_COLOR,
+            },
+            emphasis: {
+              disabled: true,
+            },
+          }
+        : undefined;
 
     return {
       tooltip: {
@@ -306,6 +354,7 @@ export function DailyComparisonLineChart({
             borderWidth: 2,
             borderColor: 'rgb(2, 0, 32)',
           },
+          markPoint: buildPersistentMarker(currentMarkerData),
           emphasis: {
             focus: 'none',
           },
@@ -323,6 +372,7 @@ export function DailyComparisonLineChart({
             borderWidth: 2,
             borderColor: 'rgb(2, 0, 32)',
           },
+          markPoint: buildPersistentMarker(previousMarkerData),
           emphasis: {
             focus: 'none',
           },
@@ -336,6 +386,7 @@ export function DailyComparisonLineChart({
     days,
     formatter,
     maxDay,
+    persistentMarkerDay,
     previousLabel,
     previousValues,
   ]);
