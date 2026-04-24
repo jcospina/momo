@@ -24,7 +24,7 @@ async function applyLearnedRules(
 ): Promise<ParsedEntry[]> {
   const normalizedTexts = entries.reduce<string[]>((acc, entry) => {
     const input = resolveEntryInput(entry);
-    if (isExplicitIncomeEntry(input)) {
+    if (entry.needs_review || isExplicitIncomeEntry(input)) {
       return acc;
     }
 
@@ -59,6 +59,10 @@ async function applyLearnedRules(
 
   return entries.map(entry => {
     const input = resolveEntryInput(entry);
+    if (entry.needs_review) {
+      return entry;
+    }
+
     if (isExplicitIncomeEntry(input)) {
       if (entry.category === 'income') {
         return entry;
@@ -97,7 +101,9 @@ export async function processChatMessage(message: ChatMessage) {
   }
 
   const entries = await applyLearnedRules(message, result.entries);
-  const needsCategory = entries.some(entry => !entry.category);
+  const needsCategory = entries.some(
+    entry => !entry.category || entry.needs_review,
+  );
   const nextStatus = needsCategory ? 'needs_category' : 'processed';
   await persistParsedExpenses(message, entries, nextStatus);
   return { ...result, entries };
