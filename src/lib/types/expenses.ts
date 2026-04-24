@@ -10,6 +10,7 @@ export type ParsedEntry = {
   currency: SupportedCurrency;
   tags: string[];
   category: ExpenseCategory | null;
+  needs_review?: boolean;
 };
 
 export type ExpenseRecord = {

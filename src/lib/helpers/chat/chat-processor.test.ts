@@ -241,4 +241,30 @@ describe('processChatMessage', () => {
       'needs_category',
     );
   });
+
+  it('preserves parser review flags and skips learned rules for ambiguous amounts', async () => {
+    const message = buildMessage({ content: 'crema 2 10k' });
+    const ambiguousEntry = buildEntry({
+      raw: 'crema 2 10k',
+      normalized: 'crema 2 10k',
+      amount_minor: 2,
+      category: null,
+      needs_review: true,
+    });
+    mockParseChatEntries.mockReturnValue({
+      status: 'parsed',
+      entries: [ambiguousEntry],
+      errors: [],
+    });
+    mockFetchCategoryRules.mockResolvedValue(new Map([['crema', 'self_care']]));
+
+    await processChatMessage(message);
+
+    expect(mockFetchCategoryRules).not.toHaveBeenCalled();
+    expect(mockPersistParsedExpenses).toHaveBeenCalledWith(
+      message,
+      [ambiguousEntry],
+      'needs_category',
+    );
+  });
 });

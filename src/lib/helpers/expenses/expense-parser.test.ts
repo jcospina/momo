@@ -78,6 +78,26 @@ describe('parseChatEntries', () => {
     }
   });
 
+  it('gives +amount precedence over earlier numeric tokens', () => {
+    const result = parseChatEntries('quincena 1 +4391938', 'COP');
+    expect(result.status).toBe('parsed');
+    if (result.status === 'parsed') {
+      expect(result.entries[0].amount_minor).toBe(4_391_938);
+      expect(result.entries[0].category).toBe('income');
+      expect(result.entries[0].needs_review).toBe(false);
+    }
+  });
+
+  it('flags ambiguous multiple-number entries for manual review', () => {
+    const result = parseChatEntries('crema 2 10k', 'COP');
+    expect(result.status).toBe('parsed');
+    if (result.status === 'parsed') {
+      expect(result.entries[0].amount_minor).toBe(2);
+      expect(result.entries[0].category).toBeNull();
+      expect(result.entries[0].needs_review).toBe(true);
+    }
+  });
+
   it('handles empty or invalid entries', () => {
     const result = parseChatEntries('abc, 0, , 5');
     expect(result.status).toBe('parsed');
