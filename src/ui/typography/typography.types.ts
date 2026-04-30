@@ -5,7 +5,7 @@ import {
 } from 'react';
 
 /** Font-size scale tokens. */
-type Sizes = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
+type Sizes = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'display';
 
 /** Font-weight tokens. */
 type Weight = 'light' | 'regular' | 'bold';

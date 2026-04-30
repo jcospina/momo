@@ -144,5 +144,68 @@
       "message": "You just found a page that doesn't exist, and by finding it you brought it into existence.",
       "tagline": "Pretty neat huh!"
     }
+  },
+  "theme": {
+    "select_label": "Select theme"
+  },
+  "landing": {
+    "nav": {
+      "how": "How it works",
+      "features": "Features",
+      "login": "Login"
+    },
+    "hero": {
+      "eyebrow": "A chat-first money tracker",
+      "title": "Track expenses by <primary>just typing</primary> them. It's <feature>that simple</feature>.",
+      "sub": "MoMo turns the boring part of personal finance into a chat. Type <em>\"15.50 lunch chipotle\"</em> and we'll handle it for you.",
+      "cta_primary": "Start now, its free!",
+      "cta_secondary": "See how it works",
+      "image_alt": "Product screenshot — MoMo home screen"
+    },
+    "features": {
+      "heading": "Built around how you <feature>actually spend</feature>.",
+      "cards": {
+        "chat": {
+          "title": "Chat is the form.",
+          "body": "Type the amount and a couple words. MoMo parses it into an expense, picks a category, and logs it. Edit later if you want."
+        },
+        "scope": {
+          "title": "Personal & group chats.",
+          "body": "A private chat just for you, and a shared chat for the people you live with. Real-time."
+        },
+        "stats": {
+          "title": "Stats that don't lie.",
+          "body": "Forget about ugly charts and spreadsheets. MoMo shows you what you really care about."
+        }
+      }
+    },
+    "how": {
+      "eyebrow": "How it works",
+      "heading": "Three steps:",
+      "image_alt": "Product screenshot — Stats screen",
+      "step1": {
+        "title": "Just write.",
+        "body": "<em>\"15.50 lunch chipotle\"</em> · <em>\"4 coffee\"</em> · <em>\"22 uber to airport\"</em>. Whatever feels natural."
+      },
+      "step2": {
+        "title": "I'll guess the category.",
+        "body": "Food, Transit, Groceries, Fun. If I get it wrong you'll see <em>\"needs category\"</em> and you tap once to fix it."
+      },
+      "step3": {
+        "title": "Stats appear, quietly.",
+        "body": "The Stats tab updates in real time. Nothing nags you. You just have a number when you want one."
+      }
+    },
+    "closer": {
+      "title": "More money.<br></br><stamp>More fun.</stamp>",
+      "sub": "Sign up free. Bring your household if you like — or don't, I won't judge.",
+      "cta": "Create my account"
+    },
+    "footer": {
+      "tagline": "More money, More fun",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "github": "GitHub"
+    }
   }
 }
