@@ -1,0 +1,97 @@
+.momo-landing-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--type-sm);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-2);
+}
+
+.momo-landing-hero__eyebrow-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  border: 2px solid var(--color-dark);
+  display: inline-block;
+  transition: background-color var(--duration-toggle) var(--ease-pop);
+}
+
+.momo-landing-how {
+  background: var(--bg-panel);
+  border: var(--border-width-thick) solid var(--color-dark);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-4);
+  transform: translateX(3px);
+  position: relative;
+  overflow: hidden;
+  transition: background-color var(--duration-toggle) var(--ease-pop);
+}
+
+@media (min-width: 768px) {
+  .momo-landing-how {
+    box-shadow: var(--shadow-xxl);
+    transform: translateX(8px);
+  }
+}
+
+.momo-landing-how__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 880px) {
+  .momo-landing-how__grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
+}
+
+.momo-landing-how__steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.momo-landing-step {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: var(--space-2);
+  align-items: start;
+}
+
+.momo-landing-step__num {
+  width: 56px;
+  height: 56px;
+  border: var(--border-width-thin) solid var(--color-dark);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: var(--weight-black);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-dark);
+  transition: background-color var(--duration-toggle) var(--ease-pop);
+}
+
+.momo-landing-step__num--primary {
+  background: var(--accent-primary);
+}
+.momo-landing-step__num--feature {
+  background: var(--accent-feature);
+}
+.momo-landing-step__num--info {
+  background: var(--accent-info);
+}
+
+.momo-landing-step__title {
+  margin: 0 0 4px;
+}
+
+.momo-landing-step__body {
+  margin: 0;
+  color: var(--fg-muted);
+}

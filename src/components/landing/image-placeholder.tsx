@@ -1,5 +1,5 @@
 import { cn } from '@utils/cn';
-import styles from './landing.module.css';
+import styles from './image-placeholder.module.css';
 
 type ImagePlaceholderProps = {
   variant: 'hero' | 'chart';

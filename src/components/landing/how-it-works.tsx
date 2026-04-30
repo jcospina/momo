@@ -1,6 +1,7 @@
 import { Typography } from '@ui/typography/typography';
 import { cn } from '@utils/cn';
 import { useTranslations } from 'next-intl';
+import howStyles from './how-it-works.module.css';
 import { ImagePlaceholder } from './image-placeholder';
 import styles from './landing.module.css';
 
@@ -18,11 +19,11 @@ function Step({
   body: React.ReactNode;
 }) {
   return (
-    <div className={styles['momo-landing-step']}>
+    <div className={howStyles['momo-landing-step']}>
       <div
         className={cn(
-          styles['momo-landing-step__num'],
-          styles[`momo-landing-step__num--${variant}`],
+          howStyles['momo-landing-step__num'],
+          howStyles[`momo-landing-step__num--${variant}`],
         )}
       >
         <Typography as="span" size="xl" weight="bold">
@@ -34,11 +35,11 @@ function Step({
           as="h4"
           size="lg"
           weight="bold"
-          className={styles['momo-landing-step__title']}
+          className={howStyles['momo-landing-step__title']}
         >
           {title}
         </Typography>
-        <Typography className={styles['momo-landing-step__body']}>
+        <Typography className={howStyles['momo-landing-step__body']}>
           {body}
         </Typography>
       </div>
@@ -51,12 +52,12 @@ export function HowItWorks() {
 
   return (
     <section id="how" className={styles['momo-landing__section']}>
-      <div className={styles['momo-landing-how']}>
-        <div className={styles['momo-landing-how__grid']}>
+      <div className={howStyles['momo-landing-how']}>
+        <div className={howStyles['momo-landing-how__grid']}>
           <div>
-            <div className={styles['momo-landing-hero__eyebrow']}>
+            <div className={howStyles['momo-landing-hero__eyebrow']}>
               <span
-                className={styles['momo-landing-hero__eyebrow-dot']}
+                className={howStyles['momo-landing-hero__eyebrow-dot']}
                 aria-hidden="true"
               />
               {t('eyebrow')}
@@ -70,7 +71,7 @@ export function HowItWorks() {
               {t('heading')}
             </Typography>
             <div
-              className={styles['momo-landing-how__steps']}
+              className={howStyles['momo-landing-how__steps']}
               style={{ marginTop: 'var(--space-3)' }}
             >
               {STEP_VARIANTS.map((variant, index) => {

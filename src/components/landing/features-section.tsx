@@ -5,6 +5,7 @@ import { MessageIcon } from '@ui/icons/message';
 import { Typography } from '@ui/typography/typography';
 import { useTranslations } from 'next-intl';
 import { FeatureCard } from './feature-card';
+import sectionStyles from './features-section.module.css';
 import styles from './landing.module.css';
 
 export function FeaturesSection() {
@@ -12,7 +13,7 @@ export function FeaturesSection() {
 
   return (
     <section id="features" className={styles['momo-landing__section']}>
-      <div className={styles['momo-landing-section-head']}>
+      <div className={sectionStyles['momo-landing-section-head']}>
         <Typography
           as="h2"
           size="xxl"
@@ -28,7 +29,7 @@ export function FeaturesSection() {
           })}
         </Typography>
       </div>
-      <div className={styles['momo-landing-features']}>
+      <div className={sectionStyles['momo-landing-features']}>
         <FeatureCard
           iconVariant="primary"
           icon={<MessageIcon width={30} height={30} />}
