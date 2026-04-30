@@ -1,0 +1,31 @@
+.momo-underline {
+  text-decoration: underline;
+  text-decoration-skip-ink: none;
+  transition: text-decoration-color var(--duration-toggle) var(--ease-pop);
+}
+
+.momo-underline--size-sm {
+  text-decoration-thickness: 3px;
+  text-underline-offset: 3px;
+}
+.momo-underline--size-md {
+  text-decoration-thickness: 6px;
+  text-underline-offset: 6px;
+}
+.momo-underline--size-lg {
+  text-decoration-thickness: 10px;
+  text-underline-offset: 8px;
+}
+
+.momo-underline--primary {
+  text-decoration-color: var(--accent-primary);
+}
+.momo-underline--feature {
+  text-decoration-color: var(--accent-feature);
+}
+.momo-underline--info {
+  text-decoration-color: var(--accent-info);
+}
+.momo-underline--warm {
+  text-decoration-color: var(--accent-warm);
+}

@@ -1,0 +1,55 @@
+.momo-theme-selector__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: var(--border-width-thin) solid var(--color-dark);
+  background: var(--bg-panel);
+  border-radius: var(--border-radius);
+  padding: 6px 10px;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+  color: var(--color-dark);
+  transition:
+    transform var(--duration-fast) var(--ease-pop),
+    box-shadow var(--duration-fast) var(--ease-pop),
+    background-color var(--duration-toggle) var(--ease-pop);
+}
+
+.momo-theme-selector__trigger:hover {
+  transform: translate(-2px, 0);
+  box-shadow: var(--shadow-sm);
+}
+
+.momo-theme-selector__swatches {
+  display: inline-flex;
+}
+
+.momo-theme-selector__swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-dark);
+  margin-left: -4px;
+  display: inline-block;
+}
+
+.momo-theme-selector__swatch:first-child {
+  margin-left: 0;
+}
+
+.momo-theme-selector__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.momo-theme-selector__active {
+  font-weight: var(--weight-black);
+}
+
+@media (max-width: 720px) {
+  .momo-theme-selector__label {
+    display: none;
+  }
+}

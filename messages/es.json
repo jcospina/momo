@@ -144,5 +144,68 @@
       "message": "Encontraste una página que no existe, y al encontrarla la trajiste a la existencia.",
       "tagline": "¡Curioso, ¿verdad?!"
     }
+  },
+  "theme": {
+    "select_label": "Elegir tema"
+  },
+  "landing": {
+    "nav": {
+      "how": "Cómo funciona",
+      "features": "Funciones",
+      "login": "Entrar"
+    },
+    "hero": {
+      "eyebrow": "Un control de gastos tipo chat",
+      "title": "Lleva tus gastos <primary>solo escribiéndolos</primary>. Es <feature>así de simple</feature>.",
+      "sub": "MoMo convierte la parte aburrida de las finanzas personales en un chat. Escribe <em>\"15.50 almuerzo chipotle\"</em> y nosotros lo registramos, categorizamos y sumamos. Solo o con tu hogar — tú decides.",
+      "cta_primary": "Empezar — gratis",
+      "cta_secondary": "Ver cómo funciona",
+      "image_alt": "Captura del producto — pantalla principal de MoMo"
+    },
+    "features": {
+      "heading": "Pensado para cómo<br></br><underline>realmente gastas</underline>.",
+      "cards": {
+        "chat": {
+          "title": "El chat es el formulario.",
+          "body": "Escribe el monto y un par de palabras. MoMo lo convierte en gasto, le asigna categoría y lo registra. Si quieres lo editas después."
+        },
+        "scope": {
+          "title": "Chats personal y de hogar.",
+          "body": "Un chat privado para ti y un chat compartido para quienes viven contigo. En tiempo real. Solo por invitación por link."
+        },
+        "stats": {
+          "title": "Estadísticas que no mienten.",
+          "body": "Anillos por categoría, barras mensuales, comparaciones diarias, totales por miembro del hogar. Visuales honestas, sin drama de gráficos de crecimiento."
+        }
+      }
+    },
+    "how": {
+      "eyebrow": "Cómo funciona",
+      "heading": "Tres pasos. Unos doce segundos.",
+      "image_alt": "Captura del producto — pantalla de estadísticas",
+      "step1": {
+        "title": "Escríbelo como un mensaje.",
+        "body": "<em>\"15.50 almuerzo chipotle\"</em> · <em>\"4 café\"</em> · <em>\"22 uber al aeropuerto\"</em>. Como te salga natural."
+      },
+      "step2": {
+        "title": "Yo adivino la categoría.",
+        "body": "Comida, Transporte, Mercado, Diversión. Si me equivoco verás <em>\"falta categoría\"</em> y con un toque la corriges."
+      },
+      "step3": {
+        "title": "Las estadísticas aparecen, sin ruido.",
+        "body": "La pestaña de Estadísticas se actualiza en tiempo real. Nada te molesta. Solo tienes un número cuando lo quieres."
+      }
+    },
+    "closer": {
+      "title": "Más dinero.<br></br><stamp>Más diversión.</stamp>",
+      "sub": "Regístrate gratis. Trae a tu hogar si quieres — o no, no juzgo.",
+      "cta": "Crear mi cuenta"
+    },
+    "footer": {
+      "tagline": "Más dinero, más diversión",
+      "privacy": "Privacidad",
+      "terms": "Términos",
+      "github": "GitHub"
+    }
   }
 }

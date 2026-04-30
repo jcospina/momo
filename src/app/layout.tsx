@@ -1,5 +1,6 @@
 import { NavigationProgressBar } from '@components/navigation-progress/navigation-progress-bar';
 import { NavigationProgressProvider } from '@providers/navigation-progress-provider';
+import { ThemeProvider } from '@providers/theme-provider';
 import DotGrid from '@ui/dot-grid/dot-grid';
 import { cn } from '@utils/cn';
 import type { Metadata, Viewport } from 'next';
@@ -8,7 +9,12 @@ import { headers } from 'next/headers';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import type { ReactNode } from 'react';
+import { themeAntiFlashScript } from '@/lib/theme/anti-flash-script';
+import { generateThemeCSS } from '@/lib/theme/generate-css';
+import { THEMES_CONFIG } from '@/lib/theme/themes.config';
 import './globals.css';
+
+const themeCSS = generateThemeCSS(THEMES_CONFIG);
 
 const metadataBase =
   process.env.NEXT_PUBLIC_SITE_URL &&
@@ -103,22 +109,34 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeAntiFlashScript }} />
+        <style
+          id="momo-theme-overrides"
+          dangerouslySetInnerHTML={{ __html: themeCSS }}
+        />
+      </head>
       <body
         className={cn('antialiased', outfit.className, bungeeShade.variable)}
       >
         <NextIntlClientProvider messages={messages}>
-          <NavigationProgressProvider>
-            <NavigationProgressBar />
-            <DotGrid
-              blastStrength={4}
-              blastRadius={100}
-              disableHover={isMobile}
-            />
-            <main style={{ position: 'relative', zIndex: 1 }} className="root">
-              {children}
-            </main>
-          </NavigationProgressProvider>
+          <ThemeProvider>
+            <NavigationProgressProvider>
+              <NavigationProgressBar />
+              <DotGrid
+                blastStrength={4}
+                blastRadius={100}
+                disableHover={isMobile}
+              />
+              <main
+                style={{ position: 'relative', zIndex: 1 }}
+                className="root"
+              >
+                {children}
+              </main>
+            </NavigationProgressProvider>
+          </ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

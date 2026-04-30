@@ -89,6 +89,11 @@
 
 .momo-button--secondary {
   background-color: var(--color-vibrant-coral);
+  color: var(--fg-on-secondary, var(--color-dark));
+}
+
+.momo-button--surface {
+  background-color: var(--color-light);
   color: var(--color-dark);
 }
 

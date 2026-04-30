@@ -1,3 +1,4 @@
+import { LandingPage } from '@components/landing/landing-page';
 import { redirect } from 'next/navigation';
 
 type RootProps = {
@@ -26,9 +27,9 @@ export default async function Root({ searchParams }: RootProps) {
   }
 
   const errorValue = Array.isArray(error) ? error[0] : error;
-  const dest =
-    typeof errorValue === 'string' && errorValue.length > 0
-      ? `/login?error=${encodeURIComponent(errorValue)}`
-      : '/login';
-  redirect(dest);
+  if (typeof errorValue === 'string' && errorValue.length > 0) {
+    redirect(`/login?error=${encodeURIComponent(errorValue)}`);
+  }
+
+  return <LandingPage />;
 }
