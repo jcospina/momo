@@ -3,8 +3,8 @@ import { FeaturesSection } from './features-section';
 import { Footer } from './footer';
 import { Hero } from './hero';
 import { HowItWorks } from './how-it-works';
-import styles from './landing.module.css';
 import { LandingNavbar } from './landing-navbar';
+import styles from './landing-page.module.css';
 
 export function LandingPage() {
   return (

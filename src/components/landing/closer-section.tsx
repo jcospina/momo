@@ -3,7 +3,7 @@ import { Highlight } from '@ui/highlight/highlight';
 import { Logo } from '@ui/logo/logo';
 import { Typography } from '@ui/typography/typography';
 import { useTranslations } from 'next-intl';
-import styles from './landing.module.css';
+import styles from './closer-section.module.css';
 
 export function CloserSection() {
   const t = useTranslations('landing.closer');

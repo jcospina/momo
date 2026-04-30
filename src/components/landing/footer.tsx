@@ -1,6 +1,6 @@
 import { GithubIcon } from '@ui/icons/github';
 import { useTranslations } from 'next-intl';
-import styles from './landing.module.css';
+import styles from './footer.module.css';
 
 export function Footer() {
   const t = useTranslations('landing.footer');

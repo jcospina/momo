@@ -1,7 +1,7 @@
 import { Typography } from '@ui/typography/typography';
 import { cn } from '@utils/cn';
 import type { ReactNode } from 'react';
-import styles from './landing.module.css';
+import styles from './feature-card.module.css';
 
 type FeatureCardProps = {
   icon: ReactNode;

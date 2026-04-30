@@ -2,8 +2,8 @@ import { Button } from '@ui/button/button';
 import { Highlight } from '@ui/highlight/highlight';
 import { Typography } from '@ui/typography/typography';
 import { useTranslations } from 'next-intl';
+import styles from './hero.module.css';
 import { ImagePlaceholder } from './image-placeholder';
-import styles from './landing.module.css';
 
 export function Hero() {
   const t = useTranslations('landing.hero');

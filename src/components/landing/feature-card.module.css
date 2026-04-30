@@ -1,0 +1,50 @@
+.momo-landing-feature-card {
+  position: relative;
+  background: var(--bg-panel);
+  border: var(--border-width-thick) solid var(--color-dark);
+  border-radius: var(--border-radius);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-md);
+  transition:
+    transform var(--duration-base) var(--ease-pop),
+    box-shadow var(--duration-base) var(--ease-pop);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.momo-landing-feature-card:hover {
+  transform: translate(-3px, 3px);
+  box-shadow: var(--shadow-sm);
+}
+
+.momo-landing-feature-card__icon {
+  width: 56px;
+  height: 56px;
+  border: var(--border-width-thin) solid var(--color-dark);
+  border-radius: var(--border-radius);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-sm);
+  color: var(--color-dark);
+}
+
+.momo-landing-feature-card__icon--primary {
+  background: var(--accent-primary);
+}
+.momo-landing-feature-card__icon--feature {
+  background: var(--accent-feature);
+}
+.momo-landing-feature-card__icon--info {
+  background: var(--accent-info);
+}
+
+.momo-landing-feature-card__title {
+  margin: 0;
+}
+
+.momo-landing-feature-card__body {
+  margin: 0;
+  color: var(--fg-muted);
+  text-wrap: pretty;
+}

@@ -4,7 +4,7 @@ import { ThemeSelector } from '@components/theme-selector/theme-selector';
 import { Logo } from '@ui/logo/logo';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import styles from './landing.module.css';
+import styles from './landing-navbar.module.css';
 
 export function LandingNavbar() {
   const t = useTranslations('landing.nav');
