@@ -41,7 +41,10 @@ describe('useChatList', () => {
     const before = result.current.firstItemIndex;
 
     act(() => {
-      result.current.handleRangeChanged({ startIndex: 0, endIndex: 2 });
+      result.current.handleRangeChanged({
+        startIndex: before,
+        endIndex: before + 2,
+      });
     });
     expect(onLoadMore).toHaveBeenCalledTimes(1);
 
@@ -55,6 +58,42 @@ describe('useChatList', () => {
     rerender({
       messages: [...prepended, ...initialMessages],
       isLoadingMore: false,
+    });
+
+    expect(result.current.firstItemIndex).toBe(before - prepended.length);
+  });
+
+  it('decrements firstItemIndex in the same render that receives prepended items', () => {
+    const initialMessages = [
+      buildMessage('m1', '2024-01-01T00:00:01.000Z'),
+      buildMessage('m2', '2024-01-01T00:00:02.000Z'),
+      buildMessage('m3', '2024-01-01T00:00:03.000Z'),
+    ];
+    const prepended = [
+      buildMessage('m-1', '2024-01-01T00:00:00.000Z'),
+      buildMessage('m0', '2024-01-01T00:00:00.500Z'),
+    ];
+
+    const { result, rerender } = renderHook(
+      ({ messages, isLoadingMore }) =>
+        useChatList({
+          messages,
+          hasMore: true,
+          isLoadingMore,
+          onLoadMore: jest.fn(),
+          currentUserId: 'u1',
+        }),
+      {
+        initialProps: { messages: initialMessages, isLoadingMore: false },
+      },
+    );
+
+    const before = result.current.firstItemIndex;
+
+    rerender({ messages: initialMessages, isLoadingMore: true });
+    rerender({
+      messages: [...prepended, ...initialMessages],
+      isLoadingMore: true,
     });
 
     expect(result.current.firstItemIndex).toBe(before - prepended.length);
@@ -108,8 +147,15 @@ describe('useChatList', () => {
     );
 
     act(() => {
-      result.current.handleRangeChanged({ startIndex: 0, endIndex: 1 });
-      result.current.handleRangeChanged({ startIndex: 0, endIndex: 1 });
+      const startIndex = result.current.firstItemIndex;
+      result.current.handleRangeChanged({
+        startIndex,
+        endIndex: startIndex + 1,
+      });
+      result.current.handleRangeChanged({
+        startIndex,
+        endIndex: startIndex + 1,
+      });
     });
     expect(onLoadMore).toHaveBeenCalledTimes(1);
 
@@ -117,8 +163,50 @@ describe('useChatList', () => {
     rerender({ currentMessages: older });
 
     act(() => {
-      result.current.handleRangeChanged({ startIndex: 0, endIndex: 2 });
+      const startIndex = result.current.firstItemIndex;
+      result.current.handleRangeChanged({
+        startIndex,
+        endIndex: startIndex + 2,
+      });
     });
     expect(onLoadMore).toHaveBeenCalledTimes(2);
+  });
+
+  it('loads more near the top when Virtuoso offsets range indexes by firstItemIndex', () => {
+    const onLoadMore = jest.fn();
+    const messages = Array.from({ length: 30 }, (_, index) =>
+      buildMessage(
+        `m${index + 1}`,
+        `2024-01-01T00:00:${String(index + 1).padStart(2, '0')}.000Z`,
+      ),
+    );
+
+    const { result } = renderHook(() =>
+      useChatList({
+        messages,
+        hasMore: true,
+        isLoadingMore: false,
+        onLoadMore,
+        currentUserId: 'u1',
+      }),
+    );
+
+    const firstItemIndex = result.current.firstItemIndex;
+
+    act(() => {
+      result.current.handleRangeChanged({
+        startIndex: firstItemIndex + 6,
+        endIndex: firstItemIndex + 12,
+      });
+    });
+    expect(onLoadMore).not.toHaveBeenCalled();
+
+    act(() => {
+      result.current.handleRangeChanged({
+        startIndex: firstItemIndex + 5,
+        endIndex: firstItemIndex + 12,
+      });
+    });
+    expect(onLoadMore).toHaveBeenCalledTimes(1);
   });
 });

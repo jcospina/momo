@@ -64,16 +64,21 @@ const MESSAGES: ChatPreviewMessage[] = [
     sender: 'Alex',
     initial: 'A',
     avatarColor: 'sky-aqua',
-    text: '18 pharmacy',
+    text: "18 doctor's appointment",
     isOwn: true,
     time: '6:20 PM',
   },
 ];
 
-const SUB_STEPS = 2; // 0: appeared, 1: processed
-const STEP_MS = 900;
-const WINDOW = 5; // how many appearances to keep mounted at once
-const TICK_MODULO = MESSAGES.length * SUB_STEPS * 1000;
+const MESSAGE_INTERVAL_MS = 2200;
+const PROCESSED_DELAY_MS = 320;
+const REDUCED_MOTION_PREVIEW = 3;
+
+type Appearance = {
+  appearanceId: number;
+  msg: ChatPreviewMessage;
+  processed: boolean;
+};
 
 type ChatPreviewProps = {
   ariaLabel: string;
@@ -82,7 +87,7 @@ type ChatPreviewProps = {
 
 export function HeroChatPreview({ ariaLabel, className }: ChatPreviewProps) {
   const t = useTranslations('landing.hero.chatPreview');
-  const [step, setStep] = useState(0);
+  const [items, setItems] = useState<Appearance[]>([]);
   const threadRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -92,52 +97,52 @@ export function HeroChatPreview({ ariaLabel, className }: ChatPreviewProps) {
         : null;
 
     if (media?.matches) {
-      setStep(SUB_STEPS * 3 - 1); // show first 3 already processed, static
+      setItems(
+        MESSAGES.slice(0, REDUCED_MOTION_PREVIEW).map((msg, i) => ({
+          appearanceId: i,
+          msg,
+          processed: true,
+        })),
+      );
       return;
     }
 
-    const id = window.setInterval(() => {
-      setStep(prev => (prev + 1) % TICK_MODULO);
-    }, STEP_MS);
-    return () => window.clearInterval(id);
+    let counter = 0;
+    const timeouts = new Set<number>();
+
+    const addMessage = () => {
+      const id = counter++;
+      const msg = MESSAGES[id % MESSAGES.length];
+      setItems(prev => [...prev, { appearanceId: id, msg, processed: false }]);
+      const tid = window.setTimeout(() => {
+        timeouts.delete(tid);
+        setItems(prev =>
+          prev.map(item =>
+            item.appearanceId === id ? { ...item, processed: true } : item,
+          ),
+        );
+      }, PROCESSED_DELAY_MS);
+      timeouts.add(tid);
+    };
+
+    addMessage();
+    const intervalId = window.setInterval(addMessage, MESSAGE_INTERVAL_MS);
+
+    return () => {
+      window.clearInterval(intervalId);
+      timeouts.forEach(tid => window.clearTimeout(tid));
+    };
   }, []);
 
-  const totalAppearances = Math.floor(step / SUB_STEPS) + 1;
-  const subInLatest = step % SUB_STEPS;
-  const startIdx = Math.max(0, totalAppearances - WINDOW);
-  const items: Array<{
-    appearanceId: number;
-    msg: ChatPreviewMessage;
-    processed: boolean;
-  }> = [];
-  for (let i = startIdx; i < totalAppearances; i++) {
-    const isLatest = i === totalAppearances - 1;
-    items.push({
-      appearanceId: i,
-      msg: MESSAGES[i % MESSAGES.length],
-      processed: !isLatest || subInLatest >= 1,
-    });
-  }
-
   useEffect(() => {
-    if (totalAppearances === 0) return;
     const thread = threadRef.current;
     if (!thread) return;
-
-    let rafId = 0;
-    let startTime: number | null = null;
-
-    const tick = (now: number) => {
-      if (startTime === null) startTime = now;
+    if (items.length <= 1) {
       thread.scrollTop = thread.scrollHeight;
-      if (now - startTime < STEP_MS) {
-        rafId = window.requestAnimationFrame(tick);
-      }
-    };
-    rafId = window.requestAnimationFrame(tick);
-
-    return () => window.cancelAnimationFrame(rafId);
-  }, [totalAppearances]);
+      return;
+    }
+    thread.scrollTo({ top: thread.scrollHeight, behavior: 'smooth' });
+  }, [items.length]);
 
   return (
     <div
