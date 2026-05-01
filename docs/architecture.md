@@ -5,7 +5,7 @@
 - **Next.js 16** (App Router)
 - **React 19**
 - **Supabase** — Postgres, RLS, Google OAuth, Realtime
-- **ECharts** — stats visualizations
+- **Visx** — stats visualizations
 - **CSS Modules** — component-scoped styling
 - **Biome** — linting and formatting
 - **Jest** — unit/integration tests

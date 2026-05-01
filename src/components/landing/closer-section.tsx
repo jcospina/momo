@@ -31,7 +31,12 @@ export function CloserSection() {
       <Typography size="lg" className={styles['momo-landing-closer__sub']}>
         {t('sub')}
       </Typography>
-      <Button variant="primary" asLink href="/login">
+      <Button
+        variant="primary"
+        asLink
+        href="/login"
+        className={styles['momo-landing-closer__cta']}
+      >
         {t('cta')}
       </Button>
     </section>

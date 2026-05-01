@@ -17,10 +17,6 @@
   gap: var(--space-2);
 }
 
-.momo-landing-nav__logo > * {
-  font-size: 2rem;
-}
-
 .momo-landing-nav__links {
   display: flex;
   align-items: center;
@@ -46,7 +42,8 @@
   .momo-landing-nav__links {
     gap: var(--space-2);
   }
-  .momo-landing-nav__link-text {
+
+  .momo-landing-nav__section-link {
     display: none;
   }
 }

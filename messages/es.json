@@ -160,7 +160,10 @@
       "sub": "MoMo convierte la parte aburrida de las finanzas personales en un chat. Escribe <em>\"15.50 almuerzo chipotle\"</em> y nosotros lo registramos, categorizamos y sumamos. Solo o con tu hogar — tú decides.",
       "cta_primary": "Empezar — gratis",
       "cta_secondary": "Ver cómo funciona",
-      "image_alt": "Captura del producto — pantalla principal de MoMo"
+      "image_alt": "Captura del producto — pantalla principal de MoMo",
+      "chatPreview": {
+        "headerTitle": "Familia"
+      }
     },
     "features": {
       "heading": "Pensado para cómo<br></br><underline>realmente gastas</underline>.",
@@ -181,6 +184,7 @@
     },
     "how": {
       "eyebrow": "Cómo funciona",
+      "title": "Cómo <primary>funciona</primary>",
       "heading": "Tres pasos. Unos doce segundos.",
       "image_alt": "Captura del producto — pantalla de estadísticas",
       "step1": {

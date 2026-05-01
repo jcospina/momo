@@ -1,10 +1,24 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { type EChartsType, echarts } from './echarts-init';
-import { safeResize, safeSetOption } from './echarts-safe';
-
-const THEME_NAME = 'momo';
+import { Group } from '@visx/group';
+import { Pie, type PieProvidedProps } from '@visx/shape';
+import type { TouchEvent as ReactTouchEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import styles from './ring-chart.module.css';
+import { CHART_STROKE, paletteColor } from './shared/chart-colors';
+import { ChartShell } from './shared/chart-shell';
+import { formatCurrency, toDisplayAmount } from './shared/format';
+import legendStyles from './shared/legend.module.css';
+import { mergeRefs } from './shared/merge-refs';
+import tooltipStyles from './shared/tooltip.module.css';
+import {
+  EMPTY_TOOLTIP_STYLE,
+  useTooltipPortal,
+} from './shared/use-tooltip-portal';
+import {
+  getTouchClientPoint,
+  useTouchTooltipDismiss,
+} from './shared/use-touch-tooltip';
 
 export type RingChartItem = {
   name: string;
@@ -19,18 +33,397 @@ export type RingChartProps = {
   getTooltipLines?: (payload: RingChartItem) => string[];
 };
 
-function toDisplayAmount(amountCents: number, currency: string) {
-  const divisor = currency === 'COP' ? 1 : 100;
-  return amountCents / divisor;
+type ArcDatum = {
+  name: string;
+  value: number;
+  paletteIndex: number;
+};
+
+type TooltipDatum = {
+  name: string;
+  value: number;
+  percent: number;
+  extra: string[];
+};
+
+type PieArcDatum<Datum> = PieProvidedProps<Datum>['arcs'][number];
+
+type Layout = {
+  centerX: number;
+  centerY: number;
+  innerRadius: number;
+  outerRadius: number;
+};
+
+const STROKE_WIDTH = 2;
+const PAD_ANGLE = 0.01;
+const CORNER_RADIUS = 6;
+const ANIMATION_DURATION_MS = 450;
+
+function computeLayout(width: number, height: number): Layout {
+  // Donut is always centered; legend is always rendered below in a wrapping
+  // row, so the canvas is fully available for the donut.
+  const basis = Math.min(width, height);
+  const innerRadius = basis * 0.32;
+  const outerRadius = basis * 0.46;
+  return {
+    centerX: width / 2,
+    centerY: height / 2,
+    innerRadius,
+    outerRadius,
+  };
 }
 
-function formatCurrency(amount: number, currency: string) {
-  return new Intl.NumberFormat(undefined, {
-    style: 'currency',
-    currency,
-    currencyDisplay: currency === 'COP' ? 'narrowSymbol' : 'symbol',
-    maximumFractionDigits: currency === 'COP' ? 0 : 2,
-  }).format(amount);
+type RingChartCanvasProps = {
+  width: number;
+  height: number;
+  arcData: ArcDatum[];
+  visibleArcs: ArcDatum[];
+  visibleTotalCents: number;
+  currency: string;
+  centerLabel: string;
+  hoverIndex: number | null;
+  setHoverIndex: (i: number | null) => void;
+  onItemClick?: RingChartProps['onItemClick'];
+  getTooltipLines?: RingChartProps['getTooltipLines'];
+};
+
+function RingChartCanvas({
+  width,
+  height,
+  arcData,
+  visibleArcs,
+  visibleTotalCents,
+  currency,
+  centerLabel,
+  hoverIndex,
+  setHoverIndex,
+  onItemClick,
+  getTooltipLines,
+}: RingChartCanvasProps) {
+  const layout = useMemo(() => computeLayout(width, height), [width, height]);
+
+  const tooltip = useTooltipPortal<TooltipDatum>();
+  const {
+    tooltipOpen,
+    tooltipData,
+    tooltipLeft,
+    tooltipTop,
+    showTooltip,
+    hideTooltip,
+    TooltipInPortal,
+    containerRef: tooltipContainerRef,
+  } = tooltip;
+
+  const dismissContainerRef = useTouchTooltipDismiss({
+    active: tooltipOpen,
+    onDismiss: hideTooltip,
+  });
+
+  // When the tooltip closes (including via outside-tap dismiss) the hover
+  // scale must reset too, otherwise the slice stays enlarged. We skip
+  // `onPointerLeave` for touch, so this effect is the only place that resets
+  // hover state on touch dismissal.
+  useEffect(() => {
+    if (!tooltipOpen) setHoverIndex(null);
+  }, [tooltipOpen, setHoverIndex]);
+
+  const setContainerRef = useMemo(
+    () => mergeRefs<HTMLDivElement>(dismissContainerRef, tooltipContainerRef),
+    [dismissContainerRef, tooltipContainerRef],
+  );
+
+  const showTooltipFor = useCallback(
+    (datum: ArcDatum, clientX: number, clientY: number) => {
+      const container = dismissContainerRef.current;
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      const percent =
+        visibleTotalCents > 0 ? (datum.value / visibleTotalCents) * 100 : 0;
+      const extra =
+        getTooltipLines?.({ name: datum.name, value: datum.value }) ?? [];
+      showTooltip({
+        tooltipLeft: clientX - rect.left,
+        tooltipTop: clientY - rect.top,
+        tooltipData: {
+          name: datum.name,
+          value: datum.value,
+          percent,
+          extra,
+        },
+      });
+    },
+    [dismissContainerRef, getTooltipLines, showTooltip, visibleTotalCents],
+  );
+
+  const showTooltipForTouch = useCallback(
+    (datum: ArcDatum, event: ReactTouchEvent<SVGPathElement>) => {
+      const touchPoint = getTouchClientPoint(event);
+      if (!touchPoint) return;
+      showTooltipFor(datum, touchPoint.clientX, touchPoint.clientY);
+    },
+    [showTooltipFor],
+  );
+
+  const hovered =
+    hoverIndex !== null ? (visibleArcs[hoverIndex] ?? null) : null;
+
+  const centerName = hovered ? hovered.name : centerLabel;
+  const centerValue = hovered
+    ? toDisplayAmount(hovered.value, currency)
+    : toDisplayAmount(visibleTotalCents, currency);
+
+  return (
+    <div ref={setContainerRef} className={styles.canvas}>
+      <svg className={styles.svg} width={width} height={height}>
+        <title>Ring chart</title>
+        <Group top={layout.centerY} left={layout.centerX}>
+          <Pie<ArcDatum>
+            data={visibleArcs}
+            pieValue={d => d.value}
+            outerRadius={layout.outerRadius}
+            innerRadius={layout.innerRadius}
+            cornerRadius={CORNER_RADIUS}
+            padAngle={PAD_ANGLE}
+            pieSort={null}
+            pieSortValues={null}
+          >
+            {({ arcs, path }) => (
+              <AnimatedArcs
+                arcs={arcs}
+                path={path}
+                hoverIndex={hoverIndex}
+                onPointerActivate={(datum, i, event) => {
+                  setHoverIndex(i);
+                  showTooltipFor(datum, event.clientX, event.clientY);
+                }}
+                onPointerMove={(datum, _i, event) => {
+                  showTooltipFor(datum, event.clientX, event.clientY);
+                }}
+                onTouchActivate={(datum, i, event) => {
+                  setHoverIndex(i);
+                  showTooltipForTouch(datum, event);
+                }}
+                onTouchMove={(datum, _i, event) => {
+                  showTooltipForTouch(datum, event);
+                }}
+                onPointerLeave={event => {
+                  if (event.pointerType === 'touch') return;
+                  setHoverIndex(null);
+                  hideTooltip();
+                }}
+                onClick={datum => {
+                  if (!onItemClick) return;
+                  onItemClick({ name: datum.name, value: datum.value });
+                }}
+              />
+            )}
+          </Pie>
+        </Group>
+      </svg>
+      <div
+        className={styles.centerOverlay}
+        style={{
+          top: layout.centerY,
+          left: layout.centerX,
+        }}
+      >
+        <div className={styles.centerName}>{centerName}</div>
+        <div className={styles.centerValue}>
+          {formatCurrency(centerValue, currency)}
+        </div>
+      </div>
+      {tooltipOpen && tooltipData ? (
+        <TooltipInPortal
+          left={tooltipLeft}
+          top={tooltipTop}
+          style={EMPTY_TOOLTIP_STYLE}
+          applyPositionStyle
+          className={tooltipStyles.tooltip}
+        >
+          <div>
+            <strong>{tooltipData.name}</strong>
+          </div>
+          <div>
+            {formatCurrency(
+              toDisplayAmount(tooltipData.value, currency),
+              currency,
+            )}{' '}
+            ({tooltipData.percent.toFixed(1)}%)
+          </div>
+          {tooltipData.extra.map(line => (
+            <div key={line} dangerouslySetInnerHTML={{ __html: line }} />
+          ))}
+        </TooltipInPortal>
+      ) : null}
+    </div>
+  );
+}
+
+type AnimatedArcsProps = {
+  arcs: PieArcDatum<ArcDatum>[];
+  path: (arc: PieArcDatum<ArcDatum>) => string | null;
+  hoverIndex: number | null;
+  onPointerActivate: (
+    datum: ArcDatum,
+    index: number,
+    event: React.PointerEvent<SVGPathElement>,
+  ) => void;
+  onPointerMove: (
+    datum: ArcDatum,
+    index: number,
+    event: React.PointerEvent<SVGPathElement>,
+  ) => void;
+  onTouchActivate: (
+    datum: ArcDatum,
+    index: number,
+    event: ReactTouchEvent<SVGPathElement>,
+  ) => void;
+  onTouchMove: (
+    datum: ArcDatum,
+    index: number,
+    event: ReactTouchEvent<SVGPathElement>,
+  ) => void;
+  onPointerLeave: (event: React.PointerEvent<SVGPathElement>) => void;
+  onClick: (datum: ArcDatum) => void;
+};
+
+/**
+ * Renders pie arcs with a small `requestAnimationFrame` tween of start/end
+ * angles whenever the data changes. Avoids `@visx/react-spring` since the
+ * project doesn't otherwise depend on react-spring; the interpolation is
+ * trivial because we're tweening two numbers per arc keyed by name.
+ */
+function AnimatedArcs({
+  arcs,
+  path,
+  hoverIndex,
+  onPointerActivate,
+  onPointerMove,
+  onTouchActivate,
+  onTouchMove,
+  onPointerLeave,
+  onClick,
+}: AnimatedArcsProps) {
+  const previousAnglesRef = useRef<Map<string, { start: number; end: number }>>(
+    new Map(),
+  );
+  const [tweenedAngles, setTweenedAngles] = useState<
+    Map<string, { start: number; end: number }>
+  >(() => {
+    const initial = new Map<string, { start: number; end: number }>();
+    arcs.forEach(arc => {
+      initial.set(arc.data.name, {
+        start: arc.startAngle,
+        end: arc.endAngle,
+      });
+    });
+    return initial;
+  });
+
+  useEffect(() => {
+    const fromMap = new Map(previousAnglesRef.current);
+    const toMap = new Map<string, { start: number; end: number }>();
+    arcs.forEach(arc => {
+      toMap.set(arc.data.name, { start: arc.startAngle, end: arc.endAngle });
+    });
+
+    // Seed any newly-introduced arcs at zero-width so they grow in.
+    arcs.forEach(arc => {
+      if (!fromMap.has(arc.data.name)) {
+        const midpoint = (arc.startAngle + arc.endAngle) / 2;
+        fromMap.set(arc.data.name, { start: midpoint, end: midpoint });
+      }
+    });
+
+    let frame = 0;
+    let start = 0;
+    let previousTimestamp = 0;
+    let stalledFrames = 0;
+    const tick = (timestamp: number) => {
+      if (!start) start = timestamp || 1;
+      // Guard: if the host never advances the clock (jsdom rAF mock, paused
+      // tab) snap to the final state instead of recursing forever.
+      if (timestamp === previousTimestamp) {
+        stalledFrames += 1;
+      } else {
+        stalledFrames = 0;
+        previousTimestamp = timestamp;
+      }
+      const forceEnd = stalledFrames >= 2;
+
+      const elapsed = timestamp - start;
+      const t = forceEnd ? 1 : Math.min(1, elapsed / ANIMATION_DURATION_MS);
+      // ease-in-out cubic
+      const eased = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+
+      const next = new Map<string, { start: number; end: number }>();
+      arcs.forEach(arc => {
+        const from = fromMap.get(arc.data.name) ?? {
+          start: arc.startAngle,
+          end: arc.endAngle,
+        };
+        const to = toMap.get(arc.data.name) ?? {
+          start: arc.startAngle,
+          end: arc.endAngle,
+        };
+        next.set(arc.data.name, {
+          start: from.start + (to.start - from.start) * eased,
+          end: from.end + (to.end - from.end) * eased,
+        });
+      });
+      setTweenedAngles(next);
+
+      if (t < 1) {
+        frame = requestAnimationFrame(tick);
+      } else {
+        previousAnglesRef.current = toMap;
+      }
+    };
+    frame = requestAnimationFrame(tick);
+
+    return () => cancelAnimationFrame(frame);
+    // We intentionally re-run only when the arc data identity changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [arcs]);
+
+  return (
+    <>
+      {arcs.map((arc, i) => {
+        const angles = tweenedAngles.get(arc.data.name) ?? {
+          start: arc.startAngle,
+          end: arc.endAngle,
+        };
+        const tweened: PieArcDatum<ArcDatum> = {
+          ...arc,
+          startAngle: angles.start,
+          endAngle: angles.end,
+        };
+        const d = path(tweened) ?? '';
+        const isHovered = hoverIndex === i;
+        return (
+          <path
+            key={`arc-${arc.data.name}`}
+            d={d}
+            fill={paletteColor(arc.data.paletteIndex)}
+            stroke={CHART_STROKE}
+            strokeWidth={STROKE_WIDTH}
+            className={styles.arc}
+            style={{
+              transform: isHovered ? 'scale(1.04)' : 'scale(1)',
+            }}
+            onPointerEnter={event => onPointerActivate(arc.data, i, event)}
+            onPointerDown={event => onPointerActivate(arc.data, i, event)}
+            onPointerMove={event => onPointerMove(arc.data, i, event)}
+            onTouchStart={event => onTouchActivate(arc.data, i, event)}
+            onTouchMove={event => onTouchMove(arc.data, i, event)}
+            onPointerLeave={onPointerLeave}
+            onClick={() => onClick(arc.data)}
+          />
+        );
+      })}
+    </>
+  );
 }
 
 export function RingChart({
@@ -40,271 +433,129 @@ export function RingChart({
   onItemClick,
   getTooltipLines,
 }: RingChartProps) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const chartRef = useRef<EChartsType | null>(null);
-  const [centerText, setCenterText] = useState({ name: centerLabel, value: 0 });
-  const [containerSize, setContainerSize] = useState({
-    width: 0,
-    height: 0,
-  });
-
-  const totalCents = useMemo(
-    () => items.reduce((sum, item) => sum + (item.value ?? 0), 0),
+  const arcData = useMemo<ArcDatum[]>(
+    () =>
+      items.map((item, index) => ({
+        name: item.name,
+        value: item.value,
+        paletteIndex: index,
+      })),
     [items],
   );
 
-  const seriesData = useMemo(
-    () => items.map(item => ({ name: item.name, value: item.value })),
-    [items],
+  // Track explicitly-hidden names. Items default to visible; renames or new
+  // items appear visible automatically without sync logic.
+  const [hiddenNames, setHiddenNames] = useState<Set<string>>(() => new Set());
+
+  const visibleArcs = useMemo(() => {
+    const filtered = arcData.filter(item => !hiddenNames.has(item.name));
+    if (filtered.length === 0 && arcData.length > 0) {
+      // Refuse "all hidden" — fall back to all items visible.
+      return arcData;
+    }
+    return filtered;
+  }, [arcData, hiddenNames]);
+
+  const visibleNames = useMemo(
+    () => new Set(visibleArcs.map(item => item.name)),
+    [visibleArcs],
   );
 
-  const layout = useMemo(() => {
-    const isDesktop = containerSize.width >= 768;
-    const legendRows = isDesktop ? 1 : Math.ceil(seriesData.length / 2);
-    const compact = !isDesktop && legendRows >= 2;
-    const radius: [string, string] = compact ? ['48%', '68%'] : ['52%', '72%'];
-    const centerY = isDesktop ? '50%' : compact ? '36%' : '42%';
-    const legend = isDesktop
-      ? {
-          orient: 'vertical' as const,
-          left: '58%',
-          top: 'center',
-          right: 'auto',
-          bottom: 'auto',
+  const visibleTotalCents = useMemo(
+    () => visibleArcs.reduce((sum, item) => sum + (item.value ?? 0), 0),
+    [visibleArcs],
+  );
+
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+
+  const toggleVisible = useCallback(
+    (name: string) => {
+      setHiddenNames(prev => {
+        const next = new Set(prev);
+        if (next.has(name)) {
+          next.delete(name);
+          return next;
         }
-      : {
-          orient: 'horizontal' as const,
-          left: 'center',
-          bottom: 12,
-          right: 'auto',
-          top: 'auto',
-        };
-
-    return {
-      centerX: isDesktop ? '42%' : '50%',
-      centerY,
-      radius,
-      legend,
-    };
-  }, [containerSize.width, seriesData.length]);
-
-  useEffect(() => {
-    setCenterText({
-      name: centerLabel,
-      value: toDisplayAmount(totalCents, currency),
-    });
-  }, [centerLabel, currency, totalCents]);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const chart = echarts.init(containerRef.current, THEME_NAME, {
-      renderer: 'canvas',
-    });
-    chartRef.current = chart;
-    const initialRect = containerRef.current.getBoundingClientRect();
-    setContainerSize({
-      width: initialRect.width,
-      height: initialRect.height,
-    });
-
-    const resizeObserver = new ResizeObserver(entries => {
-      const entry = entries[0];
-      if (entry) {
-        setContainerSize({
-          width: entry.contentRect.width,
-          height: entry.contentRect.height,
-        });
-      }
-      safeResize(chart, entry, 'RingChart');
-    });
-    resizeObserver.observe(containerRef.current);
-
-    return () => {
-      resizeObserver.disconnect();
-      chart.dispose();
-      chartRef.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    const chart = chartRef.current;
-    if (!chart) return;
-
-    const handleMouseOver = (params: unknown) => {
-      const p = params as { name?: string; value?: number };
-      if (p.name && typeof p.value === 'number') {
-        setCenterText({
-          name: p.name,
-          value: toDisplayAmount(p.value, currency),
-        });
-      }
-    };
-
-    const handleMouseOut = () => {
-      setCenterText({
-        name: centerLabel,
-        value: toDisplayAmount(totalCents, currency),
+        const visibleCount = arcData.filter(
+          item => !next.has(item.name),
+        ).length;
+        if (visibleCount <= 1) return prev;
+        next.add(name);
+        return next;
       });
-    };
-
-    const handleLegendChange = (params: unknown) => {
-      const p = params as { selected?: Record<string, boolean> };
-      const selected = p.selected ?? {};
-      const visibleTotal = items.reduce((sum, item) => {
-        if (selected[item.name] === false) return sum;
-        return sum + item.value;
-      }, 0);
-      setCenterText({
-        name: centerLabel,
-        value: toDisplayAmount(visibleTotal, currency),
-      });
-    };
-
-    const handleClick = (params: unknown) => {
-      if (!onItemClick) return;
-      const p = params as { name?: string; value?: number };
-      if (!p.name || typeof p.value !== 'number') return;
-      onItemClick({ name: p.name, value: p.value });
-    };
-
-    chart.on('mouseover', handleMouseOver);
-    chart.on('mouseout', handleMouseOut);
-    chart.on('legendselectchanged', handleLegendChange);
-    chart.on('click', handleClick);
-
-    return () => {
-      chart.off('mouseover', handleMouseOver);
-      chart.off('mouseout', handleMouseOut);
-      chart.off('legendselectchanged', handleLegendChange);
-      chart.off('click', handleClick);
-    };
-  }, [centerLabel, currency, items, onItemClick, totalCents]);
-
-  useEffect(() => {
-    const chart = chartRef.current;
-    if (!chart) return;
-
-    safeSetOption(
-      chart,
-      {
-        legend: {
-          ...layout.legend,
-        },
-        tooltip: {
-          show: true,
-          confine: true,
-          position: (
-            point: number[],
-            _params: unknown,
-            _dom: unknown,
-            _rect: unknown,
-            size: { contentSize: number[]; viewSize: number[] },
-          ) => {
-            const [x, y] = point;
-            const [contentWidth, contentHeight] = size.contentSize;
-            const [viewWidth, viewHeight] = size.viewSize;
-            const clampedX = Math.min(
-              Math.max(x, 8),
-              Math.max(8, viewWidth - contentWidth - 8),
-            );
-            const clampedY = Math.min(
-              Math.max(y, 8),
-              Math.max(8, viewHeight - contentHeight - 8),
-            );
-            return [clampedX, clampedY];
-          },
-          formatter: (params: unknown) => {
-            const p = params as {
-              name?: string;
-              value?: number;
-              percent?: number;
-            };
-            if (!p || typeof p.value !== 'number' || !p.name) return '';
-            const amount = formatCurrency(
-              toDisplayAmount(p.value, currency),
-              currency,
-            );
-            const percent = Number.isFinite(p.percent) ? p.percent : 0;
-            const extra =
-              getTooltipLines?.({ name: p.name, value: p.value }) ?? [];
-            return [
-              `<strong>${p.name}</strong>`,
-              `${amount} (${percent!.toFixed(1)}%)`,
-              ...extra,
-            ].join('<br/>');
-          },
-        },
-        series: [
-          {
-            type: 'pie',
-            radius: layout.radius,
-            center: [layout.centerX, layout.centerY],
-            avoidLabelOverlap: false,
-            label: {
-              show: false,
-            },
-            labelLine: {
-              show: false,
-            },
-            itemStyle: {
-              borderRadius: 6,
-              borderWidth: 2,
-              borderColor: 'rgb(2, 0, 32)',
-            },
-            emphasis: {
-              scale: true,
-              scaleSize: 6,
-            },
-            data: seriesData,
-          },
-        ],
-      },
-      'RingChart',
-      true,
-    );
-  }, [
-    currency,
-    getTooltipLines,
-    layout.centerX,
-    layout.centerY,
-    layout.legend,
-    layout.radius,
-    seriesData,
-  ]);
+      setHoverIndex(null);
+    },
+    [arcData],
+  );
 
   return (
-    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-      <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
-      <div
-        style={{
-          position: 'absolute',
-          top: layout.centerY,
-          left: layout.centerX,
-          transform: 'translate(-50%, -50%)',
-          textAlign: 'center',
-          pointerEvents: 'none',
-        }}
-      >
-        <div
-          style={{
-            fontWeight: 600,
-            fontSize: 12,
-            color: 'rgb(2, 0, 32)',
-          }}
-        >
-          {centerText.name}
-        </div>
-        <div
-          style={{
-            fontWeight: 700,
-            fontSize: 16,
-            color: 'rgb(2, 0, 32)',
-          }}
-        >
-          {formatCurrency(centerText.value, currency)}
-        </div>
+    <div className={styles.root}>
+      <div className={styles.chartArea}>
+        <ChartShell minWidth={1} minHeight={1}>
+          {({ width, height }) => (
+            <RingChartCanvas
+              width={width}
+              height={height}
+              arcData={arcData}
+              visibleArcs={visibleArcs}
+              visibleTotalCents={visibleTotalCents}
+              currency={currency}
+              centerLabel={centerLabel}
+              hoverIndex={hoverIndex}
+              setHoverIndex={setHoverIndex}
+              onItemClick={onItemClick}
+              getTooltipLines={getTooltipLines}
+            />
+          )}
+        </ChartShell>
       </div>
+      <RingChartLegend
+        items={arcData}
+        visibleNames={visibleNames}
+        toggleVisible={toggleVisible}
+      />
     </div>
+  );
+}
+
+type RingChartLegendProps = {
+  items: ArcDatum[];
+  visibleNames: Set<string>;
+  toggleVisible: (name: string) => void;
+};
+
+function RingChartLegend({
+  items,
+  visibleNames,
+  toggleVisible,
+}: RingChartLegendProps) {
+  return (
+    <ul className={legendStyles.legend} data-testid="ring-chart-legend">
+      {items.map(item => {
+        const hidden = !visibleNames.has(item.name);
+        return (
+          <li key={item.name}>
+            <button
+              type="button"
+              onClick={() => toggleVisible(item.name)}
+              className={`${legendStyles.legendItem} ${
+                hidden ? legendStyles.legendItemHidden : ''
+              }`}
+              aria-pressed={!hidden}
+            >
+              <span
+                className={legendStyles.legendDot}
+                style={{
+                  background: hidden
+                    ? 'transparent'
+                    : paletteColor(item.paletteIndex),
+                }}
+              />
+              <span className={legendStyles.legendLabel}>{item.name}</span>
+            </button>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

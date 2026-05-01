@@ -1,52 +1,80 @@
 'use client';
 
 import { formatCategoryLabel } from '@helpers/expenses-stats/aggregations';
-import type { EChartsOption } from 'echarts';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { type EChartsType, echarts } from './echarts-init';
-import { safeResize, safeSetOption } from './echarts-safe';
+import { AxisBottom, AxisLeft } from '@visx/axis';
+import { GridRows } from '@visx/grid';
+import { Group } from '@visx/group';
+import { scaleBand, scaleLinear } from '@visx/scale';
+import { BarStack } from '@visx/shape';
+import type { TouchEvent as ReactTouchEvent } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import styles from './monthly-totals-bar-chart.module.css';
+import {
+  CHART_AXIS,
+  CHART_GRID,
+  CHART_STROKE,
+  paletteColor,
+} from './shared/chart-colors';
+import { ChartShell } from './shared/chart-shell';
+import {
+  formatCompactCurrency,
+  formatCurrency,
+  makeMonthFormatter,
+  parseMonthKey,
+  pickLabelMode,
+  toDisplayAmount,
+} from './shared/format';
+import legendStyles from './shared/legend.module.css';
+import { mergeRefs } from './shared/merge-refs';
+import tooltipStyles from './shared/tooltip.module.css';
+import {
+  EMPTY_TOOLTIP_STYLE,
+  useTooltipPortal,
+} from './shared/use-tooltip-portal';
+import {
+  getTouchClientPoint,
+  useTouchTooltipDismiss,
+} from './shared/use-touch-tooltip';
 
-const THEME_NAME = 'momo';
-const STROKE_COLOR = 'rgb(2, 0, 32)';
-const STROKE_WIDTH = 2;
 const BAR_MAX_WIDTH = 32;
+const STROKE_WIDTH = 2;
+const MARGIN = { top: 24, right: 16, bottom: 64, left: 56 } as const;
+const LABEL_THRESHOLD = 36;
+const OTHERS_LABEL = 'Others';
 
-type MonthEntry = {
+export type MonthEntry = {
   month: string;
   categories: Array<{ category: string; totalCents: number }>;
 };
 
-type MonthlyTotalsBarChartProps = {
+export type MonthlyTotalsBarChartProps = {
   months: MonthEntry[];
   currency: string;
   onMonthClick?: (payload: { month: string; totalCents: number }) => void;
 };
 
-type ParsedMonth = {
-  year: number;
-  monthIndex: number;
+type SeriesAggregate = {
+  monthKeys: string[];
+  series: Array<{ name: string; data: number[] }>;
+  totals: number[];
 };
 
-function parseMonthKey(month: string): ParsedMonth | null {
-  const [yearPart, monthPart] = month.split('-');
-  const year = Number(yearPart);
-  const monthIndex = Number(monthPart) - 1;
-  if (!Number.isFinite(year) || !Number.isFinite(monthIndex)) return null;
-  if (monthIndex < 0 || monthIndex > 11) return null;
-  return { year, monthIndex };
-}
+type StackDatum = {
+  month: string;
+  [key: string]: string | number;
+};
 
-function formatMonthKey(year: number, monthIndex: number) {
-  const month = String(monthIndex + 1).padStart(2, '0');
-  return `${year}-${month}`;
-}
+type TooltipDatum = {
+  seriesName: string;
+  formatted: string;
+};
 
-function buildMonthSeries(entries: MonthEntry[]) {
+function buildMonthSeries(entries: MonthEntry[]): SeriesAggregate {
   if (!entries.length) {
     return {
-      monthKeys: [] as string[],
-      series: [] as Array<{ name: string; data: number[] }>,
-      totals: [] as number[],
+      monthKeys: [],
+      series: [],
+      totals: [],
     };
   }
 
@@ -56,7 +84,8 @@ function buildMonthSeries(entries: MonthEntry[]) {
   entries.forEach(entry => {
     const parsed = parseMonthKey(entry.month);
     if (!parsed) return;
-    const key = formatMonthKey(parsed.year, parsed.monthIndex);
+    const month = String(parsed.monthIndex + 1).padStart(2, '0');
+    const key = `${parsed.year}-${month}`;
 
     const monthMap = monthCategoryMap.get(key) ?? new Map<string, number>();
     entry.categories.forEach(categoryEntry => {
@@ -90,10 +119,9 @@ function buildMonthSeries(entries: MonthEntry[]) {
     .slice(0, 5)
     .map(([name]) => name);
 
-  const othersLabel = 'Others';
   const seriesData = [
     ...topCategories.map(name => ({ name, data: [] as number[] })),
-    { name: othersLabel, data: [] as number[] },
+    { name: OTHERS_LABEL, data: [] as number[] },
   ];
 
   const monthKeys: string[] = [];
@@ -102,7 +130,7 @@ function buildMonthSeries(entries: MonthEntry[]) {
   const end = new Date(last.year, last.monthIndex, 1);
 
   while (cursor <= end) {
-    const key = formatMonthKey(cursor.getFullYear(), cursor.getMonth());
+    const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`;
     const monthMap = monthCategoryMap.get(key) ?? new Map<string, number>();
     monthKeys.push(key);
     totals.push(totalsByMonth.get(key) ?? 0);
@@ -125,37 +153,413 @@ function buildMonthSeries(entries: MonthEntry[]) {
   return { monthKeys, series: seriesData, totals };
 }
 
-function toDisplayAmount(amountCents: number, currency: string) {
-  const divisor = currency === 'COP' ? 1 : 100;
-  return amountCents / divisor;
-}
+type CanvasProps = {
+  width: number;
+  height: number;
+  monthKeys: string[];
+  series: Array<{ name: string; data: number[] }>;
+  hidden: Set<string>;
+  currency: string;
+  containerWidth: number;
+  onMonthClick?: MonthlyTotalsBarChartProps['onMonthClick'];
+};
 
-function formatCompactCurrency(amount: number, currency: string) {
-  const abs = Math.abs(amount);
-  let suffix = '';
-  let scaled = amount;
+function MonthlyTotalsCanvas({
+  width,
+  height,
+  monthKeys,
+  series,
+  hidden,
+  currency,
+  containerWidth,
+  onMonthClick,
+}: CanvasProps) {
+  const innerWidth = Math.max(0, width - MARGIN.left - MARGIN.right);
+  const innerHeight = Math.max(0, height - MARGIN.top - MARGIN.bottom);
 
-  if (abs >= 1_000_000_000) {
-    scaled = amount / 1_000_000_000;
-    suffix = 'B';
-  } else if (abs >= 1_000_000) {
-    scaled = amount / 1_000_000;
-    suffix = 'M';
-  } else if (abs >= 1_000) {
-    scaled = amount / 1_000;
-    suffix = 'K';
+  const seriesIndexByName = useMemo(() => {
+    const map = new Map<string, number>();
+    series.forEach((s, index) => {
+      map.set(s.name, index);
+    });
+    return map;
+  }, [series]);
+
+  // Visible series only — hidden ones don't contribute to bars or to the
+  // outline total per month.
+  const visibleSeries = useMemo(
+    () => series.filter(s => !hidden.has(s.name)),
+    [series, hidden],
+  );
+
+  const visibleKeys = useMemo(
+    () => visibleSeries.map(s => s.name),
+    [visibleSeries],
+  );
+
+  const stackData = useMemo<StackDatum[]>(() => {
+    return monthKeys.map((month, monthIndex) => {
+      const row: StackDatum = { month };
+      visibleSeries.forEach(s => {
+        row[s.name] = s.data[monthIndex] ?? 0;
+      });
+      return row;
+    });
+  }, [monthKeys, visibleSeries]);
+
+  const visibleTotals = useMemo(
+    () =>
+      monthKeys.map((_, monthIndex) =>
+        visibleSeries.reduce((sum, s) => sum + (s.data[monthIndex] ?? 0), 0),
+      ),
+    [monthKeys, visibleSeries],
+  );
+
+  const yMax = useMemo(() => {
+    const max = Math.max(0, ...visibleTotals);
+    return max > 0 ? max : 1;
+  }, [visibleTotals]);
+
+  const xScale = useMemo(
+    () =>
+      scaleBand<string>({
+        domain: monthKeys,
+        range: [0, innerWidth],
+        padding: 0.4,
+      }),
+    [monthKeys, innerWidth],
+  );
+
+  const yScale = useMemo(
+    () =>
+      scaleLinear<number>({
+        domain: [0, yMax],
+        range: [innerHeight, 0],
+        nice: true,
+      }),
+    [yMax, innerHeight],
+  );
+
+  const colorFor = useCallback(
+    (key: string) => paletteColor(seriesIndexByName.get(key) ?? 0),
+    [seriesIndexByName],
+  );
+
+  const bandwidth = xScale.bandwidth();
+  const actualBarWidth = Math.min(bandwidth, BAR_MAX_WIDTH);
+  const barXOffset = (bandwidth - actualBarWidth) / 2;
+
+  const monthFormatter = useMemo(() => {
+    const labelMode = pickLabelMode(
+      containerWidth,
+      monthKeys.length,
+      LABEL_THRESHOLD,
+    );
+    return makeMonthFormatter(labelMode);
+  }, [containerWidth, monthKeys.length]);
+
+  const formatXAxisTick = useCallback(
+    (value: string) => {
+      const parsed = parseMonthKey(value);
+      if (!parsed) return value;
+      return monthFormatter.format(new Date(parsed.year, parsed.monthIndex, 1));
+    },
+    [monthFormatter],
+  );
+
+  const formatYAxisTick = useCallback(
+    (value: { valueOf(): number }) => {
+      const num = typeof value === 'number' ? value : value.valueOf();
+      return formatCompactCurrency(toDisplayAmount(num, currency), currency);
+    },
+    [currency],
+  );
+
+  const tooltip = useTooltipPortal<TooltipDatum>();
+  const {
+    tooltipOpen,
+    tooltipData,
+    tooltipLeft,
+    tooltipTop,
+    showTooltip,
+    hideTooltip,
+    TooltipInPortal,
+    containerRef: tooltipContainerRef,
+  } = tooltip;
+
+  const dismissContainerRef = useTouchTooltipDismiss({
+    active: tooltipOpen,
+    onDismiss: hideTooltip,
+  });
+
+  const setContainerRef = useMemo(
+    () => mergeRefs<HTMLDivElement>(dismissContainerRef, tooltipContainerRef),
+    [dismissContainerRef, tooltipContainerRef],
+  );
+
+  const showSegmentTooltip = useCallback(
+    (seriesName: string, value: number, clientX: number, clientY: number) => {
+      const container = dismissContainerRef.current;
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      const formatted = formatCurrency(
+        toDisplayAmount(value, currency),
+        currency,
+      );
+      showTooltip({
+        tooltipLeft: clientX - rect.left,
+        tooltipTop: clientY - rect.top,
+        tooltipData: { seriesName, formatted },
+      });
+    },
+    [currency, dismissContainerRef, showTooltip],
+  );
+
+  const showSegmentTooltipFromTouch = useCallback(
+    (
+      seriesName: string,
+      value: number,
+      event: ReactTouchEvent<SVGRectElement>,
+    ) => {
+      const touchPoint = getTouchClientPoint(event);
+      if (!touchPoint) return;
+      showSegmentTooltip(
+        seriesName,
+        value,
+        touchPoint.clientX,
+        touchPoint.clientY,
+      );
+    },
+    [showSegmentTooltip],
+  );
+
+  if (innerWidth <= 0 || innerHeight <= 0) {
+    return <div ref={setContainerRef} className={styles.canvas} />;
   }
 
-  const maximumFractionDigits = abs >= 1_000 ? 1 : currency === 'COP' ? 0 : 2;
-  const formatted = new Intl.NumberFormat(undefined, {
-    style: 'currency',
-    currency,
-    currencyDisplay: currency === 'COP' ? 'narrowSymbol' : 'symbol',
-    minimumFractionDigits: 0,
-    maximumFractionDigits,
-  }).format(scaled);
+  return (
+    <div ref={setContainerRef} className={styles.canvas}>
+      <svg className={styles.svg} width={width} height={height}>
+        <title>Monthly totals bar chart</title>
+        <Group top={MARGIN.top} left={MARGIN.left}>
+          <GridRows
+            scale={yScale}
+            width={innerWidth}
+            numTicks={5}
+            stroke={CHART_GRID}
+            strokeWidth={1}
+          />
+          {visibleKeys.length > 0 ? (
+            <BarStack<StackDatum, string>
+              data={stackData}
+              keys={visibleKeys}
+              x={(d: StackDatum) => d.month}
+              xScale={xScale}
+              yScale={yScale}
+              color={colorFor}
+            >
+              {barStacks =>
+                barStacks.map(barStack =>
+                  barStack.bars.map(bar => {
+                    if (
+                      !Number.isFinite(bar.x) ||
+                      !Number.isFinite(bar.y) ||
+                      bar.height <= 0
+                    ) {
+                      return null;
+                    }
+                    const monthIndex = bar.index;
+                    const monthKey = monthKeys[monthIndex];
+                    return (
+                      <rect
+                        key={`bar-${barStack.key}-${monthKey}`}
+                        data-testid="bar-segment"
+                        data-series={barStack.key}
+                        data-month={monthKey}
+                        x={bar.x + barXOffset}
+                        y={bar.y}
+                        width={actualBarWidth}
+                        height={bar.height}
+                        fill={bar.color}
+                        className={styles.bar}
+                        onPointerEnter={event =>
+                          showSegmentTooltip(
+                            String(barStack.key),
+                            bar.bar.data[barStack.key] as number,
+                            event.clientX,
+                            event.clientY,
+                          )
+                        }
+                        onPointerDown={event =>
+                          showSegmentTooltip(
+                            String(barStack.key),
+                            bar.bar.data[barStack.key] as number,
+                            event.clientX,
+                            event.clientY,
+                          )
+                        }
+                        onPointerMove={event =>
+                          showSegmentTooltip(
+                            String(barStack.key),
+                            bar.bar.data[barStack.key] as number,
+                            event.clientX,
+                            event.clientY,
+                          )
+                        }
+                        onTouchStart={event =>
+                          showSegmentTooltipFromTouch(
+                            String(barStack.key),
+                            bar.bar.data[barStack.key] as number,
+                            event,
+                          )
+                        }
+                        onTouchMove={event =>
+                          showSegmentTooltipFromTouch(
+                            String(barStack.key),
+                            bar.bar.data[barStack.key] as number,
+                            event,
+                          )
+                        }
+                        onPointerLeave={event => {
+                          if (event.pointerType === 'touch') return;
+                          hideTooltip();
+                        }}
+                        onClick={() => {
+                          if (!onMonthClick) return;
+                          onMonthClick({
+                            month: monthKey,
+                            totalCents: visibleTotals[monthIndex] ?? 0,
+                          });
+                        }}
+                      />
+                    );
+                  }),
+                )
+              }
+            </BarStack>
+          ) : null}
+          {/* Stack outline pass: one rect per month wrapping the entire
+              stacked group. Skip months whose total <= 0. */}
+          {monthKeys.map((monthKey, monthIndex) => {
+            const total = visibleTotals[monthIndex] ?? 0;
+            if (total <= 0) return null;
+            const bandX = xScale(monthKey);
+            if (bandX === undefined) return null;
+            const topY = yScale(total) ?? 0;
+            const baseY = yScale(0) ?? innerHeight;
+            const outlineHeight = baseY - topY;
+            if (outlineHeight <= 0) return null;
+            return (
+              <rect
+                key={`outline-${monthKey}`}
+                data-testid="stack-outline"
+                data-month={monthKey}
+                x={bandX + barXOffset}
+                y={topY}
+                width={actualBarWidth}
+                height={outlineHeight}
+                fill="none"
+                stroke={CHART_STROKE}
+                strokeWidth={STROKE_WIDTH}
+                shapeRendering="crispEdges"
+                pointerEvents="none"
+              />
+            );
+          })}
+          <AxisBottom
+            top={innerHeight}
+            scale={xScale}
+            stroke={CHART_AXIS}
+            strokeWidth={2}
+            tickStroke={CHART_AXIS}
+            tickFormat={formatXAxisTick}
+            tickLabelProps={() => ({
+              fontSize: 11,
+              fontWeight: 600,
+              fill: 'var(--fg-primary)',
+              textAnchor: 'middle',
+              dy: '0.25em',
+            })}
+          />
+          <AxisLeft
+            scale={yScale}
+            stroke={CHART_AXIS}
+            strokeWidth={2}
+            tickStroke={CHART_AXIS}
+            numTicks={5}
+            tickFormat={formatYAxisTick}
+            tickLabelProps={() => ({
+              fontSize: 11,
+              fontWeight: 600,
+              fill: 'var(--fg-primary)',
+              textAnchor: 'end',
+              dx: '-0.25em',
+              dy: '0.25em',
+            })}
+          />
+        </Group>
+      </svg>
+      {tooltipOpen && tooltipData ? (
+        <TooltipInPortal
+          left={tooltipLeft}
+          top={tooltipTop}
+          style={EMPTY_TOOLTIP_STYLE}
+          applyPositionStyle
+          className={tooltipStyles.tooltip}
+        >
+          <div>
+            {formatCategoryLabel(tooltipData.seriesName)}{' '}
+            {tooltipData.formatted}
+          </div>
+        </TooltipInPortal>
+      ) : null}
+    </div>
+  );
+}
 
-  return `${formatted}${suffix}`;
+type LegendProps = {
+  series: Array<{ name: string }>;
+  hidden: Set<string>;
+  toggle: (name: string) => void;
+  seriesIndexByName: Map<string, number>;
+};
+
+function MonthlyTotalsLegend({
+  series,
+  hidden,
+  toggle,
+  seriesIndexByName,
+}: LegendProps) {
+  return (
+    <ul className={legendStyles.legend} data-testid="monthly-totals-legend">
+      {series.map(item => {
+        const isHidden = hidden.has(item.name);
+        const index = seriesIndexByName.get(item.name) ?? 0;
+        return (
+          <li key={item.name}>
+            <button
+              type="button"
+              onClick={() => toggle(item.name)}
+              aria-pressed={!isHidden}
+              className={`${legendStyles.legendItem} ${
+                isHidden ? legendStyles.legendItemHidden : ''
+              }`}
+            >
+              <span
+                className={legendStyles.legendDot}
+                style={{
+                  background: isHidden ? 'transparent' : paletteColor(index),
+                }}
+              />
+              <span className={legendStyles.legendLabel}>
+                {formatCategoryLabel(item.name)}
+              </span>
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
 }
 
 export function MonthlyTotalsBarChart({
@@ -163,264 +567,63 @@ export function MonthlyTotalsBarChart({
   currency,
   onMonthClick,
 }: MonthlyTotalsBarChartProps) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const chartRef = useRef<EChartsType | null>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
-
-  const { monthKeys, series, totals } = useMemo(
+  const { monthKeys, series } = useMemo(
     () => buildMonthSeries(months),
     [months],
   );
 
-  const formatter = useMemo(
-    () =>
-      new Intl.NumberFormat(undefined, {
-        style: 'currency',
-        currency,
-        currencyDisplay: currency === 'COP' ? 'narrowSymbol' : 'symbol',
-        notation: 'compact',
-        maximumFractionDigits: currency === 'COP' ? 0 : 2,
-      }),
-    [currency],
+  const seriesIndexByName = useMemo(() => {
+    const map = new Map<string, number>();
+    series.forEach((s, index) => {
+      map.set(s.name, index);
+    });
+    return map;
+  }, [series]);
+
+  const [hidden, setHidden] = useState<Set<string>>(() => new Set());
+
+  const toggle = useCallback(
+    (name: string) => {
+      setHidden(prev => {
+        const next = new Set(prev);
+        if (next.has(name)) {
+          next.delete(name);
+          return next;
+        }
+        // Don't allow hiding all series.
+        const visibleCount = series.filter(s => !next.has(s.name)).length;
+        if (visibleCount <= 1) return prev;
+        next.add(name);
+        return next;
+      });
+    },
+    [series],
   );
 
-  const labelMode = useMemo(() => {
-    if (!monthKeys.length || !containerWidth) return 'short';
-    const widthPerLabel = containerWidth / monthKeys.length;
-    if (widthPerLabel < 36) return 'narrow';
-    return 'short';
-  }, [containerWidth, monthKeys.length]);
-
-  const legendLayout = useMemo(() => {
-    const rows = series.length > 3 ? 2 : 1;
-    return {
-      orient: 'horizontal' as const,
-      left: 'center',
-      bottom: 6,
-      right: 'auto',
-      top: 'auto',
-      gridRight: '6%',
-      gridBottom: rows === 2 ? 64 : 44,
-    };
-  }, [series.length]);
-
-  const monthFormatter = useMemo(
-    () => new Intl.DateTimeFormat(undefined, { month: labelMode }),
-    [labelMode],
+  return (
+    <div className={styles.root}>
+      <div className={styles.chartArea}>
+        <ChartShell minWidth={1} minHeight={1}>
+          {({ width, height }) => (
+            <MonthlyTotalsCanvas
+              width={width}
+              height={height}
+              monthKeys={monthKeys}
+              series={series}
+              hidden={hidden}
+              currency={currency}
+              containerWidth={width}
+              onMonthClick={onMonthClick}
+            />
+          )}
+        </ChartShell>
+      </div>
+      <MonthlyTotalsLegend
+        series={series}
+        hidden={hidden}
+        toggle={toggle}
+        seriesIndexByName={seriesIndexByName}
+      />
+    </div>
   );
-
-  const options = useMemo<EChartsOption>(() => {
-    return {
-      tooltip: {
-        trigger: 'item',
-        formatter: (params: unknown) => {
-          const payload = params as { seriesName?: string; value?: number };
-          if (!payload || typeof payload.value !== 'number') return '';
-          return `${payload.seriesName ?? ''} ${formatter.format(
-            toDisplayAmount(payload.value, currency),
-          )}`;
-        },
-      },
-      legend: {
-        show: true,
-        icon: 'circle',
-        itemHeight: 12,
-        itemWidth: 12,
-        itemGap: 10,
-        data: series.map(item => item.name),
-        itemStyle: {
-          borderColor: STROKE_COLOR,
-          borderWidth: STROKE_WIDTH,
-        },
-        formatter: (name: string) => formatCategoryLabel(name),
-        ...legendLayout,
-      },
-      grid: {
-        left: '10%',
-        right: legendLayout.gridRight,
-        top: 24,
-        bottom: legendLayout.gridBottom,
-        containLabel: true,
-      },
-      xAxis: {
-        type: 'category',
-        data: monthKeys,
-        axisLine: {
-          show: true,
-          lineStyle: {
-            color: STROKE_COLOR,
-            width: STROKE_WIDTH,
-          },
-        },
-        axisTick: {
-          show: true,
-          lineStyle: {
-            color: STROKE_COLOR,
-            width: STROKE_WIDTH,
-          },
-        },
-        axisLabel: {
-          interval: 0,
-          formatter: (value: string) => {
-            const parsed = parseMonthKey(value);
-            if (!parsed) return value;
-            return monthFormatter.format(
-              new Date(parsed.year, parsed.monthIndex, 1),
-            );
-          },
-        },
-      },
-      yAxis: {
-        type: 'value',
-        axisLine: {
-          show: true,
-          lineStyle: {
-            color: STROKE_COLOR,
-            width: STROKE_WIDTH,
-          },
-        },
-        axisTick: {
-          show: true,
-          lineStyle: {
-            color: STROKE_COLOR,
-            width: STROKE_WIDTH,
-          },
-        },
-        axisLabel: {
-          formatter: (value: number) =>
-            formatCompactCurrency(toDisplayAmount(value, currency), currency),
-        },
-      },
-      series: [
-        ...series.map(item => ({
-          name: item.name,
-          type: 'bar' as const,
-          stack: 'total',
-          data: item.data,
-          barMaxWidth: BAR_MAX_WIDTH,
-          itemStyle: {
-            borderWidth: 0,
-          },
-        })),
-        {
-          name: '__stack_outline__',
-          type: 'custom' as const,
-          data: totals.map((total, index) => [index, total]),
-          renderItem: (_params, api) => {
-            const xIndex = Number(api.value(0));
-            const total = Number(api.value(1));
-            if (!Number.isFinite(xIndex) || !Number.isFinite(total)) {
-              return null;
-            }
-            if (total <= 0) return null;
-
-            const top = api.coord([xIndex, total]);
-            const bottom = api.coord([xIndex, 0]);
-            const sizeFn = api.size;
-            if (!sizeFn) return null;
-            const size = sizeFn([1, 0]);
-            const categoryWidth = Math.abs(
-              Array.isArray(size) ? size[0] : size,
-            );
-            const barWidth = Math.min(BAR_MAX_WIDTH, categoryWidth * 0.72);
-            const barLayout = api.barLayout;
-            if (!barLayout) return null;
-            const slots = barLayout({
-              count: 1,
-              barWidth,
-            });
-            const slot = slots[0];
-            if (!slot) return null;
-            const leftX = bottom[0] + slot.offset;
-            const rightX = leftX + slot.width;
-
-            return {
-              type: 'polyline',
-              shape: {
-                points: [
-                  [leftX, bottom[1]],
-                  [leftX, top[1]],
-                  [rightX, top[1]],
-                  [rightX, bottom[1]],
-                ],
-              },
-              style: {
-                stroke: STROKE_COLOR,
-                lineWidth: STROKE_WIDTH,
-                fill: 'transparent',
-              },
-            };
-          },
-          encode: {
-            x: 0,
-            y: 1,
-          },
-          z: 11,
-          silent: true,
-          legendHoverLink: false,
-          tooltip: {
-            show: false,
-          },
-        },
-      ],
-    };
-  }, [
-    currency,
-    formatter,
-    legendLayout,
-    monthFormatter,
-    monthKeys,
-    series,
-    totals,
-  ]);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const chart = echarts.init(containerRef.current, THEME_NAME, {
-      renderer: 'canvas',
-    });
-    chartRef.current = chart;
-
-    const resizeObserver = new ResizeObserver(entries => {
-      const entry = entries[0];
-      if (entry) {
-        setContainerWidth(entry.contentRect.width);
-      }
-      safeResize(chart, entry, 'MonthlyTotalsBarChart');
-    });
-    resizeObserver.observe(containerRef.current);
-
-    return () => {
-      resizeObserver.disconnect();
-      chart.dispose();
-      chartRef.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    const chart = chartRef.current;
-    if (!chart) return;
-    safeSetOption(chart, options, 'MonthlyTotalsBarChart', true);
-  }, [options]);
-
-  useEffect(() => {
-    const chart = chartRef.current;
-    if (!chart) return;
-
-    const handleClick = (params: unknown) => {
-      const p = params as { name?: string; value?: number; dataIndex?: number };
-      const index = p.dataIndex ?? -1;
-      if (index < 0 || index >= monthKeys.length) return;
-      const totalCents = totals[index] ?? 0;
-      onMonthClick?.({ month: monthKeys[index], totalCents });
-    };
-
-    chart.on('click', handleClick);
-    return () => {
-      chart.off('click', handleClick);
-    };
-  }, [monthKeys, onMonthClick, totals]);
-
-  return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />;
 }

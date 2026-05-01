@@ -160,7 +160,10 @@
       "sub": "MoMo turns the boring part of personal finance into a chat. Type <em>\"15.50 lunch chipotle\"</em> and we'll handle it for you.",
       "cta_primary": "Start now, its free!",
       "cta_secondary": "See how it works",
-      "image_alt": "Product screenshot — MoMo home screen"
+      "image_alt": "Product screenshot — MoMo home screen",
+      "chatPreview": {
+        "headerTitle": "Family"
+      }
     },
     "features": {
       "heading": "Built around how you <feature>actually spend</feature>.",
@@ -181,6 +184,7 @@
     },
     "how": {
       "eyebrow": "How it works",
+      "title": "How it <primary>works</primary>",
       "heading": "Three steps:",
       "image_alt": "Product screenshot — Stats screen",
       "step1": {

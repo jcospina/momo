@@ -1,3 +1,4 @@
+import { Highlight } from '@ui/highlight/highlight';
 import { Typography } from '@ui/typography/typography';
 import { cn } from '@utils/cn';
 import { useTranslations } from 'next-intl';
@@ -52,18 +53,27 @@ export function HowItWorks() {
 
   return (
     <section id="how" className={styles['momo-landing__section']}>
+      <div className={howStyles['momo-landing-how__heading']}>
+        <Typography
+          as="h2"
+          size="xxl"
+          weight="bold"
+          className={styles['momo-landing-section-head__title']}
+        >
+          {t.rich('title', {
+            primary: chunks => (
+              <Highlight variant="primary" rotation="left">
+                {chunks}
+              </Highlight>
+            ),
+          })}
+        </Typography>
+      </div>
       <div className={howStyles['momo-landing-how']}>
         <div className={howStyles['momo-landing-how__grid']}>
           <div>
-            <div className={howStyles['momo-landing-hero__eyebrow']}>
-              <span
-                className={howStyles['momo-landing-hero__eyebrow-dot']}
-                aria-hidden="true"
-              />
-              {t('eyebrow')}
-            </div>
             <Typography
-              as="h2"
+              as="h3"
               size="xxl"
               weight="bold"
               className={styles['momo-landing-section-head__title']}

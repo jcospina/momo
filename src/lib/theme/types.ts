@@ -34,6 +34,17 @@ export type ThemePalette = {
   warning?: string;
   /** Success tone. Default: `{primary}`. */
   success?: string;
+
+  /**
+   * Six-color categorical palette used by charts (stacked bars, donut slices,
+   * line series). Default: derived from the five accent colors plus a mix.
+   * Ordered roughly cool → warm so adjacent series have distinguishable hues.
+   */
+  chart?: [string, string, string, string, string, string];
+  /** Chart axes, outlines, and tick marks. Default: `{text}`. */
+  chartStroke?: string;
+  /** Chart tooltip background. Default: `{surface}`. */
+  chartTooltipBg?: string;
 };
 
 /** Palette with all optional fields filled in. */
