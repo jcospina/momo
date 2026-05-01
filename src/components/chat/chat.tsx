@@ -99,6 +99,7 @@ function ChatPanelLayout({
   expenseDetailsMessageId,
   onExpenseDetailsSaved,
 }: ChatPanelLayoutProps) {
+  const [mountedAt] = useState(() => Date.now());
   return (
     <Flex
       direction="column"
@@ -139,13 +140,15 @@ function ChatPanelLayout({
                   onRetrySend={onRetrySend}
                   onOpenExpenseDetails={onOpenExpenseDetails}
                   deleteError={Boolean(deleteErrors[msg.id])}
+                  skipMountAnimation={
+                    new Date(msg.created_at).getTime() < mountedAt
+                  }
                 />
               </Flex>
             );
           }}
         />
       </FlexItem>
-      <Divider thickness="thick" />
       <Flex
         as="form"
         paddingX={1}
@@ -165,6 +168,7 @@ function ChatPanelLayout({
           ) => setDraft(event.target.value)}
           onKeyDown={onKeyDown}
           suffix={<SendButton />}
+          className={styles['momo-chat__input']}
         />
       </Flex>
       <ExpenseDetailsDialog

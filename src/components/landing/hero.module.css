@@ -40,6 +40,19 @@
   grid-area: media;
 }
 
+.momo-landing-hero__preview-desktop.momo-landing-hero__preview-desktop {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .momo-landing-hero__preview-desktop.momo-landing-hero__preview-desktop {
+    display: flex;
+  }
+  .momo-landing-hero__preview-mobile.momo-landing-hero__preview-mobile {
+    display: none;
+  }
+}
+
 .momo-landing-hero__sub {
   grid-area: sub;
   max-width: 46ch;

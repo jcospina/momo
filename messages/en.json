@@ -162,7 +162,38 @@
       "cta_secondary": "See how it works",
       "image_alt": "Product screenshot — MoMo home screen",
       "chatPreview": {
-        "headerTitle": "Family"
+        "headerTitle": "Family",
+        "mobile": {
+          "samples": [
+            "Coffee 4.50",
+            "22 Uber to airport",
+            "Groceries 54",
+            "Lunch with wife 18"
+          ],
+          "ariaSendLabel": "Send",
+          "ariaPreviewLabel": "Preview of typing a message and creating an expense"
+        },
+        "desktop": {
+          "messages": [
+            {
+              "text": "25.50 lunch with wife",
+              "sender": "Juan",
+              "time": "12:31 PM"
+            },
+            { "text": "4 coffee", "sender": "Martin", "time": "12:34 PM" },
+            {
+              "text": "22 taxi to airport",
+              "sender": "Juan",
+              "time": "12:48 PM"
+            },
+            {
+              "text": "54 groceries trader joes",
+              "sender": "Martin",
+              "time": "5:12 PM"
+            },
+            { "text": "9 movie ticket", "sender": "Martin", "time": "8:02 PM" }
+          ]
+        }
       }
     },
     "features": {
@@ -174,7 +205,7 @@
         },
         "scope": {
           "title": "Personal & group chats.",
-          "body": "A private chat just for you, and a shared chat for the people you live with. Real-time."
+          "body": "A private chat just for you, and a shared chat for the people you live with."
         },
         "stats": {
           "title": "Stats that don't lie.",
@@ -184,7 +215,7 @@
     },
     "how": {
       "eyebrow": "How it works",
-      "title": "How it <primary>works</primary>",
+      "title": "How <primary>it works</primary>",
       "heading": "Three steps:",
       "image_alt": "Product screenshot — Stats screen",
       "step1": {

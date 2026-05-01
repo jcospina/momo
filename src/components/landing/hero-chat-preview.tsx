@@ -1,16 +1,20 @@
 'use client';
 
+import { ChatMessageBubble } from '@components/chat/chat-message-bubble';
+import { useGSAP } from '@gsap/react';
 import { Avatar } from '@ui/avatar/avatar';
-import { Flex } from '@ui/flex/flex';
 import { CircleCheckIcon } from '@ui/icons/circle-check';
 import { GroupIcon } from '@ui/icons/group';
 import { ThreeDotsIcon } from '@ui/icons/three-dots';
-import { Padding } from '@ui/padding/padding';
-import { Typography } from '@ui/typography/typography';
 import { cn } from '@utils/cn';
+import gsap from 'gsap';
+import { SplitText } from 'gsap/SplitText';
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ChatComposerMock } from './chat-composer-mock';
 import styles from './hero-chat-preview.module.css';
+
+gsap.registerPlugin(SplitText, useGSAP);
 
 type ChatPreviewMessage = {
   id: string;
@@ -22,57 +26,40 @@ type ChatPreviewMessage = {
   time: string;
 };
 
-const MESSAGES: ChatPreviewMessage[] = [
-  {
-    id: 'food',
-    sender: 'Alex',
-    initial: 'A',
-    avatarColor: 'sky-aqua',
-    text: '15.50 lunch chipotle',
-    isOwn: true,
-    time: '12:31 PM',
-  },
-  {
-    id: 'cafe',
-    sender: 'Sam',
-    initial: 'S',
-    avatarColor: 'mauve-magic',
-    text: '4 coffee',
-    isOwn: false,
-    time: '12:34 PM',
-  },
-  {
-    id: 'transit',
-    sender: 'Alex',
-    initial: 'A',
-    avatarColor: 'sky-aqua',
-    text: '22 uber to airport',
-    isOwn: true,
-    time: '12:48 PM',
-  },
-  {
-    id: 'groceries',
-    sender: 'Sam',
-    initial: 'S',
-    avatarColor: 'mauve-magic',
-    text: '54 groceries trader joes',
-    isOwn: false,
-    time: '5:12 PM',
-  },
-  {
-    id: 'health',
-    sender: 'Alex',
-    initial: 'A',
-    avatarColor: 'sky-aqua',
-    text: "18 doctor's appointment",
-    isOwn: true,
-    time: '6:20 PM',
-  },
+type SequenceTemplate = Pick<
+  ChatPreviewMessage,
+  'id' | 'isOwn' | 'initial' | 'avatarColor'
+>;
+
+type DesktopMessageCopy = {
+  text: string;
+  sender: string;
+  time: string;
+};
+
+const SEQUENCE_TEMPLATE: SequenceTemplate[] = [
+  { id: 'lunch', isOwn: true, initial: 'A', avatarColor: 'sky-aqua' },
+  { id: 'coffee', isOwn: false, initial: 'S', avatarColor: 'mauve-magic' },
+  { id: 'uber', isOwn: true, initial: 'A', avatarColor: 'sky-aqua' },
+  { id: 'groceries', isOwn: false, initial: 'S', avatarColor: 'mauve-magic' },
+  { id: 'movie', isOwn: false, initial: 'S', avatarColor: 'mauve-magic' },
 ];
 
-const MESSAGE_INTERVAL_MS = 2200;
-const PROCESSED_DELAY_MS = 320;
+const MAX_THREAD_ITEMS = 8;
 const REDUCED_MOTION_PREVIEW = 3;
+
+const TIMINGS = {
+  initialDelayMs: 400,
+  typewriterCharMs: 55,
+  postTypePauseMs: 220,
+  sendPressMs: 220,
+  postSendPauseMs: 160,
+  incomingGapMs: 800,
+  samFromSamExtraMs: 900,
+  preCheckDelayMs: 600,
+  postCheckPauseMs: 750,
+  loopRestartDelayMs: 1500,
+};
 
 type Appearance = {
   appearanceId: number;
@@ -87,52 +74,155 @@ type ChatPreviewProps = {
 
 export function HeroChatPreview({ ariaLabel, className }: ChatPreviewProps) {
   const t = useTranslations('landing.hero.chatPreview');
+  const sequence = useMemo<ChatPreviewMessage[]>(() => {
+    const copy =
+      (t.raw('desktop.messages') as DesktopMessageCopy[] | undefined) ?? [];
+    return SEQUENCE_TEMPLATE.map((tpl, i) => ({
+      ...tpl,
+      text: copy[i]?.text ?? '',
+      sender: copy[i]?.sender ?? '',
+      time: copy[i]?.time ?? '',
+    }));
+  }, [t]);
   const [items, setItems] = useState<Appearance[]>([]);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
   const threadRef = useRef<HTMLDivElement>(null);
+  const typedRef = useRef<HTMLSpanElement>(null);
+  const sendRef = useRef<HTMLSpanElement>(null);
+  const counterRef = useRef(0);
 
   useEffect(() => {
-    const media =
-      typeof window !== 'undefined' && window.matchMedia
-        ? window.matchMedia('(prefers-reduced-motion: reduce)')
-        : null;
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReducedMotion(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
-    if (media?.matches) {
-      setItems(
-        MESSAGES.slice(0, REDUCED_MOTION_PREVIEW).map((msg, i) => ({
-          appearanceId: i,
-          msg,
-          processed: true,
-        })),
-      );
-      return;
-    }
+  useEffect(() => {
+    if (!reducedMotion) return;
+    setItems(
+      sequence.slice(0, REDUCED_MOTION_PREVIEW).map((msg, i) => ({
+        appearanceId: i,
+        msg,
+        processed: true,
+      })),
+    );
+    counterRef.current = REDUCED_MOTION_PREVIEW;
+  }, [reducedMotion, sequence]);
 
-    let counter = 0;
-    const timeouts = new Set<number>();
+  useGSAP(
+    (_context, contextSafe) => {
+      if (reducedMotion) return;
+      if (!contextSafe) return;
+      const typedEl = typedRef.current;
+      const sendEl = sendRef.current;
+      if (!typedEl || !sendEl) return;
 
-    const addMessage = () => {
-      const id = counter++;
-      const msg = MESSAGES[id % MESSAGES.length];
-      setItems(prev => [...prev, { appearanceId: id, msg, processed: false }]);
-      const tid = window.setTimeout(() => {
-        timeouts.delete(tid);
+      let currentSplit: SplitText | null = null;
+      const revertSplit = () => {
+        if (currentSplit) {
+          currentSplit.revert();
+          currentSplit = null;
+        }
+      };
+
+      const addBubble = (msg: ChatPreviewMessage): number => {
+        const id = counterRef.current++;
+        setItems(prev => {
+          const next = [...prev, { appearanceId: id, msg, processed: false }];
+          return next.length > MAX_THREAD_ITEMS
+            ? next.slice(next.length - MAX_THREAD_ITEMS)
+            : next;
+        });
+        return id;
+      };
+
+      const markProcessed = (id: number) => {
         setItems(prev =>
           prev.map(item =>
             item.appearanceId === id ? { ...item, processed: true } : item,
           ),
         );
-      }, PROCESSED_DELAY_MS);
-      timeouts.add(tid);
-    };
+      };
 
-    addMessage();
-    const intervalId = window.setInterval(addMessage, MESSAGE_INTERVAL_MS);
+      const charDur = 0.05;
+      const stagger = TIMINGS.typewriterCharMs / 1000;
 
-    return () => {
-      window.clearInterval(intervalId);
-      timeouts.forEach(tid => window.clearTimeout(tid));
-    };
-  }, []);
+      const typeMessage = contextSafe((text: string) => {
+        revertSplit();
+        typedEl.textContent = text;
+        currentSplit = new SplitText(typedEl, { type: 'chars,words' });
+        gsap.set(currentSplit.chars, { opacity: 0, y: 6 });
+        gsap.to(currentSplit.chars, {
+          opacity: 1,
+          y: 0,
+          duration: charDur,
+          ease: 'power1.out',
+          stagger,
+        });
+      });
+
+      const tl = gsap.timeline({
+        delay: TIMINGS.initialDelayMs / 1000,
+        repeat: -1,
+        repeatDelay: TIMINGS.loopRestartDelayMs / 1000,
+      });
+
+      let pendingId = -1;
+      let prevWasIncoming = false;
+
+      for (const message of sequence) {
+        if (message.isOwn) {
+          tl.call(() => typeMessage(message.text));
+          const typeDuration =
+            charDur + Math.max(0, message.text.length - 1) * stagger;
+          tl.to({}, { duration: typeDuration });
+          tl.to({}, { duration: TIMINGS.postTypePauseMs / 1000 });
+          tl.to(sendEl, {
+            scale: 0.88,
+            duration: TIMINGS.sendPressMs / 2000,
+            ease: 'power2.in',
+            transformOrigin: 'center center',
+          });
+          tl.to(sendEl, {
+            scale: 1,
+            duration: TIMINGS.sendPressMs / 2000,
+            ease: 'back.out(2.4)',
+          });
+          tl.to({}, { duration: TIMINGS.postSendPauseMs / 1000 });
+          tl.call(() => {
+            pendingId = addBubble(message);
+            revertSplit();
+            typedEl.textContent = '';
+          });
+          tl.to({}, { duration: TIMINGS.preCheckDelayMs / 1000 });
+          tl.call(() => markProcessed(pendingId));
+          tl.to({}, { duration: TIMINGS.postCheckPauseMs / 1000 });
+          prevWasIncoming = false;
+        } else {
+          const leadInMs =
+            TIMINGS.incomingGapMs +
+            (prevWasIncoming ? TIMINGS.samFromSamExtraMs : 0);
+          tl.to({}, { duration: leadInMs / 1000 });
+          tl.call(() => {
+            pendingId = addBubble(message);
+          });
+          tl.to({}, { duration: TIMINGS.preCheckDelayMs / 1000 });
+          tl.call(() => markProcessed(pendingId));
+          tl.to({}, { duration: TIMINGS.postCheckPauseMs / 1000 });
+          prevWasIncoming = true;
+        }
+      }
+
+      return () => {
+        revertSplit();
+      };
+    },
+    { scope: rootRef, dependencies: [reducedMotion] },
+  );
 
   useEffect(() => {
     const thread = threadRef.current;
@@ -142,10 +232,11 @@ export function HeroChatPreview({ ariaLabel, className }: ChatPreviewProps) {
       return;
     }
     thread.scrollTo({ top: thread.scrollHeight, behavior: 'smooth' });
-  }, [items.length]);
+  }, [items]);
 
   return (
     <div
+      ref={rootRef}
       role="img"
       aria-label={ariaLabel}
       className={cn(styles['momo-hero-chat'], className)}
@@ -166,103 +257,35 @@ export function HeroChatPreview({ ariaLabel, className }: ChatPreviewProps) {
             key={item.appearanceId}
             className={styles['momo-hero-chat__slot']}
           >
-            <ChatPreviewBubble message={item.msg} processed={item.processed} />
+            <ChatMessageBubble
+              text={item.msg.text}
+              isOwn={item.msg.isOwn}
+              timestamp={item.msg.time}
+              senderName={item.msg.isOwn ? null : item.msg.sender}
+              avatarSlot={
+                !item.msg.isOwn ? (
+                  <Avatar
+                    size="extra-small"
+                    displayName={item.msg.initial}
+                    color={item.msg.avatarColor}
+                  />
+                ) : null
+              }
+              statusSlot={
+                item.processed ? (
+                  <CircleCheckIcon width={18} height={18} />
+                ) : null
+              }
+              actionsSlot={
+                item.msg.isOwn ? <ThreeDotsIcon width={16} height={16} /> : null
+              }
+            />
           </div>
         ))}
       </div>
+      <div className={styles['momo-hero-chat__composer']} aria-hidden="true">
+        <ChatComposerMock text="" typedRef={typedRef} sendRef={sendRef} ready />
+      </div>
     </div>
-  );
-}
-
-type BubbleProps = {
-  message: ChatPreviewMessage;
-  processed: boolean;
-};
-
-function ChatPreviewBubble({ message, processed }: BubbleProps) {
-  return (
-    <Flex
-      gap={1}
-      marginLeft={message.isOwn ? 'auto' : 0}
-      alignItems="flex-start"
-      className={cn(
-        styles['momo-hero-chat__row'],
-        message.isOwn && styles['momo-hero-chat__row--own'],
-      )}
-    >
-      {!message.isOwn ? (
-        <div className={styles['momo-hero-chat__avatar']}>
-          <Avatar
-            size="extra-small"
-            displayName={message.initial}
-            color={message.avatarColor}
-          />
-        </div>
-      ) : null}
-      <Flex
-        direction="column"
-        gap={0.5}
-        className={styles['momo-hero-chat__bubble']}
-        style={{ alignItems: message.isOwn ? 'flex-end' : 'flex-start' }}
-      >
-        <Padding
-          paddingX={2}
-          paddingY={1}
-          className={cn(
-            styles['momo-hero-chat__message'],
-            message.isOwn && styles['momo-hero-chat__message--own'],
-          )}
-        >
-          {!message.isOwn ? (
-            <Typography
-              as="div"
-              size="sm"
-              weight="bold"
-              className={styles['momo-hero-chat__sender']}
-            >
-              {message.sender}
-            </Typography>
-          ) : null}
-          <div className={styles['momo-hero-chat__content-row']}>
-            <span
-              className={cn(
-                styles['momo-hero-chat__status'],
-                processed && styles['momo-hero-chat__status--visible'],
-              )}
-              aria-hidden="true"
-            >
-              <CircleCheckIcon width={18} height={18} />
-            </span>
-            <Typography
-              as="p"
-              size="md"
-              className={styles['momo-hero-chat__content']}
-            >
-              {message.text}
-            </Typography>
-            {message.isOwn ? (
-              <span
-                className={styles['momo-hero-chat__actions']}
-                aria-hidden="true"
-              >
-                <ThreeDotsIcon width={16} height={16} />
-              </span>
-            ) : null}
-          </div>
-        </Padding>
-        <Typography
-          as="div"
-          size="sm"
-          className={cn(
-            styles['momo-hero-chat__timestamp'],
-            message.isOwn
-              ? styles['momo-hero-chat__timestamp--own']
-              : styles['momo-hero-chat__timestamp--incoming'],
-          )}
-        >
-          {message.time}
-        </Typography>
-      </Flex>
-    </Flex>
   );
 }
