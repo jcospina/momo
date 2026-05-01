@@ -47,8 +47,9 @@
   display: flex;
   flex-direction: column;
   padding: var(--space-4) var(--space-2) var(--space-2);
-  overflow-y: hidden;
+  overflow-y: scroll;
   overflow-x: hidden;
+  scroll-behavior: smooth;
   scrollbar-width: none;
   overflow-anchor: none;
   pointer-events: none;
@@ -61,34 +62,18 @@
 
 .momo-hero-chat__slot {
   display: grid;
-  grid-template-rows: 1fr;
-  opacity: 1;
   flex-shrink: 0;
-  /* buffer so the bubble's -2px/+2px box-shadow and rounded corners don't
-     get clipped by the slot's overflow:hidden (used during entry animation). */
   padding: 4px 4px 6px 6px;
-  margin: -4px -4px 0 -6px;
-  margin-bottom: var(--space-2);
-  overflow: hidden;
-  animation: hero-chat-slot-enter var(--duration-toggle) var(--ease-pop) both;
-}
-
-.momo-hero-chat__slot > * {
-  min-height: 0;
+  margin: -4px -4px var(--space-2) -6px;
+  animation: hero-chat-slot-enter var(--duration-base) var(--ease-pop) both;
 }
 
 @keyframes hero-chat-slot-enter {
   from {
-    grid-template-rows: 0fr;
     opacity: 0;
-    margin-bottom: 0;
-    padding-bottom: 0;
   }
   to {
-    grid-template-rows: 1fr;
     opacity: 1;
-    margin-bottom: var(--space-2);
-    padding-bottom: 6px;
   }
 }
 
@@ -179,6 +164,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .momo-hero-chat__thread {
+    scroll-behavior: auto;
+  }
   .momo-hero-chat__slot {
     animation: none;
   }

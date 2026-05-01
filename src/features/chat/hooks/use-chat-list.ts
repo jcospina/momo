@@ -12,8 +12,42 @@ type UseChatListArgs = {
   onLoadMore?: () => void;
 };
 
+type ChatListState = {
+  messages: ChatMessage[];
+  firstItemIndex: number;
+};
+
 const PREFETCH_THRESHOLD_ITEMS = 5;
 const INITIAL_FIRST_ITEM_INDEX = 10_000;
+
+function getPrependedCount(
+  previousMessages: ChatMessage[],
+  currentMessages: ChatMessage[],
+) {
+  if (!previousMessages.length) return 0;
+  if (currentMessages.length <= previousMessages.length) return 0;
+
+  const previousFirstId = previousMessages[0]?.id;
+  const preservedStartIndex = currentMessages.findIndex(
+    message => message.id === previousFirstId,
+  );
+  if (preservedStartIndex <= 0) return 0;
+
+  const preservedCount = Math.min(
+    previousMessages.length,
+    currentMessages.length - preservedStartIndex,
+  );
+  for (let index = 0; index < preservedCount; index += 1) {
+    if (
+      currentMessages[preservedStartIndex + index]?.id !==
+      previousMessages[index]?.id
+    ) {
+      return 0;
+    }
+  }
+
+  return preservedStartIndex;
+}
 
 export function useChatList({
   messages,
@@ -23,68 +57,67 @@ export function useChatList({
   onLoadMore,
 }: UseChatListArgs) {
   const virtuosoRef = useRef<VirtuosoHandle | null>(null);
-  const [firstItemIndex, setFirstItemIndex] = useState(
-    INITIAL_FIRST_ITEM_INDEX,
-  );
+  const [listState, setListState] = useState<ChatListState>(() => ({
+    messages,
+    firstItemIndex: INITIAL_FIRST_ITEM_INDEX,
+  }));
   const prevLastIdRef = useRef<string | null>(
     messages[messages.length - 1]?.id ?? null,
   );
-  const loadStartLengthRef = useRef<number | null>(null);
   const lastTriggeredIdRef = useRef<string | null>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
+
+  let effectiveListState = listState;
+  if (listState.messages !== messages) {
+    const prependedCount = getPrependedCount(listState.messages, messages);
+    effectiveListState = {
+      messages,
+      firstItemIndex:
+        prependedCount > 0
+          ? Math.max(listState.firstItemIndex - prependedCount, 1)
+          : listState.firstItemIndex,
+    };
+    setListState(effectiveListState);
+  }
+  const { firstItemIndex, messages: listMessages } = effectiveListState;
 
   const hasMoreToLoad = hasMore && typeof onLoadMore === 'function';
 
   const latestMessageUserId = useMemo(() => {
-    const last = messages[messages.length - 1];
+    const last = listMessages[listMessages.length - 1];
     return last?.user_id ?? null;
-  }, [messages]);
+  }, [listMessages]);
 
   useEffect(() => {
-    const lastMessage = messages[messages.length - 1];
+    const lastMessage = listMessages[listMessages.length - 1];
     const lastId = lastMessage?.id ?? null;
     const prevLastId = prevLastIdRef.current;
     const appended = lastId && lastId !== prevLastId;
     if (appended && currentUserId && latestMessageUserId === currentUserId) {
       virtuosoRef.current?.scrollToIndex({
-        index: messages.length - 1,
+        index: firstItemIndex + listMessages.length - 1,
         align: 'end',
         behavior: 'smooth',
       });
     }
     prevLastIdRef.current = lastId;
-  }, [currentUserId, latestMessageUserId, messages]);
-
-  useEffect(() => {
-    if (isLoadingMore) {
-      if (loadStartLengthRef.current === null) {
-        loadStartLengthRef.current = messages.length;
-      }
-      return;
-    }
-
-    if (loadStartLengthRef.current === null) return;
-    const prependedCount = messages.length - loadStartLengthRef.current;
-    if (prependedCount > 0) {
-      setFirstItemIndex(prev => Math.max(prev - prependedCount, 1));
-    }
-    loadStartLengthRef.current = null;
-  }, [isLoadingMore, messages.length]);
+  }, [currentUserId, firstItemIndex, latestMessageUserId, listMessages]);
 
   const handleRangeChanged = useCallback(
     (range: ListRange) => {
       if (!hasMoreToLoad || isLoadingMore) return;
-      if (range.startIndex > PREFETCH_THRESHOLD_ITEMS) {
+      const firstVisibleMessageIndex = range.startIndex - firstItemIndex;
+      if (firstVisibleMessageIndex > PREFETCH_THRESHOLD_ITEMS) {
         lastTriggeredIdRef.current = null;
         return;
       }
-      const oldestId = messages[0]?.id ?? null;
+      const oldestId = listMessages[0]?.id ?? null;
       if (!oldestId) return;
       if (lastTriggeredIdRef.current === oldestId) return;
       lastTriggeredIdRef.current = oldestId;
       onLoadMore?.();
     },
-    [hasMoreToLoad, isLoadingMore, messages, onLoadMore],
+    [firstItemIndex, hasMoreToLoad, isLoadingMore, listMessages, onLoadMore],
   );
 
   const handleAtBottomChange = useCallback((value: boolean) => {
@@ -93,6 +126,7 @@ export function useChatList({
 
   return {
     virtuosoRef,
+    messages: listMessages,
     firstItemIndex,
     isAtBottom,
     handleAtBottomChange,

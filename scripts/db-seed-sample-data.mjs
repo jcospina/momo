@@ -92,6 +92,12 @@ const MEMBER_EMAIL = (
 const CURRENCY = 'USD';
 const BATCH_SIZE = 200;
 
+// Resolved in main() — mapping user_id → display name for chat sender_name.
+const senderNames = new Map();
+function senderNameFor(userId) {
+  return senderNames.get(userId) ?? null;
+}
+
 // The year of data to generate: from exactly 12 months ago through today.
 // e.g. if today is 2026-03-20 → range is 2025-03 through 2026-03 (13 months,
 // with the current month capped at today's day).
@@ -135,6 +141,9 @@ async function main() {
     throw new Error('Owner has no household — run pnpm db:seed first');
   const householdId = membership.household_id;
 
+  senderNames.set(owner.id, displayNameOf(owner));
+  senderNames.set(member.id, displayNameOf(member));
+
   console.log(`  owner:     ${owner.id} (${OWNER_EMAIL})`);
   console.log(`  member:    ${member.id} (${MEMBER_EMAIL})`);
   console.log(`  household: ${householdId}`);
@@ -142,9 +151,9 @@ async function main() {
     `  range:     ${START_YEAR}-${pad(START_MONTH)}-01 → ${END_YEAR}-${pad(END_MONTH)}-${pad(TODAY_DAY)}`,
   );
 
-  const rows = [];
+  const pairs = [];
   forEachMonth((year, month, maxDay) => {
-    rows.push(
+    pairs.push(
       ...generateIncomeRows(
         year,
         month,
@@ -154,7 +163,7 @@ async function main() {
         maxDay,
       ),
     );
-    rows.push(
+    pairs.push(
       ...generateExpenseRows(
         year,
         month,
@@ -166,18 +175,49 @@ async function main() {
     );
   });
 
-  console.log(`  total rows: ${rows.length}`);
+  console.log(`  total rows: ${pairs.length}`);
 
-  // Insert in batches
+  // Insert chat messages first (in order) so we can link expenses back via chat_message_id.
+  const messageIds = [];
+  for (let i = 0; i < pairs.length; i += BATCH_SIZE) {
+    const batch = pairs.slice(i, i + BATCH_SIZE).map(p => p.message);
+    const { data, error } = await supabase
+      .from('chat_messages')
+      .insert(batch)
+      .select('id');
+    if (error)
+      throw new Error(`Message insert failed at batch ${i}: ${error.message}`);
+    if (!data || data.length !== batch.length)
+      throw new Error(
+        `Message insert returned ${data?.length ?? 0} ids for batch of ${batch.length}`,
+      );
+    for (const row of data) messageIds.push(row.id);
+  }
+
+  // Insert expenses with the matching chat_message_id.
   let inserted = 0;
-  for (let i = 0; i < rows.length; i += BATCH_SIZE) {
-    const batch = rows.slice(i, i + BATCH_SIZE);
+  for (let i = 0; i < pairs.length; i += BATCH_SIZE) {
+    const batch = pairs.slice(i, i + BATCH_SIZE).map((p, j) => ({
+      ...p.expense,
+      chat_message_id: messageIds[i + j],
+    }));
     const { error } = await supabase.from('expenses').insert(batch);
     if (error) throw new Error(`Insert failed at batch ${i}: ${error.message}`);
     inserted += batch.length;
   }
 
-  console.log(`[db:seed:sample] Done — inserted ${inserted} rows.`);
+  console.log(
+    `[db:seed:sample] Done — inserted ${messageIds.length} chat messages and ${inserted} expenses.`,
+  );
+}
+
+function displayNameOf(user) {
+  return (
+    user?.user_metadata?.name ??
+    user?.user_metadata?.full_name ??
+    user?.email ??
+    null
+  );
 }
 
 // ── user lookup ──────────────────────────────────────────────────────────────
@@ -279,7 +319,7 @@ function incomeRow(
   merchant,
   note,
 ) {
-  return {
+  const expense = {
     user_id: userId,
     household_id: householdId,
     amount_cents: amountCents,
@@ -290,6 +330,18 @@ function incomeRow(
     note,
     tags: [],
   };
+  const message = buildChatMessage({
+    userId,
+    householdId,
+    year,
+    month,
+    day,
+    amountCents,
+    note,
+    merchant,
+    category: 'income',
+  });
+  return { message, expense };
 }
 
 // ── expense generation ───────────────────────────────────────────────────────
@@ -1290,7 +1342,7 @@ function expense(
   note,
   merchant,
 ) {
-  return {
+  const expenseRow = {
     user_id: userId,
     household_id: householdId,
     amount_cents: amountCents,
@@ -1301,6 +1353,57 @@ function expense(
     note: note ?? null,
     tags: [],
   };
+  const message = buildChatMessage({
+    userId,
+    householdId,
+    year,
+    month,
+    day,
+    amountCents,
+    note: note ?? null,
+    merchant: merchant ?? null,
+    category,
+  });
+  return { message, expense: expenseRow };
+}
+
+// Build a chat_messages row that "would have" produced the paired expense.
+// Content mirrors how a user types it in chat — e.g. "uber 25", "salary 3750".
+function buildChatMessage({
+  userId,
+  householdId,
+  year,
+  month,
+  day,
+  amountCents,
+  note,
+  merchant,
+  category,
+}) {
+  const label = (note ?? merchant ?? category ?? '').toLowerCase().trim();
+  const amount = formatAmount(amountCents);
+  const content = label ? `${label} ${amount}` : amount;
+  return {
+    user_id: userId,
+    household_id: householdId,
+    content,
+    status: 'processed',
+    expense_count: 1,
+    sender_name: senderNameFor(userId),
+    created_at: timestampForDay(year, month, day),
+  };
+}
+
+function formatAmount(cents) {
+  const dollars = cents / 100;
+  return Number.isInteger(dollars) ? String(dollars) : dollars.toFixed(2);
+}
+
+function timestampForDay(year, month, day) {
+  const hour = randInt(8, 22);
+  const minute = randInt(0, 59);
+  const second = randInt(0, 59);
+  return new Date(year, month - 1, day, hour, minute, second).toISOString();
 }
 
 // ── utils ────────────────────────────────────────────────────────────────────

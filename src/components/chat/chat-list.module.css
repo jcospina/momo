@@ -7,10 +7,11 @@
   display: none;
 }
 
-.chat-history-loading {
-  display: flex;
-  justify-content: center;
-  padding: calc(var(--spacing) * 0.75) var(--spacing);
-  color: color-mix(in oklch, var(--color-dark), white 40%);
-  text-align: center;
+.chat-list-shell {
+  position: relative;
+  height: 100%;
+}
+
+.chat-history-spacer {
+  height: var(--spacing);
 }
