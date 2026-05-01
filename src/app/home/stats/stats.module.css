@@ -40,7 +40,7 @@
 
 .stats__chart--bar {
   width: 100%;
-  height: clamp(200px, 32vh, 280px);
+  height: clamp(280px, 44vh, 360px);
   padding: 0 calc(var(--spacing) * 2) calc(var(--spacing) * 3);
 }
 

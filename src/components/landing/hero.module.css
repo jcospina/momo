@@ -1,34 +1,68 @@
 .momo-landing-hero {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-5);
+  grid-template-areas:
+    "title"
+    "media"
+    "sub"
+    "cta";
+  gap: var(--space-3);
   padding: var(--space-5) 0 var(--space-6);
+  align-content: center;
   align-items: center;
+  justify-items: center;
   min-height: calc(100svh - 72px);
+  text-align: center;
 }
 
 @media (min-width: 960px) {
   .momo-landing-hero {
     grid-template-columns: 1.1fr 1fr;
+    grid-template-areas:
+      "title media"
+      "sub media"
+      "cta media";
+    align-content: center;
     gap: var(--space-6);
+    justify-items: start;
     min-height: calc(100svh - 80px);
+    text-align: left;
   }
 }
 
 .momo-landing-hero__title {
-  margin: 0 0 var(--space-3);
+  grid-area: title;
+  margin: 0;
   text-wrap: balance;
 }
 
+.momo-landing-hero__image {
+  grid-area: media;
+}
+
 .momo-landing-hero__sub {
+  grid-area: sub;
   max-width: 46ch;
-  margin: 0 0 var(--space-4);
+  margin: 0;
   text-wrap: pretty;
 }
 
 .momo-landing-hero__cta {
+  grid-area: cta;
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
   align-items: center;
+  justify-content: center;
+}
+
+.momo-landing-hero__account-cta {
+  font-size: clamp(1.1rem, 1rem + 0.6vw, 1.25rem);
+  font-weight: var(--weight-bold);
+}
+
+@media (min-width: 960px) {
+  .momo-landing-hero__cta {
+    justify-content: flex-start;
+  }
 }

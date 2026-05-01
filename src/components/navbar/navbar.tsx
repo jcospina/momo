@@ -1,4 +1,5 @@
 'use client';
+import { ThemeSelector } from '@components/theme-selector/theme-selector';
 import { useProfile } from '@providers/profile-provider';
 import { Circle } from '@ui/circle/circle';
 import { ChartIcon } from '@ui/icons/chart';
@@ -40,9 +41,11 @@ export function Navbar() {
       <div
         className={cn(
           styles['momo-navbar__slot'],
-          styles['momo-navbar__spacer'],
+          styles['momo-navbar__theme-desktop'],
         )}
-      />
+      >
+        <ThemeSelector />
+      </div>
       <a
         className={styles['momo-navbar__logo']}
         href="/home"
@@ -51,10 +54,18 @@ export function Navbar() {
           goToHome();
         }}
       >
-        <Logo />
+        <Logo size={isBigScreen ? 'lg' : 'md'} />
       </a>
       <div className={styles['momo-navbar__slot']}>
-        <Flex gap={2} justifyContent="flex-end" className="full-w">
+        <Flex
+          gap={2}
+          alignItems="center"
+          justifyContent="flex-end"
+          className="full-w"
+        >
+          <div className={styles['momo-navbar__theme-mobile']}>
+            <ThemeSelector />
+          </div>
           {!isHomePage && (
             <Circle onClick={goToHome} color="amber-glow">
               <MessageIcon width={30} height={30} />

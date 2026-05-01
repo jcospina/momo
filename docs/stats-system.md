@@ -2,7 +2,7 @@
 
 ## Overview
 
-The stats system renders expense analytics with ECharts. Data is aggregated in Postgres views, fetched server-side through data facades, and windowed client-side for chart interactions.
+The stats system renders expense analytics with Visx-based chart components. Data is aggregated in Postgres views, fetched server-side through data facades, and windowed client-side for chart interactions.
 
 ## Data Pipeline
 

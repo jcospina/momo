@@ -13,15 +13,22 @@ export function LandingNavbar() {
     <nav className={styles['momo-landing-nav']}>
       <div className={styles['momo-landing-nav__inner']}>
         <div className={styles['momo-landing-nav__logo']}>
-          <Logo />
+          <Logo size="sm" />
         </div>
         <div className={styles['momo-landing-nav__links']}>
-          <a href="#features" className={styles['momo-landing-nav__link']}>
+          <ThemeSelector />
+          <a
+            href="#features"
+            className={`${styles['momo-landing-nav__link']} ${styles['momo-landing-nav__section-link']}`}
+          >
             <span className={styles['momo-landing-nav__link-text']}>
               {t('features')}
             </span>
           </a>
-          <a href="#how" className={styles['momo-landing-nav__link']}>
+          <a
+            href="#how"
+            className={`${styles['momo-landing-nav__link']} ${styles['momo-landing-nav__section-link']}`}
+          >
             <span className={styles['momo-landing-nav__link-text']}>
               {t('how')}
             </span>

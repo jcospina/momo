@@ -30,6 +30,18 @@ function buildBlock(theme: ThemeConfig): string {
 
   --dot-color: color-mix(in oklch, var(--color-dark), transparent 80%);
 
+  --chart-1: ${p.chart[0]};
+  --chart-2: ${p.chart[1]};
+  --chart-3: ${p.chart[2]};
+  --chart-4: ${p.chart[3]};
+  --chart-5: ${p.chart[4]};
+  --chart-6: ${p.chart[5]};
+  --chart-stroke: ${p.chartStroke};
+  --chart-tooltip-bg: ${p.chartTooltipBg};
+  --chart-tooltip-border: var(--chart-stroke);
+  --chart-axis: var(--chart-stroke);
+  --chart-grid: color-mix(in oklch, var(--chart-stroke), transparent 84%);
+
   /* Legacy raw color aliases — kept so components referencing raw palette
      names repaint with the active theme. Will be removed in a follow-up. */
   --color-sunbeam-yellow: ${p.background};

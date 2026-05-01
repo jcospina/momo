@@ -1,277 +1,407 @@
 'use client';
 
-import type { EChartsOption } from 'echarts';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { AxisBottom, AxisLeft } from '@visx/axis';
+import { curveMonotoneX } from '@visx/curve';
+import { localPoint } from '@visx/event';
+import { GridRows } from '@visx/grid';
+import { Group } from '@visx/group';
+import { scaleLinear, scalePoint } from '@visx/scale';
+import { AreaClosed, Circle, Line, LinePath } from '@visx/shape';
+import {
+  type PointerEvent as ReactPointerEvent,
+  type TouchEvent as ReactTouchEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import type { CumulativeSavingsPoint } from '@/lib/data/stats/types';
-import { type EChartsType, echarts } from './echarts-init';
-import { safeResize, safeSetOption } from './echarts-safe';
+import styles from './cumulative-savings-line-chart.module.css';
+import {
+  CHART_AXIS,
+  CHART_GRID,
+  CHART_STROKE,
+  paletteColor,
+} from './shared/chart-colors';
+import { ChartShell } from './shared/chart-shell';
+import {
+  buildYAxisBounds,
+  formatCompactCurrency,
+  formatCurrency,
+  makeMonthFormatter,
+  makeMonthYearFormatter,
+  parseMonthKey,
+  pickLabelMode,
+  toDisplayAmount,
+} from './shared/format';
+import { mergeRefs } from './shared/merge-refs';
+import tooltipStyles from './shared/tooltip.module.css';
+import {
+  EMPTY_TOOLTIP_STYLE,
+  useTooltipPortal,
+} from './shared/use-tooltip-portal';
+import { useTouchTooltipDismiss } from './shared/use-touch-tooltip';
 
-const THEME_NAME = 'momo';
-
-type CumulativeSavingsLineChartProps = {
+export type CumulativeSavingsLineChartProps = {
   months: CumulativeSavingsPoint[];
   currency: string;
 };
 
-type ParsedMonth = {
-  year: number;
-  monthIndex: number;
+type TooltipDatum = {
+  monthLabel: string;
+  cumulative: string;
+  monthlyNet: string;
 };
 
-function parseMonthKey(month: string): ParsedMonth | null {
-  const [yearPart, monthPart] = month.split('-');
-  const year = Number(yearPart);
-  const monthIndex = Number(monthPart) - 1;
+const MARGIN = { top: 24, right: 24, bottom: 48, left: 56 } as const;
 
-  if (!Number.isFinite(year) || !Number.isFinite(monthIndex)) return null;
-  if (monthIndex < 0 || monthIndex > 11) return null;
-
-  return { year, monthIndex };
-}
-
-function toDisplayAmount(amountCents: number, currency: string) {
-  const divisor = currency === 'COP' ? 1 : 100;
-  return amountCents / divisor;
-}
-
-function formatCompactCurrency(amount: number, currency: string) {
-  const abs = Math.abs(amount);
-  let suffix = '';
-  let scaled = amount;
-
-  if (abs >= 1_000_000_000) {
-    scaled = amount / 1_000_000_000;
-    suffix = 'B';
-  } else if (abs >= 1_000_000) {
-    scaled = amount / 1_000_000;
-    suffix = 'M';
-  } else if (abs >= 1_000) {
-    scaled = amount / 1_000;
-    suffix = 'K';
-  }
-
-  const maximumFractionDigits = abs >= 1_000 ? 1 : currency === 'COP' ? 0 : 2;
-  const formatted = new Intl.NumberFormat(undefined, {
-    style: 'currency',
-    currency,
-    currencyDisplay: currency === 'COP' ? 'narrowSymbol' : 'symbol',
-    minimumFractionDigits: 0,
-    maximumFractionDigits,
-  }).format(scaled);
-
-  return `${formatted}${suffix}`;
-}
-
-type YAxisBounds = {
-  min: number;
-  max: number;
+type CanvasProps = {
+  width: number;
+  height: number;
+  chartMonths: CumulativeSavingsPoint[];
+  monthKeys: string[];
+  currency: string;
+  containerWidth: number;
+  isSingleMonth: boolean;
 };
 
-function buildYAxisBounds(values: number[]): YAxisBounds {
-  if (!values.length) {
-    return { min: -1, max: 1 };
+function CumulativeSavingsCanvas({
+  width,
+  height,
+  chartMonths,
+  monthKeys,
+  currency,
+  containerWidth,
+  isSingleMonth,
+}: CanvasProps) {
+  const innerWidth = Math.max(0, width - MARGIN.left - MARGIN.right);
+  const innerHeight = Math.max(0, height - MARGIN.top - MARGIN.bottom);
+
+  const cumulativeValues = useMemo(
+    () => chartMonths.map(point => point.cumulativeCents),
+    [chartMonths],
+  );
+
+  const yBounds = useMemo(
+    () => buildYAxisBounds(cumulativeValues),
+    [cumulativeValues],
+  );
+
+  // Use index-based domain so the duplicate-month single-point case (where
+  // monthKeys would otherwise collide) still produces two distinct positions.
+  const indexDomain = useMemo(() => monthKeys.map((_, i) => i), [monthKeys]);
+
+  const xScale = useMemo(
+    () =>
+      scalePoint<number>({
+        domain: indexDomain,
+        range: [0, innerWidth],
+      }),
+    [indexDomain, innerWidth],
+  );
+
+  const yScale = useMemo(
+    () =>
+      scaleLinear<number>({
+        domain: [yBounds.min, yBounds.max],
+        range: [innerHeight, 0],
+      }),
+    [yBounds.min, yBounds.max, innerHeight],
+  );
+
+  const monthFormatter = useMemo(() => {
+    const labelMode = pickLabelMode(containerWidth, monthKeys.length);
+    return makeMonthFormatter(labelMode);
+  }, [containerWidth, monthKeys.length]);
+
+  const tooltipMonthFormatter = useMemo(() => makeMonthYearFormatter(), []);
+
+  const formatXAxisTick = useCallback(
+    (value: number) => {
+      const index = Number(value);
+      if (isSingleMonth && index > 0) return '';
+      const monthKey = monthKeys[index];
+      if (!monthKey) return '';
+      const parsed = parseMonthKey(monthKey);
+      if (!parsed) return monthKey;
+      return monthFormatter.format(new Date(parsed.year, parsed.monthIndex, 1));
+    },
+    [isSingleMonth, monthFormatter, monthKeys],
+  );
+
+  const formatYAxisTick = useCallback(
+    (value: { valueOf(): number }) => {
+      const num = typeof value === 'number' ? value : value.valueOf();
+      return formatCompactCurrency(toDisplayAmount(num, currency), currency);
+    },
+    [currency],
+  );
+
+  const tooltip = useTooltipPortal<TooltipDatum>();
+  const {
+    tooltipOpen,
+    tooltipData,
+    tooltipLeft,
+    tooltipTop,
+    showTooltip,
+    hideTooltip,
+    TooltipInPortal,
+    containerRef: tooltipContainerRef,
+  } = tooltip;
+
+  const dismissContainerRef = useTouchTooltipDismiss({
+    active: tooltipOpen,
+    onDismiss: hideTooltip,
+  });
+
+  const setContainerRef = useMemo(
+    () => mergeRefs<HTMLDivElement>(dismissContainerRef, tooltipContainerRef),
+    [dismissContainerRef, tooltipContainerRef],
+  );
+
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!tooltipOpen) setHoverIndex(null);
+  }, [tooltipOpen]);
+
+  const handleTooltipPointer = useCallback(
+    (
+      event:
+        | ReactPointerEvent<SVGRectElement>
+        | ReactTouchEvent<SVGRectElement>,
+    ) => {
+      if (!chartMonths.length) return;
+      const point = localPoint(event);
+      if (!point) return;
+
+      // localPoint coords are relative to the SVG root; convert to inner-grid x.
+      const innerX = point.x - MARGIN.left;
+      if (innerX < 0 || innerX > innerWidth) {
+        hideTooltip();
+        setHoverIndex(null);
+        return;
+      }
+
+      // Find nearest month index.
+      const positions = indexDomain.map(i => xScale(i) ?? 0);
+      let nearest = 0;
+      let minDelta = Number.POSITIVE_INFINITY;
+      positions.forEach((px, i) => {
+        const delta = Math.abs(px - innerX);
+        if (delta < minDelta) {
+          minDelta = delta;
+          nearest = i;
+        }
+      });
+
+      const datum = chartMonths[nearest];
+      if (!datum) return;
+      setHoverIndex(nearest);
+
+      const parsed = parseMonthKey(datum.month);
+      const monthLabel = parsed
+        ? tooltipMonthFormatter.format(
+            new Date(parsed.year, parsed.monthIndex, 1),
+          )
+        : datum.month;
+
+      const cumulative = formatCurrency(
+        toDisplayAmount(datum.cumulativeCents, currency),
+        currency,
+      );
+      const monthlyNet = formatCurrency(
+        toDisplayAmount(datum.netCents, currency),
+        currency,
+      );
+
+      const px = (xScale(nearest) ?? 0) + MARGIN.left;
+      const py = (yScale(datum.cumulativeCents) ?? 0) + MARGIN.top;
+
+      showTooltip({
+        tooltipLeft: px,
+        tooltipTop: py,
+        tooltipData: { monthLabel, cumulative, monthlyNet },
+      });
+    },
+    [
+      chartMonths,
+      currency,
+      hideTooltip,
+      indexDomain,
+      innerWidth,
+      showTooltip,
+      tooltipMonthFormatter,
+      xScale,
+      yScale,
+    ],
+  );
+
+  if (innerWidth <= 0 || innerHeight <= 0) {
+    return <div ref={setContainerRef} className={styles.canvas} />;
   }
 
-  const baseMin = Math.min(0, ...values);
-  const baseMax = Math.max(0, ...values);
+  const lineColor = paletteColor(0);
 
-  if (baseMin === baseMax) {
-    const padding = Math.max(Math.abs(baseMin) * 0.1, 1);
-    return {
-      min: baseMin - padding,
-      max: baseMax + padding,
-    };
-  }
-
-  const padding = Math.max((baseMax - baseMin) * 0.05, 1);
-  return {
-    min: baseMin - padding,
-    max: baseMax + padding,
-  };
+  return (
+    <div ref={setContainerRef} className={styles.canvas}>
+      <svg className={styles.svg} width={width} height={height}>
+        <title>Cumulative savings line chart</title>
+        <Group top={MARGIN.top} left={MARGIN.left}>
+          <GridRows
+            scale={yScale}
+            width={innerWidth}
+            numTicks={5}
+            stroke={CHART_GRID}
+            strokeWidth={1}
+          />
+          {hoverIndex !== null ? (
+            <Line
+              from={{ x: xScale(hoverIndex) ?? 0, y: 0 }}
+              to={{ x: xScale(hoverIndex) ?? 0, y: innerHeight }}
+              stroke={CHART_STROKE}
+              strokeWidth={2}
+              strokeDasharray="4 4"
+              pointerEvents="none"
+              data-testid="hover-crosshair"
+            />
+          ) : null}
+          <AreaClosed<CumulativeSavingsPoint>
+            data={chartMonths}
+            x={(_d, i) => xScale(i) ?? 0}
+            y={d => yScale(d.cumulativeCents) ?? 0}
+            yScale={yScale}
+            curve={curveMonotoneX}
+            fill={lineColor}
+            fillOpacity={0.14}
+            className={styles.area}
+          />
+          <LinePath<CumulativeSavingsPoint>
+            data={chartMonths}
+            x={(_d, i) => xScale(i) ?? 0}
+            y={d => yScale(d.cumulativeCents) ?? 0}
+            curve={curveMonotoneX}
+            stroke={lineColor}
+            strokeWidth={3}
+            className={styles.line}
+          />
+          {isSingleMonth
+            ? chartMonths.map((d, i) => (
+                <Circle
+                  key={`symbol-${i}`}
+                  cx={xScale(i) ?? 0}
+                  cy={yScale(d.cumulativeCents) ?? 0}
+                  r={7}
+                  stroke={CHART_STROKE}
+                  strokeWidth={2}
+                  fill="none"
+                  className={styles.symbol}
+                />
+              ))
+            : null}
+          <AxisBottom
+            top={innerHeight}
+            scale={xScale}
+            stroke={CHART_AXIS}
+            strokeWidth={2}
+            tickStroke={CHART_AXIS}
+            tickValues={indexDomain}
+            tickFormat={formatXAxisTick}
+            tickLabelProps={() => ({
+              fontSize: 11,
+              fontWeight: 600,
+              fill: 'var(--fg-primary)',
+              textAnchor: 'middle',
+              dy: '0.25em',
+            })}
+          />
+          <AxisLeft
+            scale={yScale}
+            stroke={CHART_AXIS}
+            strokeWidth={2}
+            tickStroke={CHART_AXIS}
+            numTicks={5}
+            tickFormat={formatYAxisTick}
+            tickLabelProps={() => ({
+              fontSize: 11,
+              fontWeight: 600,
+              fill: 'var(--fg-primary)',
+              textAnchor: 'end',
+              dx: '-0.25em',
+              dy: '0.25em',
+            })}
+          />
+          {/* Pointer-capture rect — sits on top of the chart geometry to
+              receive pointermove anywhere inside the inner grid. */}
+          <rect
+            className={styles.pointerLayer}
+            x={0}
+            y={0}
+            width={innerWidth}
+            height={innerHeight}
+            onPointerDown={handleTooltipPointer}
+            onPointerMove={handleTooltipPointer}
+            onTouchStart={handleTooltipPointer}
+            onTouchMove={handleTooltipPointer}
+            onPointerLeave={event => {
+              if (event.pointerType === 'touch') return;
+              hideTooltip();
+              setHoverIndex(null);
+            }}
+          />
+        </Group>
+      </svg>
+      {tooltipOpen && tooltipData ? (
+        <TooltipInPortal
+          left={tooltipLeft}
+          top={tooltipTop}
+          style={EMPTY_TOOLTIP_STYLE}
+          applyPositionStyle
+          className={tooltipStyles.tooltip}
+        >
+          <div>
+            <strong>{tooltipData.monthLabel}</strong>
+          </div>
+          <div>Cumulative savings: {tooltipData.cumulative}</div>
+          <div>Monthly net: {tooltipData.monthlyNet}</div>
+        </TooltipInPortal>
+      ) : null}
+    </div>
+  );
 }
 
 export function CumulativeSavingsLineChart({
   months,
   currency,
 }: CumulativeSavingsLineChartProps) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const chartRef = useRef<EChartsType | null>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
-  const useSingleMonthSeries = months.length === 1;
+  const isSingleMonth = months.length === 1;
 
-  const chartMonths = useMemo(() => {
-    if (!useSingleMonthSeries) return months;
+  const chartMonths = useMemo<CumulativeSavingsPoint[]>(() => {
+    if (!isSingleMonth) return months;
     const point = months[0];
     return point ? [point, point] : [];
-  }, [months, useSingleMonthSeries]);
+  }, [months, isSingleMonth]);
 
   const monthKeys = useMemo(
     () => chartMonths.map(point => point.month),
     [chartMonths],
   );
 
-  const monthFormatter = useMemo(() => {
-    const widthPerLabel =
-      monthKeys.length > 0 && containerWidth > 0
-        ? containerWidth / monthKeys.length
-        : 0;
-    const labelMode =
-      widthPerLabel > 0 && widthPerLabel < 40 ? 'narrow' : 'short';
-
-    return new Intl.DateTimeFormat(undefined, {
-      month: labelMode,
-    });
-  }, [containerWidth, monthKeys.length]);
-
-  const formatter = useMemo(
-    () =>
-      new Intl.NumberFormat(undefined, {
-        style: 'currency',
-        currency,
-        currencyDisplay: currency === 'COP' ? 'narrowSymbol' : 'symbol',
-        maximumFractionDigits: currency === 'COP' ? 0 : 2,
-      }),
-    [currency],
+  return (
+    <div className={styles.root}>
+      <ChartShell minWidth={1} minHeight={1}>
+        {({ width, height }) => (
+          <CumulativeSavingsCanvas
+            width={width}
+            height={height}
+            chartMonths={chartMonths}
+            monthKeys={monthKeys}
+            currency={currency}
+            containerWidth={width}
+            isSingleMonth={isSingleMonth}
+          />
+        )}
+      </ChartShell>
+    </div>
   );
-
-  const tooltipMonthFormatter = useMemo(
-    () =>
-      new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric' }),
-    [],
-  );
-
-  const options = useMemo<EChartsOption>(() => {
-    const cumulativeValues = chartMonths.map(point => point.cumulativeCents);
-    const yAxisBounds = buildYAxisBounds(cumulativeValues);
-
-    return {
-      tooltip: {
-        trigger: 'axis',
-        confine: true,
-        formatter: params => {
-          const items = Array.isArray(params) ? params : [];
-          const index = Number(items[0]?.dataIndex);
-          if (!Number.isFinite(index) || index < 0) return '';
-
-          const point = chartMonths[index];
-          if (!point) return '';
-          const parsedMonth = parseMonthKey(point.month);
-          const monthLabel = parsedMonth
-            ? tooltipMonthFormatter.format(
-                new Date(parsedMonth.year, parsedMonth.monthIndex, 1),
-              )
-            : point.month;
-
-          const cumulative = formatter.format(
-            toDisplayAmount(point.cumulativeCents, currency),
-          );
-          const monthlyNet = formatter.format(
-            toDisplayAmount(point.netCents, currency),
-          );
-
-          return [
-            `<strong>${monthLabel}</strong>`,
-            `Cumulative savings: ${cumulative}`,
-            `Monthly net: ${monthlyNet}`,
-          ].join('<br/>');
-        },
-      },
-      grid: {
-        left: '10%',
-        right: '6%',
-        top: 24,
-        bottom: 48,
-        containLabel: true,
-      },
-      xAxis: {
-        type: 'category',
-        data: monthKeys,
-        boundaryGap: false,
-        axisLabel: {
-          interval: 0,
-          formatter: (value: string, index: number) => {
-            if (useSingleMonthSeries && index > 0) return '';
-            const parsed = parseMonthKey(value);
-            if (!parsed) return value;
-            return monthFormatter.format(
-              new Date(parsed.year, parsed.monthIndex, 1),
-            );
-          },
-        },
-      },
-      yAxis: {
-        type: 'value',
-        min: yAxisBounds.min,
-        max: yAxisBounds.max,
-        axisLabel: {
-          formatter: (value: number) =>
-            formatCompactCurrency(toDisplayAmount(value, currency), currency),
-        },
-      },
-      series: [
-        {
-          name: 'Cumulative savings',
-          type: 'line',
-          data: cumulativeValues,
-          smooth: true,
-          showSymbol: useSingleMonthSeries,
-          symbol: 'emptyCircle',
-          symbolSize: useSingleMonthSeries ? 7 : 6,
-          lineStyle: {
-            width: 3,
-          },
-          itemStyle: {
-            borderWidth: 2,
-            borderColor: 'rgb(2, 0, 32)',
-          },
-          areaStyle: {
-            opacity: 0.14,
-          },
-          emphasis: {
-            focus: 'none',
-          },
-        },
-      ],
-    };
-  }, [
-    chartMonths,
-    currency,
-    formatter,
-    monthFormatter,
-    monthKeys,
-    tooltipMonthFormatter,
-    useSingleMonthSeries,
-  ]);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const chart = echarts.init(containerRef.current, THEME_NAME, {
-      renderer: 'canvas',
-    });
-    chartRef.current = chart;
-
-    const resizeObserver = new ResizeObserver(entries => {
-      const entry = entries[0];
-      if (entry) {
-        setContainerWidth(entry.contentRect.width);
-      }
-      safeResize(chart, entry, 'CumulativeSavingsLineChart');
-    });
-    resizeObserver.observe(containerRef.current);
-
-    return () => {
-      resizeObserver.disconnect();
-      chart.dispose();
-      chartRef.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    const chart = chartRef.current;
-    if (!chart) return;
-    safeSetOption(chart, options, 'CumulativeSavingsLineChart', true);
-  }, [options]);
-
-  return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />;
 }
