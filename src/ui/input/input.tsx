@@ -106,13 +106,9 @@ export const Input = forwardRef<
   ) => {
     const controlledValue = props.value;
     const defaultValue = props.defaultValue;
-    const wrapperClass = cn(
-      styles['momo-input-wrapper'],
-      {
-        [styles['momo-input-wrapper--disabled']]: disabled,
-      },
-      className,
-    );
+    const wrapperClass = cn(className, styles['momo-input-wrapper'], {
+      [styles['momo-input-wrapper--disabled']]: disabled,
+    });
 
     const inputClass = cn(
       styles['momo-input'],

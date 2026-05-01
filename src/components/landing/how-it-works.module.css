@@ -12,7 +12,6 @@
 
 .momo-landing-how__heading {
   margin-bottom: var(--space-3);
-  text-align: center;
 }
 
 @media (min-width: 768px) {

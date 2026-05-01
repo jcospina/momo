@@ -1,0 +1,82 @@
+.momo-chat-bubble {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(var(--spacing));
+  max-width: 100%;
+}
+
+.momo-chat-bubble--own {
+  margin-left: auto;
+}
+
+.momo-chat-bubble__avatar-placeholder {
+  width: calc(var(--spacing) * 3);
+  flex-shrink: 0;
+}
+
+.momo-chat-bubble__column {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 0.5);
+  max-width: 720px;
+  min-width: 0;
+  align-items: flex-start;
+}
+
+.momo-chat-bubble__column--own {
+  align-items: flex-end;
+}
+
+.momo-chat-bubble__message {
+  border-radius: var(--border-radius);
+  border: 2px solid var(--color-dark);
+  box-shadow: -2px 2px 0 var(--color-dark);
+  background-color: var(--color-mauve-magic);
+}
+
+.momo-chat-bubble__message--own {
+  background-color: var(--color-sky-aqua);
+}
+
+.momo-chat-bubble__sender {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.momo-chat-bubble__content-row {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(var(--spacing));
+}
+
+.momo-chat-bubble__content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.momo-chat-bubble__status-slot,
+.momo-chat-bubble__actions-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.momo-chat-bubble__actions-slot {
+  margin-left: auto;
+  align-self: flex-start;
+}
+
+.momo-chat-bubble__timestamp {
+  font-size: 0.75rem;
+  color: color-mix(in oklch, var(--color-dark), white 40%);
+}
+
+.momo-chat-bubble__timestamp--own {
+  text-align: right;
+}
+
+.momo-chat-bubble__timestamp--incoming {
+  transform: translateX(2px);
+}

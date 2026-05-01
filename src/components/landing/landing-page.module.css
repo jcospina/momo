@@ -5,5 +5,5 @@
 .momo-landing__container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--space-3);
+  padding: var(--space-4);
 }

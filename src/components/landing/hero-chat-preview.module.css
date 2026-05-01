@@ -65,112 +65,16 @@
   flex-shrink: 0;
   padding: 4px 4px 6px 6px;
   margin: -4px -4px var(--space-2) -6px;
-  animation: hero-chat-slot-enter var(--duration-base) var(--ease-pop) both;
 }
 
-@keyframes hero-chat-slot-enter {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.momo-hero-chat__row {
-  max-width: 100%;
-}
-
-.momo-hero-chat__avatar {
-  margin-top: 2px;
+.momo-hero-chat__composer {
   flex-shrink: 0;
-}
-
-.momo-hero-chat__bubble {
-  max-width: min(85%, 380px);
-}
-
-.momo-hero-chat__message {
-  border-radius: var(--border-radius);
-  border: 2px solid var(--color-dark);
-  box-shadow: -2px 2px 0 var(--color-dark);
-  background-color: var(--color-mauve-magic);
-  color: var(--color-dark);
-}
-
-.momo-hero-chat__message--own {
-  background-color: var(--color-sky-aqua);
-}
-
-.momo-hero-chat__sender {
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-
-.momo-hero-chat__content-row {
-  display: flex;
-  align-items: flex-start;
-  gap: calc(var(--spacing));
-}
-
-.momo-hero-chat__content {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.25;
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.momo-hero-chat__status {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-top: 2px;
-  width: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition:
-    width var(--duration-base) var(--ease-pop),
-    opacity var(--duration-base) var(--ease-pop);
-}
-
-.momo-hero-chat__status--visible {
-  width: 18px;
-  opacity: 1;
-}
-
-.momo-hero-chat__actions {
-  display: inline-flex;
-  align-items: center;
-  margin-left: auto;
-  margin-top: 4px;
-  color: color-mix(in oklch, var(--color-dark), white 20%);
-  flex-shrink: 0;
-}
-
-.momo-hero-chat__timestamp {
-  font-size: 0.75rem;
-  color: color-mix(in oklch, var(--color-dark), white 40%);
-}
-
-.momo-hero-chat__timestamp--own {
-  text-align: right;
-}
-
-.momo-hero-chat__timestamp--incoming {
-  transform: translateX(2px);
+  padding: var(--space-2);
+  background-color: var(--bg-panel);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .momo-hero-chat__thread {
     scroll-behavior: auto;
-  }
-  .momo-hero-chat__slot {
-    animation: none;
-  }
-  .momo-hero-chat__status {
-    transition: none;
   }
 }

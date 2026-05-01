@@ -1,9 +1,11 @@
 import { Button } from '@ui/button/button';
 import { Highlight } from '@ui/highlight/highlight';
 import { Typography } from '@ui/typography/typography';
+import { cn } from '@utils/cn';
 import { useTranslations } from 'next-intl';
 import styles from './hero.module.css';
 import { HeroChatPreview } from './hero-chat-preview';
+import { HeroChatPreviewMobile } from './hero-chat-preview-mobile';
 
 export function Hero() {
   const t = useTranslations('landing.hero');
@@ -27,7 +29,17 @@ export function Hero() {
       </Typography>
       <HeroChatPreview
         ariaLabel={t('image_alt')}
-        className={styles['momo-landing-hero__image']}
+        className={cn(
+          styles['momo-landing-hero__image'],
+          styles['momo-landing-hero__preview-desktop'],
+        )}
+      />
+      <HeroChatPreviewMobile
+        ariaLabel={t('image_alt')}
+        className={cn(
+          styles['momo-landing-hero__image'],
+          styles['momo-landing-hero__preview-mobile'],
+        )}
       />
       <Typography size="lg" className={styles['momo-landing-hero__sub']}>
         {t.rich('sub', {
