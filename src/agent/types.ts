@@ -1,4 +1,4 @@
-import type { ExpenseRecord } from '@lib-types/expenses';
+import type { ExpenseCategory, ExpenseRecord } from '@lib-types/expenses';
 
 export const AGENT_EXPENSE_SCOPES = ['personal', 'household'] as const;
 
@@ -20,11 +20,11 @@ export const DATE_RANGE_PRESETS = [
 export type DateRangePreset = (typeof DATE_RANGE_PRESETS)[number];
 
 export type ResolveDateRangeInput = {
-  timezone?: string;
-  referenceDate?: string;
-  preset?: DateRangePreset;
-  startDate?: string;
-  endDate?: string;
+  timezone: string | null;
+  referenceDate: string | null;
+  preset: DateRangePreset | null;
+  startDate: string | null;
+  endDate: string | null;
 };
 
 export type ResolveDateRangeResult = {
@@ -37,141 +37,59 @@ export type ResolveDateRangeResult = {
   label: string;
 };
 
-export type GetExpensesInput = {
-  scope: AgentExpenseScope;
-  startDate?: string;
-  endDate?: string;
-  limit?: number;
-  categories?: string[];
-  merchants?: string[];
-  includeIncome?: boolean;
-};
-
-export type GetExpensesResult = {
-  expenses: ExpenseRecord[];
-  appliedFilters: GetExpensesInput;
-};
-
-export const SPENDING_SUMMARY_GROUP_BY = [
-  'month',
-  'category',
-  'merchant',
-  'day',
-  'user',
-] as const;
-
-export type SpendingSummaryGroupBy = (typeof SPENDING_SUMMARY_GROUP_BY)[number];
-
-export type GetSpendingSummaryInput = {
-  scope: AgentExpenseScope;
-  startDate: string;
-  endDate: string;
-  groupBy?: SpendingSummaryGroupBy;
-  limit?: number;
-  includeIncome?: boolean;
-};
-
-export type SpendingSummaryGroup = {
-  label: string;
-  amountCents: number;
-  percentageOfTotal: number | null;
-  transactionCount: number | null;
-};
-
-export type GetSpendingSummaryResult = {
-  scope: AgentExpenseScope;
-  startDate: string;
-  endDate: string;
-  totalExpenseCents: number;
-  transactionCount: number;
-  groupBy: SpendingSummaryGroupBy;
-  groups: SpendingSummaryGroup[];
-};
-
-export type GetCashflowSummaryInput = {
-  scope: AgentExpenseScope;
-  startDate: string;
-  endDate: string;
-};
-
-export type GetCashflowSummaryResult = {
-  scope: AgentExpenseScope;
-  startDate: string;
-  endDate: string;
-  incomeCents: number;
-  expenseCents: number;
-  netCents: number;
-  savingsRate: number | null;
-  savingsRateBasis: 'income' | 'unavailable_zero_income';
-};
-
-export const SPENDING_COMPARISON_BREAKDOWN_BY = [
-  'category',
-  'merchant',
-  'month',
-  'user',
-] as const;
-
-export type SpendingComparisonBreakdownBy =
-  (typeof SPENDING_COMPARISON_BREAKDOWN_BY)[number];
-
-export type CompareSpendingPeriodsInput = {
-  scope: AgentExpenseScope;
-  currentStartDate: string;
-  currentEndDate: string;
-  previousStartDate: string;
-  previousEndDate: string;
-  breakdownBy?: SpendingComparisonBreakdownBy;
-  limit?: number;
-};
-
-export type SpendingComparisonDriver = {
-  label: string;
-  currentAmountCents: number;
-  previousAmountCents: number;
-  deltaCents: number;
-  deltaPercentage: number | null;
-  direction: 'increase' | 'decrease' | 'flat';
-};
-
-export type CompareSpendingPeriodsResult = {
-  scope: AgentExpenseScope;
-  currentStartDate: string;
-  currentEndDate: string;
-  previousStartDate: string;
-  previousEndDate: string;
-  currentTotalCents: number;
-  previousTotalCents: number;
-  deltaCents: number;
-  deltaPercentage: number | null;
-  breakdownBy: SpendingComparisonBreakdownBy;
-  drivers: SpendingComparisonDriver[];
-};
-
-export type FindRecurringExpenseCandidatesInput = {
-  scope: AgentExpenseScope;
-  startDate?: string;
-  endDate?: string;
-  minOccurrences?: number;
-  maxCandidates?: number;
-};
-
-export type RecurringExpenseCandidate = {
-  label: string;
-  merchant: string | null;
-  category: string | null;
-  occurrenceCount: number;
-  monthsSeen: string[];
-  averageAmountCents: number;
-  minAmountCents: number;
-  maxAmountCents: number;
-  lastSeenAt: string;
-  confidence: number;
-};
-
-export type FindRecurringExpenseCandidatesResult = {
+export type AgentExpenseFilters = {
   scope: AgentExpenseScope;
   startDate: string | null;
   endDate: string | null;
-  candidates: RecurringExpenseCandidate[];
+  categories: ExpenseCategory[] | null;
+  merchants: string[] | null;
+  includeIncome: boolean | null;
+};
+
+export type QueryExpensesInput = AgentExpenseFilters & {
+  limit: number | null;
+};
+
+export type QueryExpensesResult = {
+  expenses: ExpenseRecord[];
+  appliedFilters: QueryExpensesInput;
+  truncated: boolean;
+};
+
+export const SPENDING_STATS_GROUP_BY = [
+  'month',
+  'day',
+  'category',
+  'merchant',
+  'user',
+  'tag',
+  'dayOfWeek',
+] as const;
+
+export type SpendingStatsGroupBy = (typeof SPENDING_STATS_GROUP_BY)[number];
+
+export type GetSpendingStatsInput = AgentExpenseFilters & {
+  groupBy: SpendingStatsGroupBy | null;
+  limit: number | null;
+};
+
+export type SpendingStatsGroup = {
+  label: string;
+  amountCents: number;
+  transactionCount: number;
+  percentageOfTotal: number | null;
+};
+
+export type GetSpendingStatsResult = {
+  scope: AgentExpenseScope;
+  startDate: string | null;
+  endDate: string | null;
+  totalExpenseCents: number;
+  totalIncomeCents: number;
+  netCents: number;
+  savingsRate: number | null;
+  savingsRateBasis: 'income' | 'unavailable_zero_income';
+  transactionCount: number;
+  groupBy: SpendingStatsGroupBy | null;
+  groups: SpendingStatsGroup[] | null;
 };

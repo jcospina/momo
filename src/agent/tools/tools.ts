@@ -1,222 +1,196 @@
+import { EXPENSE_CATEGORIES } from '@lib-types/expenses';
 import { tool } from 'ai';
 import { z } from 'zod';
 import type {
-  CompareSpendingPeriodsInput,
-  CompareSpendingPeriodsResult,
-  FindRecurringExpenseCandidatesInput,
-  FindRecurringExpenseCandidatesResult,
-  GetCashflowSummaryInput,
-  GetCashflowSummaryResult,
-  GetExpensesInput,
-  GetExpensesResult,
-  GetSpendingSummaryInput,
-  GetSpendingSummaryResult,
+  GetSpendingStatsInput,
+  GetSpendingStatsResult,
+  QueryExpensesInput,
+  QueryExpensesResult,
   ResolveDateRangeInput,
   ResolveDateRangeResult,
 } from '@/agent/types';
 import {
   AGENT_EXPENSE_SCOPES,
   DATE_RANGE_PRESETS,
-  SPENDING_COMPARISON_BREAKDOWN_BY,
-  SPENDING_SUMMARY_GROUP_BY,
+  SPENDING_STATS_GROUP_BY,
 } from '@/agent/types';
+
+const UNIQUE_EXPENSE_CATEGORIES = Array.from(new Set(EXPENSE_CATEGORIES)) as [
+  (typeof EXPENSE_CATEGORIES)[number],
+  ...(typeof EXPENSE_CATEGORIES)[number][],
+];
 
 function notImplemented(toolName: string): never {
   throw new Error(`${toolName} is not implemented yet`);
 }
 
-export const tools = {
-  resolveDateRange: tool({
-    title: 'get date range',
-    description:
-      'Get the dates for a time period. Use this when the user says things like this month, last month, last 3 months, this year, last week, or gives a custom range.',
-    inputSchema: z.object({
-      timezone: z
-        .string()
-        .describe(
-          'Timezone used to resolve the range, for example America/Bogota.',
-        )
-        .optional(),
-      referenceDate: z
-        .string()
-        .describe('Optional ISO date or datetime to use instead of now.')
-        .optional(),
-      preset: z
-        .enum(DATE_RANGE_PRESETS)
-        .describe('Relative time period to resolve into dates.')
-        .optional(),
-      startDate: z
-        .string()
-        .describe('Optional start date for a custom range.')
-        .optional(),
-      endDate: z
-        .string()
-        .describe('Optional end date for a custom range.')
-        .optional(),
-    }),
-    execute: async (
-      _input: ResolveDateRangeInput,
-    ): Promise<ResolveDateRangeResult> => {
-      return notImplemented('resolveDateRange');
-    },
-  }),
-  getExpenses: tool({
-    title: 'get expenses',
-    description:
-      'Get a list of expenses for a given scope. Use this when the user asks about expenses in general, wants examples, or asks about a given time period, category, or merchant.',
-    inputSchema: z.object({
-      scope: z
-        .enum(AGENT_EXPENSE_SCOPES)
-        .describe(
-          "The scope of the expenses to retrieve. Personal means the user's own expenses. Household means expenses shared with the household.",
-        ),
-      startDate: z
-        .string()
-        .describe('Optional start date for the period.')
-        .optional(),
-      endDate: z
-        .string()
-        .describe('Optional end date for the period.')
-        .optional(),
-      limit: z
-        .number()
-        .int()
-        .positive()
-        .describe('Maximum number of expenses to return.')
-        .optional(),
-      categories: z
-        .array(z.string())
-        .describe('Optional categories to filter by.')
-        .optional(),
-      merchants: z
-        .array(z.string())
-        .describe('Optional merchants to filter by.')
-        .optional(),
-      includeIncome: z
-        .boolean()
-        .describe('Whether income entries should also be included.')
-        .optional(),
-    }),
-    execute: async (_input: GetExpensesInput): Promise<GetExpensesResult> => {
-      return notImplemented('getExpenses');
-    },
-  }),
-  getSpendingSummary: tool({
-    title: 'get spending summary',
-    description:
-      'Get how much was spent in a period, optionally grouped by month, category, merchant, day, or user. Use this for questions like where the user spent the most, which month was highest, or what stands out.',
-    inputSchema: z.object({
-      scope: z
-        .enum(AGENT_EXPENSE_SCOPES)
-        .describe('Scope to summarize: personal or household.'),
-      startDate: z.string().describe('Start date for the period.'),
-      endDate: z.string().describe('End date for the period.'),
-      groupBy: z
-        .enum(SPENDING_SUMMARY_GROUP_BY)
-        .describe('How to group the results.')
-        .optional(),
-      limit: z
-        .number()
-        .int()
-        .positive()
-        .describe('Maximum number of grouped results to return.')
-        .optional(),
-      includeIncome: z
-        .boolean()
-        .describe('Whether income entries should also be included.')
-        .optional(),
-    }),
-    execute: async (
-      _input: GetSpendingSummaryInput,
-    ): Promise<GetSpendingSummaryResult> => {
-      return notImplemented('getSpendingSummary');
-    },
-  }),
-  getCashflowSummary: tool({
-    title: 'get cashflow summary',
-    description:
-      'Get income, expenses, net, and savings rate for a period. Use this for questions about how much the user is saving and whether they saved more or less than another period.',
-    inputSchema: z.object({
-      scope: z
-        .enum(AGENT_EXPENSE_SCOPES)
-        .describe('Scope to summarize: personal or household.'),
-      startDate: z.string().describe('Start date for the period.'),
-      endDate: z.string().describe('End date for the period.'),
-    }),
-    execute: async (
-      _input: GetCashflowSummaryInput,
-    ): Promise<GetCashflowSummaryResult> => {
-      return notImplemented('getCashflowSummary');
-    },
-  }),
-  compareSpendingPeriods: tool({
-    title: 'compare spending',
-    description:
-      'Compare spending between two periods and return the main reasons for the change. Use this for questions like why this month is higher than last month or what changed the most.',
-    inputSchema: z.object({
-      scope: z
-        .enum(AGENT_EXPENSE_SCOPES)
-        .describe('Scope to compare: personal or household.'),
-      currentStartDate: z
-        .string()
-        .describe('Start date for the current period.'),
-      currentEndDate: z.string().describe('End date for the current period.'),
-      previousStartDate: z
-        .string()
-        .describe('Start date for the comparison period.'),
-      previousEndDate: z
-        .string()
-        .describe('End date for the comparison period.'),
-      breakdownBy: z
-        .enum(SPENDING_COMPARISON_BREAKDOWN_BY)
-        .describe('How to break down the change.')
-        .optional(),
-      limit: z
-        .number()
-        .int()
-        .positive()
-        .describe('Maximum number of change drivers to return.')
-        .optional(),
-    }),
-    execute: async (
-      _input: CompareSpendingPeriodsInput,
-    ): Promise<CompareSpendingPeriodsResult> => {
-      return notImplemented('compareSpendingPeriods');
-    },
-  }),
-  findRecurringExpenseCandidates: tool({
-    title: 'find recurring expenses',
-    description:
-      'Find expenses that look recurring, like subscriptions or repeated bills. Use this when the user asks about recurring charges they may want to review.',
-    inputSchema: z.object({
-      scope: z
-        .enum(AGENT_EXPENSE_SCOPES)
-        .describe('Scope to inspect: personal or household.'),
-      startDate: z
-        .string()
-        .describe('Optional start date for the search window.')
-        .optional(),
-      endDate: z
-        .string()
-        .describe('Optional end date for the search window.')
-        .optional(),
-      minOccurrences: z
-        .number()
-        .int()
-        .min(2)
-        .describe('Minimum number of times an expense should repeat.')
-        .optional(),
-      maxCandidates: z
-        .number()
-        .int()
-        .positive()
-        .describe('Maximum number of recurring expenses to return.')
-        .optional(),
-    }),
-    execute: async (
-      _input: FindRecurringExpenseCandidatesInput,
-    ): Promise<FindRecurringExpenseCandidatesResult> => {
-      return notImplemented('findRecurringExpenseCandidates');
-    },
-  }),
+export type AgentToolExecutors = {
+  resolveDateRange: (
+    input: ResolveDateRangeInput,
+  ) => Promise<ResolveDateRangeResult>;
+  queryExpenses: (input: QueryExpensesInput) => Promise<QueryExpensesResult>;
+  getSpendingStats: (
+    input: GetSpendingStatsInput,
+  ) => Promise<GetSpendingStatsResult>;
 };
+
+export const productionToolExecutors: AgentToolExecutors = {
+  resolveDateRange: async () => notImplemented('resolveDateRange'),
+  queryExpenses: async () => notImplemented('queryExpenses'),
+  getSpendingStats: async () => notImplemented('getSpendingStats'),
+};
+
+export function buildAgentTools(
+  executors: AgentToolExecutors = productionToolExecutors,
+) {
+  return {
+    resolveDateRange: tool({
+      title: 'get date range',
+      description:
+        'Get the dates for a time period. Use this when the user says things like this month, last month, last 3 months, this year, last week, or gives a custom range.',
+      inputSchema: z.object({
+        timezone: z
+          .string()
+          .describe(
+            'Timezone used to resolve the range, for example America/Bogota.',
+          )
+          .nullable(),
+        referenceDate: z
+          .string()
+          .describe('nullable ISO date or datetime to use instead of now.')
+          .nullable(),
+        preset: z
+          .enum(DATE_RANGE_PRESETS)
+          .describe('Relative time period to resolve into dates.')
+          .nullable(),
+        startDate: z
+          .string()
+          .describe('nullable start date for a custom range.')
+          .nullable(),
+        endDate: z
+          .string()
+          .describe('nullable end date for a custom range.')
+          .nullable(),
+      }),
+      execute: async (input: ResolveDateRangeInput) =>
+        executors.resolveDateRange(input),
+    }),
+    queryExpenses: tool({
+      title: 'query expenses',
+      description: [
+        'List individual expense rows for the given scope and filters.',
+        'Use this when the user wants examples, recent transactions, a sample of merchants, or anything that needs row-level detail.',
+        "Do NOT use this to compute totals or breakdowns — call getSpendingStats instead, which is cheaper and won't truncate.",
+        'Results are bounded by `limit`; when more rows existed than the limit, `truncated` is true.',
+      ].join(' '),
+      inputSchema: z.object({
+        scope: z
+          .enum(AGENT_EXPENSE_SCOPES)
+          .describe(
+            "personal = only the current user's own expenses; household = all shared household expenses.",
+          ),
+        startDate: z
+          .string()
+          .describe(
+            'Inclusive start date (YYYY-MM-DD). Null to leave open-ended.',
+          )
+          .nullable(),
+        endDate: z
+          .string()
+          .describe(
+            'Inclusive end date (YYYY-MM-DD). Null to leave open-ended.',
+          )
+          .nullable(),
+        categories: z
+          .array(z.enum(UNIQUE_EXPENSE_CATEGORIES))
+          .describe('Filter to these categories. Null = all categories.')
+          .nullable(),
+        merchants: z
+          .array(z.string())
+          .describe(
+            'Filter to these merchants (case-insensitive exact match). Null = all merchants.',
+          )
+          .nullable(),
+        includeIncome: z
+          .boolean()
+          .describe(
+            'If true, include income entries in the result. Default behavior (null/false) is to exclude income.',
+          )
+          .nullable(),
+        limit: z
+          .number()
+          .int()
+          .positive()
+          .describe(
+            'Maximum number of expense rows to return. Defaults to 50. Keep this small — agents should reason over a sample, not the full ledger.',
+          )
+          .nullable(),
+      }),
+      execute: async (input: QueryExpensesInput) =>
+        executors.queryExpenses(input),
+    }),
+    getSpendingStats: tool({
+      title: 'get spending stats',
+      description: [
+        'Get aggregated spending and cashflow numbers for the given scope and filters.',
+        'Always returns top-level totals: totalExpenseCents, totalIncomeCents, netCents, savingsRate.',
+        'Pass `groupBy` to also receive a per-group breakdown (sorted from largest amount to smallest, except month/day/dayOfWeek which sort chronologically).',
+        'To compare two periods, call this twice with different date ranges and reason over the deltas — there is no separate compare tool.',
+        "Note: when `groupBy` is `tag`, a transaction with multiple tags is counted in each tag's group, so per-group percentages can sum to more than 100%. Top-level totals are not affected.",
+      ].join(' '),
+      inputSchema: z.object({
+        scope: z
+          .enum(AGENT_EXPENSE_SCOPES)
+          .describe(
+            "personal = only the current user's own expenses; household = all shared household expenses.",
+          ),
+        startDate: z
+          .string()
+          .describe(
+            'Inclusive start date (YYYY-MM-DD). Null to leave open-ended.',
+          )
+          .nullable(),
+        endDate: z
+          .string()
+          .describe(
+            'Inclusive end date (YYYY-MM-DD). Null to leave open-ended.',
+          )
+          .nullable(),
+        categories: z
+          .array(z.enum(UNIQUE_EXPENSE_CATEGORIES))
+          .describe('Filter to these categories. Null = all categories.')
+          .nullable(),
+        merchants: z
+          .array(z.string())
+          .describe(
+            'Filter to these merchants (case-insensitive exact match). Null = all merchants.',
+          )
+          .nullable(),
+        includeIncome: z
+          .boolean()
+          .describe(
+            'If true, expense groups also include income entries. Top-level income/net/savingsRate numbers are always computed regardless of this flag.',
+          )
+          .nullable(),
+        groupBy: z
+          .enum(SPENDING_STATS_GROUP_BY)
+          .describe(
+            'Dimension to break down by. Null returns only the top-level totals (no `groups` array).',
+          )
+          .nullable(),
+        limit: z
+          .number()
+          .int()
+          .positive()
+          .describe(
+            'Maximum number of groups to return. Null returns all groups.',
+          )
+          .nullable(),
+      }),
+      execute: async (input: GetSpendingStatsInput) =>
+        executors.getSpendingStats(input),
+    }),
+  };
+}
+
+export const tools = buildAgentTools();

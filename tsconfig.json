@@ -33,7 +33,9 @@
       "@ui/*": ["./src/ui/*"],
       "@utils/*": ["./src/lib/utils/*"],
       "@/*": ["./src/*"],
-      "@messages/*": ["./messages/*"]
+      "@messages/*": ["./messages/*"],
+      "@agent/*": ["./src/agent/*"],
+      "@evals/*": ["./evals/*"]
     }
   },
   "include": [
