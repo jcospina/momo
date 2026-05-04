@@ -15,7 +15,6 @@
 
 .momo-landing-closer__logo {
   display: inline-flex;
-  will-change: transform, opacity;
 }
 
 .momo-landing-closer__title {

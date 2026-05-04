@@ -1,4 +1,5 @@
 'use client';
+import { cn } from '@utils/cn';
 import { useEffect, useRef } from 'react';
 import styles from './dot-grid.module.css';
 
@@ -21,6 +22,10 @@ type DotGridProps = {
   density?: number;
   /** When `true`, the hover blast animation is disabled. @default false */
   disableHover?: boolean;
+  /** Extra class name for placement-specific layering. */
+  className?: string;
+  /** Positioning mode for the canvas. @default 'fixed' */
+  position?: 'absolute' | 'fixed';
 };
 
 /**
@@ -59,6 +64,8 @@ export default function DotGrid({
   hoverOpacity = 0.95,
   density = 1,
   disableHover = false,
+  className,
+  position = 'fixed',
 }: DotGridProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -74,8 +81,8 @@ export default function DotGrid({
     const c = canvas as HTMLCanvasElement;
     const g = ctx as CanvasRenderingContext2D;
 
-    let width = window.innerWidth;
-    let height = window.innerHeight;
+    let width = 0;
+    let height = 0;
     // cached grid metrics (recomputed on resize only)
     let cols = 0;
     let rows = 0;
@@ -83,8 +90,14 @@ export default function DotGrid({
 
     function resize() {
       const dpr = window.devicePixelRatio || 1;
-      width = window.innerWidth;
-      height = window.innerHeight;
+      if (position === 'fixed') {
+        width = window.innerWidth;
+        height = window.innerHeight;
+      } else {
+        const parent = c.parentElement;
+        width = parent?.clientWidth || window.innerWidth;
+        height = parent?.scrollHeight || window.innerHeight;
+      }
       c.style.width = width + 'px';
       c.style.height = height + 'px';
       c.width = Math.round(width * dpr);
@@ -99,7 +112,11 @@ export default function DotGrid({
 
     function onMove(e: MouseEvent) {
       if (disableHover) return;
-      mouseRef.current = { x: e.clientX, y: e.clientY };
+      const rect = c.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      mouseRef.current =
+        x < 0 || y < 0 || x > width || y > height ? null : { x, y };
       scheduleDraw();
     }
 
@@ -152,6 +169,13 @@ export default function DotGrid({
     }
 
     resize();
+    const resizeObserver =
+      position === 'absolute' && 'ResizeObserver' in window
+        ? new ResizeObserver(resize)
+        : null;
+    if (resizeObserver && c.parentElement) {
+      resizeObserver.observe(c.parentElement);
+    }
     window.addEventListener('resize', resize);
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseout', onLeave);
@@ -160,6 +184,7 @@ export default function DotGrid({
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseout', onLeave);
+      resizeObserver?.disconnect();
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [
@@ -172,14 +197,15 @@ export default function DotGrid({
     hoverOpacity,
     density,
     disableHover,
+    position,
   ]);
 
   return (
     <canvas
       ref={canvasRef}
-      className={styles.dotGrid}
+      className={cn(styles.dotGrid, className)}
       aria-hidden
-      style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}
+      style={{ position, inset: 0, pointerEvents: 'none' }}
     />
   );
 }

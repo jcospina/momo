@@ -2,33 +2,61 @@
   position: relative;
 }
 
+.momo-landing__curtain-stage {
+  position: relative;
+}
+
+.momo-landing__hero-sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.momo-landing__hero-surface {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+}
+
 .momo-landing__container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--space-4);
+  padding: calc(var(--space-8) + var(--space-6)) var(--space-4) var(--space-4);
 }
 
-.momo-landing__hero-slot {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100svh;
-  z-index: 4;
-  pointer-events: none;
-  will-change: transform;
-}
-
-.momo-landing__hero-slot > * {
-  pointer-events: auto;
-  height: 100%;
+.momo-landing__hero {
   max-width: 1200px;
+  height: 100%;
   margin: 0 auto;
   padding: 0 var(--space-4);
-  box-sizing: border-box;
 }
 
-.momo-landing__hero-spacer {
-  height: 100svh;
-  pointer-events: none;
+.momo-landing__content-layer {
+  position: relative;
+  z-index: 2;
+  background: var(--bg-page);
+  border-top: var(--border-width-thin) solid var(--color-dark);
+  overflow: hidden;
+  transition: background-color var(--duration-toggle) var(--ease-pop);
+}
+
+.momo-landing__content-dots {
+  z-index: 0;
+}
+
+.momo-landing__content-inner {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-landing__hero-sticky {
+    position: relative;
+  }
+
+  .momo-landing__content-layer {
+    border-top: var(--border-width-thin) solid var(--color-dark);
+  }
 }
