@@ -111,6 +111,12 @@ export function buildAgentTools(
             'Filter to these merchants (case-insensitive exact match). Null = all merchants.',
           )
           .nullable(),
+        tags: z
+          .array(z.string())
+          .describe(
+            'Filter to expenses that contain any of these tags. Null = all tags.',
+          )
+          .nullable(),
         includeIncome: z
           .boolean()
           .describe(
@@ -164,6 +170,12 @@ export function buildAgentTools(
           .array(z.string())
           .describe(
             'Filter to these merchants (case-insensitive exact match). Null = all merchants.',
+          )
+          .nullable(),
+        tags: z
+          .array(z.string())
+          .describe(
+            'Filter to expenses that contain any of these tags. Null = all tags.',
           )
           .nullable(),
         includeIncome: z

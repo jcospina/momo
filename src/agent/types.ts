@@ -43,6 +43,7 @@ export type AgentExpenseFilters = {
   endDate: string | null;
   categories: ExpenseCategory[] | null;
   merchants: string[] | null;
+  tags: string[] | null;
   includeIncome: boolean | null;
 };
 
