@@ -1,5 +1,5 @@
 import {
-  type ComponentPropsWithoutRef,
+  type ComponentProps,
   type ElementType,
   PropsWithChildren,
 } from 'react';
@@ -31,4 +31,4 @@ export type TypographyProps<T extends ElementType = 'p'> = {
   /** Render as a different HTML element (e.g. `'h1'`, `'span'`, `'label'`). @default 'p' */
   as?: T;
 } & BaseTypographyProps &
-  Omit<ComponentPropsWithoutRef<T>, keyof PropsWithChildren | 'as'>;
+  Omit<ComponentProps<T>, keyof PropsWithChildren | 'as'>;

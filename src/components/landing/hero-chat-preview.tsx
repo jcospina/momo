@@ -251,6 +251,7 @@ export function HeroChatPreview({ ariaLabel, className }: ChatPreviewProps) {
         ref={threadRef}
         className={styles['momo-hero-chat__thread']}
         aria-hidden="true"
+        data-lenis-prevent
       >
         {items.map(item => (
           <div
