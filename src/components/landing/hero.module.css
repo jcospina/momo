@@ -7,11 +7,11 @@
     "sub"
     "cta";
   gap: var(--space-3);
-  padding: var(--space-5) 0 var(--space-6);
+  padding: var(--space-6) 0;
   align-content: center;
   align-items: center;
   justify-items: center;
-  min-height: calc(100svh - 72px);
+  min-height: 100svh;
   text-align: center;
 }
 
@@ -25,7 +25,7 @@
     align-content: center;
     gap: var(--space-6);
     justify-items: start;
-    min-height: calc(100svh - 80px);
+    min-height: 100svh;
     text-align: left;
   }
 }

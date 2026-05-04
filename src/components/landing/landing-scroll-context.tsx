@@ -10,7 +10,9 @@ import {
 } from 'react';
 
 type LandingScrollContextValue = {
-  spacerRef: RefObject<HTMLDivElement | null>;
+  curtainContentRef: RefObject<HTMLDivElement | null>;
+  curtainStageRef: RefObject<HTMLElement | null>;
+  heroRef: RefObject<HTMLDivElement | null>;
 };
 
 const LandingScrollContext = createContext<LandingScrollContextValue | null>(
@@ -18,8 +20,13 @@ const LandingScrollContext = createContext<LandingScrollContextValue | null>(
 );
 
 export function LandingScrollProvider({ children }: { children: ReactNode }) {
-  const spacerRef = useRef<HTMLDivElement | null>(null);
-  const value = useMemo(() => ({ spacerRef }), []);
+  const curtainContentRef = useRef<HTMLDivElement | null>(null);
+  const curtainStageRef = useRef<HTMLElement | null>(null);
+  const heroRef = useRef<HTMLDivElement | null>(null);
+  const value = useMemo(
+    () => ({ curtainContentRef, curtainStageRef, heroRef }),
+    [],
+  );
   return (
     <LandingScrollContext.Provider value={value}>
       {children}
@@ -27,12 +34,26 @@ export function LandingScrollProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useHeroSpacerRef(): RefObject<HTMLDivElement | null> {
+export function useLandingCurtainRefs(): Pick<
+  LandingScrollContextValue,
+  'curtainContentRef' | 'curtainStageRef'
+> {
   const ctx = useContext(LandingScrollContext);
   if (!ctx) {
     throw new Error(
-      'useHeroSpacerRef must be used inside <LandingScrollProvider>',
+      'useLandingCurtainRefs must be used inside <LandingScrollProvider>',
     );
   }
-  return ctx.spacerRef;
+  return {
+    curtainContentRef: ctx.curtainContentRef,
+    curtainStageRef: ctx.curtainStageRef,
+  };
+}
+
+export function useHeroRef(): RefObject<HTMLDivElement | null> {
+  const ctx = useContext(LandingScrollContext);
+  if (!ctx) {
+    throw new Error('useHeroRef must be used inside <LandingScrollProvider>');
+  }
+  return ctx.heroRef;
 }

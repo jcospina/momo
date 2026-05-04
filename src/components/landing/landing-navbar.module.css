@@ -1,16 +1,12 @@
 .momo-landing-nav {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 5;
   background: var(--bg-page);
   border-bottom: var(--border-width-thin) solid var(--color-dark);
   transition: background-color var(--duration-toggle) var(--ease-pop);
-}
-
-.momo-landing-nav--floating {
-  position: fixed;
-  left: 0;
-  right: 0;
   will-change: transform;
 }
 
