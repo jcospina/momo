@@ -1,13 +1,13 @@
 import { CloserSection } from './closer-section';
-import { FeaturesSection } from './features-section';
 import { Footer } from './footer';
-import { HowItWorks } from './how-it-works';
 import { LandingCurtainStage } from './landing-curtain-stage';
 import { LandingNavbar } from './landing-navbar';
 import styles from './landing-page.module.css';
 import { LandingScrollProvider } from './landing-scroll-context';
-import { LandingScrollIndicator } from './landing-scroll-indicator';
 import { LenisProvider } from './lenis-provider';
+import { SceneParse } from './scenes/scene-parse';
+import { SceneStats } from './scenes/scene-stats';
+import { SceneTogether } from './scenes/scene-together';
 
 export function LandingPage() {
   return (
@@ -17,8 +17,11 @@ export function LandingPage() {
           <LandingNavbar />
           <LandingCurtainStage>
             <main className={styles['momo-landing__container']}>
-              <FeaturesSection />
-              <HowItWorks />
+              <div className={styles['momo-landing__pinboard']}>
+                <SceneParse />
+                <SceneTogether />
+                <SceneStats />
+              </div>
               <CloserSection />
             </main>
             <Footer />
