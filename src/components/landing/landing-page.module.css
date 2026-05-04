@@ -3,14 +3,21 @@
 }
 
 .momo-landing__curtain-stage {
+  --landing-hero-handoff: clamp(9rem, 22svh, 16rem);
+  --curtain-progress: 0;
   position: relative;
+}
+
+.momo-landing__hero-handoff {
+  position: relative;
+  height: calc(100svh + var(--landing-hero-handoff));
 }
 
 .momo-landing__hero-sticky {
   position: sticky;
   top: 0;
-  height: 100svh;
   z-index: 1;
+  height: 100svh;
   overflow: hidden;
 }
 
@@ -23,7 +30,19 @@
 .momo-landing__container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: calc(var(--space-8) + var(--space-6)) var(--space-4) var(--space-4);
+  padding: calc(var(--space-8) + var(--space-6)) var(--space-4) 0;
+}
+
+.momo-landing__pinboard {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-8) + var(--space-2));
+}
+
+@media (min-width: 720px) {
+  .momo-landing__pinboard {
+    gap: calc(var(--space-8) + var(--space-4));
+  }
 }
 
 .momo-landing__hero {
@@ -36,14 +55,8 @@
 .momo-landing__content-layer {
   position: relative;
   z-index: 2;
-  background: var(--bg-page);
-  border-top: var(--border-width-thin) solid var(--color-dark);
+  margin-top: calc(-1 * var(--landing-hero-handoff));
   overflow: hidden;
-  transition: background-color var(--duration-toggle) var(--ease-pop);
-}
-
-.momo-landing__content-dots {
-  z-index: 0;
 }
 
 .momo-landing__content-inner {
@@ -52,11 +65,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .momo-landing__curtain-stage {
+    --curtain-progress: 1;
+  }
+
+  .momo-landing__hero-handoff {
+    height: auto;
+  }
+
   .momo-landing__hero-sticky {
     position: relative;
   }
 
   .momo-landing__content-layer {
-    border-top: var(--border-width-thin) solid var(--color-dark);
+    margin-top: 0;
   }
 }

@@ -39,7 +39,7 @@ const DEFAULT_TIMINGS: Required<HeroChatPreviewMobileTimings> = {
   loopRestartDelayMs: 1500,
 };
 
-const MOBILE_QUERY = '(max-width: 767.98px)';
+const MOBILE_QUERY = '(max-width: 960px)';
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
 type HeroChatPreviewMobileProps = {

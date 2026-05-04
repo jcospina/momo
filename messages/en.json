@@ -180,7 +180,7 @@
               "sender": "Juan",
               "time": "12:31 PM"
             },
-            { "text": "4 coffee", "sender": "Martin", "time": "12:34 PM" },
+            { "text": "4 coffee", "sender": "Martín", "time": "12:34 PM" },
             {
               "text": "22 taxi to airport",
               "sender": "Juan",
@@ -188,52 +188,65 @@
             },
             {
               "text": "54 groceries trader joes",
-              "sender": "Martin",
+              "sender": "Martín",
               "time": "5:12 PM"
             },
-            { "text": "9 movie ticket", "sender": "Martin", "time": "8:02 PM" }
+            { "text": "9 movie ticket", "sender": "Martín", "time": "8:02 PM" }
           ]
         }
       }
     },
-    "features": {
-      "heading": "Built around how you <feature>actually spend</feature>.",
-      "cards": {
-        "chat": {
-          "title": "Chat is the form.",
-          "body": "Type the amount and a couple words. MoMo parses it into an expense, picks a category, and logs it. Edit later if you want."
-        },
-        "scope": {
-          "title": "Personal & group chats.",
-          "body": "A private chat just for you, and a shared chat for the people you live with."
-        },
-        "stats": {
-          "title": "Stats that don't lie.",
-          "body": "Forget about ugly charts and spreadsheets. MoMo shows you what you really care about."
-        }
+    "parse": {
+      "statement": "You <primary>type</primary>, MoMo <feature>gets it</feature>.",
+      "statementLines": {
+        "lead": "You",
+        "verb": "type",
+        "subject": "MoMo",
+        "outcome": "gets it"
+      },
+      "chat": {
+        "text": "25 lunch with Martín",
+        "time": "12:31 PM"
+      },
+      "chip": {
+        "label": "Categorized as",
+        "category": "Dining"
       }
     },
-    "how": {
-      "eyebrow": "How it works",
-      "title": "How <primary>it works</primary>",
-      "heading": "Three steps:",
-      "image_alt": "Product screenshot — Stats screen",
-      "step1": {
-        "title": "Just write.",
-        "body": "<em>\"15.50 lunch chipotle\"</em> · <em>\"4 coffee\"</em> · <em>\"22 uber to airport\"</em>. Whatever feels natural."
+    "together": {
+      "statement": "<info>Shared</info> expenses.",
+      "householdName": "Papa's little nest",
+      "label": "Household",
+      "eyebrow": {
+        "chat": "Chat",
+        "stats": "Stats tab",
+        "statsAria": "Separate Stats tab — not part of the chat"
       },
-      "step2": {
-        "title": "I'll guess the category.",
-        "body": "Food, Transit, Groceries, Fun. If I get it wrong you'll see <em>\"needs category\"</em> and you tap once to fix it."
-      },
-      "step3": {
-        "title": "Stats appear, quietly.",
-        "body": "The Stats tab updates in real time. Nothing nags you. You just have a number when you want one."
+      "thread": [
+        { "text": "got groceries 54", "time": "5:12 PM" },
+        { "text": "Cool, did you buy the milk too?", "time": "5:13 PM" },
+        { "text": "yeah, all in", "time": "5:14 PM" }
+      ],
+      "ring": {
+        "left": "Juan",
+        "right": "Martín",
+        "leftAmount": "$612",
+        "rightAmount": "$378",
+        "totalLabel": "This month",
+        "total": "$990",
+        "ariaLabel": "Household spending split between Juan and Martín for this month"
       }
+    },
+    "stats": {
+      "statement": "Your <warm>month</warm>, in one glance.",
+      "months": ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr"],
+      "sticker": "Feb: ouch.",
+      "caption": "Real numbers. No charts you have to study.",
+      "ariaLabel": "Six months of spending stacked by category. February is the highest."
     },
     "closer": {
       "title": "More money.<br></br><stamp>More fun.</stamp>",
-      "sub": "Sign up free. Bring your household if you like — or don't, I won't judge.",
+      "sub": "Sign up free. Bring your household if you want or keep it to yourself. I won't judge.",
       "cta": "Create my account"
     },
     "footer": {

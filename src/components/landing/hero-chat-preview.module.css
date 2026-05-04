@@ -68,7 +68,10 @@
 }
 
 .momo-hero-chat__composer {
+  --momo-hero-chat-composer-height: calc(var(--spacing) * 9);
+
   flex-shrink: 0;
+  height: var(--momo-hero-chat-composer-height);
   padding: var(--space-2);
   background-color: var(--bg-panel);
 }

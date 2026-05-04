@@ -17,17 +17,20 @@ function clampProgress(progress: number): number {
   return progress;
 }
 
+function getHandoffDistance(viewportHeight: number): number {
+  return Math.min(Math.max(viewportHeight * 0.22, 144), 256);
+}
+
 export function LandingNavbar() {
   const t = useTranslations('landing.nav');
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
-  const { curtainContentRef, curtainStageRef } = useLandingCurtainRefs();
+  const { curtainStageRef } = useLandingCurtainRefs();
   const navRef = useRef<HTMLElement | null>(null);
 
   useScrollTick(() => {
     const nav = navRef.current;
-    const content = curtainContentRef.current;
     const stage = curtainStageRef.current;
-    if (nav === null || content === null || stage === null || reducedMotion) {
+    if (nav === null || stage === null || reducedMotion) {
       if (nav !== null) {
         gsap.set(nav, { yPercent: 0 });
       }
@@ -36,28 +39,35 @@ export function LandingNavbar() {
 
     const viewportHeight = window.innerHeight || 1;
     const scrollY = window.scrollY;
-    const contentTop = content.getBoundingClientRect().top + window.scrollY;
-    const stageHeight = stage.offsetHeight;
+    const stageTop = stage.getBoundingClientRect().top + window.scrollY;
     const navHeight = nav.offsetHeight;
-    const curtainStart = Math.max(0, contentTop - viewportHeight);
-    const curtainEnd = contentTop;
-    const curtainRange = curtainEnd - curtainStart;
-    if (stageHeight <= 0 || curtainRange <= 0) {
+    const handoffDistance = getHandoffDistance(viewportHeight);
+    if (handoffDistance <= 0) {
       gsap.set(nav, { yPercent: 0 });
       return;
     }
 
-    const edge = Math.min(0.18, Math.max(0.06, navHeight / curtainRange));
-    const progress = clampProgress((scrollY - curtainStart) / curtainRange);
+    const hideStart = stageTop;
+    const hideEnd = hideStart + Math.max(navHeight * 1.15, 72);
+    const heroMostlyGone = stageTop + handoffDistance + viewportHeight * 0.72;
+    const returnDistance = Math.max(navHeight * 2, viewportHeight * 0.14);
+    const returnEnd = heroMostlyGone + returnDistance;
 
     let translatePercent: number;
-    if (progress <= edge) {
-      translatePercent = -(progress / edge) * 100;
-    } else if (progress >= 1 - edge) {
-      const t = (progress - (1 - edge)) / edge;
+    if (scrollY <= hideStart) {
+      translatePercent = 0;
+    } else if (scrollY < hideEnd) {
+      const t = clampProgress((scrollY - hideStart) / (hideEnd - hideStart));
+      translatePercent = -t * 100;
+    } else if (scrollY < heroMostlyGone) {
+      translatePercent = -100;
+    } else if (scrollY < returnEnd) {
+      const t = clampProgress(
+        (scrollY - heroMostlyGone) / (returnEnd - heroMostlyGone),
+      );
       translatePercent = -100 + t * 100;
     } else {
-      translatePercent = -100;
+      translatePercent = 0;
     }
     gsap.set(nav, { yPercent: translatePercent });
   });
@@ -70,22 +80,6 @@ export function LandingNavbar() {
         </div>
         <div className={styles['momo-landing-nav__links']}>
           <ThemeSelector />
-          <a
-            href="#features"
-            className={`${styles['momo-landing-nav__link']} ${styles['momo-landing-nav__section-link']}`}
-          >
-            <span className={styles['momo-landing-nav__link-text']}>
-              {t('features')}
-            </span>
-          </a>
-          <a
-            href="#how"
-            className={`${styles['momo-landing-nav__link']} ${styles['momo-landing-nav__section-link']}`}
-          >
-            <span className={styles['momo-landing-nav__link-text']}>
-              {t('how')}
-            </span>
-          </a>
           <Link href="/login" className={styles['momo-landing-nav__link']}>
             {t('login')}
           </Link>
