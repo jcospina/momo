@@ -7,3 +7,28 @@
   margin: 0 auto;
   padding: var(--space-4);
 }
+
+.momo-landing__hero-slot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100svh;
+  z-index: 4;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.momo-landing__hero-slot > * {
+  pointer-events: auto;
+  height: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+  box-sizing: border-box;
+}
+
+.momo-landing__hero-spacer {
+  height: 100svh;
+  pointer-events: none;
+}

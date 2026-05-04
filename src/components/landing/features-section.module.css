@@ -1,9 +1,33 @@
+.momo-landing-features-section {
+  position: relative;
+  height: 200svh;
+}
+
+.momo-landing-features-section--static {
+  height: auto;
+}
+
+.momo-landing-features-section__sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.momo-landing-features-section--static .momo-landing-features-section__sticky {
+  position: static;
+  height: auto;
+  justify-content: flex-start;
+}
+
 .momo-landing-section-head {
   display: flex;
   align-items: end;
   justify-content: space-between;
   gap: var(--space-2);
-  margin-bottom: var(--space-3);
   flex-wrap: wrap;
 }
 

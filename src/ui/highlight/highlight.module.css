@@ -32,3 +32,13 @@
 .momo-highlight--rotate-none {
   transform: none;
 }
+
+.momo-highlight--animatable {
+  clip-path: inset(0 100% 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-highlight--animatable {
+    clip-path: none;
+  }
+}

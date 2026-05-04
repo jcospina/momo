@@ -18,6 +18,7 @@ export function Highlight<T extends ElementType = 'span'>({
   as,
   variant = 'primary',
   rotation = 'left',
+  animate = false,
   className,
   children,
   ...props
@@ -29,6 +30,7 @@ export function Highlight<T extends ElementType = 'span'>({
         styles['momo-highlight'],
         styles[`momo-highlight--${variant}`],
         styles[`momo-highlight--rotate-${rotation}`],
+        animate && styles['momo-highlight--animatable'],
         className,
       )}
       {...props}

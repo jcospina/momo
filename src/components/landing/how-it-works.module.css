@@ -1,3 +1,28 @@
+.momo-landing-how-section {
+  position: relative;
+  height: 200svh;
+}
+
+.momo-landing-how-section--static {
+  height: auto;
+}
+
+.momo-landing-how-section__sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.momo-landing-how-section--static .momo-landing-how-section__sticky {
+  position: static;
+  height: auto;
+  justify-content: flex-start;
+}
+
 .momo-landing-how {
   background: var(--bg-panel);
   border: var(--border-width-thick) solid var(--color-dark);
@@ -11,7 +36,7 @@
 }
 
 .momo-landing-how__heading {
-  margin-bottom: var(--space-3);
+  margin-bottom: 0;
 }
 
 @media (min-width: 768px) {
@@ -25,13 +50,6 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-4);
-}
-
-@media (min-width: 880px) {
-  .momo-landing-how__grid {
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-  }
 }
 
 .momo-landing-how__steps {
