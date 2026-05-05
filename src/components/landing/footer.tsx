@@ -1,4 +1,5 @@
 import { GithubIcon } from '@ui/icons/github';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import styles from './footer.module.css';
 
@@ -8,12 +9,12 @@ export function Footer() {
   return (
     <footer className={styles['momo-landing-footer']}>
       <div className={styles['momo-landing-footer__links']}>
-        <a href="#" className={styles['momo-landing-footer__link']}>
+        <Link href="/privacy" className={styles['momo-landing-footer__link']}>
           {t('privacy')}
-        </a>
-        <a href="#" className={styles['momo-landing-footer__link']}>
+        </Link>
+        <Link href="/terms" className={styles['momo-landing-footer__link']}>
           {t('terms')}
-        </a>
+        </Link>
         <a
           href="https://github.com/jcospina/momo"
           className={styles['momo-landing-footer__link']}
