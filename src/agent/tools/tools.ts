@@ -1,6 +1,7 @@
 import { EXPENSE_CATEGORIES } from '@lib-types/expenses';
 import { tool } from 'ai';
 import { z } from 'zod';
+import type { AgentContext } from '@/agent/context';
 import type {
   GetSpendingStatsInput,
   GetSpendingStatsResult,
@@ -27,10 +28,15 @@ function notImplemented(toolName: string): never {
 export type AgentToolExecutors = {
   resolveDateRange: (
     input: ResolveDateRangeInput,
+    context: AgentContext,
   ) => Promise<ResolveDateRangeResult>;
-  queryExpenses: (input: QueryExpensesInput) => Promise<QueryExpensesResult>;
+  queryExpenses: (
+    input: QueryExpensesInput,
+    context: AgentContext,
+  ) => Promise<QueryExpensesResult>;
   getSpendingStats: (
     input: GetSpendingStatsInput,
+    context: AgentContext,
   ) => Promise<GetSpendingStatsResult>;
 };
 
@@ -41,7 +47,8 @@ export const productionToolExecutors: AgentToolExecutors = {
 };
 
 export function buildAgentTools(
-  executors: AgentToolExecutors = productionToolExecutors,
+  executors: AgentToolExecutors,
+  context: AgentContext,
 ) {
   return {
     resolveDateRange: tool({
@@ -73,7 +80,7 @@ export function buildAgentTools(
           .nullable(),
       }),
       execute: async (input: ResolveDateRangeInput) =>
-        executors.resolveDateRange(input),
+        executors.resolveDateRange(input, context),
     }),
     queryExpenses: tool({
       title: 'query expenses',
@@ -82,6 +89,7 @@ export function buildAgentTools(
         'Use this when the user wants examples, recent transactions, a sample of merchants, or anything that needs row-level detail.',
         "Do NOT use this to compute totals or breakdowns — call getSpendingStats instead, which is cheaper and won't truncate.",
         'Results are bounded by `limit`; when more rows existed than the limit, `truncated` is true.',
+        'The result includes a top-level `currency` field that indicates how to interpret `amount_cents` on each row.',
       ].join(' '),
       inputSchema: z.object({
         scope: z
@@ -133,13 +141,13 @@ export function buildAgentTools(
           .nullable(),
       }),
       execute: async (input: QueryExpensesInput) =>
-        executors.queryExpenses(input),
+        executors.queryExpenses(input, context),
     }),
     getSpendingStats: tool({
       title: 'get spending stats',
       description: [
         'Get aggregated spending and cashflow numbers for the given scope and filters.',
-        'Always returns top-level totals: totalExpenseCents, totalIncomeCents, netCents, savingsRate.',
+        'Always returns top-level totals: totalExpenseCents, totalIncomeCents, netCents, savingsRate, plus a `currency` field that indicates how to interpret those amounts.',
         'Pass `groupBy` to also receive a per-group breakdown (sorted from largest amount to smallest, except month/day/dayOfWeek which sort chronologically).',
         'To compare two periods, call this twice with different date ranges and reason over the deltas — there is no separate compare tool.',
         "Note: when `groupBy` is `tag`, a transaction with multiple tags is counted in each tag's group, so per-group percentages can sum to more than 100%. Top-level totals are not affected.",
@@ -200,9 +208,7 @@ export function buildAgentTools(
           .nullable(),
       }),
       execute: async (input: GetSpendingStatsInput) =>
-        executors.getSpendingStats(input),
+        executors.getSpendingStats(input, context),
     }),
   };
 }
-
-export const tools = buildAgentTools();

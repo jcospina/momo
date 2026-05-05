@@ -1,5 +1,9 @@
-import datasetJson from '@evals/mocks/dataset/expenses.golden.json';
+import copDatasetJson from '@evals/mocks/dataset/expenses.cop.golden.json';
+import eurDatasetJson from '@evals/mocks/dataset/expenses.eur.golden.json';
+import usdDatasetJson from '@evals/mocks/dataset/expenses.usd.golden.json';
 import type { ExpenseRecord } from '@lib-types/expenses';
+import type { SupportedCurrency } from '@lib-types/user-preferences';
+import type { AgentContext } from '@/agent/context';
 import type { AgentToolExecutors } from '@/agent/tools/tools';
 import type {
   AgentExpenseFilters,
@@ -27,7 +31,7 @@ const DAY_OF_WEEK_LABELS = [
 
 type GoldenDataset = {
   metadata: {
-    currency: string;
+    currency: SupportedCurrency;
     endDate: string;
     householdId: string;
     memberId: string;
@@ -56,23 +60,43 @@ type GroupTotals = {
   transactionCount: number;
 };
 
-const dataset = datasetJson as GoldenDataset;
+const datasetsByCurrency: Record<SupportedCurrency, GoldenDataset> = {
+  COP: copDatasetJson as GoldenDataset,
+  EUR: eurDatasetJson as GoldenDataset,
+  USD: usdDatasetJson as GoldenDataset,
+};
 
-export const mockDatasetMetadata = dataset.metadata;
+const expensesByCurrency: Record<SupportedCurrency, ExpenseRecord[]> = {
+  COP: datasetsByCurrency.COP.rows.map(toExpenseRecord).sort(compareExpenses),
+  EUR: datasetsByCurrency.EUR.rows.map(toExpenseRecord).sort(compareExpenses),
+  USD: datasetsByCurrency.USD.rows.map(toExpenseRecord).sort(compareExpenses),
+};
 
-const expenses = dataset.rows.map(toExpenseRecord).sort(compareExpenses);
+export function getMockDatasetMetadata(currency: SupportedCurrency) {
+  return datasetsByCurrency[currency].metadata;
+}
+
+function selectDataset(context: AgentContext): GoldenDataset {
+  return datasetsByCurrency[context.currency];
+}
+
+function selectExpenses(context: AgentContext): ExpenseRecord[] {
+  return expensesByCurrency[context.currency];
+}
 
 export async function resolveDateRange(
   input: ResolveDateRangeInput,
+  context: AgentContext,
 ): Promise<ResolveDateRangeResult> {
+  const dataset = selectDataset(context);
   const timezone = input.timezone ?? DEFAULT_TIMEZONE;
-  const currentDate =
-    normalizeDate(input.referenceDate) ?? dataset.metadata.endDate;
+  const currentDate = dataset.metadata.endDate;
   const preset = input.preset ?? 'custom';
   const customStartDate = normalizeDate(input.startDate);
   const customEndDate = normalizeDate(input.endDate);
   const range = resolveRange({
     currentDate,
+    datasetStartDate: dataset.metadata.startDate,
     endDate: customEndDate,
     preset,
     startDate: customStartDate,
@@ -91,12 +115,14 @@ export async function resolveDateRange(
 
 export async function queryExpenses(
   input: QueryExpensesInput,
+  context: AgentContext,
 ): Promise<QueryExpensesResult> {
-  const filtered = filterExpenses(input);
+  const filtered = filterExpenses(selectExpenses(context), context, input);
   const limit = Math.max(0, input.limit ?? DEFAULT_QUERY_LIMIT);
   const truncated = filtered.length > limit;
 
   return {
+    currency: context.currency,
     expenses: filtered.slice(0, limit),
     appliedFilters: input,
     truncated,
@@ -105,19 +131,24 @@ export async function queryExpenses(
 
 export async function getSpendingStats(
   input: GetSpendingStatsInput,
+  context: AgentContext,
 ): Promise<GetSpendingStatsResult> {
-  const cashflowUniverse = filterExpenses({ ...input, includeIncome: true });
+  const expenses = selectExpenses(context);
+  const cashflowUniverse = filterExpenses(expenses, context, {
+    ...input,
+    includeIncome: true,
+  });
   const totalIncomeCents = sumAmounts(cashflowUniverse.filter(isIncome));
   const totalExpenseCents = sumAmounts(
     cashflowUniverse.filter(expense => !isIncome(expense)),
   );
   const netCents = totalIncomeCents - totalExpenseCents;
 
-  const filtered = filterExpenses(input);
+  const filtered = filterExpenses(expenses, context, input);
 
   let groups: GetSpendingStatsResult['groups'] = null;
   if (input.groupBy) {
-    const grouped = groupRows(filtered, input.groupBy);
+    const grouped = groupRows(filtered, input.groupBy, context);
     const sorted = sortGroups(input.groupBy, grouped);
     const sliced = sorted.slice(0, input.limit ?? Number.POSITIVE_INFINITY);
     groups = sliced.map(([label, value]) => ({
@@ -132,6 +163,7 @@ export async function getSpendingStats(
   }
 
   return {
+    currency: context.currency,
     scope: input.scope,
     startDate: input.startDate,
     endDate: input.endDate,
@@ -154,18 +186,6 @@ export const mockToolExecutors: AgentToolExecutors = {
   resolveDateRange,
 };
 
-export const tools = {
-  getSpendingStats: {
-    execute: getSpendingStats,
-  },
-  queryExpenses: {
-    execute: queryExpenses,
-  },
-  resolveDateRange: {
-    execute: resolveDateRange,
-  },
-};
-
 function toExpenseRecord(row: GoldenExpenseRow, index: number): ExpenseRecord {
   const stableId = `golden-expense-${String(index + 1).padStart(4, '0')}`;
 
@@ -185,8 +205,12 @@ function toExpenseRecord(row: GoldenExpenseRow, index: number): ExpenseRecord {
   };
 }
 
-function filterExpenses(input: AgentExpenseFilters): ExpenseRecord[] {
-  return filterByScope(expenses, input.scope)
+function filterExpenses(
+  rows: ExpenseRecord[],
+  context: AgentContext,
+  input: AgentExpenseFilters,
+): ExpenseRecord[] {
+  return filterByScope(rows, context, input.scope)
     .filter(expense => isInDateRange(expense, input.startDate, input.endDate))
     .filter(expense => Boolean(input.includeIncome) || !isIncome(expense))
     .filter(expense => matchesCategories(expense, input.categories))
@@ -196,13 +220,14 @@ function filterExpenses(input: AgentExpenseFilters): ExpenseRecord[] {
 
 function filterByScope(
   rows: ExpenseRecord[],
+  context: AgentContext,
   scope: AgentExpenseFilters['scope'],
 ): ExpenseRecord[] {
+  const metadata = datasetsByCurrency[context.currency].metadata;
   if (scope === 'personal') {
-    return rows.filter(row => row.user_id === dataset.metadata.ownerId);
+    return rows.filter(row => row.user_id === metadata.ownerId);
   }
-
-  return rows.filter(row => row.household_id === dataset.metadata.householdId);
+  return rows.filter(row => row.household_id === metadata.householdId);
 }
 
 function isInDateRange(
@@ -249,11 +274,12 @@ function matchesTags(
 function groupRows(
   rows: ExpenseRecord[],
   groupBy: SpendingStatsGroupBy,
+  context: AgentContext,
 ): Map<string, GroupTotals> {
   const grouped = new Map<string, GroupTotals>();
 
   rows.forEach(row => {
-    const labels = labelsFor(row, groupBy);
+    const labels = labelsFor(row, groupBy, context);
     labels.forEach(label => {
       const current = grouped.get(label) ?? {
         amountCents: 0,
@@ -272,11 +298,12 @@ function groupRows(
 function labelsFor(
   row: ExpenseRecord,
   groupBy: SpendingStatsGroupBy,
+  context: AgentContext,
 ): string[] {
   if (groupBy === 'month') return [row.expense_date.slice(0, 7)];
   if (groupBy === 'day') return [row.expense_date];
   if (groupBy === 'merchant') return [row.merchant ?? 'Unknown merchant'];
-  if (groupBy === 'user') return [userLabel(row.user_id)];
+  if (groupBy === 'user') return [userLabel(row.user_id, context)];
   if (groupBy === 'category') return [row.category ?? 'uncategorized'];
   if (groupBy === 'dayOfWeek') return [dayOfWeekLabel(row.expense_date)];
   if (groupBy === 'tag') {
@@ -310,9 +337,10 @@ function sortGroups(
   });
 }
 
-function userLabel(userId: string): string {
-  if (userId === dataset.metadata.ownerId) return 'Current user';
-  if (userId === dataset.metadata.memberId) return 'Household member';
+function userLabel(userId: string, context: AgentContext): string {
+  const metadata = datasetsByCurrency[context.currency].metadata;
+  if (userId === metadata.ownerId) return 'Current user';
+  if (userId === metadata.memberId) return 'Household member';
   return userId;
 }
 
@@ -343,11 +371,13 @@ function normalizeDate(value: string | null): string | null {
 
 function resolveRange({
   currentDate,
+  datasetStartDate,
   endDate,
   preset,
   startDate,
 }: {
   currentDate: string;
+  datasetStartDate: string;
   endDate: string | null;
   preset: ResolveDateRangeInput['preset'];
   startDate: string | null;
@@ -404,7 +434,7 @@ function resolveRange({
   }
 
   return {
-    startDate: startDate ?? dataset.metadata.startDate,
+    startDate: startDate ?? datasetStartDate,
     endDate: endDate ?? currentDate,
     label: 'Custom range',
   };

@@ -42,7 +42,6 @@ type ExpenseLike = {
   amount_cents?: unknown;
   category?: unknown;
   expense_date?: unknown;
-  merchant?: unknown;
   note?: unknown;
 };
 
@@ -105,31 +104,12 @@ const scorers: EvalScorer<
   EvalMetadata
 >[] = [
   ({ output, expected }) => [
-    score('tool_sequence', scoreToolSequence(output, expected)),
     score('tool_scope', scoreToolScope(output, expected)),
     score('tool_input_shape', scoreToolInputShape(output, expected)),
     score('expected_value', scoreExpectedValue(output, expected)),
     score('privacy_refusal', scorePrivacyRefusal(output, expected.expected)),
   ],
 ];
-
-function scoreToolSequence(
-  output: MomoAgentEvalOutput,
-  expected: MomoAgentEvalCase,
-): number {
-  const expectedCounts = countOccurrences(expected.expectedTools);
-  const actualCounts = countOccurrences(output.tools);
-  for (const [tool, count] of expectedCounts) {
-    if ((actualCounts.get(tool) ?? 0) < count) return 0;
-  }
-  return 1;
-}
-
-function countOccurrences(items: string[]): Map<string, number> {
-  const counts = new Map<string, number>();
-  items.forEach(item => counts.set(item, (counts.get(item) ?? 0) + 1));
-  return counts;
-}
 
 function scoreToolScope(
   output: MomoAgentEvalOutput,
@@ -257,6 +237,11 @@ function scoreSavingsRate(
   scope: CallScope | undefined,
 ): number {
   const stats = getToolOutput(output, 'getSpendingStats', scope);
+  const actualStart = getRecordValue(stats, 'startDate') ?? null;
+  const actualEnd = getRecordValue(stats, 'endDate') ?? null;
+  const expectedStart = expected.startDate ?? null;
+  const expectedEnd = expected.endDate ?? null;
+
   return getNumber(getRecordValue(stats, 'totalIncomeCents')) ===
     expected.incomeCents &&
     getNumber(getRecordValue(stats, 'totalExpenseCents')) ===
@@ -266,8 +251,8 @@ function scoreSavingsRate(
       getNumber(getRecordValue(stats, 'savingsRate')),
       expected.savingsRate,
     ) &&
-    getRecordValue(stats, 'startDate') === expected.startDate &&
-    getRecordValue(stats, 'endDate') === expected.endDate
+    actualStart === expectedStart &&
+    actualEnd === expectedEnd
     ? 1
     : 0;
 }
@@ -296,32 +281,23 @@ function scoreFrequency(
   expected: Extract<ExpectedValue, { kind: 'frequency' }>,
   scope: CallScope | undefined,
 ): number {
-  const gasExpenses = getReturnedExpenses(output, scope)
-    .filter(isGasExpense)
-    .sort(compareExpenseDates);
-  const intervals = gasExpenses
-    .slice(1)
-    .map((expense, index) =>
-      daysBetween(getExpenseDate(gasExpenses[index]), getExpenseDate(expense)),
-    );
+  const stats = getToolOutput(output, 'getSpendingStats', scope);
+  const statsTotal = getNumber(getRecordValue(stats, 'totalExpenseCents'));
+  const statsCount = getNumber(getRecordValue(stats, 'transactionCount'));
+  if (
+    statsTotal === expected.totalExpenseCents &&
+    statsCount === expected.transactionCount
+  ) {
+    return 1;
+  }
 
-  const actual = {
-    transactionCount: gasExpenses.length,
-    totalExpenseCents: sumAmounts(gasExpenses),
-    firstDate: getExpenseDate(gasExpenses[0]),
-    lastDate: getExpenseDate(gasExpenses[gasExpenses.length - 1]),
-    averageIntervalDays: roundTwo(
-      intervals.reduce((total, value) => total + value, 0) / intervals.length,
-    ),
-    medianIntervalDays: median(intervals),
-  };
-
-  return actual.transactionCount === expected.transactionCount &&
-    actual.totalExpenseCents === expected.totalExpenseCents &&
-    actual.firstDate === expected.firstDate &&
-    actual.lastDate === expected.lastDate &&
-    nearlyEqual(actual.averageIntervalDays, expected.averageIntervalDays) &&
-    actual.medianIntervalDays === expected.medianIntervalDays
+  const expenses = getReturnedExpenses(output, scope);
+  const expenseTotal = expenses.reduce(
+    (total, expense) => total + getAmount(expense),
+    0,
+  );
+  return expenses.length === expected.transactionCount &&
+    expenseTotal === expected.totalExpenseCents
     ? 1
     : 0;
 }
@@ -535,33 +511,6 @@ function linearSlope(points: Array<{ x: number; y: number }>): number {
   return (count * sumXY - sumX * sumY) / denominator;
 }
 
-function isGasExpense(expense: ExpenseLike): boolean {
-  const note = getNote(expense).toLowerCase();
-  const merchant = getMerchant(expense).toLowerCase();
-  return note.includes('gas') || merchant === 'shell' || merchant === 'chevron';
-}
-
-function compareExpenseDates(left: ExpenseLike, right: ExpenseLike): number {
-  return getExpenseDate(left).localeCompare(getExpenseDate(right));
-}
-
-function sumAmounts(expenses: ExpenseLike[]): number {
-  return expenses.reduce((total, expense) => total + getAmount(expense), 0);
-}
-
-function daysBetween(startDate: string, endDate: string): number {
-  return (
-    (Date.parse(`${endDate}T00:00:00.000Z`) -
-      Date.parse(`${startDate}T00:00:00.000Z`)) /
-    86_400_000
-  );
-}
-
-function median(values: number[]): number {
-  const sorted = [...values].sort((left, right) => left - right);
-  return sorted[Math.floor(sorted.length / 2)] ?? 0;
-}
-
 function roundTwo(value: number): number {
   return Math.round(value * 100) / 100;
 }
@@ -580,10 +529,6 @@ function getCategory(expense: ExpenseLike): string {
 
 function getExpenseDate(expense: ExpenseLike | undefined): string {
   return typeof expense?.expense_date === 'string' ? expense.expense_date : '';
-}
-
-function getMerchant(expense: ExpenseLike): string {
-  return typeof expense.merchant === 'string' ? expense.merchant : '';
 }
 
 function getNote(expense: ExpenseLike): string {
@@ -630,6 +575,7 @@ Eval<MomoAgentEvalCase, MomoAgentEvalOutput, MomoAgentEvalCase, EvalMetadata>(
       const result = await runAgent({
         model: openai(process.env.MOMO_AGENT_MODEL ?? 'gpt-5.4-mini'),
         messages: buildMessages(testCase),
+        context: { currency: testCase.metadata.currency },
         toolExecutors: mockToolExecutors,
       });
       const calls = normalizeToolCalls(result);

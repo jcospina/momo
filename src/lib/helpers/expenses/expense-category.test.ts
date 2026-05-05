@@ -1,6 +1,7 @@
 import { expenseClassifierSamples } from '@/mocks/expense-classifier-samples';
 import {
   buildCategoryKey,
+  extractTagNgrams,
   isExplicitIncomeEntry,
   scoreExpenseCategory,
 } from './expense-category';
@@ -37,6 +38,52 @@ describe('buildCategoryKey', () => {
 
   it('returns empty key when input has only amount tokens', () => {
     expect(buildCategoryKey('+20k 300')).toBe('');
+  });
+});
+
+describe('extractTagNgrams', () => {
+  it('returns 1- and 2-grams for two-token entries', () => {
+    expect(extractTagNgrams('80 doctors appointment')).toEqual([
+      'doctors',
+      'appointment',
+      'doctors appointment',
+    ]);
+  });
+
+  it('returns 1- through 3-grams for four-token entries with diacritics stripped', () => {
+    expect(extractTagNgrams('46k copago médico en casa')).toEqual([
+      'copago',
+      'medico',
+      'en',
+      'casa',
+      'copago medico',
+      'medico en',
+      'en casa',
+      'copago medico en',
+      'medico en casa',
+    ]);
+  });
+
+  it('returns an empty list when only amount tokens are present', () => {
+    expect(extractTagNgrams('+20k 300')).toEqual([]);
+  });
+
+  it('deduplicates repeated unigrams while keeping unique higher-order n-grams', () => {
+    expect(extractTagNgrams('gas gas 10')).toEqual(['gas', 'gas gas']);
+  });
+
+  it('treats hyphens as word boundaries instead of joining tokens', () => {
+    expect(extractTagNgrams('Shell gas fill-up')).toEqual([
+      'shell',
+      'gas',
+      'fill',
+      'up',
+      'shell gas',
+      'gas fill',
+      'fill up',
+      'shell gas fill',
+      'gas fill up',
+    ]);
   });
 });
 

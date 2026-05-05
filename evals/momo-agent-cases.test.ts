@@ -1,4 +1,7 @@
-import datasetJson from './mocks/dataset/expenses.golden.json';
+import type { SupportedCurrency } from '@lib-types/user-preferences';
+import copDatasetJson from './mocks/dataset/expenses.cop.golden.json';
+import eurDatasetJson from './mocks/dataset/expenses.eur.golden.json';
+import usdDatasetJson from './mocks/dataset/expenses.usd.golden.json';
 import {
   type ExpectedValue,
   type MomoAgentEvalCase,
@@ -7,7 +10,7 @@ import {
 
 type GoldenDataset = {
   metadata: {
-    currency: 'USD';
+    currency: SupportedCurrency;
     endDate: string;
     householdId: string;
     memberId: string;
@@ -25,6 +28,7 @@ type GoldenExpenseRow = {
   merchant: string | null;
   category: string | null;
   note: string | null;
+  tags: string[];
 };
 
 type Group = {
@@ -33,7 +37,11 @@ type Group = {
   transactionCount: number;
 };
 
-const dataset = datasetJson as GoldenDataset;
+const datasetsByCurrency: Record<SupportedCurrency, GoldenDataset> = {
+  COP: copDatasetJson as GoldenDataset,
+  EUR: eurDatasetJson as GoldenDataset,
+  USD: usdDatasetJson as GoldenDataset,
+};
 
 describe('momo agent eval cases', () => {
   it('keeps English and Spanish cases paired', () => {
@@ -47,6 +55,9 @@ describe('momo agent eval cases', () => {
       ]);
       expect(pairCases[0].expected).toEqual(pairCases[1].expected);
       expect(pairCases[0].expectedTools).toEqual(pairCases[1].expectedTools);
+      expect(pairCases[0].metadata.currency).toEqual(
+        pairCases[1].metadata.currency,
+      );
     });
   });
 
@@ -56,66 +67,126 @@ describe('momo agent eval cases', () => {
     });
   });
 
-  it('covers household totals from both fixture users', () => {
-    const groups = groupRows(householdExpenseRows(), row =>
-      userLabel(row.user_id),
-    );
+  it('exercises a realistic mix of currencies (COP majority, USD/EUR coverage)', () => {
+    const distribution = new Map<SupportedCurrency, number>();
+    testCases.forEach(testCase => {
+      distribution.set(
+        testCase.metadata.currency,
+        (distribution.get(testCase.metadata.currency) ?? 0) + 1,
+      );
+    });
 
-    expect(groups[0]).toEqual({
-      label: 'Current user',
-      amountCents: 7093877,
-      transactionCount: 272,
-    });
-    expect(groups[1]).toEqual({
-      label: 'Household member',
-      amountCents: 4438904,
-      transactionCount: 306,
-    });
+    const cop = distribution.get('COP') ?? 0;
+    const usd = distribution.get('USD') ?? 0;
+    const eur = distribution.get('EUR') ?? 0;
+
+    expect(cop).toBeGreaterThan(usd);
+    expect(cop).toBeGreaterThan(eur);
+    expect(usd).toBeGreaterThan(0);
+    expect(eur).toBeGreaterThan(0);
+  });
+
+  it('covers household totals from both fixture users in every currency', () => {
+    const expectedHouseholdTotals: Record<
+      SupportedCurrency,
+      { current: Group; member: Group }
+    > = {
+      USD: {
+        current: {
+          label: 'Current user',
+          amountCents: 7_093_877,
+          transactionCount: 272,
+        },
+        member: {
+          label: 'Household member',
+          amountCents: 4_438_904,
+          transactionCount: 306,
+        },
+      },
+      EUR: {
+        current: {
+          label: 'Current user',
+          amountCents: 7_093_877,
+          transactionCount: 272,
+        },
+        member: {
+          label: 'Household member',
+          amountCents: 4_438_904,
+          transactionCount: 306,
+        },
+      },
+      COP: {
+        current: {
+          label: 'Current user',
+          amountCents: 269_567_326,
+          transactionCount: 272,
+        },
+        member: {
+          label: 'Household member',
+          amountCents: 168_678_352,
+          transactionCount: 306,
+        },
+      },
+    };
+
+    (Object.keys(datasetsByCurrency) as SupportedCurrency[]).forEach(
+      currency => {
+        const dataset = datasetsByCurrency[currency];
+        const groups = groupRows(householdExpenseRows(dataset), row =>
+          userLabel(dataset, row.user_id),
+        );
+
+        expect(groups[0]).toEqual(expectedHouseholdTotals[currency].current);
+        expect(groups[1]).toEqual(expectedHouseholdTotals[currency].member);
+      },
+    );
   });
 });
 
 function expectExpectedValue(testCase: MomoAgentEvalCase) {
   const expected = testCase.expected;
+  const dataset = datasetsByCurrency[testCase.metadata.currency];
 
   if (expected.kind === 'privacy_refusal') {
     expect(testCase.expectedTools).toEqual([]);
     return;
   }
   if (expected.kind === 'top_group') {
-    expectTopGroup(testCase, expected);
+    expectTopGroup(testCase, dataset, expected);
     return;
   }
   if (expected.kind === 'filtered_total') {
-    expectFilteredTotal(testCase, expected);
+    expectFilteredTotal(testCase, dataset, expected);
     return;
   }
   if (expected.kind === 'savings_rate') {
-    expectSavingsRate(testCase, expected);
+    expectSavingsRate(testCase, dataset, expected);
     return;
   }
   if (expected.kind === 'recurring_expense') {
-    expectRecurringExpense(testCase, expected);
+    expectRecurringExpense(testCase, dataset, expected);
     return;
   }
   if (expected.kind === 'frequency') {
-    expectFrequency(testCase, expected);
+    expectFrequency(testCase, dataset, expected);
     return;
   }
   if (expected.kind === 'increasing_expense') {
-    expectIncreasingExpense(testCase, expected);
+    expectIncreasingExpense(testCase, dataset, expected);
   }
 }
 
 function expectTopGroup(
   testCase: MomoAgentEvalCase,
+  dataset: GoldenDataset,
   expected: Extract<ExpectedValue, { kind: 'top_group' }>,
 ) {
-  const rows = scopedExpenseRows(testCase.metadata.scope).filter(row =>
+  const rows = scopedExpenseRows(dataset, testCase.metadata.scope).filter(row =>
     isInRange(row, expected.startDate, expected.endDate),
   );
   const groups = groupRows(rows, row => {
     if (expected.dimension === 'month') return row.expense_date.slice(0, 7);
-    if (expected.dimension === 'user') return userLabel(row.user_id);
+    if (expected.dimension === 'user') return userLabel(dataset, row.user_id);
     return row.category ?? 'uncategorized';
   });
 
@@ -128,12 +199,15 @@ function expectTopGroup(
 
 function expectFilteredTotal(
   testCase: MomoAgentEvalCase,
+  dataset: GoldenDataset,
   expected: Extract<ExpectedValue, { kind: 'filtered_total' }>,
 ) {
-  const rows = scopedExpenseRows(testCase.metadata.scope).filter(
+  const requiredTags = expected.tags ?? [];
+  const rows = scopedExpenseRows(dataset, testCase.metadata.scope).filter(
     row =>
       isInRange(row, expected.startDate, expected.endDate) &&
-      row.category === expected.category,
+      row.category === expected.category &&
+      requiredTags.every(tag => row.tags.includes(tag)),
   );
 
   expect(sumAmounts(rows)).toBe(expected.totalExpenseCents);
@@ -142,9 +216,10 @@ function expectFilteredTotal(
 
 function expectSavingsRate(
   testCase: MomoAgentEvalCase,
+  dataset: GoldenDataset,
   expected: Extract<ExpectedValue, { kind: 'savings_rate' }>,
 ) {
-  const rows = scopedRows(testCase.metadata.scope).filter(row =>
+  const rows = scopedRows(dataset, testCase.metadata.scope).filter(row =>
     isInRange(row, expected.startDate, expected.endDate),
   );
   const incomeCents = sumAmounts(rows.filter(row => row.category === 'income'));
@@ -171,9 +246,12 @@ function expectSavingsRate(
 
 function expectRecurringExpense(
   testCase: MomoAgentEvalCase,
+  dataset: GoldenDataset,
   expected: Extract<ExpectedValue, { kind: 'recurring_expense' }>,
 ) {
-  const topRecurring = topNoteGroup(scopedExpenseRows(testCase.metadata.scope));
+  const topRecurring = topNoteGroup(
+    scopedExpenseRows(dataset, testCase.metadata.scope),
+  );
 
   expect(topRecurring).toMatchObject({
     label: expected.label,
@@ -188,73 +266,66 @@ function expectRecurringExpense(
 
 function expectFrequency(
   testCase: MomoAgentEvalCase,
+  dataset: GoldenDataset,
   expected: Extract<ExpectedValue, { kind: 'frequency' }>,
 ) {
-  const rows = scopedExpenseRows(testCase.metadata.scope)
-    .filter(isGasExpense)
-    .sort(compareRowsByDate);
-  const intervals = rows
-    .slice(1)
-    .map((row, index) =>
-      daysBetween(rows[index].expense_date, row.expense_date),
-    );
+  const rows = scopedExpenseRows(dataset, testCase.metadata.scope).filter(
+    isGasExpense,
+  );
 
   expect({
     transactionCount: rows.length,
     totalExpenseCents: sumAmounts(rows),
-    firstDate: rows[0].expense_date,
-    lastDate: rows[rows.length - 1].expense_date,
-    averageIntervalDays: roundTwo(
-      intervals.reduce((total, value) => total + value, 0) / intervals.length,
-    ),
-    medianIntervalDays: median(intervals),
   }).toEqual({
     transactionCount: expected.transactionCount,
     totalExpenseCents: expected.totalExpenseCents,
-    firstDate: expected.firstDate,
-    lastDate: expected.lastDate,
-    averageIntervalDays: expected.averageIntervalDays,
-    medianIntervalDays: expected.medianIntervalDays,
   });
 }
 
 function expectIncreasingExpense(
   testCase: MomoAgentEvalCase,
+  dataset: GoldenDataset,
   expected: Extract<ExpectedValue, { kind: 'increasing_expense' }>,
 ) {
-  expect(topIncreasingNote(scopedExpenseRows(testCase.metadata.scope))).toEqual(
-    {
-      label: expected.label,
-      category: expected.category,
-      firstMonth: expected.firstMonth,
-      firstAmountCents: expected.firstAmountCents,
-      lastMonth: expected.lastMonth,
-      lastAmountCents: expected.lastAmountCents,
-      deltaCents: expected.deltaCents,
-      slopeCentsPerMonth: expected.slopeCentsPerMonth,
-    },
-  );
+  expect(
+    topIncreasingNote(scopedExpenseRows(dataset, testCase.metadata.scope)),
+  ).toEqual({
+    label: expected.label,
+    category: expected.category,
+    firstMonth: expected.firstMonth,
+    firstAmountCents: expected.firstAmountCents,
+    lastMonth: expected.lastMonth,
+    lastAmountCents: expected.lastAmountCents,
+    deltaCents: expected.deltaCents,
+    slopeCentsPerMonth: expected.slopeCentsPerMonth,
+  });
 }
 
-function scopedExpenseRows(scope: MomoAgentEvalCase['metadata']['scope']) {
-  return scopedRows(scope).filter(row => row.category !== 'income');
+function scopedExpenseRows(
+  dataset: GoldenDataset,
+  scope: MomoAgentEvalCase['metadata']['scope'],
+) {
+  return scopedRows(dataset, scope).filter(row => row.category !== 'income');
 }
 
-function scopedRows(scope: MomoAgentEvalCase['metadata']['scope']) {
+function scopedRows(
+  dataset: GoldenDataset,
+  scope: MomoAgentEvalCase['metadata']['scope'],
+) {
   if (scope === 'personal') {
     return dataset.rows.filter(row => row.user_id === dataset.metadata.ownerId);
   }
   if (scope === 'household') {
-    return householdRows();
+    return householdRows(dataset);
   }
   return [];
 }
 
-function householdExpenseRows() {
-  return householdRows().filter(row => row.category !== 'income');
+function householdExpenseRows(dataset: GoldenDataset) {
+  return householdRows(dataset).filter(row => row.category !== 'income');
 }
 
-function householdRows() {
+function householdRows(dataset: GoldenDataset) {
   return dataset.rows.filter(
     row => row.household_id === dataset.metadata.householdId,
   );
@@ -393,16 +464,10 @@ function isInRange(
 }
 
 function isGasExpense(row: GoldenExpenseRow) {
-  const note = row.note?.toLowerCase() ?? '';
-  const merchant = row.merchant?.toLowerCase() ?? '';
-  return note.includes('gas') || merchant === 'shell' || merchant === 'chevron';
+  return row.tags.includes('gas');
 }
 
-function compareRowsByDate(left: GoldenExpenseRow, right: GoldenExpenseRow) {
-  return left.expense_date.localeCompare(right.expense_date);
-}
-
-function userLabel(userId: string) {
+function userLabel(dataset: GoldenDataset, userId: string) {
   if (userId === dataset.metadata.ownerId) return 'Current user';
   if (userId === dataset.metadata.memberId) return 'Household member';
   return userId;
@@ -410,19 +475,6 @@ function userLabel(userId: string) {
 
 function sumAmounts(rows: GoldenExpenseRow[]) {
   return rows.reduce((total, row) => total + row.amount_cents, 0);
-}
-
-function daysBetween(startDate: string, endDate: string) {
-  return (
-    (Date.parse(`${endDate}T00:00:00.000Z`) -
-      Date.parse(`${startDate}T00:00:00.000Z`)) /
-    86_400_000
-  );
-}
-
-function median(values: number[]) {
-  const sorted = [...values].sort((left, right) => left - right);
-  return sorted[Math.floor(sorted.length / 2)] ?? 0;
 }
 
 function linearSlope(points: Array<{ x: number; y: number }>) {

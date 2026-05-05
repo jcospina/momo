@@ -7,7 +7,8 @@ import {
   streamText,
   type ToolSet,
 } from 'ai';
-import { SYSTEM_PROMPT } from './constants';
+import { buildSystemPrompt } from './constants';
+import type { AgentContext } from './context';
 import {
   type AgentToolExecutors,
   buildAgentTools,
@@ -19,6 +20,7 @@ const DEFAULT_MAX_STEPS = 5;
 type AgentArgs = {
   model: LanguageModel;
   messages: ModelMessage[];
+  context: AgentContext;
   system?: string;
   maxSteps?: number;
   toolExecutors?: AgentToolExecutors;
@@ -29,18 +31,19 @@ type StreamAgentArgs = AgentArgs & {
 };
 
 export function streamAgent({
+  context,
   maxSteps = DEFAULT_MAX_STEPS,
   messages,
   model,
   onFinish,
-  system = SYSTEM_PROMPT,
+  system,
   toolExecutors = productionToolExecutors,
 }: StreamAgentArgs) {
-  const tools = buildAgentTools(toolExecutors);
+  const tools = buildAgentTools(toolExecutors, context);
 
   return streamText({
     model,
-    system,
+    system: system ?? buildSystemPrompt(context),
     messages,
     tools,
     stopWhen: stepCountIs(maxSteps),
@@ -49,17 +52,18 @@ export function streamAgent({
 }
 
 export async function runAgent({
+  context,
   maxSteps = DEFAULT_MAX_STEPS,
   messages,
   model,
-  system = SYSTEM_PROMPT,
+  system,
   toolExecutors = productionToolExecutors,
 }: AgentArgs) {
   const result = await generateText({
     model,
-    system,
+    system: system ?? buildSystemPrompt(context),
     messages,
-    tools: buildAgentTools(toolExecutors),
+    tools: buildAgentTools(toolExecutors, context),
     stopWhen: stepCountIs(maxSteps),
   });
 

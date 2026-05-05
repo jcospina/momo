@@ -3,11 +3,16 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import { AIChatAgent, type OnChatMessageOptions } from '@cloudflare/ai-chat';
 import {
+  SUPPORTED_CURRENCIES,
+  type SupportedCurrency,
+} from '@lib-types/user-preferences';
+import {
   convertToModelMessages,
   type StreamTextOnFinishCallback,
   type ToolSet,
 } from 'ai';
 import { streamAgent } from '@/agent/agent-core';
+import type { AgentContext } from '@/agent/context';
 import { mockToolExecutors } from '@/agent/tools/mock-executors';
 import { productionToolExecutors } from '@/agent/tools/tools';
 
@@ -18,6 +23,7 @@ export interface MomoAgentEnv extends Cloudflare.Env {
   OPENAI_API_KEY: string;
   MOMO_AGENT_MODEL?: string;
   MOMO_AGENT_TOOL_MODE?: MomoAgentToolMode;
+  MOMO_AGENT_DEFAULT_CURRENCY?: string;
 }
 
 export class MomoAgent extends AIChatAgent<MomoAgentEnv> {
@@ -32,8 +38,14 @@ export class MomoAgent extends AIChatAgent<MomoAgentEnv> {
       this.env.MOMO_AGENT_TOOL_MODE === 'mock'
         ? mockToolExecutors
         : productionToolExecutors;
+    // TODO(auth): replace env-based currency with getUserPreferences(userId)
+    // once user identity flows into the durable object.
+    const context: AgentContext = {
+      currency: resolveDefaultCurrency(this.env.MOMO_AGENT_DEFAULT_CURRENCY),
+    };
 
     const result = streamAgent({
+      context,
       model,
       messages,
       onFinish,
@@ -42,4 +54,11 @@ export class MomoAgent extends AIChatAgent<MomoAgentEnv> {
 
     return result.toUIMessageStreamResponse();
   }
+}
+
+function resolveDefaultCurrency(raw: string | undefined): SupportedCurrency {
+  if (raw && (SUPPORTED_CURRENCIES as readonly string[]).includes(raw)) {
+    return raw as SupportedCurrency;
+  }
+  return 'USD';
 }

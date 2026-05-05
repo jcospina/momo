@@ -1,4 +1,5 @@
 import type { ExpenseCategory, ExpenseRecord } from '@lib-types/expenses';
+import type { SupportedCurrency } from '@lib-types/user-preferences';
 
 export const AGENT_EXPENSE_SCOPES = ['personal', 'household'] as const;
 
@@ -52,6 +53,7 @@ export type QueryExpensesInput = AgentExpenseFilters & {
 };
 
 export type QueryExpensesResult = {
+  currency: SupportedCurrency;
   expenses: ExpenseRecord[];
   appliedFilters: QueryExpensesInput;
   truncated: boolean;
@@ -82,6 +84,7 @@ export type SpendingStatsGroup = {
 };
 
 export type GetSpendingStatsResult = {
+  currency: SupportedCurrency;
   scope: AgentExpenseScope;
   startDate: string | null;
   endDate: string | null;
