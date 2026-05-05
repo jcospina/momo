@@ -50,6 +50,18 @@ export function useLandingCurtainRefs(): Pick<
   };
 }
 
+export function useOptionalLandingCurtainRefs(): Pick<
+  LandingScrollContextValue,
+  'curtainContentRef' | 'curtainStageRef'
+> | null {
+  const ctx = useContext(LandingScrollContext);
+  if (!ctx) return null;
+  return {
+    curtainContentRef: ctx.curtainContentRef,
+    curtainStageRef: ctx.curtainStageRef,
+  };
+}
+
 export function useHeroRef(): RefObject<HTMLDivElement | null> {
   const ctx = useContext(LandingScrollContext);
   if (!ctx) {
