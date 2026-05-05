@@ -1,13 +1,15 @@
+import type { PropsWithClassName } from '@lib-types/common';
 import { GithubIcon } from '@ui/icons/github';
+import { cn } from '@utils/cn';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import styles from './footer.module.css';
 
-export function Footer() {
+export function Footer({ className }: PropsWithClassName) {
   const t = useTranslations('landing.footer');
 
   return (
-    <footer className={styles['momo-landing-footer']}>
+    <footer className={cn(styles['momo-landing-footer'], className)}>
       <div className={styles['momo-landing-footer__links']}>
         <Link href="/privacy" className={styles['momo-landing-footer__link']}>
           {t('privacy')}

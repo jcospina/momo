@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
 import styles from './landing-navbar.module.css';
-import { useLandingCurtainRefs } from './landing-scroll-context';
+import { useOptionalLandingCurtainRefs } from './landing-scroll-context';
 
 function clampProgress(progress: number): number {
   if (progress < 0) return 0;
@@ -24,12 +24,12 @@ function getHandoffDistance(viewportHeight: number): number {
 export function LandingNavbar() {
   const t = useTranslations('landing.nav');
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
-  const { curtainStageRef } = useLandingCurtainRefs();
+  const curtainRefs = useOptionalLandingCurtainRefs();
   const navRef = useRef<HTMLElement | null>(null);
 
   useScrollTick(() => {
     const nav = navRef.current;
-    const stage = curtainStageRef.current;
+    const stage = curtainRefs?.curtainStageRef.current ?? null;
     if (nav === null || stage === null || reducedMotion) {
       if (nav !== null) {
         gsap.set(nav, { yPercent: 0 });
