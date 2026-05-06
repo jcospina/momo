@@ -16,7 +16,7 @@ import type { AgentContext } from '@/agent/context';
 import { mockToolExecutors } from '@/agent/tools/mock-executors';
 import { productionToolExecutors } from '@/agent/tools/tools';
 
-export type MomoAgentToolMode = 'mock' | 'stub';
+export type MomoAgentToolMode = 'mock' | 'production';
 
 export interface MomoAgentEnv extends Cloudflare.Env {
   MomoAgent: DurableObjectNamespace;
@@ -35,9 +35,9 @@ export class MomoAgent extends AIChatAgent<MomoAgentEnv> {
     const model = openai(this.env.MOMO_AGENT_MODEL ?? 'gpt-5.4-mini');
     const messages = await convertToModelMessages(this.messages);
     const toolExecutors =
-      this.env.MOMO_AGENT_TOOL_MODE === 'mock'
-        ? mockToolExecutors
-        : productionToolExecutors;
+      this.env.MOMO_AGENT_TOOL_MODE === 'production'
+        ? productionToolExecutors
+        : mockToolExecutors;
     // TODO(auth): replace env-based currency with getUserPreferences(userId)
     // once user identity flows into the durable object.
     const context: AgentContext = {

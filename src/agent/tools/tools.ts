@@ -2,6 +2,7 @@ import { EXPENSE_CATEGORIES } from '@lib-types/expenses';
 import { tool } from 'ai';
 import { z } from 'zod';
 import type { AgentContext } from '@/agent/context';
+import { productionToolExecutors } from '@/agent/tools/supabase-executors';
 import type {
   GetSpendingStatsInput,
   GetSpendingStatsResult,
@@ -21,9 +22,7 @@ const UNIQUE_EXPENSE_CATEGORIES = Array.from(new Set(EXPENSE_CATEGORIES)) as [
   ...(typeof EXPENSE_CATEGORIES)[number][],
 ];
 
-function notImplemented(toolName: string): never {
-  throw new Error(`${toolName} is not implemented yet`);
-}
+export { productionToolExecutors };
 
 export type AgentToolExecutors = {
   resolveDateRange: (
@@ -38,12 +37,6 @@ export type AgentToolExecutors = {
     input: GetSpendingStatsInput,
     context: AgentContext,
   ) => Promise<GetSpendingStatsResult>;
-};
-
-export const productionToolExecutors: AgentToolExecutors = {
-  resolveDateRange: async () => notImplemented('resolveDateRange'),
-  queryExpenses: async () => notImplemented('queryExpenses'),
-  getSpendingStats: async () => notImplemented('getSpendingStats'),
 };
 
 export function buildAgentTools(
@@ -146,11 +139,13 @@ export function buildAgentTools(
     getSpendingStats: tool({
       title: 'get spending stats',
       description: [
-        'Get aggregated spending and cashflow numbers for the given scope and filters.',
-        'Always returns top-level totals: totalExpenseCents, totalIncomeCents, netCents, savingsRate, plus a `currency` field that indicates how to interpret those amounts.',
+        'Get aggregated spending numbers for the given scope and filters.',
+        'By default this is expense-only: use it for questions like "how much did I spend" without mentioning income, net, or savings in the answer.',
+        'Set `includeIncome` to true only when the user asks about income, cashflow, net, savings, or explicitly wants income included.',
+        'The result includes a `currency` field that indicates how to interpret amount fields.',
         'Pass `groupBy` to also receive a per-group breakdown (sorted from largest amount to smallest, except month/day/dayOfWeek which sort chronologically).',
         'To compare two periods, call this twice with different date ranges and reason over the deltas — there is no separate compare tool.',
-        "Note: when `groupBy` is `tag`, a transaction with multiple tags is counted in each tag's group, so per-group percentages can sum to more than 100%. Top-level totals are not affected.",
+        "Note: when `groupBy` is `tag`, a transaction with multiple tags is counted in each tag's group, so per-group percentages can sum to more than 100%.",
       ].join(' '),
       inputSchema: z.object({
         scope: z
@@ -189,7 +184,7 @@ export function buildAgentTools(
         includeIncome: z
           .boolean()
           .describe(
-            'If true, expense groups also include income entries. Top-level income/net/savingsRate numbers are always computed regardless of this flag.',
+            'If true, include income entries for income, cashflow, net, or savings questions. Null/false means expense-only and should be the default for spending questions.',
           )
           .nullable(),
         groupBy: z
