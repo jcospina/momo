@@ -36,17 +36,15 @@ export function ChatToggle({
   ];
 
   return (
-    <div className={styles['momo-chat-toggle']}>
-      <ToggleGroup
-        className={styles['momo-chat-toggle__tabs']}
-        items={items}
-        value={[active]}
-        onValueChange={value => {
-          const next = value[0];
-          if (!next) return;
-          onChange(next as ChatTab);
-        }}
-      />
-    </div>
+    <ToggleGroup
+      className={styles['momo-chat-toggle__tabs']}
+      items={items}
+      value={[active]}
+      onValueChange={value => {
+        const next = value[0];
+        if (!next) return;
+        onChange(next as ChatTab);
+      }}
+    />
   );
 }

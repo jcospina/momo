@@ -173,12 +173,12 @@ export function ExpenseScopePanels({
   ];
 
   return (
-    <Flex direction="column" gap={5} isFullWidth>
+    <Flex direction="column" gap={2} isFullWidth>
       {householdAvailable ? (
         <Flex
           alignItems="center"
           justifyContent="center"
-          padding={3}
+          paddingBottom={1}
           isFullWidth
         >
           <ToggleGroup
@@ -192,20 +192,22 @@ export function ExpenseScopePanels({
           />
         </Flex>
       ) : null}
-      {scope === 'household' && householdAvailable ? (
-        <ScopePanels
-          key="household"
-          data={household}
-          currency={currency}
-          showHouseholdTotals
-        />
-      ) : (
-        <PersonalScopePanels
-          key="personal"
-          data={personal}
-          currency={currency}
-        />
-      )}
+      <Flex direction="column" gap={5} isFullWidth>
+        {scope === 'household' && householdAvailable ? (
+          <ScopePanels
+            key="household"
+            data={household}
+            currency={currency}
+            showHouseholdTotals
+          />
+        ) : (
+          <PersonalScopePanels
+            key="personal"
+            data={personal}
+            currency={currency}
+          />
+        )}
+      </Flex>
     </Flex>
   );
 }

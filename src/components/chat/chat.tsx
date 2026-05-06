@@ -680,13 +680,19 @@ export function Chat({
   );
 
   return (
-    <Panel marginBottom={2} className={styles['momo-chat']}>
+    <Flex
+      direction="column"
+      alignItems="stretch"
+      isFullHeight
+      isFullWidth
+      gap={2}
+      style={{ minHeight: 0 }}
+    >
       <Flex
-        isFullHeight
+        paddingBottom={1}
+        alignItems="center"
+        justifyContent="center"
         isFullWidth
-        direction="column"
-        justifyContent="space-between"
-        style={{ minHeight: 0 }}
       >
         <ChatToggle
           active={activeTab}
@@ -694,18 +700,30 @@ export function Chat({
           householdName={householdName}
           showHousehold={Boolean(householdId)}
         />
-        <HouseholdChatPanel
-          userId={userId}
-          householdId={householdId}
-          isActive={activeTab === 'household'}
-          initialMessages={initialHouseholdMessages}
-        />
-        <PersonalChatPanel
-          userId={userId}
-          isActive={activeTab === 'personal'}
-          initialMessages={initialPersonalMessages}
-        />
       </Flex>
-    </Panel>
+      <FlexItem grow={1} shrink={1} style={{ minWidth: 0, minHeight: 0 }}>
+        <Panel marginBottom={2} className={styles['momo-chat']}>
+          <Flex
+            isFullHeight
+            isFullWidth
+            direction="column"
+            justifyContent="space-between"
+            style={{ minHeight: 0 }}
+          >
+            <HouseholdChatPanel
+              userId={userId}
+              householdId={householdId}
+              isActive={activeTab === 'household'}
+              initialMessages={initialHouseholdMessages}
+            />
+            <PersonalChatPanel
+              userId={userId}
+              isActive={activeTab === 'personal'}
+              initialMessages={initialPersonalMessages}
+            />
+          </Flex>
+        </Panel>
+      </FlexItem>
+    </Flex>
   );
 }
