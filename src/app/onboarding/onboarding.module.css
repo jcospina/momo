@@ -9,6 +9,10 @@
   overflow: visible;
 }
 
+.onboarding__logo {
+  color: var(--color-amber-glow);
+}
+
 .onboarding__panel p {
   font-size: calc(var(--font-size) * 1.25);
 }

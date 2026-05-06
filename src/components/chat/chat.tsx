@@ -688,19 +688,20 @@ export function Chat({
       gap={2}
       style={{ minHeight: 0 }}
     >
-      <Flex
-        paddingBottom={1}
-        alignItems="center"
-        justifyContent="center"
-        isFullWidth
-      >
-        <ChatToggle
-          active={activeTab}
-          onChange={setActiveTab}
-          householdName={householdName}
-          showHousehold={Boolean(householdId)}
-        />
-      </Flex>
+      {householdId ? (
+        <Flex
+          paddingBottom={1}
+          alignItems="center"
+          justifyContent="center"
+          isFullWidth
+        >
+          <ChatToggle
+            active={activeTab}
+            onChange={setActiveTab}
+            householdName={householdName}
+          />
+        </Flex>
+      ) : null}
       <FlexItem grow={1} shrink={1} style={{ minWidth: 0, minHeight: 0 }}>
         <Panel marginBottom={2} className={styles['momo-chat']}>
           <Flex

@@ -7,7 +7,7 @@ import { useIsMobileLike } from '@/hooks/use-is-mobile-like';
 import { Button } from '@/ui/button/button';
 
 import { Flex } from '@/ui/flex/flex';
-import styles from './profile.module.css';
+import { Highlight } from '@/ui/highlight/highlight';
 
 type InviteLinkProps = {
   url: string;
@@ -74,7 +74,9 @@ export function InviteLink({ url }: InviteLinkProps) {
         {isMobile ? t('share') : t('copy')}
       </Button>
       {status !== 'idle' ? (
-        <div className={styles.status}>{statusText[status]}</div>
+        <Highlight variant="primary" rotation="none">
+          {statusText[status]}
+        </Highlight>
       ) : null}
     </Flex>
   );

@@ -6,7 +6,7 @@
       "signInGoogle": "Sign in with Google"
     },
     "onboarding": {
-      "householdPrompt": "Let's set up your household so you can start tracking expenses together with your loved ones.",
+      "householdPrompt": "Let's set up your <feature>household</feature> so you can start tracking expenses together with your <highlight>loved ones.</highlight>",
       "skipTooltip": "You don't want to share your spending habits with your family, I respect that and won't judge.",
       "skip": "Skip household creation."
     }

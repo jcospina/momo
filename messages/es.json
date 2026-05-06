@@ -6,7 +6,7 @@
       "signInGoogle": "Entrar con Google"
     },
     "onboarding": {
-      "householdPrompt": "Vamos a configurar tu hogar para que puedas registrar gastos junto a tus seres queridos.",
+      "householdPrompt": "Vamos a configurar tu <feature>hogar</feature> para que puedas registrar gastos junto a tus <highlight>seres queridos.</highlight>",
       "skipTooltip": "Entiendo que no quieres compartir tus hábitos de gasto con tu familia. Lo respeto y no te juzgo.",
       "skip": "Saltarse la creación del hogar."
     }
@@ -167,7 +167,42 @@
       "cta_secondary": "Ver cómo funciona",
       "image_alt": "Captura del producto — pantalla principal de MoMo",
       "chatPreview": {
-        "headerTitle": "Familia"
+        "headerTitle": "Familia",
+        "mobile": {
+          "samples": [
+            "Café 8000",
+            "220000 Taxi al aeropuerto",
+            "Mercado 154000",
+            "Almuerzo con el amor 60k"
+          ],
+          "ariaSendLabel": "Enviar",
+          "ariaPreviewLabel": "Vista previa de cómo escribir un mensaje y crear un gasto"
+        },
+        "desktop": {
+          "messages": [
+            {
+              "text": "60k almuerzo con el amor",
+              "sender": "Juan",
+              "time": "12:31 PM"
+            },
+            { "text": "8000 café", "sender": "Martín", "time": "12:34 PM" },
+            {
+              "text": "22000 taxi al aeropuerto",
+              "sender": "Juan",
+              "time": "12:48 PM"
+            },
+            {
+              "text": "154000 mercado D1",
+              "sender": "Martín",
+              "time": "5:12 PM"
+            },
+            {
+              "text": "18000 entrada al cine",
+              "sender": "Martín",
+              "time": "8:02 PM"
+            }
+          ]
+        }
       }
     },
     "parse": {
