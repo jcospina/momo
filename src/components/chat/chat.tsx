@@ -12,7 +12,6 @@ import { usePersonalRealtime } from '@features/chat/hooks/use-personal-realtime'
 import { usePersonalSync } from '@features/chat/hooks/use-personal-sync';
 import type { ChatMessage } from '@lib-types/chat';
 import { useDialogController } from '@ui/dialog/dialog';
-import { Divider } from '@ui/divider/divider';
 import { Flex } from '@ui/flex/flex';
 import { FlexItem } from '@ui/flex-item/flex-item';
 import { Input } from '@ui/input/input';
@@ -695,7 +694,6 @@ export function Chat({
           householdName={householdName}
           showHousehold={Boolean(householdId)}
         />
-        <Divider thickness="thick" />
         <HouseholdChatPanel
           userId={userId}
           householdId={householdId}

@@ -1,0 +1,35 @@
+.momo-app-navbar {
+  margin-top: calc(var(--spacing) * -3);
+  margin-left: calc(var(--spacing) * -3);
+  margin-right: calc(var(--spacing) * -3);
+  width: calc(100% + var(--spacing) * 6);
+}
+
+.momo-app-navbar__logo-link {
+  color: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.momo-app-navbar__link {
+  color: var(--color-dark);
+  text-decoration: none;
+  font-weight: var(--weight-bold);
+  font-size: var(--type-md);
+  padding: var(--space-1) 0;
+  cursor: pointer;
+  transition: text-decoration-thickness var(--duration-fast) ease;
+}
+
+.momo-app-navbar__link:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+@media (max-width: 720px) {
+  .momo-app-navbar__link {
+    font-size: var(--type-sm);
+  }
+}

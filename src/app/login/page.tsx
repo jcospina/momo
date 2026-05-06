@@ -1,5 +1,5 @@
 import { Footer } from '@components/landing/footer';
-import { LandingNavbar } from '@components/landing/landing-navbar';
+import { LandingNavbar } from '@components/navbar/landing-navbar';
 import { Toast } from '@components/toast/toast';
 import type { MomoError } from '@lib-types/errors';
 import { getTranslations } from 'next-intl/server';

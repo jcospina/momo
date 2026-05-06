@@ -1,0 +1,35 @@
+.momo-navbar {
+  width: 100%;
+  background: var(--bg-page);
+  border-bottom: var(--border-width-thin) solid var(--color-dark);
+  transition: background-color var(--duration-toggle) var(--ease-pop);
+}
+
+.momo-navbar__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.momo-navbar__logo {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+}
+
+.momo-navbar__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+@media (max-width: 720px) {
+  .momo-navbar__links {
+    gap: var(--space-2);
+  }
+}

@@ -6,8 +6,8 @@ import StatsPage from './page';
 const expenseScopePanelsSpy = jest.fn();
 const redirectSpy = jest.fn();
 
-jest.mock('@components/navbar/navbar', () => ({
-  Navbar: () => <div data-testid="navbar" />,
+jest.mock('@components/navbar/app-navbar', () => ({
+  AppNavbar: () => <div data-testid="navbar" />,
 }));
 
 jest.mock('@components/stats/expense-scope-panels', () => ({
