@@ -1,15 +1,17 @@
 'use client';
 
+import { useOptionalLandingCurtainRefs } from '@components/landing/landing-scroll-context';
 import { ThemeSelector } from '@components/theme-selector/theme-selector';
 import { useMediaQuery } from '@hooks/use-media-query';
 import { useScrollTick } from '@hooks/use-scroll-progress';
 import { Logo } from '@ui/logo/logo';
+import { Navbar } from '@ui/navbar/navbar';
 import gsap from 'gsap';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
 import styles from './landing-navbar.module.css';
-import { useOptionalLandingCurtainRefs } from './landing-scroll-context';
 
 function clampProgress(progress: number): number {
   if (progress < 0) return 0;
@@ -23,9 +25,11 @@ function getHandoffDistance(viewportHeight: number): number {
 
 export function LandingNavbar() {
   const t = useTranslations('landing.nav');
+  const pathname = usePathname();
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const curtainRefs = useOptionalLandingCurtainRefs();
   const navRef = useRef<HTMLElement | null>(null);
+  const isLandingRoot = pathname === '/';
 
   useScrollTick(() => {
     const nav = navRef.current;
@@ -72,19 +76,27 @@ export function LandingNavbar() {
     gsap.set(nav, { yPercent: translatePercent });
   });
 
+  const logo = isLandingRoot ? (
+    <Logo size="sm" />
+  ) : (
+    <Link href="/" className={styles['momo-landing-navbar__logo-link']}>
+      <Logo size="sm" />
+    </Link>
+  );
+
+  const links = (
+    <Link href="/login" className={styles['momo-landing-navbar__link']}>
+      {t('login')}
+    </Link>
+  );
+
   return (
-    <nav ref={navRef} className={styles['momo-landing-nav']}>
-      <div className={styles['momo-landing-nav__inner']}>
-        <div className={styles['momo-landing-nav__logo']}>
-          <Logo size="sm" />
-        </div>
-        <div className={styles['momo-landing-nav__links']}>
-          <ThemeSelector />
-          <Link href="/login" className={styles['momo-landing-nav__link']}>
-            {t('login')}
-          </Link>
-        </div>
-      </div>
-    </nav>
+    <Navbar
+      navRef={navRef}
+      className={styles['momo-landing-navbar']}
+      logo={logo}
+      themeSelector={<ThemeSelector />}
+      links={links}
+    />
   );
 }

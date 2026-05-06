@@ -74,6 +74,11 @@
       "expense": "Expense"
     }
   },
+  "nav": {
+    "home": "Chat",
+    "stats": "Stats",
+    "profile": "Profile"
+  },
   "stats": {
     "expensesByCategory": "Expenses by category",
     "householdTotalsByMember": "Household totals by member",

@@ -74,6 +74,11 @@
       "expense": "Gasto"
     }
   },
+  "nav": {
+    "home": "Chat",
+    "stats": "Stats",
+    "profile": "Perfil"
+  },
   "stats": {
     "expensesByCategory": "Gastos por categoría",
     "householdTotalsByMember": "Totales del hogar por miembro",

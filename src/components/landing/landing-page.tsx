@@ -1,7 +1,7 @@
+import { LandingNavbar } from '@components/navbar/landing-navbar';
 import { CloserSection } from './closer-section';
 import { Footer } from './footer';
 import { LandingCurtainStage } from './landing-curtain-stage';
-import { LandingNavbar } from './landing-navbar';
 import styles from './landing-page.module.css';
 import { LandingScrollProvider } from './landing-scroll-context';
 import { LenisProvider } from './lenis-provider';

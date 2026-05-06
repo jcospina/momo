@@ -1,4 +1,4 @@
-import { Navbar } from '@components/navbar/navbar';
+import { AppNavbar } from '@components/navbar/app-navbar';
 import { ExpenseScopePanels } from '@components/stats/expense-scope-panels';
 import { Flex } from '@ui/flex/flex';
 import { format } from 'date-fns';
@@ -52,7 +52,7 @@ export default async function StatsPage() {
 
   return (
     <Flex direction="column" padding={3} gap={5}>
-      <Navbar />
+      <AppNavbar />
       <ExpenseScopePanels
         currency={currency}
         householdAvailable={householdAvailable}
