@@ -5,6 +5,7 @@ import styles from '@/app/invite/invite.module.css';
 import { getInviteInfo, startAcceptFlow } from '@/lib/data/invites/server';
 import { Button } from '@/ui/button/button';
 import { Flex } from '@/ui/flex/flex';
+import { Highlight } from '@/ui/highlight/highlight';
 import { Logo } from '@/ui/logo/logo';
 import { Margin } from '@/ui/margin/margin';
 import { Panel } from '@/ui/panel/panel';
@@ -71,7 +72,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
   return (
     <Panel padding={3} className={styles['invite-page__panel']}>
       <Margin marginBottom={4}>
-        <Logo />
+        <Logo className={styles['invite-page__logo']} />
       </Margin>
       <Flex direction="column" gap={3}>
         {info.member_count && info.member_count > 1 ? (
@@ -80,11 +81,15 @@ export default async function InvitePage({ params }: InvitePageProps) {
               inviter,
               count: info.member_count - 1,
               household: householdName,
-              b: chunks => <strong>{chunks}</strong>,
-              highlight: chunks => (
-                <span className={styles['invite-page__hightlight']}>
+              b: chunks => (
+                <Highlight variant="warm" rotation="none">
                   {chunks}
-                </span>
+                </Highlight>
+              ),
+              highlight: chunks => (
+                <Highlight variant="feature" rotation="none">
+                  {chunks}
+                </Highlight>
               ),
             })}
           </Typography>
@@ -93,11 +98,15 @@ export default async function InvitePage({ params }: InvitePageProps) {
             {t.rich('joinHeadingSingle', {
               inviter,
               household: householdName,
-              b: chunks => <strong>{chunks}</strong>,
-              highlight: chunks => (
-                <span className={styles['invite-page__hightlight']}>
+              b: chunks => (
+                <Highlight variant="warm" rotation="none">
                   {chunks}
-                </span>
+                </Highlight>
+              ),
+              highlight: chunks => (
+                <Highlight variant="feature" rotation="none">
+                  {chunks}
+                </Highlight>
               ),
             })}
           </Typography>
