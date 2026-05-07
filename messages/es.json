@@ -3,7 +3,8 @@
     "login": {
       "welcome": "Bienvenido a",
       "tagline": "Más plata, más diversión",
-      "signInGoogle": "Iniciar sesión con Google"
+      "signInGoogle": "Iniciar sesión con Google",
+      "legalConsent": "Al iniciar sesión, aceptas la <privacy>Política de privacidad</privacy> y los <terms>Términos del servicio</terms>."
     },
     "onboarding": {
       "householdPrompt": "Vamos a crear tu <feature>hogar</feature> para que puedas registrar gastos junto a tus <highlight>seres queridos.</highlight>",

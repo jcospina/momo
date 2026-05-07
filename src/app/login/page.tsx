@@ -2,6 +2,7 @@ import { Footer } from '@components/landing/footer';
 import { LandingNavbar } from '@components/navbar/landing-navbar';
 import { Toast } from '@components/toast/toast';
 import type { MomoError } from '@lib-types/errors';
+import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { loginWithProvider } from '@/lib/data/auth/server';
 import { Button } from '@/ui/button/button';
@@ -67,13 +68,33 @@ export default async function Home({ searchParams }: LoginPageProps) {
                   )}
                 </Typography>
               </div>
-              <form>
+              <form className={styles['login__actions']}>
                 <Button
                   variant="primary"
                   formAction={loginWithProvider.bind(null, 'google')}
                 >
                   {tAuth('signInGoogle')}
                 </Button>
+                <Typography size="sm" className={styles['login__legal-copy']}>
+                  {tAuth.rich('legalConsent', {
+                    privacy: chunks => (
+                      <Link
+                        href="/privacy"
+                        className={styles['login__legal-link']}
+                      >
+                        {chunks}
+                      </Link>
+                    ),
+                    terms: chunks => (
+                      <Link
+                        href="/terms"
+                        className={styles['login__legal-link']}
+                      >
+                        {chunks}
+                      </Link>
+                    ),
+                  })}
+                </Typography>
               </form>
             </div>
           </Panel>
