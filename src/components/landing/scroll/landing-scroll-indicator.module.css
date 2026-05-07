@@ -1,31 +1,54 @@
 .momo-landing-scroll-indicator {
-  position: fixed;
-  top: 50%;
-  right: var(--space-3);
-  width: 3px;
-  height: 80px;
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--color-dark) 15%, transparent);
-  transform: translateY(-50%);
-  z-index: 6;
+  position: absolute;
+  bottom: clamp(var(--space-5), 6svh, var(--space-8));
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.1rem, 0.05rem + 0.25vw, 0.25rem);
+  align-items: center;
   pointer-events: none;
-  opacity: 0;
-  overflow: hidden;
-  transition: opacity 200ms ease;
+  opacity: calc(0.78 - (var(--curtain-progress) * 0.78));
+  transform: translateX(-50%)
+    translateY(calc(var(--curtain-progress) * var(--space-2)));
+  transition:
+    opacity 180ms ease-out,
+    transform 180ms ease-out;
 }
 
-.momo-landing-scroll-indicator__fill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 0;
-  background: color-mix(in srgb, var(--color-dark) 70%, transparent);
-  border-radius: 2px;
+.momo-landing-scroll-indicator__arrow {
+  display: block;
+  width: clamp(0.72rem, 0.58rem + 0.35vw, 0.9rem);
+  height: clamp(0.72rem, 0.58rem + 0.35vw, 0.9rem);
+  border-right: 3px solid color-mix(in srgb, var(--fg-primary) 82%, transparent);
+  border-bottom: 3px solid
+    color-mix(in srgb, var(--fg-primary) 82%, transparent);
+  transform: translateY(-1px) rotate(45deg);
+  animation: momo-scroll-indicator-arrow 1.7s cubic-bezier(0.22, 1, 0.36, 1)
+    infinite;
+}
+
+.momo-landing-scroll-indicator__arrow + .momo-landing-scroll-indicator__arrow {
+  margin-top: calc(-1 * var(--space-0_5));
+}
+
+@keyframes momo-scroll-indicator-arrow {
+  0%,
+  100% {
+    transform: translateY(-1px) rotate(45deg);
+  }
+
+  55% {
+    transform: translateY(4px) rotate(45deg);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .momo-landing-scroll-indicator {
     transition: none;
+  }
+
+  .momo-landing-scroll-indicator__arrow {
+    animation: none;
   }
 }

@@ -3,6 +3,8 @@
 import { ChatMessageBubble } from '@components/chat/chat-message-bubble';
 import { Avatar } from '@ui/avatar/avatar';
 import { Highlight } from '@ui/highlight/highlight';
+import { CircleCheckIcon } from '@ui/icons/circle-check';
+import { ThreeDotsIcon } from '@ui/icons/three-dots';
 import { Typography } from '@ui/typography/typography';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
@@ -76,12 +78,13 @@ export function SceneTogether() {
               <div className={styles['momo-scene-together__thread']}>
                 {thread.map((msg, index) => {
                   const isOwn = index === 1;
+                  const isExpense = index === 0;
                   return (
                     <ChatMessageBubble
                       key={`together-msg-${index}`}
                       text={msg.text}
                       isOwn={isOwn}
-                      timestamp={isOwn ? msg.time : undefined}
+                      timestamp={msg.time}
                       senderName={isOwn ? null : 'Martín'}
                       avatarSlot={
                         isOwn ? null : (
@@ -91,6 +94,14 @@ export function SceneTogether() {
                             color="mauve-magic"
                           />
                         )
+                      }
+                      statusSlot={
+                        isExpense ? (
+                          <CircleCheckIcon width={18} height={18} />
+                        ) : null
+                      }
+                      actionsSlot={
+                        isOwn ? <ThreeDotsIcon width={16} height={16} /> : null
                       }
                       skipMountAnimation
                     />

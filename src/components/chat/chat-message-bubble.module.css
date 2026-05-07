@@ -3,6 +3,7 @@
   align-items: flex-start;
   gap: calc(var(--spacing));
   max-width: 100%;
+  text-align: start;
 }
 
 .momo-chat-bubble--own {
