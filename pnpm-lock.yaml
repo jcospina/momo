@@ -74,9 +74,6 @@ importers:
       react-markdown:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.2.2)(react@19.2.0)
-      react-virtuoso:
-        specifier: ^4.17.0
-        version: 4.17.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
@@ -2836,12 +2833,6 @@ packages:
     peerDependenciesMeta:
       react-dom:
         optional: true
-
-  react-virtuoso@4.17.0:
-    resolution: {integrity: sha512-od3pi2v13v31uzn5zPXC2u3ouISFCVhjFVFch2VvS2Cx7pWA2F1aJa3XhNTN2F07M3lhfnMnsmGeH+7wZICr7w==}
-    peerDependencies:
-      react: '>=16 || >=17 || >= 18 || >= 19'
-      react-dom: '>=16 || >=17 || >= 18 || >=19'
 
   react@19.2.0:
     resolution: {integrity: sha512-tmbWg6W31tQLeB5cdIBOicJDJRR2KzXsV7uSK9iNfLWQ5bIZfxuPEHp7M8wiHyHnn0DD1i7w3Zmin0FtkrwoCQ==}
@@ -6324,11 +6315,6 @@ snapshots:
     dependencies:
       react: 19.2.0
     optionalDependencies:
-      react-dom: 19.2.0(react@19.2.0)
-
-  react-virtuoso@4.17.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
-    dependencies:
-      react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
 
   react@19.2.0: {}
