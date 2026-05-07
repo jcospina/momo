@@ -77,7 +77,10 @@
   "nav": {
     "home": "Chat",
     "stats": "Stats",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "openMenu": "Abrir menu de navegacion",
+    "closeMenu": "Cerrar menu de navegacion",
+    "navigation": "Navegacion"
   },
   "stats": {
     "expensesByCategory": "Gastos por categoría",
