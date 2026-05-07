@@ -3,7 +3,8 @@
     "login": {
       "welcome": "Welcome to",
       "tagline": "More money, More fun",
-      "signInGoogle": "Sign in with Google"
+      "signInGoogle": "Sign in with Google",
+      "legalConsent": "By logging in, you accept the <privacy>Privacy Policy</privacy> and <terms>Terms of Service</terms>."
     },
     "onboarding": {
       "householdPrompt": "Let's set up your <feature>household</feature> so you can start tracking expenses together with your <highlight>loved ones.</highlight>",

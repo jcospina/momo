@@ -34,6 +34,15 @@
   gap: var(--space-6);
 }
 
+.login__actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding-bottom: var(--space-0_5);
+}
+
 .login__header {
   display: flex;
   flex-direction: column;
@@ -58,6 +67,27 @@
   color: var(--color-amber-glow);
 }
 
+.login__legal-copy {
+  max-width: 28rem;
+  margin: 0;
+  color: color-mix(in oklch, var(--fg-primary), var(--bg-panel) 36%);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.login__legal-link {
+  color: inherit;
+  font-weight: var(--weight-bold);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.16em;
+  transition: text-decoration-thickness var(--duration-fast) ease;
+}
+
+.login__legal-link:hover {
+  text-decoration-thickness: 3px;
+}
+
 .login__footer {
   margin-top: 0;
 }
@@ -77,6 +107,11 @@
 
   .login__panel-content {
     gap: var(--space-5);
+  }
+
+  .login__actions {
+    gap: calc(var(--spacing) * 2.5);
+    padding-bottom: var(--space-1);
   }
 
   .login__header {
