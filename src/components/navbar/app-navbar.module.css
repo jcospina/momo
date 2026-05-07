@@ -223,6 +223,7 @@
   padding: 6px 12px;
   margin: 0;
   font-size: var(--type-lg);
+  font-weight: var(--weight-bold);
   line-height: 1.15;
 }
 

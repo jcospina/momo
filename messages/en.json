@@ -35,7 +35,7 @@
     "message": {
       "actionsAriaLabel": "Message actions",
       "deleteTitle": "Delete message?",
-      "deleteConfirmBody": "This will remove the message permanently.",
+      "deleteConfirmBody": "You cannot get this message back.",
       "cancel": "Cancel",
       "confirm": "Confirm",
       "retry": "Retry",
@@ -55,7 +55,7 @@
     "detail": {
       "title": "Expense details",
       "loading": "Loading expenses...",
-      "empty": "No expenses found.",
+      "empty": "This does not make sense, there should be data here. My bad.",
       "cancel": "Cancel",
       "save": "Save",
       "saving": "Saving...",
@@ -86,11 +86,11 @@
     "expensesByCategory": "Expenses by category",
     "householdTotalsByMember": "Household totals by member",
     "incomeVsExpenses": "Income vs expenses",
-    "cumulativeSavings": "Cumulative savings",
+    "cumulativeSavings": "Savings",
     "runningMonthlyNet": "Running monthly net",
     "monthlyTotals": "Monthly totals",
     "dailyComparison": "Daily comparison",
-    "noData": "No data yet",
+    "noData": "Log something so I can feel useful.",
     "nav": {
       "prevMonths": "Previous months",
       "nextMonths": "Next months",
@@ -123,7 +123,7 @@
     "invite": {
       "linkCopied": "Link copied",
       "shared": "Shared!",
-      "copyFailed": "Copy failed",
+      "copyFailed": "I could not copy :(",
       "share": "Share invite link",
       "copy": "Copy invite link",
       "shareTitle": "Join my household on MoMo",
@@ -249,7 +249,7 @@
       "statement": "Your <warm>month</warm>, in one glance.",
       "months": ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr"],
       "sticker": "Feb: ouch.",
-      "caption": "Real numbers. No charts you have to study.",
+      "caption": "Easy to read, no economy major required.",
       "ariaLabel": "Six months of spending stacked by category. February is the highest."
     },
     "closer": {
