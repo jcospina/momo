@@ -1,4 +1,4 @@
-import { Footer } from '@components/landing/footer';
+import { Footer } from '@components/landing/footer/footer';
 import { LandingNavbar } from '@components/navbar/landing-navbar';
 import { Toast } from '@components/toast/toast';
 import type { MomoError } from '@lib-types/errors';

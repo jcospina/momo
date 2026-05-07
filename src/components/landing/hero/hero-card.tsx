@@ -1,8 +1,8 @@
 'use client';
 
+import styles from '@components/landing/landing-page.module.css';
+import { useHeroRef } from '@components/landing/scroll/landing-scroll-context';
 import { Hero } from './hero';
-import styles from './landing-page.module.css';
-import { useHeroRef } from './landing-scroll-context';
 
 export function HeroCard() {
   const heroRef = useHeroRef();

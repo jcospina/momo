@@ -1,4 +1,4 @@
-import { Footer } from '@components/landing/footer';
+import { Footer } from '@components/landing/footer/footer';
 import { Logo } from '@ui/logo/logo';
 import Link from 'next/link';
 import type { Components } from 'react-markdown';

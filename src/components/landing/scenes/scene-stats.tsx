@@ -8,7 +8,7 @@ import { Typography } from '@ui/typography/typography';
 import gsap from 'gsap';
 import { useTranslations } from 'next-intl';
 import { useMemo, useRef } from 'react';
-import { LandingMiniBar } from './landing-mini-bar';
+import { LandingMiniBar } from './charts/landing-mini-bar';
 import { SceneShell } from './scene-shell';
 import styles from './scene-stats.module.css';
 
