@@ -12,7 +12,6 @@ import { usePersonalRealtime } from '@features/chat/hooks/use-personal-realtime'
 import { usePersonalSync } from '@features/chat/hooks/use-personal-sync';
 import type { ChatMessage } from '@lib-types/chat';
 import { useDialogController } from '@ui/dialog/dialog';
-import { Divider } from '@ui/divider/divider';
 import { Flex } from '@ui/flex/flex';
 import { FlexItem } from '@ui/flex-item/flex-item';
 import { Input } from '@ui/input/input';
@@ -99,6 +98,7 @@ function ChatPanelLayout({
   expenseDetailsMessageId,
   onExpenseDetailsSaved,
 }: ChatPanelLayoutProps) {
+  const [mountedAt] = useState(() => Date.now());
   return (
     <Flex
       direction="column"
@@ -139,13 +139,15 @@ function ChatPanelLayout({
                   onRetrySend={onRetrySend}
                   onOpenExpenseDetails={onOpenExpenseDetails}
                   deleteError={Boolean(deleteErrors[msg.id])}
+                  skipMountAnimation={
+                    new Date(msg.created_at).getTime() < mountedAt
+                  }
                 />
               </Flex>
             );
           }}
         />
       </FlexItem>
-      <Divider thickness="thick" />
       <Flex
         as="form"
         paddingX={1}
@@ -165,6 +167,7 @@ function ChatPanelLayout({
           ) => setDraft(event.target.value)}
           onKeyDown={onKeyDown}
           suffix={<SendButton />}
+          className={styles['momo-chat__input']}
         />
       </Flex>
       <ExpenseDetailsDialog
@@ -677,33 +680,51 @@ export function Chat({
   );
 
   return (
-    <Panel marginBottom={2} className={styles['momo-chat']}>
-      <Flex
-        isFullHeight
-        isFullWidth
-        direction="column"
-        justifyContent="space-between"
-        style={{ minHeight: 0 }}
-      >
-        <ChatToggle
-          active={activeTab}
-          onChange={setActiveTab}
-          householdName={householdName}
-          showHousehold={Boolean(householdId)}
-        />
-        <Divider thickness="thick" />
-        <HouseholdChatPanel
-          userId={userId}
-          householdId={householdId}
-          isActive={activeTab === 'household'}
-          initialMessages={initialHouseholdMessages}
-        />
-        <PersonalChatPanel
-          userId={userId}
-          isActive={activeTab === 'personal'}
-          initialMessages={initialPersonalMessages}
-        />
-      </Flex>
-    </Panel>
+    <Flex
+      direction="column"
+      alignItems="stretch"
+      isFullHeight
+      isFullWidth
+      gap={2}
+      style={{ minHeight: 0 }}
+    >
+      {householdId ? (
+        <Flex
+          paddingBottom={1}
+          alignItems="center"
+          justifyContent="center"
+          isFullWidth
+        >
+          <ChatToggle
+            active={activeTab}
+            onChange={setActiveTab}
+            householdName={householdName}
+          />
+        </Flex>
+      ) : null}
+      <FlexItem grow={1} shrink={1} style={{ minWidth: 0, minHeight: 0 }}>
+        <Panel marginBottom={2} className={styles['momo-chat']}>
+          <Flex
+            isFullHeight
+            isFullWidth
+            direction="column"
+            justifyContent="space-between"
+            style={{ minHeight: 0 }}
+          >
+            <HouseholdChatPanel
+              userId={userId}
+              householdId={householdId}
+              isActive={activeTab === 'household'}
+              initialMessages={initialHouseholdMessages}
+            />
+            <PersonalChatPanel
+              userId={userId}
+              isActive={activeTab === 'personal'}
+              initialMessages={initialPersonalMessages}
+            />
+          </Flex>
+        </Panel>
+      </FlexItem>
+    </Flex>
   );
 }

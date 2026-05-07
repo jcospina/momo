@@ -1,0 +1,38 @@
+.momo-landing-closer {
+  padding: var(--space-6) 0 0;
+  text-align: center;
+}
+
+.momo-landing-closer__lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-3);
+  text-align: left;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.momo-landing-closer__logo {
+  display: inline-flex;
+}
+
+.momo-landing-closer__title {
+  margin: 0;
+  text-wrap: balance;
+}
+
+.momo-landing-closer__sub {
+  max-width: 40ch;
+  margin: 0 auto var(--space-4);
+  text-wrap: pretty;
+}
+
+.momo-landing-closer__cta-wrap {
+  display: inline-block;
+}
+
+.momo-landing-closer__cta {
+  font-size: clamp(1.1rem, 1rem + 0.6vw, 1.25rem);
+  font-weight: var(--weight-bold);
+}

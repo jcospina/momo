@@ -8,10 +8,11 @@ type ButtonBaseProps = {
    * Visual variant.
    * - `'primary'` — filled, high-emphasis action.
    * - `'secondary'` — outlined, lower-emphasis action.
+   * - `'surface'` — panel-toned background, blends with cards.
    * - `'link'` — inline text-link styling.
    * - `'icon'` — minimal padding, icon-only button.
    */
-  variant: 'primary' | 'secondary' | 'link' | 'icon';
+  variant: 'primary' | 'secondary' | 'surface' | 'link' | 'icon';
   className?: string;
 };
 
@@ -68,6 +69,7 @@ export function Button(props: ButtonProps) {
   const variantClass = {
     primary: styles['momo-button--primary'],
     secondary: styles['momo-button--secondary'],
+    surface: styles['momo-button--surface'],
     link: styles['momo-button--link'],
     icon: styles['momo-button--icon'],
   }[variant];

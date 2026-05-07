@@ -1,8 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  /* Palette */
-  /* Colors */
+  /* ─── Palette (raw) ─────────────────────────────────────────────── */
   --color-sunbeam-yellow: oklch(0.9224 0.198 107.23);
   --color-spring-green: oklch(0.8736 0.2433 149.53);
   --color-mauve-magic: oklch(0.7049 0.1837 317.15);
@@ -12,22 +11,108 @@
   --color-light: oklch(96.868% 0.01862 96.902);
   --color-dark: oklch(11.449% 0.0736 272.286);
   --color-disabled: oklch(0.7522 0.0193 261.19);
-  /* Fonts */
+
+  /* ─── Fonts ─────────────────────────────────────────────────────── */
   --font-sans: var(--font-outfit);
   --font-logo: var(--font-logo);
-  /* Spacing */
+
+  /* ─── Spacing ───────────────────────────────────────────────────── */
   --spacing-base: 8;
   --spacing: calc(var(--spacing-base) * 1px);
-  /* Typography */
+  --space-0: 0;
+  --space-0_5: calc(var(--spacing) * 0.5);
+  --space-1: calc(var(--spacing) * 1);
+  --space-2: calc(var(--spacing) * 2);
+  --space-3: calc(var(--spacing) * 3);
+  --space-4: calc(var(--spacing) * 4);
+  --space-5: calc(var(--spacing) * 5);
+  --space-6: calc(var(--spacing) * 6);
+  --space-8: calc(var(--spacing) * 8);
+
+  /* ─── Typography ────────────────────────────────────────────────── */
   --font-size-base: 16;
   --font-size: calc(var(--font-size-base) * 1px);
-  /* Borders */
+
+  --type-xs: 0.75rem;
+  --type-sm: 0.875rem;
+  --type-md: 1rem;
+  --type-lg: 1.25rem;
+  --type-xl: 1.5rem;
+  --type-xxl: 2rem;
+
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-bold: 700;
+  --weight-black: 900;
+
+  --h1: var(--weight-bold) var(--type-xxl) / 1.2 var(--font-sans);
+  --h2: var(--weight-bold) var(--type-xl) / 1.3 var(--font-sans);
+  --h3: var(--weight-bold) var(--type-lg) / 1.35 var(--font-sans);
+  --body: var(--weight-regular) var(--type-md) / 1.5 var(--font-sans);
+  --body-emph: var(--weight-bold) var(--type-md) / 1.5 var(--font-sans);
+  --meta: var(--weight-regular) var(--type-sm) / 1.4 var(--font-sans);
+  --micro: var(--weight-regular) var(--type-xs) / 1.4 var(--font-sans);
+
+  /* ─── Borders ───────────────────────────────────────────────────── */
   --border-radius: 10px;
+  --radius-sm: 5px;
+  --radius-md: 10px;
+  --radius-pill: 999px;
+  --border-width-thin: 2px;
+  --border-width-thick: 4px;
+  --border-color: var(--color-dark);
+
+  /* ─── Hard-shadow system (signature) ────────────────────────────── */
+  --shadow-sm: -2px 2px 0 var(--color-dark);
+  --shadow-md: -6px 6px 0 var(--color-dark);
+  --shadow-lg: -8px 8px 0 var(--color-dark);
+  --shadow-xl: -12px 12px 0 var(--color-dark);
+  --shadow-xxl: -16px 16px 0 var(--color-dark);
+  --shadow-none: none;
+
+  /* ─── Motion ────────────────────────────────────────────────────── */
+  --ease-pop: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-pop-fast: cubic-bezier(0.2, 0.9, 0.2, 1);
+  --duration-fast: 120ms;
+  --duration-base: 160ms;
+  --duration-slow: 200ms;
+  --duration-toggle: 300ms;
+
+  /* ─── Semantic surface roles ────────────────────────────────────── */
+  --bg-page: var(--color-sunbeam-yellow);
+  --bg-panel: var(--color-light);
+  --bg-toggle: var(--color-amber-glow);
+  --fg-primary: var(--color-dark);
+  --fg-muted: color-mix(in oklch, var(--color-dark), white 20%);
+  --fg-subtle: color-mix(in oklch, var(--color-dark), white 40%);
+  --fg-on-disabled: color-mix(in oklch, var(--color-dark), white 50%);
+
+  /* ─── Semantic accent roles ─────────────────────────────────────── */
+  --accent-primary: var(--color-spring-green);
+  --accent-secondary: var(--color-vibrant-coral);
+  --accent-info: var(--color-sky-aqua);
+  --accent-feature: var(--color-mauve-magic);
+  --accent-warm: var(--color-amber-glow);
+
+  --tone-error: var(--color-vibrant-coral);
+  --tone-warning: color-mix(in oklch, var(--color-amber-glow), black 10%);
+  --tone-success: var(--color-spring-green);
+
+  /* Foreground colors for text/icons sitting on coloured surfaces.
+     Override per theme when the underlying colour is too dark for `--color-dark` text. */
+  --fg-on-secondary: var(--color-dark);
+
+  --dot-color: color-mix(in oklch, var(--color-dark), transparent 80%);
 }
+
+/* Per-theme overrides (`:root[data-schema="..."]`) are generated from
+   `src/lib/theme/themes.config.ts` and injected as a <style> tag in
+   `src/app/layout.tsx`. To add or edit a theme, update that config file. */
 
 * {
   box-sizing: border-box;
 }
+
 html,
 body,
 #__next {
@@ -37,13 +122,27 @@ body,
 html {
   font-family: var(--font-sans);
   font-size: var(--font-size);
+  scroll-behavior: smooth;
+  scroll-padding-top: 120px;
 }
 
 body {
-  background-color: var(--color-sunbeam-yellow);
+  background-color: var(--bg-page);
   color: var(--color-dark);
   min-height: 100vh;
   position: relative;
+  scroll-behavior: smooth;
+  scroll-padding-top: 120px;
+  transition:
+    background-color var(--duration-toggle) var(--ease-pop),
+    color var(--duration-toggle) var(--ease-pop);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  body {
+    scroll-behavior: auto;
+  }
 }
 
 .root {

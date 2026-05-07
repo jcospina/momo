@@ -1,0 +1,83 @@
+.momo-hero-chat {
+  background: var(--bg-panel);
+  border: var(--border-width-thick) solid var(--color-dark);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-xl);
+  transform: translateX(4px);
+  width: 100%;
+  aspect-ratio: 5 / 4;
+  max-width: 600px;
+  justify-self: center;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: background-color var(--duration-toggle) var(--ease-pop);
+}
+
+@media (min-width: 768px) {
+  .momo-hero-chat {
+    box-shadow: var(--shadow-xxl);
+  }
+}
+
+.momo-hero-chat__header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: calc(var(--spacing) * 1);
+  padding: calc(var(--spacing) * 1.25) calc(var(--spacing) * 1.5);
+  border-bottom: 2px solid var(--color-dark);
+  background-color: color-mix(
+    in oklch,
+    var(--color-amber-glow),
+    var(--color-dark) 10%
+  );
+  color: var(--color-dark);
+  flex-shrink: 0;
+}
+
+.momo-hero-chat__title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.momo-hero-chat__thread {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4) var(--space-2) var(--space-2);
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  overflow-anchor: none;
+  pointer-events: none;
+  touch-action: none;
+}
+
+.momo-hero-chat__thread::-webkit-scrollbar {
+  display: none;
+}
+
+.momo-hero-chat__slot {
+  display: grid;
+  flex-shrink: 0;
+  padding: 4px 4px 6px 6px;
+  margin: -4px -4px var(--space-2) -6px;
+}
+
+.momo-hero-chat__composer {
+  --momo-hero-chat-composer-height: calc(var(--spacing) * 9);
+
+  flex-shrink: 0;
+  height: var(--momo-hero-chat-composer-height);
+  padding: var(--space-2);
+  background-color: var(--bg-panel);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-hero-chat__thread {
+    scroll-behavior: auto;
+  }
+}

@@ -1,0 +1,52 @@
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 10px 4px 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg-primary);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.legendItem:focus-visible {
+  outline: 2px solid var(--chart-stroke);
+  outline-offset: 2px;
+}
+
+.legendDot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--chart-stroke);
+  flex: 0 0 auto;
+}
+
+.legendLabel {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.legendItemHidden .legendLabel {
+  text-decoration: line-through;
+  opacity: 0.5;
+}

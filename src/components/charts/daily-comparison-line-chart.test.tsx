@@ -1,170 +1,206 @@
-import { render, waitFor } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
+
 import { DailyComparisonLineChart } from './daily-comparison-line-chart';
-import { type EChartsType, echarts } from './echarts-init';
 
-jest.mock('./echarts-init', () => ({
-  echarts: {
-    init: jest.fn(),
-  },
-}));
+beforeEach(() => {
+  jest.useFakeTimers();
+  jest.setSystemTime(new Date('2026-03-09T12:00:00Z'));
 
-const mockInit = jest.mocked(echarts.init);
+  Object.defineProperty(window, 'requestAnimationFrame', {
+    configurable: true,
+    writable: true,
+    value: (callback: FrameRequestCallback) => {
+      callback(0);
+      return 0;
+    },
+  });
 
-type LineSeriesOption = {
-  type?: string;
-  showSymbol?: boolean;
-  markPoint?: {
-    data?: Array<{
-      xAxis?: number;
-      yAxis?: number;
-    }>;
-    symbol?: string;
-    symbolSize?: number;
-    silent?: boolean;
-    tooltip?: {
-      show?: boolean;
-    };
-    label?: {
-      show?: boolean;
-    };
-    emphasis?: {
-      disabled?: boolean;
-    };
-  };
-};
-
-type ChartOptions = {
-  tooltip?: {
-    trigger?: string;
-  };
-  series?: LineSeriesOption[];
-};
-
-function getLastAppliedOptions(setOption: jest.Mock): ChartOptions | undefined {
-  const latestCall = setOption.mock.calls.at(-1);
-  return latestCall?.[0] as ChartOptions | undefined;
-}
-
-describe('DailyComparisonLineChart', () => {
-  beforeEach(() => {
-    jest.useFakeTimers();
-    jest.clearAllMocks();
-    jest.setSystemTime(new Date('2026-03-09T12:00:00Z'));
-
-    Object.defineProperty(window, 'ResizeObserver', {
-      writable: true,
-      configurable: true,
-      value: jest.fn().mockImplementation(() => ({
-        observe: jest.fn(),
+  Object.defineProperty(window, 'ResizeObserver', {
+    writable: true,
+    configurable: true,
+    value: jest.fn().mockImplementation((callback: ResizeObserverCallback) => {
+      let observer: ResizeObserver;
+      const instance = {
+        observe: (target: Element) => {
+          const rect = {
+            width: 800,
+            height: 400,
+            top: 0,
+            left: 0,
+            right: 800,
+            bottom: 400,
+            x: 0,
+            y: 0,
+            toJSON: () => ({}),
+          };
+          callback(
+            [
+              {
+                contentRect: rect as DOMRectReadOnly,
+                borderBoxSize: [],
+                contentBoxSize: [],
+                devicePixelContentBoxSize: [],
+                target,
+              } as unknown as ResizeObserverEntry,
+            ],
+            observer,
+          );
+        },
+        unobserve: jest.fn(),
         disconnect: jest.fn(),
-      })),
-    });
+      } as unknown as ResizeObserver;
+      observer = instance;
+      return instance;
+    }),
   });
+});
 
-  afterEach(() => {
-    jest.useRealTimers();
-  });
+afterEach(() => {
+  jest.useRealTimers();
+});
 
-  it('shows persistent markers on the current day for both lines without changing hover config', async () => {
-    const setOption = jest.fn();
-    mockInit.mockReturnValue({
-      setOption,
-      resize: jest.fn(),
-      dispose: jest.fn(),
-    } as unknown as EChartsType);
+describe('DailyComparisonLineChart (Visx)', () => {
+  const currentPoints = [
+    { day: 1, totalCents: 100 },
+    { day: 9, totalCents: 900 },
+    { day: 12, totalCents: 1_200 },
+  ];
+  const previousPoints = [
+    { day: 1, totalCents: 50 },
+    { day: 8, totalCents: 800 },
+    { day: 12, totalCents: 1_100 },
+  ];
 
-    render(
+  it('renders two line paths (current and previous) with palette colors', () => {
+    const { container } = render(
       <DailyComparisonLineChart
         monthLabel="Mar 2026"
-        current={[
-          { day: 1, totalCents: 100 },
-          { day: 9, totalCents: 900 },
-          { day: 12, totalCents: 1_200 },
-        ]}
-        previous={[
-          { day: 1, totalCents: 50 },
-          { day: 8, totalCents: 800 },
-          { day: 12, totalCents: 1_100 },
-        ]}
+        current={currentPoints}
+        previous={previousPoints}
         currency="USD"
       />,
     );
 
-    await waitFor(() => {
-      expect(setOption).toHaveBeenCalled();
-    });
-
-    const options = getLastAppliedOptions(setOption);
-    const lineSeries = (options?.series ?? []).filter(
-      series => series.type === 'line',
+    const linePaths = Array.from(
+      container.querySelectorAll('svg path[stroke-width="3"]'),
     );
+    expect(linePaths).toHaveLength(2);
 
-    expect(options?.tooltip?.trigger).toBe('axis');
-    expect(lineSeries).toHaveLength(2);
+    const strokes = linePaths.map(p => p.getAttribute('stroke'));
+    expect(strokes).toContain('var(--chart-1)');
+    expect(strokes).toContain('var(--chart-2)');
 
-    lineSeries.forEach(series => {
-      expect(series.showSymbol).toBe(false);
-      expect(series.markPoint?.symbol).toBe('emptyCircle');
-      expect(series.markPoint?.symbolSize).toBe(8);
-      expect(series.markPoint?.silent).toBe(true);
-      expect(series.markPoint?.tooltip?.show).toBe(false);
-      expect(series.markPoint?.label?.show).toBe(false);
-      expect(series.markPoint?.emphasis?.disabled).toBe(true);
-      expect(series.markPoint?.data).toHaveLength(1);
-    });
-
-    expect(lineSeries[0]?.markPoint?.data?.[0]).toMatchObject({
-      xAxis: 8,
-      yAxis: 900,
-    });
-    expect(lineSeries[1]?.markPoint?.data?.[0]).toMatchObject({
-      xAxis: 8,
-      yAxis: 800,
+    linePaths.forEach(path => {
+      expect(path.getAttribute('fill')).toBe('none');
+      expect((path.getAttribute('d') ?? '').length).toBeGreaterThan(0);
     });
   });
 
-  it('renders persistent markers using today day-index regardless of month label', async () => {
-    const setOption = jest.fn();
-    mockInit.mockReturnValue({
-      setOption,
-      resize: jest.fn(),
-      dispose: jest.fn(),
-    } as unknown as EChartsType);
-
-    render(
+  it('renders persistent today markers for both series at the current day', () => {
+    const { getByTestId } = render(
       <DailyComparisonLineChart
-        monthLabel="Jan 1999"
-        current={[
-          { day: 1, totalCents: 100 },
-          { day: 9, totalCents: 900 },
-        ]}
-        previous={[
-          { day: 1, totalCents: 50 },
-          { day: 9, totalCents: 600 },
-        ]}
+        monthLabel="Mar 2026"
+        current={currentPoints}
+        previous={previousPoints}
         currency="USD"
       />,
     );
 
-    await waitFor(() => {
-      expect(setOption).toHaveBeenCalled();
+    const markerCurrent = getByTestId('marker-current');
+    const markerPrevious = getByTestId('marker-previous');
+
+    [markerCurrent, markerPrevious].forEach(marker => {
+      expect(marker.getAttribute('r')).toBe('5');
+      expect(marker.getAttribute('fill')).toBe('var(--chart-tooltip-bg)');
+      expect(marker.getAttribute('stroke')).toBe('var(--chart-stroke)');
+      expect(marker.getAttribute('stroke-width')).toBe('2');
+      expect(marker.getAttribute('pointer-events')).toBe('none');
     });
 
-    const options = getLastAppliedOptions(setOption);
-    const lineSeries = (options?.series ?? []).filter(
-      series => series.type === 'line',
+    // Both markers must share the same x coordinate (today, day 9 with the
+    // forward-fill series — system time is 2026-03-09).
+    expect(markerCurrent.getAttribute('cx')).toBe(
+      markerPrevious.getAttribute('cx'),
+    );
+  });
+
+  it('does not render today markers when today is outside [1, maxDay]', () => {
+    // System time set to 2026-03-09; using a 5-day window forces today (9) > maxDay.
+    const { queryByTestId } = render(
+      <DailyComparisonLineChart
+        monthLabel="Mar 2026"
+        current={[{ day: 1, totalCents: 100 }]}
+        previous={[{ day: 2, totalCents: 50 }]}
+        currency="USD"
+      />,
     );
 
-    lineSeries.forEach(series => {
-      expect(series.markPoint?.data).toHaveLength(1);
+    expect(queryByTestId('marker-current')).toBeNull();
+    expect(queryByTestId('marker-previous')).toBeNull();
+  });
+
+  it('formats axis day ticks: only days in {1, 5, 10, ..., maxDay} have labels', () => {
+    const { container } = render(
+      <DailyComparisonLineChart
+        monthLabel="Mar 2026"
+        current={currentPoints}
+        previous={previousPoints}
+        currency="USD"
+      />,
+    );
+
+    // maxDay = 12 here, so visible day labels should be {1, 5, 10, 12}.
+    const tickTexts = Array.from(container.querySelectorAll('svg text'))
+      .map(node => node.textContent ?? '')
+      .filter(text => /^\d+$/.test(text))
+      .map(text => Number(text));
+
+    const expected = new Set([1, 5, 10, 12]);
+    tickTexts.forEach(day => {
+      expect(expected.has(day)).toBe(true);
     });
-    expect(lineSeries[0]?.markPoint?.data?.[0]).toMatchObject({
-      xAxis: 8,
-      yAxis: 900,
+    expected.forEach(day => {
+      expect(tickTexts).toContain(day);
     });
-    expect(lineSeries[1]?.markPoint?.data?.[0]).toMatchObject({
-      xAxis: 8,
-      yAxis: 600,
+  });
+
+  it('renders a clickable legend with both series labels', () => {
+    const { getByTestId } = render(
+      <DailyComparisonLineChart
+        monthLabel="Mar 2026"
+        current={currentPoints}
+        previous={previousPoints}
+        currency="USD"
+      />,
+    );
+
+    const legend = getByTestId('daily-comparison-legend');
+    const buttons = legend.querySelectorAll('button');
+    expect(buttons).toHaveLength(2);
+    expect(buttons[0]?.getAttribute('aria-pressed')).toBe('true');
+    expect(buttons[1]?.getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('renders a tooltip on first touch of the hit area', () => {
+    const { container, getByText } = render(
+      <DailyComparisonLineChart
+        monthLabel="Mar 2026"
+        current={currentPoints}
+        previous={previousPoints}
+        currency="USD"
+      />,
+    );
+
+    const svg = container.querySelector('svg');
+    expect(svg).not.toBeNull();
+    const rects = svg!.querySelectorAll('rect');
+    const pointerLayer = rects[rects.length - 1];
+    expect(pointerLayer).toBeDefined();
+
+    fireEvent.touchStart(pointerLayer!, {
+      changedTouches: [{ clientX: 400, clientY: 200 }],
     });
+
+    expect(getByText(/Day \d+/)).toBeInTheDocument();
   });
 });

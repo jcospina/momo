@@ -3,7 +3,7 @@ import { firstName } from '@utils/user';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { HouseholdForm } from '@/components/household-form/household-form';
-import { Navbar } from '@/components/navbar/navbar';
+import { AppNavbar } from '@/components/navbar/app-navbar';
 import { getCurrentUser, logout } from '@/lib/data/auth/server';
 import {
   createInline,
@@ -61,7 +61,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
   return (
     <Flex direction="column" padding={3} gap={5}>
-      <Navbar />
+      <AppNavbar />
       <Panel className={styles['profile__panel']}>
         <Flex
           gap={2}

@@ -1,8 +1,5 @@
-import { Flex } from '@ui/flex/flex';
-import { GroupIcon } from '@ui/icons/group';
-import { PersonIcon } from '@ui/icons/person';
-import { Typography } from '@ui/typography/typography';
-import { cn } from '@utils/cn';
+import { useProfile } from '@providers/profile-provider';
+import { ToggleGroup } from '@ui/toggle-group/toggle-group';
 import { useTranslations } from 'next-intl';
 import styles from './chat-toggle.module.css';
 
@@ -22,50 +19,32 @@ export function ChatToggle({
   showHousehold = true,
 }: ChatToggleProps) {
   const t = useTranslations('chat.tabs');
-  const isPersonal = active === 'personal';
+  const profile = useProfile();
+  const items = [
+    {
+      label: profile?.display_name?.trim() || t('personal'),
+      value: 'personal',
+    },
+    ...(showHousehold
+      ? [
+          {
+            label: householdName?.trim() || t('household'),
+            value: 'household',
+          },
+        ]
+      : []),
+  ];
 
   return (
-    <Flex
-      className={styles['momo-chat-toggle']}
-      alignItems="stretch"
-      isFullWidth
-    >
-      <button
-        type="button"
-        className={cn(
-          styles['momo-chat-toggle__item'],
-          styles['momo-chat-toggle__item--personal'],
-          isPersonal ? styles['momo-chat-toggle__item--active'] : '',
-        )}
-        onClick={() => onChange('personal')}
-        aria-pressed={isPersonal}
-      >
-        <PersonIcon />
-        {isPersonal ? (
-          <Typography as="span" size="lg">
-            {t('personal')}
-          </Typography>
-        ) : null}
-      </button>
-      {showHousehold ? (
-        <button
-          type="button"
-          className={cn(
-            styles['momo-chat-toggle__item'],
-            styles['momo-chat-toggle__item--household'],
-            !isPersonal ? styles['momo-chat-toggle__item--active'] : '',
-          )}
-          onClick={() => onChange('household')}
-          aria-pressed={!isPersonal}
-        >
-          <GroupIcon />
-          {!isPersonal ? (
-            <Typography as="span" size="lg">
-              {householdName || t('household')}
-            </Typography>
-          ) : null}
-        </button>
-      ) : null}
-    </Flex>
+    <ToggleGroup
+      className={styles['momo-chat-toggle__tabs']}
+      items={items}
+      value={[active]}
+      onValueChange={value => {
+        const next = value[0];
+        if (!next) return;
+        onChange(next as ChatTab);
+      }}
+    />
   );
 }

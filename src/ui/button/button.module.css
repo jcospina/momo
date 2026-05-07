@@ -1,4 +1,7 @@
 .momo-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: -6px 6px 0 var(--color-dark);
   border: 2px solid var(--color-dark);
   padding: calc(var(--spacing) * 1) calc(var(--spacing) * 4);
@@ -38,7 +41,7 @@
 }
 
 .momo-button:hover {
-  transform: translate(-3px);
+  transform: translate(-3px, 3px);
   box-shadow: -2px 2px 0 var(--color-dark);
 }
 
@@ -89,6 +92,11 @@
 
 .momo-button--secondary {
   background-color: var(--color-vibrant-coral);
+  color: var(--fg-on-secondary, var(--color-dark));
+}
+
+.momo-button--surface {
+  background-color: var(--color-light);
   color: var(--color-dark);
 }
 

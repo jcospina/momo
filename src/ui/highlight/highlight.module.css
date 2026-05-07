@@ -1,0 +1,44 @@
+.momo-highlight {
+  display: inline-block;
+  border: var(--border-width-thin) solid var(--color-dark);
+  box-shadow: var(--shadow-sm);
+  padding: 0 0.18em;
+  margin: 0 0.04em;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--color-dark);
+  transition: background-color var(--duration-toggle) var(--ease-pop);
+}
+
+.momo-highlight--primary {
+  background: var(--accent-primary);
+}
+.momo-highlight--feature {
+  background: var(--accent-feature);
+}
+.momo-highlight--info {
+  background: var(--accent-info);
+}
+.momo-highlight--warm {
+  background: var(--accent-warm);
+}
+
+.momo-highlight--rotate-left {
+  transform: rotate(-1.5deg);
+}
+.momo-highlight--rotate-right {
+  transform: rotate(1deg);
+}
+.momo-highlight--rotate-none {
+  transform: none;
+}
+
+.momo-highlight--animatable {
+  clip-path: inset(0 100% 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-highlight--animatable {
+    clip-path: none;
+  }
+}

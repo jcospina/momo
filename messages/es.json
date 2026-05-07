@@ -3,26 +3,27 @@
     "login": {
       "welcome": "Bienvenido a",
       "tagline": "Más plata, más diversión",
-      "signInGoogle": "Entrar con Google"
+      "signInGoogle": "Iniciar sesión con Google",
+      "legalConsent": "Al iniciar sesión, aceptas la <privacy>Política de privacidad</privacy> y los <terms>Términos del servicio</terms>."
     },
     "onboarding": {
-      "householdPrompt": "Vamos a configurar tu hogar para que puedas registrar gastos junto a tus seres queridos.",
+      "householdPrompt": "Vamos a crear tu <feature>hogar</feature> para que puedas registrar gastos junto a tus <highlight>seres queridos.</highlight>",
       "skipTooltip": "Entiendo que no quieres compartir tus hábitos de gasto con tu familia. Lo respeto y no te juzgo.",
-      "skip": "Saltarse la creación del hogar."
+      "skip": "No quiero crear un hogar en MoMo."
     }
   },
   "errors": {
     "auth_provider_failed": "Algo salió mal con Google, eso no es cosa mía.",
-    "auth_user_missing": "Por alguna razón entraste pero no puedo encontrarte.",
+    "auth_user_missing": "Pudiste entrar pero no te encuentro.",
     "auth_exchange_failed": "Casi lo lograste pero algo falló. Eso sí es culpa mía. Lo siento.",
-    "auth_required": "¡Ajá! Intentaste crear algo que no deberías. Qué pillo.",
+    "auth_required": "¡Ajá! Intentaste crear algo que no deberías. Tramposo",
     "logout_failed": "Algo me impide dejarte salir. Perdona.",
     "household_name_required": "¿Quién no le pone nombre a su hogar?",
     "household_create_failed": "Esto es culpa mía, no pude crear tu hogar. Lo siento.",
     "household_membership_create_failed": "",
     "household_full": "Este hogar está lleno, no puedes entrar.",
     "household_invalid": "Algo está muy mal con el hogar al que intentas unirte.",
-    "no_household": "Alguien te engañó haciéndote creer que esta invitación era válida. Qué vergüenza de su parte.",
+    "no_household": "Alguien te engañó haciéndote creer que esta invitación era válida. Deberían sentir vergüenza.",
     "user_has_a_household": "Ya perteneces a un hogar, nada de trampas por favor.",
     "profile_create_failed": "No puedo crear tu perfil. La culpa es mía.",
     "user_pref_update_failed": "No puedo actualizar tus preferencias, perdona."
@@ -35,7 +36,7 @@
     "message": {
       "actionsAriaLabel": "Acciones del mensaje",
       "deleteTitle": "¿Eliminar mensaje?",
-      "deleteConfirmBody": "Esto eliminará el mensaje de forma permanente.",
+      "deleteConfirmBody": "No podrás recuperar este mensaje.",
       "cancel": "Cancelar",
       "confirm": "Confirmar",
       "retry": "Reintentar",
@@ -55,7 +56,7 @@
     "detail": {
       "title": "Detalles del gasto",
       "loading": "Cargando gastos...",
-      "empty": "No se encontraron gastos.",
+      "empty": "Esto no tiene sentido, debería haber datos aquí. Culpa mía.",
       "cancel": "Cancelar",
       "save": "Guardar",
       "saving": "Guardando...",
@@ -74,15 +75,23 @@
       "expense": "Gasto"
     }
   },
+  "nav": {
+    "home": "Chat",
+    "stats": "Stats",
+    "profile": "Perfil",
+    "openMenu": "Abrir menu de navegacion",
+    "closeMenu": "Cerrar menu de navegacion",
+    "navigation": "Navegacion"
+  },
   "stats": {
     "expensesByCategory": "Gastos por categoría",
     "householdTotalsByMember": "Totales del hogar por miembro",
     "incomeVsExpenses": "Ingresos vs gastos",
-    "cumulativeSavings": "Ahorros acumulados",
+    "cumulativeSavings": "Ahorros",
     "runningMonthlyNet": "Neto mensual acumulado",
     "monthlyTotals": "Totales mensuales",
     "dailyComparison": "Comparación diaria",
-    "noData": "Sin datos aún",
+    "noData": "Registra algo para sentirme útil.",
     "nav": {
       "prevMonths": "Meses anteriores",
       "nextMonths": "Meses siguientes",
@@ -108,14 +117,14 @@
     "language": {
       "label": "Idioma",
       "placeholder": "Selecciona tu idioma",
-      "ariaLabel": "Idioma preferido",
+      "ariaLabel": "Idioma favorito",
       "en": "Inglés",
       "es": "Español"
     },
     "invite": {
       "linkCopied": "Enlace copiado",
       "shared": "¡Compartido!",
-      "copyFailed": "Error al copiar",
+      "copyFailed": "No pude copiar :(",
       "share": "Compartir enlace de invitación",
       "copy": "Copiar enlace de invitación",
       "shareTitle": "Únete a mi hogar en MoMo",
@@ -143,6 +152,121 @@
     "notFound": {
       "message": "Encontraste una página que no existe, y al encontrarla la trajiste a la existencia.",
       "tagline": "¡Curioso, ¿verdad?!"
+    }
+  },
+  "theme": {
+    "select_label": "Elegir tema"
+  },
+  "landing": {
+    "nav": {
+      "how": "Cómo funciona",
+      "features": "Funciones",
+      "login": "Login"
+    },
+    "hero": {
+      "eyebrow": "Un control de gastos tipo chat",
+      "title": "Lleva tus gastos <primary>chateando</primary>. Es <feature>muy fácil</feature>.",
+      "sub": "MoMo convierte la parte aburrida de las finanzas personales en un chat. Escribe <em>\"15.50 almuerzo crepes\"</em> y nosotros lo registramos, categorizamos y sumamos. Solo o con tu hogar — tú decides.",
+      "cta_primary": "Empezar — gratis",
+      "cta_secondary": "Ver cómo funciona",
+      "image_alt": "Captura del producto — pantalla principal de MoMo",
+      "chatPreview": {
+        "headerTitle": "Familia",
+        "mobile": {
+          "samples": [
+            "Café 8000",
+            "220000 Taxi al aeropuerto",
+            "Mercado 154000",
+            "Almuerzo con la esposa 60k"
+          ],
+          "ariaSendLabel": "Enviar",
+          "ariaPreviewLabel": "Vista previa de cómo escribir un mensaje y crear un gasto"
+        },
+        "desktop": {
+          "messages": [
+            {
+              "text": "60k almuerzo con la esposa",
+              "sender": "Juan",
+              "time": "12:31 PM"
+            },
+            { "text": "8000 café", "sender": "Martín", "time": "12:34 PM" },
+            {
+              "text": "22000 taxi al aeropuerto",
+              "sender": "Juan",
+              "time": "12:48 PM"
+            },
+            {
+              "text": "154000 mercado D1",
+              "sender": "Martín",
+              "time": "5:12 PM"
+            },
+            {
+              "text": "18000 entrada al cine",
+              "sender": "Martín",
+              "time": "8:02 PM"
+            }
+          ]
+        }
+      }
+    },
+    "parse": {
+      "statement": "Tú <primary>escribes</primary>, MoMo <feature>lo entiende</feature>.",
+      "statementLines": {
+        "lead": "Tú",
+        "verb": "escribes",
+        "subject": "MoMo",
+        "outcome": "lo entiende"
+      },
+      "chat": {
+        "text": "25 almuerzo con martín",
+        "time": "12:31 PM"
+      },
+      "chip": {
+        "label": "Registrado como",
+        "category": "Dining"
+      }
+    },
+    "together": {
+      "statement": "Dinero <info>compartido</info>, no más cuentas incómodas.",
+      "householdName": "El nidito de papá",
+      "label": "Hogar",
+      "eyebrow": {
+        "chat": "Chat",
+        "stats": "Pestaña de Estadísticas",
+        "statsAria": "Pestaña de Estadísticas aparte — no es parte del chat"
+      },
+      "thread": [
+        { "text": "compré mercado 54", "time": "5:12 PM" },
+        { "text": "ya está. ¿incluyó la leche?", "time": "5:13 PM" },
+        { "text": "sí, todo dentro", "time": "5:14 PM" }
+      ],
+      "ring": {
+        "left": "Juan",
+        "right": "Martín",
+        "leftAmount": "$612",
+        "rightAmount": "$378",
+        "totalLabel": "Este mes",
+        "total": "$990",
+        "ariaLabel": "Reparto de gastos del hogar entre Juan y Martín este mes"
+      }
+    },
+    "stats": {
+      "statement": "Tu <warm>mes</warm>, de un vistazo.",
+      "months": ["Nov", "Dic", "Ene", "Feb", "Mar", "Abr"],
+      "sticker": "Feb: ay.",
+      "caption": "Facíl de leer, no necesitas ser economista.",
+      "ariaLabel": "Seis meses de gastos apilados por categoría. Febrero es el más alto."
+    },
+    "closer": {
+      "title": "Más dinero.<br></br><stamp>Más diversión.</stamp>",
+      "sub": "Regístrate gratis. Trae a tu hogar si quieres, o no, no juzgo.",
+      "cta": "Crear mi cuenta"
+    },
+    "footer": {
+      "tagline": "Más dinero, más diversión",
+      "privacy": "Privacidad",
+      "terms": "Términos",
+      "github": "GitHub"
     }
   }
 }

@@ -8,6 +8,7 @@ import { getMembership } from '@/lib/data/households/server';
 import { setOnboardingStatus } from '@/lib/data/prefs/server';
 import { Button } from '@/ui/button/button';
 import { Flex } from '@/ui/flex/flex';
+import { Highlight } from '@/ui/highlight/highlight';
 import { Logo } from '@/ui/logo/logo';
 import { Panel } from '@/ui/panel/panel';
 import { Tooltip } from '@/ui/tooltip/tooltip';
@@ -55,8 +56,21 @@ export default async function OnboardingPage({
           isFullHeight
           isFullWidth
         >
-          <Logo />
-          <Typography>{tOnboarding('householdPrompt')}</Typography>
+          <Logo className={styles['onboarding__logo']} />
+          <Typography>
+            {tOnboarding.rich('householdPrompt', {
+              feature: chunks => (
+                <Highlight variant="feature" rotation="none">
+                  {chunks}
+                </Highlight>
+              ),
+              highlight: chunks => (
+                <Highlight variant="warm" rotation="none">
+                  {chunks}
+                </Highlight>
+              ),
+            })}
+          </Typography>
           <HouseholdForm />
           <Tooltip
             className={styles['onboarding__skip-link']}

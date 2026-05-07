@@ -1,0 +1,43 @@
+.momo-chat-composer-mock {
+  --momo-chat-composer-mock-height: calc(var(--spacing) * 5);
+
+  display: inline-flex;
+  align-items: stretch;
+  width: 100%;
+  height: var(--momo-chat-composer-mock-height);
+  border: 2px solid var(--color-dark);
+  border-radius: var(--border-radius);
+  background-color: var(--color-light);
+  overflow: hidden;
+}
+
+.momo-chat-composer-mock__typed {
+  flex: 1 1 auto;
+  display: block;
+  height: 100%;
+  min-width: 0;
+  padding: 0 calc(var(--spacing) * 1);
+  font-size: var(--font-size);
+  line-height: calc(var(--momo-chat-composer-mock-height) - 4px);
+  color: var(--color-dark);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.momo-chat-composer-mock__typed--ready {
+  visibility: visible;
+}
+
+.momo-chat-composer-mock__send {
+  display: inline-flex;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-chat-composer-mock__typed {
+    visibility: visible;
+  }
+}

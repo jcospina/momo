@@ -1,0 +1,36 @@
+.tooltip {
+  background: var(--chart-tooltip-bg);
+  border: 2px solid var(--chart-tooltip-border);
+  color: var(--fg-primary);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.45;
+  padding: 8px 10px;
+  border-radius: 4px;
+  box-shadow: none;
+  pointer-events: none;
+  max-width: 280px;
+  /* The Portal wrapper visx creates is `position: static`, so the `zIndex`
+     option on `useTooltipInPortal` has no effect. The inner tooltip div is
+     `position: absolute`, so the z-index has to live here. */
+  z-index: 1100;
+}
+
+.tooltip strong {
+  font-weight: 700;
+}
+
+.tooltipRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.tooltipDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}

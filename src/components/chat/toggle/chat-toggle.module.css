@@ -1,77 +1,28 @@
-.momo-chat-toggle {
+.momo-chat-toggle__tabs {
   width: 100%;
-  background-color: var(--color-amber-glow);
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-.momo-chat-toggle__item {
-  flex: 1 1 0;
-  display: inline-flex;
-  align-items: center;
-  gap: calc(var(--spacing) * 0.75);
-  padding: calc(var(--spacing) * 1.25) calc(var(--spacing) * 1);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font: inherit;
-  text-align: left;
-  transition:
-    flex 300ms cubic-bezier(0.2, 0.9, 0.2, 1),
-    padding 300ms cubic-bezier(0.2, 0.9, 0.2, 1),
-    gap 300ms cubic-bezier(0.2, 0.9, 0.2, 1),
-    background-color 160ms ease;
-  border-right: 2px solid var(--color-dark);
-  color: var(--color-dark);
-}
-
-.momo-chat-toggle__item:last-child {
-  border-right: none;
-}
-
-.momo-chat-toggle__item svg {
-  flex-shrink: 0;
-}
-
-.momo-chat-toggle__item--personal {
-  justify-content: flex-start;
-}
-
-.momo-chat-toggle__item--household {
-  justify-content: flex-end;
-}
-
-.momo-chat-toggle__item--active {
-  flex: 2;
-  padding-left: calc(var(--spacing) * 1.5);
-  padding-right: calc(var(--spacing) * 1.5);
-  gap: calc(var(--spacing) * 1);
-}
-
-.momo-chat-toggle__item:not(.momo-chat-toggle__item--active) {
-  flex: 0 0 auto;
-  padding-left: calc(var(--spacing));
-  padding-right: calc(var(--spacing));
-}
-
-.momo-chat-toggle__item:not(.momo-chat-toggle__item--active) span {
-  display: none;
-}
-
-.momo-chat-toggle__item--personal {
-  background-color: var(--color-amber-glow);
-}
-
-.momo-chat-toggle__item--household {
-  background-color: color-mix(
+.momo-chat-toggle__tabs :global(.momo-toggle) {
+  max-width: min(42vw, 18rem);
+  min-width: 0;
+  background: color-mix(
     in oklch,
-    var(--color-amber-glow),
-    var(--color-dark) 10%
+    var(--color-light),
+    var(--color-amber-glow) 22%
   );
+  box-shadow: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.momo-chat-toggle__item--personal.momo-chat-toggle__item--active {
-  justify-content: flex-start;
+.momo-chat-toggle__tabs :global(.momo-toggle:hover) {
+  box-shadow: -1px 1px 0 var(--color-dark);
 }
 
-.momo-chat-toggle__item--household.momo-chat-toggle__item--active {
-  justify-content: flex-end;
+.momo-chat-toggle__tabs :global(.momo-toggle[data-pressed]) {
+  background: var(--color-sky-aqua);
+  box-shadow: -2px 2px 0 var(--color-dark);
 }

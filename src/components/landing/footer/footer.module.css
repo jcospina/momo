@@ -1,0 +1,36 @@
+.momo-landing-footer {
+  width: 100%;
+  margin: var(--space-6) auto 0;
+  padding: var(--space-3);
+  border-top: var(--border-width-thin) solid var(--color-dark);
+  font-size: var(--type-sm);
+}
+
+.momo-landing-footer__links {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  display: flex;
+  gap: var(--space-3);
+}
+
+.momo-landing-footer__link {
+  color: var(--color-dark);
+  text-decoration: none;
+  font-weight: var(--weight-bold);
+  font-size: var(--type-md);
+  padding: var(--space-1) 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  transition: text-decoration-thickness var(--duration-fast) ease;
+}
+
+.momo-landing-footer__link:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}

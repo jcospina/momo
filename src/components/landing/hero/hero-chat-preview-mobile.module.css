@@ -1,0 +1,41 @@
+.momo-hero-chat-mobile {
+  background: var(--bg-panel);
+  border: var(--border-width-thick) solid var(--color-dark);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 480px;
+  justify-self: center;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: var(--space-3);
+}
+
+.momo-hero-chat-mobile__stage {
+  position: relative;
+  width: 100%;
+  min-height: calc(var(--spacing) * 6);
+  display: flex;
+  align-items: center;
+}
+
+.momo-hero-chat-mobile__phase {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.momo-hero-chat-mobile__phase--bubble {
+  justify-content: flex-end;
+  padding-right: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-hero-chat-mobile__phase--input {
+    opacity: 0;
+    pointer-events: none;
+  }
+}

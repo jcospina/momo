@@ -1,0 +1,27 @@
+.momo-landing-image {
+  background: var(--bg-panel);
+  border: var(--border-width-thick) solid var(--color-dark);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-xl);
+  transform: translateX(4px);
+  width: 100%;
+  transition: background-color var(--duration-toggle) var(--ease-pop);
+}
+
+@media (min-width: 768px) {
+  .momo-landing-image {
+    box-shadow: var(--shadow-xxl);
+  }
+}
+
+.momo-landing-image--hero {
+  aspect-ratio: 4 / 3;
+  max-width: 560px;
+  justify-self: center;
+}
+
+.momo-landing-image--chart {
+  aspect-ratio: 1;
+  max-width: 480px;
+  margin: 0 auto;
+}

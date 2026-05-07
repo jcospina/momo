@@ -3,10 +3,11 @@
     "login": {
       "welcome": "Welcome to",
       "tagline": "More money, More fun",
-      "signInGoogle": "Sign in with Google"
+      "signInGoogle": "Sign in with Google",
+      "legalConsent": "By logging in, you accept the <privacy>Privacy Policy</privacy> and <terms>Terms of Service</terms>."
     },
     "onboarding": {
-      "householdPrompt": "Let's set up your household so you can start tracking expenses together with your loved ones.",
+      "householdPrompt": "Let's set up your <feature>household</feature> so you can start tracking expenses together with your <highlight>loved ones.</highlight>",
       "skipTooltip": "You don't want to share your spending habits with your family, I respect that and won't judge.",
       "skip": "Skip household creation."
     }
@@ -35,7 +36,7 @@
     "message": {
       "actionsAriaLabel": "Message actions",
       "deleteTitle": "Delete message?",
-      "deleteConfirmBody": "This will remove the message permanently.",
+      "deleteConfirmBody": "You cannot get this message back.",
       "cancel": "Cancel",
       "confirm": "Confirm",
       "retry": "Retry",
@@ -55,7 +56,7 @@
     "detail": {
       "title": "Expense details",
       "loading": "Loading expenses...",
-      "empty": "No expenses found.",
+      "empty": "This does not make sense, there should be data here. My bad.",
       "cancel": "Cancel",
       "save": "Save",
       "saving": "Saving...",
@@ -74,15 +75,23 @@
       "expense": "Expense"
     }
   },
+  "nav": {
+    "home": "Chat",
+    "stats": "Stats",
+    "profile": "Profile",
+    "openMenu": "Open navigation menu",
+    "closeMenu": "Close navigation menu",
+    "navigation": "Navigation"
+  },
   "stats": {
     "expensesByCategory": "Expenses by category",
     "householdTotalsByMember": "Household totals by member",
     "incomeVsExpenses": "Income vs expenses",
-    "cumulativeSavings": "Cumulative savings",
+    "cumulativeSavings": "Savings",
     "runningMonthlyNet": "Running monthly net",
     "monthlyTotals": "Monthly totals",
     "dailyComparison": "Daily comparison",
-    "noData": "No data yet",
+    "noData": "Log something so I can feel useful.",
     "nav": {
       "prevMonths": "Previous months",
       "nextMonths": "Next months",
@@ -115,7 +124,7 @@
     "invite": {
       "linkCopied": "Link copied",
       "shared": "Shared!",
-      "copyFailed": "Copy failed",
+      "copyFailed": "I could not copy :(",
       "share": "Share invite link",
       "copy": "Copy invite link",
       "shareTitle": "Join my household on MoMo",
@@ -143,6 +152,117 @@
     "notFound": {
       "message": "You just found a page that doesn't exist, and by finding it you brought it into existence.",
       "tagline": "Pretty neat huh!"
+    }
+  },
+  "theme": {
+    "select_label": "Select theme"
+  },
+  "landing": {
+    "nav": {
+      "how": "How it works",
+      "features": "Features",
+      "login": "Login"
+    },
+    "hero": {
+      "eyebrow": "A chat-first money tracker",
+      "title": "Track expenses by <primary>just typing</primary> them. It's <feature>that simple</feature>.",
+      "sub": "MoMo turns the boring part of personal finance into a chat. Type <em>\"15.50 lunch chipotle\"</em> and we'll handle it for you.",
+      "cta_primary": "Start now, its free!",
+      "cta_secondary": "See how it works",
+      "image_alt": "Product screenshot — MoMo home screen",
+      "chatPreview": {
+        "headerTitle": "Family",
+        "mobile": {
+          "samples": [
+            "Coffee 4.50",
+            "22 Uber to airport",
+            "Groceries 54",
+            "Lunch with wife 18"
+          ],
+          "ariaSendLabel": "Send",
+          "ariaPreviewLabel": "Preview of typing a message and creating an expense"
+        },
+        "desktop": {
+          "messages": [
+            {
+              "text": "25.50 lunch with wife",
+              "sender": "Juan",
+              "time": "12:31 PM"
+            },
+            { "text": "4 coffee", "sender": "Martín", "time": "12:34 PM" },
+            {
+              "text": "22 taxi to airport",
+              "sender": "Juan",
+              "time": "12:48 PM"
+            },
+            {
+              "text": "54 groceries trader joes",
+              "sender": "Martín",
+              "time": "5:12 PM"
+            },
+            { "text": "9 movie ticket", "sender": "Martín", "time": "8:02 PM" }
+          ]
+        }
+      }
+    },
+    "parse": {
+      "statement": "You <primary>type</primary>, MoMo <feature>gets it</feature>.",
+      "statementLines": {
+        "lead": "You",
+        "verb": "type",
+        "subject": "MoMo",
+        "outcome": "gets it"
+      },
+      "chat": {
+        "text": "25 lunch with Martín",
+        "time": "12:31 PM"
+      },
+      "chip": {
+        "label": "Categorized as",
+        "category": "Dining"
+      }
+    },
+    "together": {
+      "statement": "<info>Shared</info> expenses.",
+      "householdName": "Papa's little nest",
+      "label": "Household",
+      "eyebrow": {
+        "chat": "Chat",
+        "stats": "Stats tab",
+        "statsAria": "Separate Stats tab — not part of the chat"
+      },
+      "thread": [
+        { "text": "got groceries 54", "time": "5:12 PM" },
+        { "text": "Cool, did you buy the milk too?", "time": "5:13 PM" },
+        { "text": "yeah, all in", "time": "5:14 PM" }
+      ],
+      "ring": {
+        "left": "Juan",
+        "right": "Martín",
+        "leftAmount": "$612",
+        "rightAmount": "$378",
+        "totalLabel": "This month",
+        "total": "$990",
+        "ariaLabel": "Household spending split between Juan and Martín for this month"
+      }
+    },
+    "stats": {
+      "statement": "Your <warm>month</warm>, in one glance.",
+      "months": ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr"],
+      "sticker": "Feb: ouch.",
+      "caption": "Easy to read, no economy major required.",
+      "ariaLabel": "Six months of spending stacked by category. February is the highest."
+    },
+    "closer": {
+      "title": "More money.<br></br><stamp>More fun.</stamp>",
+      "sub": "Sign up free. Bring your household if you want or keep it to yourself. I won't judge.",
+      "cta": "Create my account"
+    },
+    "footer": {
+      "tagline": "More money, More fun",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "github": "GitHub"
     }
   }
 }

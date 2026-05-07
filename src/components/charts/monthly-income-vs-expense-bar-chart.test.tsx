@@ -1,187 +1,186 @@
-import { render, waitFor } from '@testing-library/react';
-import type { MonthlyCashflowPoint } from '@/lib/data/stats/types';
+import { fireEvent, render } from '@testing-library/react';
 
-jest.mock('./echarts-init', () => ({
-  echarts: {
-    init: jest.fn(),
-  },
-}));
-
-jest.mock('./echarts-safe', () => ({
-  safeResize: jest.fn(),
-  safeSetOption: jest.fn(),
-}));
-
-import { type EChartsType, echarts } from './echarts-init';
-import { safeSetOption } from './echarts-safe';
 import { MonthlyIncomeVsExpenseBarChart } from './monthly-income-vs-expense-bar-chart';
 
-const mockInit = jest.mocked(echarts.init);
-const mockSafeSetOption = jest.mocked(safeSetOption);
+beforeEach(() => {
+  Object.defineProperty(window, 'requestAnimationFrame', {
+    configurable: true,
+    writable: true,
+    value: (callback: FrameRequestCallback) => {
+      callback(0);
+      return 0;
+    },
+  });
 
-type BarSeriesOption = {
-  name?: string;
-  type?: string;
-  barGap?: string;
-  barCategoryGap?: string;
-  itemStyle?: {
-    borderWidth?: number;
-    borderColor?: string;
-  };
-  tooltip?: {
-    show?: boolean;
-  };
-  renderItem?: (_params: unknown, api: unknown) => unknown;
-};
-
-type AxisOption = {
-  axisLine?: {
-    lineStyle?: {
-      color?: string;
-      width?: number;
-    };
-  };
-};
-
-type ChartOptions = {
-  series?: BarSeriesOption[];
-  xAxis?: AxisOption | AxisOption[];
-  yAxis?: AxisOption | AxisOption[];
-};
-
-function renderChart(months: MonthlyCashflowPoint[]) {
-  render(<MonthlyIncomeVsExpenseBarChart months={months} currency="USD" />);
-}
-
-function getLastAppliedOptions(): ChartOptions {
-  const latestCall = mockSafeSetOption.mock.calls.at(-1);
-  expect(latestCall).toBeDefined();
-  return (latestCall?.[1] as ChartOptions) ?? {};
-}
-
-describe('MonthlyIncomeVsExpenseBarChart', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockInit.mockReturnValue({
-      dispose: jest.fn(),
-    } as unknown as EChartsType);
-
-    Object.defineProperty(window, 'ResizeObserver', {
-      writable: true,
-      configurable: true,
-      value: jest.fn().mockImplementation(() => ({
-        observe: jest.fn(),
+  Object.defineProperty(window, 'ResizeObserver', {
+    writable: true,
+    configurable: true,
+    value: jest.fn().mockImplementation((callback: ResizeObserverCallback) => {
+      let observer: ResizeObserver;
+      const instance = {
+        observe: (target: Element) => {
+          const rect = {
+            width: 800,
+            height: 400,
+            top: 0,
+            left: 0,
+            right: 800,
+            bottom: 400,
+            x: 0,
+            y: 0,
+            toJSON: () => ({}),
+          };
+          callback(
+            [
+              {
+                contentRect: rect as DOMRectReadOnly,
+                borderBoxSize: [],
+                contentBoxSize: [],
+                devicePixelContentBoxSize: [],
+                target,
+              } as unknown as ResizeObserverEntry,
+            ],
+            observer,
+          );
+        },
+        unobserve: jest.fn(),
         disconnect: jest.fn(),
-      })),
+      } as unknown as ResizeObserver;
+      observer = instance;
+      return instance;
+    }),
+  });
+});
+
+describe('MonthlyIncomeVsExpenseBarChart (Visx)', () => {
+  const months = [
+    {
+      month: '2026-01',
+      incomeCents: 400_000,
+      expenseCents: 250_000,
+      netCents: 150_000,
+    },
+    {
+      month: '2026-02',
+      incomeCents: 450_000,
+      expenseCents: 300_000,
+      netCents: 150_000,
+    },
+  ];
+
+  it('renders the two series legend entries (Income, Expenses)', () => {
+    const { getByTestId } = render(
+      <MonthlyIncomeVsExpenseBarChart months={months} currency="USD" />,
+    );
+
+    const legend = getByTestId('monthly-income-vs-expense-legend');
+    const buttons = legend.querySelectorAll('button');
+    expect(buttons).toHaveLength(2);
+    const labels = Array.from(buttons).map(
+      btn => btn.textContent?.trim() ?? '',
+    );
+    expect(labels).toEqual(['Income', 'Expenses']);
+  });
+
+  it('renders one rect per (month, series) with neobrutalist outline directly on each bar', () => {
+    const { getAllByTestId } = render(
+      <MonthlyIncomeVsExpenseBarChart months={months} currency="USD" />,
+    );
+
+    const bars = getAllByTestId('grouped-bar');
+    // 2 months * 2 series = 4 bars (all values > 0).
+    expect(bars).toHaveLength(months.length * 2);
+
+    bars.forEach(rect => {
+      expect(rect.getAttribute('stroke')).toBe('var(--chart-stroke)');
+      expect(rect.getAttribute('stroke-width')).toBe('2');
+      expect(rect.getAttribute('shape-rendering')).toBe('crispEdges');
+    });
+
+    // Per-month: exactly two rects, one Income and one Expenses.
+    months.forEach(point => {
+      const monthBars = bars.filter(
+        b => b.getAttribute('data-month') === point.month,
+      );
+      expect(monthBars).toHaveLength(2);
+      const series = monthBars.map(b => b.getAttribute('data-series')).sort();
+      expect(series).toEqual(['Expenses', 'Income']);
     });
   });
 
-  it('applies neobrutalist bar borders on both series', async () => {
-    renderChart([
-      {
-        month: '2026-01',
-        incomeCents: 400_000,
-        expenseCents: 250_000,
-        netCents: 150_000,
-      },
-      {
-        month: '2026-02',
-        incomeCents: 450_000,
-        expenseCents: 300_000,
-        netCents: 150_000,
-      },
-    ]);
+  it('skips bars whose value is <= 0', () => {
+    const { getAllByTestId } = render(
+      <MonthlyIncomeVsExpenseBarChart
+        months={[
+          {
+            month: '2026-01',
+            incomeCents: 100_000,
+            expenseCents: 0,
+            netCents: 100_000,
+          },
+          {
+            month: '2026-02',
+            incomeCents: 0,
+            expenseCents: 50_000,
+            netCents: -50_000,
+          },
+        ]}
+        currency="USD"
+      />,
+    );
 
-    await waitFor(() => {
-      expect(mockSafeSetOption).toHaveBeenCalled();
-    });
-
-    const options = getLastAppliedOptions();
-    const series = options.series ?? [];
-    const xAxis = Array.isArray(options.xAxis)
-      ? options.xAxis[0]
-      : options.xAxis;
-    const yAxis = Array.isArray(options.yAxis)
-      ? options.yAxis[0]
-      : options.yAxis;
-
-    const filledBarSeries = series.filter(entry => entry.type === 'bar');
-    const outlineSeries = series.filter(entry => entry.type === 'custom');
-
-    expect(filledBarSeries).toHaveLength(2);
-    filledBarSeries.forEach(entry => {
-      expect(entry.type).toBe('bar');
-      expect(entry.barGap).toBe('30%');
-      expect(entry.barCategoryGap).toBe('20%');
-      expect(entry.itemStyle?.borderWidth).toBe(0);
-    });
-    expect(outlineSeries).toHaveLength(2);
-    expect(outlineSeries.map(entry => entry.name)).toEqual([
-      '__income_outline__',
-      '__expenses_outline__',
-    ]);
-    outlineSeries.forEach(entry => {
-      expect(entry.tooltip?.show).toBe(false);
-    });
-    expect(xAxis?.axisLine?.lineStyle).toMatchObject({
-      color: 'rgb(2, 0, 32)',
-      width: 2,
-    });
-    expect(yAxis?.axisLine?.lineStyle).toMatchObject({
-      color: 'rgb(2, 0, 32)',
-      width: 2,
-    });
+    const bars = getAllByTestId('grouped-bar');
+    // Only Income for Jan + Expenses for Feb.
+    expect(bars).toHaveLength(2);
+    const map = bars.map(b => ({
+      month: b.getAttribute('data-month'),
+      series: b.getAttribute('data-series'),
+    }));
+    expect(map).toEqual(
+      expect.arrayContaining([
+        { month: '2026-01', series: 'Income' },
+        { month: '2026-02', series: 'Expenses' },
+      ]),
+    );
   });
 
-  it('builds outline geometry from bar layout slot centers for perfect edge alignment', async () => {
-    renderChart([
-      {
-        month: '2026-01',
-        incomeCents: 300_000,
-        expenseCents: 200_000,
-        netCents: 100_000,
-      },
-    ]);
+  it('legend toggle removes all bars for the toggled series', () => {
+    const { getAllByTestId, getByText } = render(
+      <MonthlyIncomeVsExpenseBarChart months={months} currency="USD" />,
+    );
 
-    await waitFor(() => {
-      expect(mockSafeSetOption).toHaveBeenCalled();
+    const initialIncome = getAllByTestId('grouped-bar').filter(
+      b => b.getAttribute('data-series') === 'Income',
+    );
+    expect(initialIncome.length).toBeGreaterThan(0);
+
+    const incomeButton = getByText('Income').closest('button');
+    expect(incomeButton).not.toBeNull();
+    fireEvent.click(incomeButton!);
+
+    const afterToggle = getAllByTestId('grouped-bar').filter(
+      b => b.getAttribute('data-series') === 'Income',
+    );
+    expect(afterToggle).toHaveLength(0);
+  });
+
+  it('renders tooltip on first touch with Net field computed from income - expense', () => {
+    const { container, getByText } = render(
+      <MonthlyIncomeVsExpenseBarChart months={months} currency="USD" />,
+    );
+
+    const svg = container.querySelector('svg');
+    expect(svg).not.toBeNull();
+    // The pointer layer is the last <rect> rendered inside the chart group.
+    const rects = svg!.querySelectorAll('rect');
+    const pointerLayer = rects[rects.length - 1];
+    expect(pointerLayer).toBeDefined();
+
+    fireEvent.touchStart(pointerLayer!, {
+      changedTouches: [{ clientX: 400, clientY: 200 }],
     });
 
-    const options = getLastAppliedOptions();
-    const outlineSeries = (options.series ?? []).filter(
-      entry => entry.type === 'custom',
-    );
-    const incomeOutline = outlineSeries.find(
-      entry => entry.name === '__income_outline__',
-    );
-    expect(incomeOutline?.renderItem).toBeDefined();
-
-    const renderResult = incomeOutline?.renderItem?.(
-      {},
-      {
-        value: (dim: number) => (dim === 0 ? 0 : 300_000),
-        coord: (point: [number, number]) =>
-          point[1] === 0 ? [100.3, 220.6] : [100.3, 120.2],
-        size: () => [80, 0],
-        barLayout: () => [
-          { width: 28, offset: -999, offsetCenter: -14, bandWidth: 80 },
-          { width: 28, offset: 999, offsetCenter: 14, bandWidth: 80 },
-        ],
-        getDevicePixelRatio: () => 1,
-      },
-    ) as
-      | {
-          type?: string;
-          shape?: { points?: number[][] };
-        }
-      | undefined;
-
-    expect(renderResult?.type).toBe('polyline');
-    expect(renderResult?.shape?.points).toEqual([
-      [72, 221],
-      [72, 120],
-      [100, 120],
-      [100, 221],
-    ]);
+    // Net for either month is 150_000 cents = $1,500.00 in USD.
+    expect(getByText(/Net:\s*\$1,500\.00/)).toBeInTheDocument();
   });
 });
