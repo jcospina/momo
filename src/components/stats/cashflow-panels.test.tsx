@@ -126,7 +126,7 @@ describe('CashflowPanels', () => {
       screen.getByRole('heading', { name: 'Income vs expenses' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: 'Cumulative savings' }),
+      screen.getByRole('heading', { name: 'Savings' }),
     ).toBeInTheDocument();
 
     expect(screen.getByTestId('income-vs-expense-chart')).toHaveTextContent(
@@ -210,7 +210,9 @@ describe('CashflowPanels', () => {
       />,
     );
 
-    expect(screen.getAllByText('No data yet')).toHaveLength(2);
+    expect(
+      screen.getAllByText('Log something so I can feel useful.'),
+    ).toHaveLength(2);
   });
 
   it('does not show empty overlays when cumulative savings values are negative', () => {
@@ -227,7 +229,9 @@ describe('CashflowPanels', () => {
       />,
     );
 
-    expect(screen.queryByText('No data yet')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Log something so I can feel useful.'),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId('cumulative-savings-chart')).toHaveTextContent(
       '2026-05,2026-06',
     );

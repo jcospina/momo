@@ -6,7 +6,7 @@ import { Highlight } from '@ui/highlight/highlight';
 import { Typography } from '@ui/typography/typography';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import { LandingMiniRing } from './landing-mini-ring';
+import { LandingMiniRing } from './charts/landing-mini-ring';
 import { SceneShell } from './scene-shell';
 import styles from './scene-together.module.css';
 

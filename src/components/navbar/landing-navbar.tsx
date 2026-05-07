@@ -1,6 +1,6 @@
 'use client';
 
-import { useOptionalLandingCurtainRefs } from '@components/landing/landing-scroll-context';
+import { useOptionalLandingCurtainRefs } from '@components/landing/scroll/landing-scroll-context';
 import { ThemeSelector } from '@components/theme-selector/theme-selector';
 import { useMediaQuery } from '@hooks/use-media-query';
 import { useScrollTick } from '@hooks/use-scroll-progress';

@@ -1,10 +1,10 @@
 'use client';
 
+import { HeroCard } from '@components/landing/hero/hero-card';
+import styles from '@components/landing/landing-page.module.css';
 import { useMediaQuery } from '@hooks/use-media-query';
 import { useScrollTick } from '@hooks/use-scroll-progress';
 import type { ReactNode } from 'react';
-import { HeroCard } from './hero-card';
-import styles from './landing-page.module.css';
 import { useLandingCurtainRefs } from './landing-scroll-context';
 
 function getHandoffDistance(viewportHeight: number): number {

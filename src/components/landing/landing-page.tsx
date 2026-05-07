@@ -1,13 +1,13 @@
 import { LandingNavbar } from '@components/navbar/landing-navbar';
-import { CloserSection } from './closer-section';
-import { Footer } from './footer';
-import { LandingCurtainStage } from './landing-curtain-stage';
+import { CloserSection } from './footer/closer-section';
+import { Footer } from './footer/footer';
 import styles from './landing-page.module.css';
-import { LandingScrollProvider } from './landing-scroll-context';
-import { LenisProvider } from './lenis-provider';
 import { SceneParse } from './scenes/scene-parse';
 import { SceneStats } from './scenes/scene-stats';
 import { SceneTogether } from './scenes/scene-together';
+import { LandingCurtainStage } from './scroll/landing-curtain-stage';
+import { LandingScrollProvider } from './scroll/landing-scroll-context';
+import { LenisProvider } from './scroll/lenis-provider';
 
 export function LandingPage() {
   return (
