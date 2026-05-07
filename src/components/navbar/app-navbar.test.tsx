@@ -27,6 +27,43 @@ jest.mock('next/navigation', () => ({
   usePathname: () => usePathnameMock(),
 }));
 
+describe('AppNavbar desktop links', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    usePathnameMock.mockReturnValue('/home');
+    useMediaQueryMock.mockImplementation((query: string) => {
+      if (query === '(max-width: 720px)') return false;
+      if (query === '(prefers-reduced-motion: reduce)') return false;
+      return false;
+    });
+  });
+
+  it('shows all links in chat, stats, profile order and highlights the current route', () => {
+    render(<AppNavbar />);
+
+    expect(screen.getByTestId('theme-selector')).toBeInTheDocument();
+
+    const navLinks = screen.getAllByRole('link');
+    expect(navLinks.map(link => link.textContent)).toEqual([
+      'Chat',
+      'Stats',
+      'Profile',
+    ]);
+    expect(screen.getByRole('link', { name: 'Chat' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+  });
+
+  it('navigates when selecting an inactive desktop route', () => {
+    render(<AppNavbar />);
+
+    fireEvent.click(screen.getByRole('link', { name: 'Stats' }));
+
+    expect(navigateSpy).toHaveBeenCalledWith('/home/stats');
+  });
+});
+
 describe('AppNavbar mobile drawer', () => {
   beforeEach(() => {
     jest.clearAllMocks();

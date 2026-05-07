@@ -30,6 +30,16 @@
   text-underline-offset: 4px;
 }
 
+.momo-app-navbar__link-active {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  font-weight: var(--weight-bold);
+  font-size: var(--type-md);
+  padding: var(--space-1) 0.45rem;
+  margin: 0;
+}
+
 .momo-app-navbar__drawer-toggle {
   display: inline-flex;
   align-items: center;
@@ -217,7 +227,8 @@
 }
 
 @media (max-width: 720px) {
-  .momo-app-navbar__link {
+  .momo-app-navbar__link,
+  .momo-app-navbar__link-active {
     font-size: var(--type-sm);
   }
 }
