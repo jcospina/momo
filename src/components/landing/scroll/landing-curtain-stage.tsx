@@ -6,6 +6,7 @@ import { useMediaQuery } from '@hooks/use-media-query';
 import { useScrollTick } from '@hooks/use-scroll-progress';
 import type { ReactNode } from 'react';
 import { useLandingCurtainRefs } from './landing-scroll-context';
+import { LandingScrollIndicator } from './landing-scroll-indicator';
 
 function getHandoffDistance(viewportHeight: number): number {
   return Math.min(Math.max(viewportHeight * 0.22, 144), 256);
@@ -51,6 +52,7 @@ export function LandingCurtainStage({ children }: { children: ReactNode }) {
         <div className={styles['momo-landing__hero-sticky']}>
           <div className={styles['momo-landing__hero-surface']}>
             <HeroCard />
+            <LandingScrollIndicator />
           </div>
         </div>
       </div>
