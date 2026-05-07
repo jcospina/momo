@@ -72,8 +72,6 @@ export function AppNavbar() {
   const triggerId = `${popupId}-trigger`;
 
   const isHome = pathname === HOME;
-  const isStats = pathname === STATS;
-  const isProfile = pathname === PROFILE;
 
   const measureDrawerTop = useCallback(() => {
     const nav = navRef.current;
@@ -124,18 +122,15 @@ export function AppNavbar() {
     }
   }, [pathname]);
 
-  const handleClick = (href: string) => (event: MouseEvent) => {
-    event.preventDefault();
-    navigate(href);
-  };
-
-  const handleDrawerItemClick =
+  const handleNavItemClick =
     (href: string, active: boolean) => (event: MouseEvent) => {
       event.preventDefault();
 
       if (active) return;
 
-      setIsDrawerOpen(false);
+      if (isMobile) {
+        setIsDrawerOpen(false);
+      }
       navigate(href);
     };
 
@@ -144,7 +139,7 @@ export function AppNavbar() {
   ) : (
     <a
       href={HOME}
-      onClick={handleClick(HOME)}
+      onClick={handleNavItemClick(HOME, false)}
       className={styles['momo-app-navbar__logo-link']}
     >
       <Logo size="md" />
@@ -153,33 +148,38 @@ export function AppNavbar() {
 
   const desktopLinks = (
     <>
-      {!isHome && (
-        <a
-          href={HOME}
-          onClick={handleClick(HOME)}
-          className={styles['momo-app-navbar__link']}
-        >
-          {t('home')}
-        </a>
-      )}
-      {!isStats && (
-        <a
-          href={STATS}
-          onClick={handleClick(STATS)}
-          className={styles['momo-app-navbar__link']}
-        >
-          {t('stats')}
-        </a>
-      )}
-      {!isProfile && (
-        <a
-          href={PROFILE}
-          onClick={handleClick(PROFILE)}
-          className={styles['momo-app-navbar__link']}
-        >
-          {t('profile')}
-        </a>
-      )}
+      {NAV_ITEMS.map(item => {
+        const label = t(item.labelKey);
+        const active = item.isActive(pathname);
+
+        if (active) {
+          return (
+            <Highlight
+              key={item.href}
+              as="a"
+              href={item.href}
+              onClick={handleNavItemClick(item.href, active)}
+              aria-current="page"
+              variant="feature"
+              rotation="none"
+              className={styles['momo-app-navbar__link-active']}
+            >
+              {label}
+            </Highlight>
+          );
+        }
+
+        return (
+          <a
+            key={item.href}
+            href={item.href}
+            onClick={handleNavItemClick(item.href, active)}
+            className={styles['momo-app-navbar__link']}
+          >
+            {label}
+          </a>
+        );
+      })}
     </>
   );
 
@@ -285,7 +285,7 @@ export function AppNavbar() {
                     ) : (
                       <a
                         href={item.href}
-                        onClick={handleDrawerItemClick(item.href, active)}
+                        onClick={handleNavItemClick(item.href, active)}
                         className={styles['momo-app-navbar__drawer-link']}
                       >
                         {icon}
