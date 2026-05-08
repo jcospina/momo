@@ -1,7 +1,13 @@
+---
+version: 1.0
+last_updated: 2026-05-08
+---
+
 # Implementation Plan: `@momo` Agent on Cloudflare
 
 Date: 2026-04-23  
 Owner: MoMo engineering  
+Status: Historical planning artifact. Revalidate this document against live code before using it for implementation decisions; it is not the current architecture source of truth.
 Decision: Use Cloudflare Agents SDK + Durable Objects as the AI runtime (app DB remains canonical timeline)
 
 ## Goal

@@ -1,7 +1,9 @@
-# ADR-003: N-gram Category Scoring
+---
+version: 1.0
+last_updated: 2026-05-08
+---
 
-**Status:** Accepted
-**Date:** 2026-02-17
+# ADR-003: N-gram Category Scoring
 
 ## Context
 
@@ -13,15 +15,24 @@ When a user types an expense like "uber 15k" or "almuerzo restaurante 30k", the 
 
 ## Decision
 
-Use n-gram scoring with a manually maintained dictionary. The `expense-category.ts` module generates n-grams from the expense text and scores them against category dictionaries in `@constants/expenses/dictionary`.
+Use n-gram scoring with a manually maintained dictionary as the deterministic baseline. The `expense-category.ts` module generates n-grams from the expense text and scores them against category dictionaries in `@constants/expenses/dictionary`.
 
 The algorithm:
 
 1. Normalize and tokenize the expense text
 2. Generate n-grams (substrings of varying lengths)
 3. Match against dictionary terms mapped to categories
-4. Score categories based on match count and quality
-5. Return the highest-scoring category above a threshold, or `uncategorized`
+4. If no exact dictionary terms match, allow a narrow one-edit fuzzy correction
+5. Score categories based on match count and quality
+6. Return the highest-scoring category above a threshold, or `uncategorized`
+7. Apply learned `category_rules` after parsing when the entry is not explicit income and does not need amount review
+
+Current precedence in chat processing is:
+
+1. explicit income marker (`+amount`)
+2. learned category rule
+3. dictionary/fuzzy score
+4. uncategorized
 
 ## Consequences
 
@@ -35,7 +46,7 @@ The algorithm:
 
 **Trade-offs:**
 
-- Requires manual dictionary maintenance. New merchants or categories need dictionary updates.
+- Requires manual dictionary maintenance for good out-of-the-box behavior. User corrections can teach `category_rules`, but the baseline dictionary still matters.
 - Limited to the vocabulary in the dictionary — can't handle truly novel terms.
-- No learning from user corrections (though this could be added as a dictionary update mechanism).
+- Learned rules are scoped to personal or household context and must not override ambiguous amount entries.
 - Multilingual support requires separate dictionary entries per language.

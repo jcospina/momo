@@ -1,7 +1,9 @@
-# ADR-005: SECURITY DEFINER Membership Functions
+---
+version: 1.0
+last_updated: 2026-02-17
+---
 
-**Status:** Accepted
-**Date:** 2026-02-17
+# ADR-005: SECURITY DEFINER Membership Functions
 
 ## Context
 

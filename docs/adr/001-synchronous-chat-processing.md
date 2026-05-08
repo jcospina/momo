@@ -1,7 +1,9 @@
-# ADR-001: Synchronous Chat Processing
+---
+version: 1.0
+last_updated: 2026-02-17
+---
 
-**Status:** Accepted
-**Date:** 2026-02-17
+# ADR-001: Synchronous Chat Processing
 
 ## Context
 
