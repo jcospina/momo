@@ -12,7 +12,6 @@ import type {
 } from '@/agent/types';
 import {
   buildQueryExpensesResult,
-  buildSpendingStatsResult,
   compareExpenses,
   DEFAULT_TIMEZONE,
   type ExpenseAnalyticsContext,
@@ -80,13 +79,31 @@ export async function getSpendingStats(
     inputScope: input.scope,
     supabase,
   });
-  const rows = await fetchScopeRows({ auth, householdId, input, supabase });
 
-  return buildSpendingStatsResult({
-    context: getAnalyticsContext({ auth, context, householdId }),
-    input,
-    rows,
+  if (input.scope === 'household' && !householdId) {
+    return emptySpendingStatsResult({ context, input });
+  }
+
+  const { data, error } = await supabase.rpc('get_agent_spending_stats', {
+    p_categories: input.categories,
+    p_currency: context.currency,
+    p_end_date: input.endDate,
+    p_group_by: input.groupBy,
+    p_household_id: householdId,
+    p_include_income: Boolean(input.includeIncome),
+    p_limit: input.limit,
+    p_merchants: input.merchants,
+    p_scope: input.scope,
+    p_start_date: input.startDate,
+    p_tags: input.tags,
   });
+
+  if (error) {
+    console.error('agent spending stats rpc failed', error);
+    return emptySpendingStatsResult({ context, input });
+  }
+
+  return normalizeSpendingStatsResult({ context, data, input });
 }
 
 export const productionToolExecutors: AgentToolExecutors = {
@@ -221,6 +238,72 @@ function getAnalyticsContext({
     currency: context.currency,
     currentUserId: auth.userId,
     householdId,
+  };
+}
+
+function emptySpendingStatsResult({
+  context,
+  input,
+}: {
+  context: AgentContext;
+  input: GetSpendingStatsInput;
+}): GetSpendingStatsResult {
+  return {
+    currency: context.currency,
+    scope: input.scope,
+    startDate: input.startDate,
+    endDate: input.endDate,
+    totalExpenseCents: 0,
+    totalIncomeCents: 0,
+    netCents: 0,
+    savingsRate: null,
+    savingsRateBasis: 'unavailable_zero_income',
+    transactionCount: 0,
+    groupBy: input.groupBy,
+    groups: input.groupBy ? [] : null,
+  };
+}
+
+function normalizeSpendingStatsResult({
+  context,
+  data,
+  input,
+}: {
+  context: AgentContext;
+  data: unknown;
+  input: GetSpendingStatsInput;
+}): GetSpendingStatsResult {
+  const result = (data ?? {}) as Partial<GetSpendingStatsResult>;
+
+  return {
+    currency: context.currency,
+    scope: input.scope,
+    startDate: input.startDate,
+    endDate: input.endDate,
+    totalExpenseCents: Number(result.totalExpenseCents ?? 0),
+    totalIncomeCents: Number(result.totalIncomeCents ?? 0),
+    netCents: Number(result.netCents ?? 0),
+    savingsRate:
+      typeof result.savingsRate === 'number' ? result.savingsRate : null,
+    savingsRateBasis:
+      result.savingsRateBasis === 'income'
+        ? 'income'
+        : 'unavailable_zero_income',
+    transactionCount: Number(result.transactionCount ?? 0),
+    groupBy: input.groupBy,
+    groups: Array.isArray(result.groups)
+      ? result.groups.map(group => ({
+          label: String(group.label),
+          amountCents: Number(group.amountCents ?? 0),
+          transactionCount: Number(group.transactionCount ?? 0),
+          percentageOfTotal:
+            typeof group.percentageOfTotal === 'number'
+              ? group.percentageOfTotal
+              : null,
+        }))
+      : input.groupBy
+        ? []
+        : null,
   };
 }
 

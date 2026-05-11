@@ -1,4 +1,5 @@
 import type { ExpenseRecord } from '@lib-types/expenses';
+import type { GetSpendingStatsResult } from '@/agent/types';
 import { createAgentSupabaseClient } from './supabase-client';
 import { getSpendingStats, queryExpenses } from './supabase-executors';
 
@@ -46,51 +47,76 @@ describe('Supabase agent tool executors', () => {
     expect(result.expenses[0]?.id).toBe('may-1');
   });
 
-  it('paginates stats reads past Supabase REST default page limits', async () => {
-    const firstPage = Array.from({ length: 1000 }, (_, index) =>
-      expense({ id: `row-${index}`, amount_cents: 1 }),
+  it('calls the stats RPC with exact arbitrary date bounds and filters', async () => {
+    const { from, rpc, supabase } = mockSupabaseRpc(
+      statsResult({
+        groupBy: 'tag',
+        groups: [
+          {
+            label: 'car repair',
+            amountCents: 12000,
+            transactionCount: 2,
+            percentageOfTotal: 100,
+          },
+        ],
+        totalExpenseCents: 12000,
+        transactionCount: 2,
+      }),
     );
-    const secondPage = [expense({ id: 'row-1000', amount_cents: 1 })];
-    const { supabase, calls } = mockSupabasePages([firstPage, secondPage]);
     createAgentSupabaseClientMock.mockReturnValue(supabase as never);
 
     const result = await getSpendingStats(
       {
         scope: 'personal',
-        startDate: '2026-05-01',
-        endDate: '2026-05-31',
-        categories: null,
-        merchants: null,
-        tags: null,
-        includeIncome: false,
-        groupBy: null,
-        limit: null,
+        startDate: '2026-03-17',
+        endDate: '2026-04-07',
+        categories: ['vehicle'],
+        merchants: ['Car Shop'],
+        tags: ['car repair'],
+        includeIncome: null,
+        groupBy: 'tag',
+        limit: 12,
       },
       { currency: 'USD', auth: authContext() },
     );
 
-    expect(calls).toEqual(
-      expect.arrayContaining([
-        ['range', 0, 999],
-        ['range', 1000, 1999],
-      ]),
-    );
-    expect(calls).toContainEqual(['neq', 'category', 'income']);
-    expect(result.transactionCount).toBe(1001);
-    expect(result.totalExpenseCents).toBe(1001);
+    expect(from).not.toHaveBeenCalled();
+    expect(rpc).toHaveBeenCalledWith('get_agent_spending_stats', {
+      p_categories: ['vehicle'],
+      p_currency: 'USD',
+      p_end_date: '2026-04-07',
+      p_group_by: 'tag',
+      p_household_id: null,
+      p_include_income: false,
+      p_limit: 12,
+      p_merchants: ['Car Shop'],
+      p_scope: 'personal',
+      p_start_date: '2026-03-17',
+      p_tags: ['car repair'],
+    });
+    expect(result).toMatchObject({
+      groupBy: 'tag',
+      groups: [
+        {
+          amountCents: 12000,
+          label: 'car repair',
+          percentageOfTotal: 100,
+          transactionCount: 2,
+        },
+      ],
+      totalExpenseCents: 12000,
+      transactionCount: 2,
+    });
   });
 
-  it('includes income in stats reads only when requested', async () => {
-    const { supabase, calls } = mockSupabasePages([
-      [
-        expense({ id: 'expense-1', amount_cents: 1000 }),
-        expense({
-          id: 'income-1',
-          amount_cents: 3000,
-          category: 'income',
-        }),
-      ],
-    ]);
+  it('passes includeIncome through to the stats RPC only when requested', async () => {
+    const { rpc, supabase } = mockSupabaseRpc(
+      statsResult({
+        netCents: 2000,
+        totalExpenseCents: 1000,
+        totalIncomeCents: 3000,
+      }),
+    );
     createAgentSupabaseClientMock.mockReturnValue(supabase as never);
 
     const result = await getSpendingStats(
@@ -108,10 +134,76 @@ describe('Supabase agent tool executors', () => {
       { currency: 'USD', auth: authContext() },
     );
 
-    expect(calls).not.toContainEqual(['neq', 'category', 'income']);
+    expect(rpc).toHaveBeenCalledWith(
+      'get_agent_spending_stats',
+      expect.objectContaining({
+        p_include_income: true,
+      }),
+    );
     expect(result.totalExpenseCents).toBe(1000);
     expect(result.totalIncomeCents).toBe(3000);
     expect(result.netCents).toBe(2000);
+  });
+
+  it('resolves household membership before calling the stats RPC', async () => {
+    const { rpc, supabase } = mockSupabaseRpc(statsResult(), {
+      householdId: 'household-1',
+    });
+    createAgentSupabaseClientMock.mockReturnValue(supabase as never);
+
+    await getSpendingStats(
+      {
+        scope: 'household',
+        startDate: null,
+        endDate: null,
+        categories: null,
+        merchants: null,
+        tags: null,
+        includeIncome: false,
+        groupBy: null,
+        limit: null,
+      },
+      { currency: 'USD', auth: authContext() },
+    );
+
+    expect(rpc).toHaveBeenCalledWith(
+      'get_agent_spending_stats',
+      expect.objectContaining({
+        p_household_id: 'household-1',
+        p_scope: 'household',
+      }),
+    );
+  });
+
+  it('returns empty household stats without an RPC call when no household is visible', async () => {
+    const { rpc, supabase } = mockSupabaseRpc(statsResult(), {
+      householdId: null,
+    });
+    createAgentSupabaseClientMock.mockReturnValue(supabase as never);
+
+    const result = await getSpendingStats(
+      {
+        scope: 'household',
+        startDate: '2026-01-01',
+        endDate: null,
+        categories: null,
+        merchants: null,
+        tags: null,
+        includeIncome: false,
+        groupBy: 'category',
+        limit: null,
+      },
+      { currency: 'USD', auth: authContext() },
+    );
+
+    expect(rpc).not.toHaveBeenCalled();
+    expect(result).toMatchObject({
+      groupBy: 'category',
+      groups: [],
+      startDate: '2026-01-01',
+      totalExpenseCents: 0,
+      transactionCount: 0,
+    });
   });
 });
 
@@ -183,12 +275,80 @@ function mockSupabasePages(pages: ExpenseRecord[][]) {
   };
 }
 
+function mockSupabaseRpc(
+  data: GetSpendingStatsResult,
+  options: { householdId?: string | null } = {},
+) {
+  const rpc = jest.fn(() => Promise.resolve({ data, error: null }));
+  const householdId = options.householdId;
+
+  type MembershipQuery = {
+    eq: jest.Mock<MembershipQuery, [string, unknown]>;
+    limit: jest.Mock<MembershipQuery, [number]>;
+    maybeSingle: jest.Mock<
+      Promise<{ data: { household_id: string } | null; error: null }>,
+      []
+    >;
+  };
+
+  const membershipQuery: MembershipQuery = {
+    eq: jest.fn((_column: string, _value: unknown) => membershipQuery),
+    limit: jest.fn((_count: number) => membershipQuery),
+    maybeSingle: jest.fn(() =>
+      Promise.resolve({
+        data:
+          householdId === undefined || householdId === null
+            ? null
+            : { household_id: householdId },
+        error: null,
+      }),
+    ),
+  };
+
+  const from = jest.fn((table: string) => {
+    if (table !== 'household_members') {
+      throw new Error(`Unexpected table ${table}`);
+    }
+    return {
+      select: jest.fn(() => membershipQuery),
+    };
+  });
+
+  return {
+    from,
+    rpc,
+    supabase: {
+      from,
+      rpc,
+    },
+  };
+}
+
 function authContext() {
   return {
     accessToken: 'token',
     supabaseAnonKey: 'anon',
     supabaseUrl: 'http://127.0.0.1:54321',
     userId: 'user-1',
+  };
+}
+
+function statsResult(
+  input: Partial<GetSpendingStatsResult> = {},
+): GetSpendingStatsResult {
+  return {
+    currency: input.currency ?? 'USD',
+    scope: input.scope ?? 'personal',
+    startDate: input.startDate ?? null,
+    endDate: input.endDate ?? null,
+    totalExpenseCents: input.totalExpenseCents ?? 0,
+    totalIncomeCents: input.totalIncomeCents ?? 0,
+    netCents: input.netCents ?? 0,
+    savingsRate: input.savingsRate ?? null,
+    savingsRateBasis: input.savingsRateBasis ?? 'unavailable_zero_income',
+    transactionCount: input.transactionCount ?? 0,
+    groupBy: input.groupBy ?? null,
+    groups: input.groups ?? null,
   };
 }
 

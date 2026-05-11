@@ -1,3 +1,8 @@
+---
+version: 1.0
+last_updated: 2026-04-23
+---
+
 # Research: Encryption Options for Sensitive Expense and Chat Data
 
 Date: 2026-04-15  

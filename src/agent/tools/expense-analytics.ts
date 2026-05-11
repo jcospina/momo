@@ -106,10 +106,9 @@ export function buildQueryExpensesResult({
 /**
  * Builds the `getSpendingStats` tool response from already-loaded expense rows.
  *
- * This is the shared aggregation layer for mock and Supabase tools. It keeps
- * total spending, optional income/cashflow math, grouping labels, sorting, and
- * percentage calculations aligned across eval fixtures and real RLS-backed
- * Supabase reads.
+ * This is the fixture/mock aggregation layer. Production Supabase stats use a
+ * SQL RPC so filtering and grouping happen in Postgres under RLS, but mocks keep
+ * this TypeScript path so evals remain deterministic and database-free.
  */
 export function buildSpendingStatsResult({
   context,
@@ -175,8 +174,8 @@ export function buildSpendingStatsResult({
 /**
  * Provides stable chronological ordering for expenses.
  *
- * Executors use this before handing rows to the shared builders so pagination,
- * truncation, and grouped output stay deterministic across fixture data and
+ * Row-returning executors use this before handing expenses to shared builders
+ * so pagination and truncation stay deterministic across fixture data and
  * Supabase result sets.
  */
 export function compareExpenses(
