@@ -10,6 +10,74 @@ export const DEFAULT_SAMPLE_NOW = '2026-04-24';
 let currentCurrency = DEFAULT_CURRENCY;
 let rngState = normalizeSeed(DEFAULT_SAMPLE_SEED);
 
+// Keep in sync with src/lib/helpers/expenses/expense-category.ts
+// AMOUNT_REGEX from src/lib/constants/expenses/amounts.ts: /([0-9]+(?:\.[0-9]+)?)([kKmM])?/
+const AMOUNT_TOKEN_REGEX = /\b([0-9]+(?:\.[0-9]+)?)([kKmM])?\b/g;
+const TAG_NGRAM_MAX = 3;
+
+// Keep in sync with src/lib/helpers/expenses/tag-stop-words.ts
+const TAG_STOP_WORDS = new Set([
+  'a',
+  'an',
+  'the',
+  'and',
+  'or',
+  'but',
+  'at',
+  'in',
+  'on',
+  'of',
+  'to',
+  'for',
+  'with',
+  'el',
+  'la',
+  'los',
+  'las',
+  'un',
+  'una',
+  'y',
+  'o',
+  'de',
+  'en',
+  'con',
+  'por',
+]);
+
+function tokenizeForTags(input) {
+  const lowered = (input ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '');
+  const withoutAmounts = lowered.replace(AMOUNT_TOKEN_REGEX, ' ');
+  return withoutAmounts
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean)
+    .filter(token => !TAG_STOP_WORDS.has(token));
+}
+
+export function extractTagNgrams(input, max = TAG_NGRAM_MAX) {
+  const tokens = tokenizeForTags(input);
+  if (!tokens.length) return [];
+  const tags = [];
+  const seen = new Set();
+  const upper = Math.min(max, tokens.length);
+  for (let size = 1; size <= upper; size += 1) {
+    for (let i = 0; i <= tokens.length - size; i += 1) {
+      const ngram = tokens.slice(i, i + size).join(' ');
+      if (seen.has(ngram)) continue;
+      seen.add(ngram);
+      tags.push(ngram);
+    }
+  }
+  return tags;
+}
+
+export function chatLabelFor({ note, merchant, category }) {
+  return (note ?? merchant ?? category ?? '').toString().toLowerCase().trim();
+}
+
 const ANNUAL_DRIFT_BY_CATEGORY = {
   dining: [
     1, 1.012, 1.018, 1.027, 1.035, 1.044, 1.052, 1.066, 1.072, 1.081, 1.094,
@@ -313,6 +381,8 @@ function incomeRow(
   note,
   currency = currentCurrency,
 ) {
+  const category = 'income';
+  const tags = extractTagNgrams(chatLabelFor({ note, merchant, category }));
   return {
     user_id: userId,
     household_id: householdId,
@@ -320,9 +390,9 @@ function incomeRow(
     currency,
     expense_date: dateStr(year, month, day),
     merchant,
-    category: 'income',
+    category,
     note,
-    tags: [],
+    tags,
   };
 }
 
@@ -1356,16 +1426,25 @@ function expense(
   merchant,
   currency = currentCurrency,
 ) {
+  const normalizedNote = note ?? null;
+  const normalizedMerchant = merchant ?? null;
+  const tags = extractTagNgrams(
+    chatLabelFor({
+      note: normalizedNote,
+      merchant: normalizedMerchant,
+      category,
+    }),
+  );
   return {
     user_id: userId,
     household_id: householdId,
     amount_cents: amountCents,
     currency,
     expense_date: dateStr(year, month, day),
-    merchant: merchant ?? null,
+    merchant: normalizedMerchant,
     category,
-    note: note ?? null,
-    tags: [],
+    note: normalizedNote,
+    tags,
   };
 }
 

@@ -7,8 +7,6 @@
     "build": "next build",
     "typecheck": "tsc --noEmit",
     "start": "next start",
-    "agent:dev": "wrangler dev --port 8787",
-    "agent": "node scripts/test-agent.mjs",
     "agent:eval": "braintrust eval evals/momo-agent.eval.ts",
     "lint": "pnpm lint:biome && pnpm lint:data-boundaries",
     "lint:biome": "biome lint .",
@@ -23,7 +21,6 @@
     "db:reset": "supabase db reset --local",
     "db:seed": "pnpm db:reset && node scripts/db-seed.mjs",
     "db:seed:sample": "node scripts/db-seed-sample-data.mjs",
-    "db:sample:json": "node scripts/generate-sample-data-json.mjs",
     "db:lint": "supabase db lint --local",
     "db:push:dry-run": "bash scripts/db-push-dry-run.sh",
     "db:push": "bash scripts/db-push.sh",
@@ -46,8 +43,6 @@
     "@visx/scale": "4.0.0-alpha.11",
     "@visx/shape": "4.0.0-alpha.11",
     "@visx/tooltip": "4.0.0-alpha.11",
-    "@cloudflare/ai-chat": "^0.6.0",
-    "agents": "^0.12.0",
     "ai": "^6.0.168",
     "braintrust": "^3.9.0",
     "clsx": "^2.1.1",
@@ -66,7 +61,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.7",
-    "@cloudflare/workers-types": "^4.20260501.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
@@ -84,8 +78,7 @@
     "supabase": "^2.98.2",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
-    "typescript": "^5",
-    "wrangler": "^4.87.0"
+    "typescript": "^5"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs,mts,cts,json,css}": [

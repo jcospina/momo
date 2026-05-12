@@ -17,6 +17,7 @@ import {
 } from '@lib-types/expenses';
 
 import { normalizeExpenseText } from './expense-normalize';
+import { dropStopWords } from './tag-stop-words';
 
 type ScoreMap = Record<ExpenseCategory, number>;
 type ScoreExpenseCategoryOptions = {
@@ -67,10 +68,11 @@ function tokenizeForTags(input: string): string[] {
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '');
   const withoutAmounts = lowered.replace(AMOUNT_TOKEN_REGEX, ' ');
-  return withoutAmounts
+  const tokens = withoutAmounts
     .replace(/[^a-z0-9\s]/g, ' ')
     .split(/\s+/)
     .filter(Boolean);
+  return dropStopWords(tokens);
 }
 
 export function extractTagNgrams(input: string, max = TAG_NGRAM_MAX): string[] {

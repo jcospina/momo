@@ -54,13 +54,10 @@ describe('extractTagNgrams', () => {
     expect(extractTagNgrams('46k copago médico en casa')).toEqual([
       'copago',
       'medico',
-      'en',
       'casa',
       'copago medico',
-      'medico en',
-      'en casa',
-      'copago medico en',
-      'medico en casa',
+      'medico casa',
+      'copago medico casa',
     ]);
   });
 
@@ -84,6 +81,36 @@ describe('extractTagNgrams', () => {
       'shell gas fill',
       'gas fill up',
     ]);
+  });
+
+  it('drops English stop words at token level while keeping cross-stop-word n-grams', () => {
+    const tags = extractTagNgrams('groceries at costco');
+    expect(tags).toContain('groceries');
+    expect(tags).toContain('costco');
+    expect(tags).toContain('groceries costco');
+    expect(tags).not.toContain('at');
+    expect(tags).not.toContain('groceries at');
+    expect(tags).not.toContain('at costco');
+  });
+
+  it('drops Spanish stop words after diacritic stripping', () => {
+    const tags = extractTagNgrams('compré pan y leche');
+    expect(tags).toEqual([
+      'compre',
+      'pan',
+      'leche',
+      'compre pan',
+      'pan leche',
+      'compre pan leche',
+    ]);
+  });
+
+  it('keeps content tokens when surrounded by stop words', () => {
+    expect(extractTagNgrams('a la carta')).toEqual(['carta']);
+  });
+
+  it('returns an empty list when the note is entirely stop words', () => {
+    expect(extractTagNgrams('a la')).toEqual([]);
   });
 });
 
