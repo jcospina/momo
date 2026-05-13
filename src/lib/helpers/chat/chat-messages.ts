@@ -1,5 +1,6 @@
 import type { ChatMessage } from '@lib-types/chat';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { CHAT_MESSAGE_SELECT } from '@utils/chat-message';
 
 type FetchChatMessagesParams = {
   supabase: SupabaseClient;
@@ -40,9 +41,6 @@ type DeleteChatMessageResult = {
   deletedId: string | null;
   error: string | null;
 };
-
-const CHAT_MESSAGE_SELECT =
-  'id, household_id, user_id, content, status, expense_count, created_at, sender_name';
 
 export async function fetchChatMessages({
   supabase,

@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from '@lib-supabase/server';
+import { CHAT_MESSAGE_SELECT } from '@utils/chat-message';
 import { NextResponse } from 'next/server';
 
 type SyncRequest = {
@@ -8,8 +9,6 @@ type SyncRequest = {
   limit?: number;
 };
 
-const CHAT_SELECT =
-  'id, household_id, user_id, content, status, expense_count, created_at, sender_name';
 const DEFAULT_LIMIT = 100;
 const MAX_LIMIT = 100;
 
@@ -37,7 +36,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
-  let query = supabase.from('chat_messages').select(CHAT_SELECT);
+  let query = supabase.from('chat_messages').select(CHAT_MESSAGE_SELECT);
 
   if (householdId) {
     query = query.eq('household_id', householdId);

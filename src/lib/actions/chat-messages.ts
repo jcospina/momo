@@ -4,17 +4,17 @@ import { deleteChatMessage as deleteChatMessageRow } from '@helpers/chat/chat-me
 import { processChatMessage } from '@helpers/chat/chat-processor';
 import { createSupabaseServerClient } from '@lib-supabase/server';
 import type {
+  ChatMessage,
   DeleteChatMessageResult,
   SendChatMessageResult,
+  SendMomoMessageResult,
 } from '@lib-types/chat';
+import { CHAT_MESSAGE_SELECT } from '@utils/chat-message';
 
 type SendChatMessageInput = {
   content: string;
   householdId?: string | null;
 };
-
-const CHAT_SELECT =
-  'id, household_id, user_id, content, status, expense_count, created_at, sender_name';
 
 export async function sendChatMessage({
   content,
@@ -42,7 +42,7 @@ export async function sendChatMessage({
       user_id: user.id,
       sender_name: user.user_metadata?.name ?? user.email ?? null,
     })
-    .select(CHAT_SELECT)
+    .select(CHAT_MESSAGE_SELECT)
     .single();
 
   if (error || !data) {
@@ -66,7 +66,7 @@ export async function sendChatMessage({
 
   const { data: updated, error: updatedError } = await supabase
     .from('chat_messages')
-    .select(CHAT_SELECT)
+    .select(CHAT_MESSAGE_SELECT)
     .eq('id', data.id)
     .single();
 
@@ -117,4 +117,74 @@ export async function deleteChatMessage({
   }
 
   return { messageId: deletedId };
+}
+
+type SendMomoMessageInput = {
+  content: string;
+  householdId: string | null;
+  userId: string;
+  triggeringMessageId: string;
+};
+
+export async function sendMomoMessage({
+  content,
+  householdId,
+  userId,
+  triggeringMessageId,
+}: SendMomoMessageInput): Promise<SendMomoMessageResult> {
+  const trimmed = content?.trim();
+  if (!trimmed) {
+    return { errorCode: 'message_empty' };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user || user.id !== userId) {
+    return { errorCode: 'auth_required' };
+  }
+
+  const idempotencyKey = `momo:${triggeringMessageId}`;
+
+  const { data, error } = await supabase
+    .from('chat_messages')
+    .insert({
+      content: trimmed,
+      household_id: householdId,
+      user_id: userId,
+      author_kind: 'momo',
+      momo_source: 'momo_agent',
+      idempotency_key: idempotencyKey,
+      status: 'processed',
+      sender_name: null,
+    })
+    .select(CHAT_MESSAGE_SELECT)
+    .single();
+
+  if (error?.code === '23505') {
+    const existing = await supabase
+      .from('chat_messages')
+      .select(CHAT_MESSAGE_SELECT)
+      .eq('idempotency_key', idempotencyKey)
+      .single();
+
+    if (existing.error || !existing.data) {
+      console.error(
+        '[chat] momo idempotent read failed',
+        existing.error ?? 'no data',
+      );
+      return { errorCode: 'momo_message_send_failed' };
+    }
+
+    return { message: existing.data as ChatMessage, reused: true };
+  }
+
+  if (error || !data) {
+    console.error('[chat] send momo message failed', error);
+    return { errorCode: 'momo_message_send_failed' };
+  }
+
+  return { message: data as ChatMessage, reused: false };
 }
