@@ -145,7 +145,7 @@ export function buildAgentTools(
         'The result includes a `currency` field that indicates how to interpret amount fields.',
         'Pass `groupBy` to also receive a per-group breakdown (sorted from largest amount to smallest, except month/day/dayOfWeek which sort chronologically).',
         'To compare two periods, call this twice with different date ranges and reason over the deltas — there is no separate compare tool.',
-        "Note: when `groupBy` is `tag`, a transaction with multiple tags is counted in each tag's group, so per-group percentages can sum to more than 100%.",
+        'Every response includes a `tags` sidecar — a top-10 breakdown of primary tags by spend, both globally and per group. Use it to break down spend within a category without an extra call.',
       ].join(' '),
       inputSchema: z.object({
         scope: z

@@ -9,6 +9,7 @@ import type {
   QueryExpensesResult,
   ResolveDateRangeInput,
   ResolveDateRangeResult,
+  SpendingStatsTagEntry,
 } from '@/agent/types';
 import {
   buildQueryExpensesResult,
@@ -261,6 +262,7 @@ function emptySpendingStatsResult({
     transactionCount: 0,
     groupBy: input.groupBy,
     groups: input.groupBy ? [] : null,
+    tags: [],
   };
 }
 
@@ -300,11 +302,22 @@ function normalizeSpendingStatsResult({
             typeof group.percentageOfTotal === 'number'
               ? group.percentageOfTotal
               : null,
+          tags: normalizeTagEntries(group.tags),
         }))
       : input.groupBy
         ? []
         : null,
+    tags: normalizeTagEntries(result.tags),
   };
+}
+
+function normalizeTagEntries(value: unknown): SpendingStatsTagEntry[] {
+  if (!Array.isArray(value)) return [];
+  return value.map(entry => ({
+    tag: String(entry.tag ?? ''),
+    count: Number(entry.count ?? 0),
+    amountCents: Number(entry.amountCents ?? 0),
+  }));
 }
 
 function currentDateInTimezone(timezone: string): string {

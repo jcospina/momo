@@ -9,11 +9,13 @@ import type {
   ResolveDateRangeInput,
   ResolveDateRangeResult,
   SpendingStatsGroupBy,
+  SpendingStatsTagEntry,
 } from '@/agent/types';
 
 export const DEFAULT_TIMEZONE = 'America/Bogota';
 export const DEFAULT_QUERY_LIMIT = 50;
 export const DEFAULT_HISTORY_START_DATE = '1970-01-01';
+const TAG_TOPK = 10;
 
 const DAY_OF_WEEK_LABELS = [
   'Monday',
@@ -133,11 +135,26 @@ export function buildSpendingStatsResult({
   const netCents = includeIncome ? totalIncomeCents - totalExpenseCents : 0;
   const filtered = filterExpenses(rows, context, input);
 
+  const tagFreq = computeTagFreq(filtered);
+  const assignments: PrimaryTagAssignment[] = filtered.map(expense => ({
+    expense,
+    primaryTag: pickPrimaryTag(expense.tags, tagFreq),
+  }));
+
   let groups: GetSpendingStatsResult['groups'] = null;
   if (input.groupBy) {
     const grouped = groupRows(filtered, input.groupBy, context);
     const sorted = sortGroups(input.groupBy, grouped);
     const sliced = sorted.slice(0, input.limit ?? Number.POSITIVE_INFINITY);
+    const assignmentsByLabel = new Map<string, PrimaryTagAssignment[]>();
+    for (const assignment of assignments) {
+      const labels = labelsFor(assignment.expense, input.groupBy, context);
+      for (const label of labels) {
+        const list = assignmentsByLabel.get(label) ?? [];
+        list.push(assignment);
+        assignmentsByLabel.set(label, list);
+      }
+    }
     groups = sliced.map(([label, value]) => ({
       label,
       amountCents: value.amountCents,
@@ -146,8 +163,11 @@ export function buildSpendingStatsResult({
         totalExpenseCents === 0
           ? null
           : roundPercentage(value.amountCents, totalExpenseCents),
+      tags: buildTagEntries(assignmentsByLabel.get(label) ?? []),
     }));
   }
+
+  const globalTags = buildTagEntries(assignments);
 
   return {
     currency: context.currency,
@@ -168,7 +188,75 @@ export function buildSpendingStatsResult({
     transactionCount: filtered.length,
     groupBy: input.groupBy,
     groups,
+    tags: globalTags,
   };
+}
+
+type PrimaryTagAssignment = {
+  expense: ExpenseRecord;
+  primaryTag: string | null;
+};
+
+function pickPrimaryTag(
+  tags: string[],
+  tagFreq: Map<string, number>,
+): string | null {
+  if (!tags.length) return null;
+  let best: string | null = null;
+  let bestKey: [number, number, string] | null = null;
+  for (const tag of tags) {
+    const freq = tagFreq.get(tag) ?? 0;
+    const key: [number, number, string] = [freq, tag.length, tag];
+    if (
+      !bestKey ||
+      key[0] > bestKey[0] ||
+      (key[0] === bestKey[0] && key[1] > bestKey[1]) ||
+      (key[0] === bestKey[0] && key[1] === bestKey[1] && key[2] < bestKey[2])
+    ) {
+      best = tag;
+      bestKey = key;
+    }
+  }
+  return best;
+}
+
+function computeTagFreq(rows: ExpenseRecord[]): Map<string, number> {
+  const freq = new Map<string, number>();
+  for (const row of rows) {
+    const seen = new Set<string>();
+    for (const tag of row.tags) {
+      if (seen.has(tag)) continue;
+      seen.add(tag);
+      freq.set(tag, (freq.get(tag) ?? 0) + 1);
+    }
+  }
+  return freq;
+}
+
+function buildTagEntries(
+  assignments: PrimaryTagAssignment[],
+): SpendingStatsTagEntry[] {
+  const totals = new Map<string, { count: number; amountCents: number }>();
+  for (const { expense, primaryTag } of assignments) {
+    if (!primaryTag) continue;
+    const current = totals.get(primaryTag) ?? { count: 0, amountCents: 0 };
+    totals.set(primaryTag, {
+      count: current.count + 1,
+      amountCents: current.amountCents + expense.amount_cents,
+    });
+  }
+  const entries: SpendingStatsTagEntry[] = Array.from(totals.entries()).map(
+    ([tag, value]) => ({
+      tag,
+      count: value.count,
+      amountCents: value.amountCents,
+    }),
+  );
+  entries.sort((a, b) => {
+    if (b.amountCents !== a.amountCents) return b.amountCents - a.amountCents;
+    return a.tag.localeCompare(b.tag);
+  });
+  return entries.slice(0, TAG_TOPK);
 }
 
 /**
@@ -339,9 +427,6 @@ function labelsFor(
   if (groupBy === 'user') return [userLabel(row.user_id, context)];
   if (groupBy === 'category') return [row.category ?? 'uncategorized'];
   if (groupBy === 'dayOfWeek') return [dayOfWeekLabel(row.expense_date)];
-  if (groupBy === 'tag') {
-    return row.tags.length ? row.tags : ['untagged'];
-  }
   return [row.category ?? 'uncategorized'];
 }
 

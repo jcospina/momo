@@ -50,13 +50,14 @@ describe('Supabase agent tool executors', () => {
   it('calls the stats RPC with exact arbitrary date bounds and filters', async () => {
     const { from, rpc, supabase } = mockSupabaseRpc(
       statsResult({
-        groupBy: 'tag',
+        groupBy: 'category',
         groups: [
           {
-            label: 'car repair',
+            label: 'vehicle',
             amountCents: 12000,
             transactionCount: 2,
             percentageOfTotal: 100,
+            tags: [],
           },
         ],
         totalExpenseCents: 12000,
@@ -74,7 +75,7 @@ describe('Supabase agent tool executors', () => {
         merchants: ['Car Shop'],
         tags: ['car repair'],
         includeIncome: null,
-        groupBy: 'tag',
+        groupBy: 'category',
         limit: 12,
       },
       { currency: 'USD', auth: authContext() },
@@ -85,7 +86,7 @@ describe('Supabase agent tool executors', () => {
       p_categories: ['vehicle'],
       p_currency: 'USD',
       p_end_date: '2026-04-07',
-      p_group_by: 'tag',
+      p_group_by: 'category',
       p_household_id: null,
       p_include_income: false,
       p_limit: 12,
@@ -95,11 +96,11 @@ describe('Supabase agent tool executors', () => {
       p_tags: ['car repair'],
     });
     expect(result).toMatchObject({
-      groupBy: 'tag',
+      groupBy: 'category',
       groups: [
         {
           amountCents: 12000,
-          label: 'car repair',
+          label: 'vehicle',
           percentageOfTotal: 100,
           transactionCount: 2,
         },
@@ -203,7 +204,121 @@ describe('Supabase agent tool executors', () => {
       startDate: '2026-01-01',
       totalExpenseCents: 0,
       transactionCount: 0,
+      tags: [],
     });
+  });
+
+  it('normalizes the per-group and global tag sidecar from RPC output', async () => {
+    const rawData = {
+      currency: 'USD',
+      scope: 'personal',
+      startDate: null,
+      endDate: null,
+      totalExpenseCents: '5000',
+      totalIncomeCents: 0,
+      netCents: 0,
+      savingsRate: null,
+      savingsRateBasis: 'unavailable_zero_income',
+      transactionCount: 2,
+      groupBy: 'category',
+      groups: [
+        {
+          label: 'groceries',
+          amountCents: 5000,
+          transactionCount: 2,
+          percentageOfTotal: 100,
+          tags: [
+            { tag: 'costco', count: '2', amountCents: '5000' },
+            { tag: null, amountCents: 0 },
+          ],
+        },
+        {
+          label: 'dining',
+          amountCents: 0,
+          transactionCount: 0,
+          percentageOfTotal: 0,
+        },
+      ],
+      tags: [{ tag: 'costco', count: 2, amountCents: 5000 }],
+    };
+    const rpc = jest.fn(() => Promise.resolve({ data: rawData, error: null }));
+    const supabase = {
+      from: jest.fn(() => ({
+        select: jest.fn(() => ({
+          eq: jest.fn().mockReturnThis(),
+          limit: jest.fn().mockReturnThis(),
+          maybeSingle: jest.fn(() =>
+            Promise.resolve({ data: null, error: null }),
+          ),
+        })),
+      })),
+      rpc,
+    };
+    createAgentSupabaseClientMock.mockReturnValue(supabase as never);
+
+    const result = await getSpendingStats(
+      {
+        scope: 'personal',
+        startDate: null,
+        endDate: null,
+        categories: null,
+        merchants: null,
+        tags: null,
+        includeIncome: null,
+        groupBy: 'category',
+        limit: null,
+      },
+      { currency: 'USD', auth: authContext() },
+    );
+
+    expect(result.tags).toEqual([
+      { tag: 'costco', count: 2, amountCents: 5000 },
+    ]);
+    expect(result.groups).toEqual([
+      {
+        label: 'groceries',
+        amountCents: 5000,
+        transactionCount: 2,
+        percentageOfTotal: 100,
+        tags: [
+          { tag: 'costco', count: 2, amountCents: 5000 },
+          { tag: '', count: 0, amountCents: 0 },
+        ],
+      },
+      {
+        label: 'dining',
+        amountCents: 0,
+        transactionCount: 0,
+        percentageOfTotal: 0,
+        tags: [],
+      },
+    ]);
+  });
+
+  it('empty household stats include an empty tags sidecar', async () => {
+    const { rpc, supabase } = mockSupabaseRpc(statsResult(), {
+      householdId: null,
+    });
+    createAgentSupabaseClientMock.mockReturnValue(supabase as never);
+
+    const result = await getSpendingStats(
+      {
+        scope: 'household',
+        startDate: null,
+        endDate: null,
+        categories: null,
+        merchants: null,
+        tags: null,
+        includeIncome: null,
+        groupBy: null,
+        limit: null,
+      },
+      { currency: 'USD', auth: authContext() },
+    );
+
+    expect(rpc).not.toHaveBeenCalled();
+    expect(result.tags).toEqual([]);
+    expect(result.groups).toBeNull();
   });
 });
 
@@ -349,6 +464,7 @@ function statsResult(
     transactionCount: input.transactionCount ?? 0,
     groupBy: input.groupBy ?? null,
     groups: input.groups ?? null,
+    tags: input.tags ?? [],
   };
 }
 

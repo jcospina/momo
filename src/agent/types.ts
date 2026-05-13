@@ -65,7 +65,6 @@ export const SPENDING_STATS_GROUP_BY = [
   'category',
   'merchant',
   'user',
-  'tag',
   'dayOfWeek',
 ] as const;
 
@@ -76,11 +75,18 @@ export type GetSpendingStatsInput = AgentExpenseFilters & {
   limit: number | null;
 };
 
+export type SpendingStatsTagEntry = {
+  tag: string;
+  count: number;
+  amountCents: number;
+};
+
 export type SpendingStatsGroup = {
   label: string;
   amountCents: number;
   transactionCount: number;
   percentageOfTotal: number | null;
+  tags: SpendingStatsTagEntry[];
 };
 
 export type GetSpendingStatsResult = {
@@ -96,4 +102,5 @@ export type GetSpendingStatsResult = {
   transactionCount: number;
   groupBy: SpendingStatsGroupBy | null;
   groups: SpendingStatsGroup[] | null;
+  tags: SpendingStatsTagEntry[];
 };
