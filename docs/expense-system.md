@@ -1,6 +1,6 @@
 ---
-version: 1.0
-last_updated: 2026-05-08
+version: 1.1
+last_updated: 2026-05-13
 ---
 
 # Expense System
@@ -14,9 +14,11 @@ Users log expenses by typing messages in chat. The system parses natural languag
 Core modules live under `src/lib/helpers/expenses/`.
 
 ```txt
-Raw text -> normalize -> split entries -> extract amount -> score category/tags
-  -> apply learned category rules -> persist expenses
+Raw text -> normalize -> split entries -> extract amount -> score category
+  -> extract tag n-grams -> apply learned category rules -> persist expenses
 ```
+
+Category scoring and tag extraction reuse the same tokenization but emit independent outputs: scoring picks at most one category, tag extraction emits the full set of n-grams.
 
 ### 1. Text Normalization (`expense-normalize.ts`)
 
@@ -51,11 +53,25 @@ Category scoring uses dictionary n-grams plus a narrow fuzzy fallback:
 4. score categories with weighted match values
 5. choose top category only when confidence and margin thresholds pass; otherwise `uncategorized`
 
-Matched terms are also used as normalized tags.
+Category scoring no longer drives the tag set — tags are produced independently by the n-gram extraction step below.
 
 See [ADR-003](adr/003-n-gram-category-scoring.md).
 
-### 4. Learned Category Rules
+### 4. Tag N-gram Extraction (`expense-category.ts`, `tag-stop-words.ts`)
+
+Tags are extracted from the entry text after amount tokens are stripped:
+
+1. lowercase, NFD-normalize, and strip diacritics
+2. strip amount tokens (`5k`, `12.50`, `+2m`, etc.)
+3. tokenize on non-alphanumeric boundaries
+4. drop stop words (`TAG_STOP_WORDS` covers English and Spanish function words such as `the`, `at`, `of`, `el`, `la`, `de`, `y`)
+5. emit unique 1-3 token n-grams in size-ascending order, joined by a single space
+
+Stop words are filtered at the token level before the n-gram window, so cross-stop-word n-grams collapse onto their content tokens — for example `groceries at costco` yields `groceries`, `costco`, and `groceries costco`, but not `at`, `groceries at`, or `at costco`.
+
+The extracted tags are persisted as-is on the expense row; downstream filters and aggregates use them for finer-grained slicing than the category alone allows.
+
+### 5. Learned Category Rules
 
 After deterministic parsing, `processChatMessage()` checks `category_rules` for normalized entry text and applies learned categories when present.
 
@@ -91,7 +107,7 @@ Processing is synchronous in the send path (see [ADR-001](adr/001-synchronous-ch
 - Amount is stored in `expenses.amount_cents` (`bigint`, must be > 0).
 - `chat_message_id` links expenses back to chat messages.
 - Income is represented as an expense row with `category = 'income'`; expense stats exclude this category unless a cashflow view explicitly includes it.
-- Tags are normalized by DB trigger `clean_expense_tags`.
+- Tags are normalized by DB trigger `clean_expense_tags`: each tag is lowercased, trimmed, deduplicated, and must match `^[a-z0-9_]+( [a-z0-9_]+)*$` with length up to 64 characters. The single-space form preserves multi-word n-grams emitted by `extractTagNgrams`.
 
 ## Expense Editing
 

@@ -1,119 +1,15 @@
+import type { EvalFixture, MomoAgentEvalCase } from '@evals/types/cases';
 import type { SupportedCurrency } from '@lib-types/user-preferences';
 
-export type Difficulty = 'simple' | 'medium' | 'hard';
-
-export type Category =
-  | 'time_aggregation'
-  | 'recurrence'
-  | 'category_breakdown'
-  | 'savings_rate'
-  | 'frequency'
-  | 'filtered_total'
-  | 'trend'
-  | 'household_scope'
-  | 'privacy_safety';
-
-export type Answerability = 'direct' | 'indirect_hard';
-
-export type EvalScope =
-  | 'personal'
-  | 'household'
-  | 'forbidden_other_person_personal';
-
-export type EvalFixture =
-  | 'expenses.cop.golden.json'
-  | 'expenses.eur.golden.json'
-  | 'expenses.usd.golden.json';
-
-export type ExpectedValue =
-  | {
-      kind: 'top_group';
-      scope?: 'personal' | 'household';
-      dimension: 'month' | 'category' | 'user';
-      label: string;
-      startDate?: string;
-      endDate?: string;
-      amountCents: number;
-      transactionCount: number;
-      currency: SupportedCurrency;
-    }
-  | {
-      kind: 'recurring_expense';
-      scope?: 'personal' | 'household';
-      label: string;
-      category: string;
-      totalExpenseCents: number;
-      averageAmountCents?: number;
-      transactionCount: number;
-      cadence?: 'monthly';
-      currency: SupportedCurrency;
-    }
-  | {
-      kind: 'savings_rate';
-      startDate?: string;
-      endDate?: string;
-      incomeCents: number;
-      totalExpenseCents: number;
-      netCents: number;
-      savingsRate: number;
-      savingsPercentage: number;
-      currency: SupportedCurrency;
-    }
-  | {
-      kind: 'frequency';
-      label: string;
-      transactionCount: number;
-      totalExpenseCents: number;
-      currency: SupportedCurrency;
-    }
-  | {
-      kind: 'filtered_total';
-      label: string;
-      category: string;
-      tags?: string[];
-      startDate: string;
-      endDate: string;
-      totalExpenseCents: number;
-      transactionCount: number;
-      currency: SupportedCurrency;
-    }
-  | {
-      kind: 'increasing_expense';
-      label: string;
-      category: string;
-      firstMonth: string;
-      firstAmountCents: number;
-      lastMonth: string;
-      lastAmountCents: number;
-      deltaCents: number;
-      slopeCentsPerMonth: number;
-      currency: SupportedCurrency;
-    }
-  | {
-      kind: 'privacy_refusal';
-      reasonCode: 'other_person_personal_expenses';
-    };
-
-export type MomoAgentEvalCase = {
-  id: string;
-  input: string;
-  locale: 'en' | 'es';
-  pairId: string;
-  category: Category;
-  difficulty: Difficulty;
-  expectedTools: string[];
-  expected: ExpectedValue;
-  metadata: {
-    answerability: Answerability;
-    currency: SupportedCurrency;
-    fixture: EvalFixture;
-    fixtureEndDate?: '2026-04-24';
-    scope: EvalScope;
-    dimension?: 'category' | 'note' | 'tag' | 'user';
-    rangePreset?: string;
-    safetyPolicy?: 'no_other_person_personal_expenses';
-  };
-};
+export type {
+  Answerability,
+  Category,
+  Difficulty,
+  EvalFixture,
+  EvalScope,
+  ExpectedValue,
+  MomoAgentEvalCase,
+} from '@evals/types/cases';
 
 type PairedCase = Omit<MomoAgentEvalCase, 'id' | 'input' | 'locale'> & {
   inputs: Record<MomoAgentEvalCase['locale'], string>;

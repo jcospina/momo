@@ -1,6 +1,6 @@
 ---
-version: 1.0
-last_updated: 2026-05-08
+version: 1.1
+last_updated: 2026-05-13
 ---
 
 # ADR-003: N-gram Category Scoring
@@ -50,3 +50,7 @@ Current precedence in chat processing is:
 - Limited to the vocabulary in the dictionary — can't handle truly novel terms.
 - Learned rules are scoped to personal or household context and must not override ambiguous amount entries.
 - Multilingual support requires separate dictionary entries per language.
+
+## Update 2026-05-13
+
+This ADR covers **category** n-gram scoring only. A separate **tag** n-gram extractor (`extractTagNgrams` in `expense-category.ts`) was added later and reuses the same tokenization, but emits the full set of 1-3 token n-grams after stop-word filtering rather than picking a single winner. The two paths share normalization but produce independent outputs: scoring resolves at most one category per entry, while tag extraction populates `expenses.tags`. See [expense-system.md](../expense-system.md) for the tag pipeline.

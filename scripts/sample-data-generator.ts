@@ -4,81 +4,69 @@
  * without local DB setup.
  */
 
+import { extractTagNgrams } from '@helpers/expenses/expense-category';
+
+export { extractTagNgrams };
+
+export type SampleExpenseRow = {
+  user_id: string;
+  household_id: string;
+  amount_cents: number;
+  currency: string;
+  expense_date: string;
+  merchant: string | null;
+  category: string;
+  note: string | null;
+  tags: string[];
+};
+
+export type SampleExpenseMetadata = {
+  currency: string;
+  endDate: string;
+  householdId: string;
+  memberId: string;
+  ownerId: string;
+  rowCount: number;
+  seed: number;
+  startDate: string;
+};
+
+export type GenerateSampleExpenseOptions = {
+  currency?: string;
+  householdId?: string;
+  memberId?: string;
+  now?: string | Date;
+  ownerId?: string;
+  seed?: number;
+};
+
+export type SampleExpenseDataset = {
+  metadata: SampleExpenseMetadata;
+  rows: SampleExpenseRow[];
+};
+
 const DEFAULT_CURRENCY = 'USD';
 export const DEFAULT_SAMPLE_SEED = 20260424;
 export const DEFAULT_SAMPLE_NOW = '2026-04-24';
-let currentCurrency = DEFAULT_CURRENCY;
-let rngState = normalizeSeed(DEFAULT_SAMPLE_SEED);
 
-// Keep in sync with src/lib/helpers/expenses/expense-category.ts
-// AMOUNT_REGEX from src/lib/constants/expenses/amounts.ts: /([0-9]+(?:\.[0-9]+)?)([kKmM])?/
-const AMOUNT_TOKEN_REGEX = /\b([0-9]+(?:\.[0-9]+)?)([kKmM])?\b/g;
-const TAG_NGRAM_MAX = 3;
+let currentCurrency: string = DEFAULT_CURRENCY;
+let rngState: number = normalizeSeed(DEFAULT_SAMPLE_SEED);
 
-// Keep in sync with src/lib/helpers/expenses/tag-stop-words.ts
-const TAG_STOP_WORDS = new Set([
-  'a',
-  'an',
-  'the',
-  'and',
-  'or',
-  'but',
-  'at',
-  'in',
-  'on',
-  'of',
-  'to',
-  'for',
-  'with',
-  'el',
-  'la',
-  'los',
-  'las',
-  'un',
-  'una',
-  'y',
-  'o',
-  'de',
-  'en',
-  'con',
-  'por',
-]);
+type ChatLabelInput = {
+  note?: string | null;
+  merchant?: string | null;
+  category?: string | null;
+};
 
-function tokenizeForTags(input) {
-  const lowered = (input ?? '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '');
-  const withoutAmounts = lowered.replace(AMOUNT_TOKEN_REGEX, ' ');
-  return withoutAmounts
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .split(/\s+/)
-    .filter(Boolean)
-    .filter(token => !TAG_STOP_WORDS.has(token));
-}
-
-export function extractTagNgrams(input, max = TAG_NGRAM_MAX) {
-  const tokens = tokenizeForTags(input);
-  if (!tokens.length) return [];
-  const tags = [];
-  const seen = new Set();
-  const upper = Math.min(max, tokens.length);
-  for (let size = 1; size <= upper; size += 1) {
-    for (let i = 0; i <= tokens.length - size; i += 1) {
-      const ngram = tokens.slice(i, i + size).join(' ');
-      if (seen.has(ngram)) continue;
-      seen.add(ngram);
-      tags.push(ngram);
-    }
-  }
-  return tags;
-}
-
-export function chatLabelFor({ note, merchant, category }) {
+export function chatLabelFor({
+  note,
+  merchant,
+  category,
+}: ChatLabelInput): string {
   return (note ?? merchant ?? category ?? '').toString().toLowerCase().trim();
 }
 
-const ANNUAL_DRIFT_BY_CATEGORY = {
+const ANNUAL_DRIFT_BY_CATEGORY: Record<string, number[]> = {
   dining: [
     1, 1.012, 1.018, 1.027, 1.035, 1.044, 1.052, 1.066, 1.072, 1.081, 1.094,
     1.101, 1.114,
@@ -131,7 +119,17 @@ const ANNUAL_DRIFT_BY_CATEGORY = {
   ],
 };
 
-const ONE_OFF_EVENTS = [
+type OneOffEvent = {
+  monthOffset: number;
+  day: number;
+  category: string;
+  merchant: string;
+  note: string;
+  amount: number;
+  user: 'owner' | 'member';
+};
+
+const ONE_OFF_EVENTS: OneOffEvent[] = [
   {
     monthOffset: 1,
     day: 18,
@@ -206,7 +204,9 @@ const ONE_OFF_EVENTS = [
   },
 ];
 
-export function generateSampleExpenseData(options = {}) {
+export function generateSampleExpenseData(
+  options: GenerateSampleExpenseOptions = {},
+): SampleExpenseDataset {
   const {
     currency = DEFAULT_CURRENCY,
     householdId = 'sample-household',
@@ -218,7 +218,7 @@ export function generateSampleExpenseData(options = {}) {
   const dateWindow = buildDateWindow(now);
   currentCurrency = currency;
   rngState = normalizeSeed(seed);
-  const rows = [];
+  const rows: SampleExpenseRow[] = [];
   forEachMonth(dateWindow, (year, month, maxDay, monthOffset) => {
     rows.push(
       ...generateIncomeRows(
@@ -267,7 +267,15 @@ export function generateSampleExpenseData(options = {}) {
 
 // ── iteration helper ─────────────────────────────────────────────────────────
 
-function buildDateWindow(now) {
+type DateWindow = {
+  endMonth: number;
+  endYear: number;
+  startMonth: number;
+  startYear: number;
+  todayDay: number;
+};
+
+function buildDateWindow(now: string | Date): DateWindow {
   const date = parseSampleDate(now);
   const todayYear = date.getUTCFullYear();
   const todayMonth = date.getUTCMonth() + 1;
@@ -284,7 +292,7 @@ function buildDateWindow(now) {
   };
 }
 
-function parseSampleDate(value) {
+function parseSampleDate(value: string | Date): Date {
   if (value instanceof Date) return value;
   const parsed = new Date(`${value}T00:00:00.000Z`);
   if (Number.isNaN(parsed.getTime())) {
@@ -293,7 +301,14 @@ function parseSampleDate(value) {
   return parsed;
 }
 
-function forEachMonth(dateWindow, fn) {
+type MonthVisitor = (
+  year: number,
+  month: number,
+  maxDay: number | null,
+  monthOffset: number,
+) => void;
+
+function forEachMonth(dateWindow: DateWindow, fn: MonthVisitor): void {
   let y = dateWindow.startYear;
   let m = dateWindow.startMonth;
   for (let i = 0; i < 13; i++) {
@@ -314,27 +329,29 @@ function forEachMonth(dateWindow, fn) {
 // ── income generation ────────────────────────────────────────────────────────
 
 function generateIncomeRows(
-  year,
-  month,
-  ownerId,
-  memberId,
-  householdId,
-  maxDay,
-  monthOffset,
-  currency,
-) {
-  const rows = [];
+  year: number,
+  month: number,
+  ownerId: string,
+  memberId: string,
+  householdId: string,
+  maxDay: number | null,
+  monthOffset: number,
+  currency: string,
+): SampleExpenseRow[] {
+  const rows: SampleExpenseRow[] = [];
   const daysInMonth = new Date(year, month, 0).getDate();
   // Clamp day to month length and, for the current month, to today.
-  const d = day => Math.min(day, maxDay ?? daysInMonth);
-  const dayInRange = day => (maxDay ? day <= maxDay : true);
+  const d = (day: number) => Math.min(day, maxDay ?? daysInMonth);
+  const dayInRange = (day: number) => (maxDay ? day <= maxDay : true);
 
   const ownerPaycheck = trendAmount(375000, 'income', monthOffset, 0);
   const memberPaycheck = trendAmount(275000, 'income', monthOffset, 0);
 
   // Candidate income entries: [day, userId, amountCents, merchant, note, monthGuard]
   // monthGuard is null (every month) or a specific month number.
-  const candidates = [
+  const candidates: Array<
+    [number, string, number, string, string, number | null]
+  > = [
     // Salaries stay mostly steady, with small uneven raises across the window.
     [1, ownerId, ownerPaycheck, 'Acme Corp', 'Salary', null],
     [15, ownerId, ownerPaycheck, 'Acme Corp', 'Salary', null],
@@ -371,16 +388,16 @@ function generateIncomeRows(
 }
 
 function incomeRow(
-  userId,
-  householdId,
-  year,
-  month,
-  day,
-  amountCents,
-  merchant,
-  note,
-  currency = currentCurrency,
-) {
+  userId: string,
+  householdId: string,
+  year: number,
+  month: number,
+  day: number,
+  amountCents: number,
+  merchant: string,
+  note: string,
+  currency: string = currentCurrency,
+): SampleExpenseRow {
   const category = 'income';
   const tags = extractTagNgrams(chatLabelFor({ note, merchant, category }));
   return {
@@ -399,25 +416,26 @@ function incomeRow(
 // ── expense generation ───────────────────────────────────────────────────────
 
 function generateExpenseRows(
-  year,
-  month,
-  ownerId,
-  memberId,
-  householdId,
-  maxDay,
-  monthOffset,
-  currency,
-) {
-  const rows = [];
+  year: number,
+  month: number,
+  ownerId: string,
+  memberId: string,
+  householdId: string,
+  maxDay: number | null,
+  monthOffset: number,
+  currency: string,
+): SampleExpenseRow[] {
+  const rows: SampleExpenseRow[] = [];
   const daysInMonth = new Date(year, month, 0).getDate();
   const cap = maxDay ?? daysInMonth;
-  const amount = (base, category, pct = 0.1) =>
+  const amount = (base: number, category: string, pct = 0.1) =>
     trendAmount(base, category, monthOffset, pct, month);
 
   // Helper to clamp day to month length and current-month cap.
-  const d = day => Math.min(day, cap);
+  const d = (day: number) => Math.min(day, cap);
   // For random ranges, limit upper bound to cap.
-  const randDay = (min, max) => randInt(Math.min(min, cap), Math.min(max, cap));
+  const randDay = (min: number, max: number) =>
+    randInt(Math.min(min, cap), Math.min(max, cap));
 
   // ── Housing ────────────────────────────────────────────────────────────────
   rows.push(
@@ -1037,7 +1055,11 @@ function generateExpenseRows(
 
   // ── Shopping ───────────────────────────────────────────────────────────────
   const shopCount = randInt(1, 4);
-  const shopOptions = [
+  const shopOptions: Array<{
+    merchant: string;
+    note: string | null;
+    base: number;
+  }> = [
     { merchant: 'Amazon', note: 'Household items', base: 4500 },
     { merchant: 'Target', note: null, base: 6500 },
     { merchant: 'IKEA', note: 'Home decor', base: 8000 },
@@ -1387,7 +1409,7 @@ function generateExpenseRows(
     );
   }
 
-  const userByKey = {
+  const userByKey: Record<'owner' | 'member', string> = {
     member: memberId,
     owner: ownerId,
   };
@@ -1415,17 +1437,17 @@ function generateExpenseRows(
 // ── row builder ──────────────────────────────────────────────────────────────
 
 function expense(
-  userId,
-  householdId,
-  year,
-  month,
-  day,
-  amountCents,
-  category,
-  note,
-  merchant,
-  currency = currentCurrency,
-) {
+  userId: string,
+  householdId: string,
+  year: number,
+  month: number,
+  day: number,
+  amountCents: number,
+  category: string,
+  note: string | null,
+  merchant: string | null,
+  currency: string = currentCurrency,
+): SampleExpenseRow {
   const normalizedNote = note ?? null;
   const normalizedMerchant = merchant ?? null;
   const tags = extractTagNgrams(
@@ -1450,22 +1472,28 @@ function expense(
 
 // ── utils ────────────────────────────────────────────────────────────────────
 
-function dateStr(year, month, day) {
+function dateStr(year: number, month: number, day: number): string {
   return `${year}-${pad(month)}-${pad(day)}`;
 }
 
-function pad(n) {
+function pad(n: number): string {
   return String(n).padStart(2, '0');
 }
 
-function trendAmount(base, category, monthOffset, pct = 0, month = null) {
+function trendAmount(
+  base: number,
+  category: string,
+  monthOffset: number,
+  pct = 0,
+  month: number | null = null,
+): number {
   const drift = getCategoryDrift(category, monthOffset);
   const seasonality = getSeasonality(category, month);
   const irregularity = pct > 0 ? 1 + (random() * 2 - 1) * pct : 1;
   return Math.max(100, Math.round(base * drift * seasonality * irregularity));
 }
 
-function getCategoryDrift(category, monthOffset) {
+function getCategoryDrift(category: string, monthOffset: number): number {
   if (category === 'income') {
     return monthOffset >= 8 ? 1.028 : monthOffset >= 3 ? 1.012 : 1;
   }
@@ -1475,7 +1503,7 @@ function getCategoryDrift(category, monthOffset) {
   return series[Math.min(monthOffset, series.length - 1)];
 }
 
-function getSeasonality(category, month) {
+function getSeasonality(category: string, month: number | null): number {
   if (!month) return 1;
 
   if (category === 'groceries') {
@@ -1506,25 +1534,25 @@ function getSeasonality(category, month) {
 }
 
 /** Vary an amount by ±pct (returns integer cents). */
-function vary(base, pct) {
+function vary(base: number, pct: number): number {
   const factor = 1 + (random() * 2 - 1) * pct;
   return Math.round(base * factor);
 }
 
-function randInt(min, max) {
+function randInt(min: number, max: number): number {
   return Math.floor(random() * (max - min + 1)) + min;
 }
 
-function pick(arr) {
+function pick<T>(arr: readonly T[]): T {
   return arr[Math.floor(random() * arr.length)];
 }
 
-function normalizeSeed(seed) {
+function normalizeSeed(seed: number): number {
   if (Number.isNaN(seed) || seed <= 0) return 1;
   return seed % 2147483647 || 1;
 }
 
-function random() {
+function random(): number {
   rngState = (rngState * 48271) % 2147483647;
   return (rngState - 1) / 2147483646;
 }

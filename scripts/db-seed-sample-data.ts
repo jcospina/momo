@@ -1,11 +1,11 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
 /**
  * Seeds ~1 year of realistic expense & income data for a married couple with
  * kids. Assumes `pnpm db:seed` has already been applied (users, household,
  * profiles all exist).
  *
- * Data shape and randomness come from `scripts/sample-data-generator.mjs`
+ * Data shape and randomness come from `scripts/sample-data-generator.ts`
  * (deterministic, seeded, with category drift + seasonality + one-off events
  * + ngram-derived tags). This script's job is the DB plumbing: resolve user
  * IDs from Supabase, build the paired chat_messages rows that "would have"
@@ -19,81 +19,17 @@
  *   MOMO_DEV_SEED_SAMPLE_SEED=20260424 pnpm db:seed:sample
  */
 
-import { execSync } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
-import { createClient } from '@supabase/supabase-js';
-
+import { createClient, type User } from '@supabase/supabase-js';
+import { getLocalSupabaseEnv } from './lib/supabase-env';
 import {
+  chatLabelFor,
   DEFAULT_SAMPLE_SEED,
   generateSampleExpenseData,
-} from './sample-data-generator.mjs';
-
-// ── env helpers ──────────────────────────────────────────────────────────────
-
-function loadEnvFiles(files) {
-  for (const file of files) {
-    const absPath = path.resolve(process.cwd(), file);
-    if (!fs.existsSync(absPath)) continue;
-    const raw = fs.readFileSync(absPath, 'utf8');
-    for (const line of raw.split(/\r?\n/)) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#')) continue;
-      const withoutExport = trimmed.startsWith('export ')
-        ? trimmed.slice('export '.length).trim()
-        : trimmed;
-      const eq = withoutExport.indexOf('=');
-      if (eq < 1) continue;
-      const key = withoutExport.slice(0, eq).trim();
-      if (!key || process.env[key] !== undefined) continue;
-      let value = withoutExport.slice(eq + 1).trim();
-      if (
-        (value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith("'") && value.endsWith("'"))
-      )
-        value = value.slice(1, -1);
-      process.env[key] = value;
-    }
-  }
-}
-
-function mustGetEnv(key) {
-  const value = process.env[key];
-  if (!value) throw new Error(`Missing ${key}`);
-  return value;
-}
-
-function resolveServiceRoleKey() {
-  try {
-    const output = execSync('supabase status -o env', {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    });
-    const line = output
-      .split(/\r?\n/)
-      .find(l => l.startsWith('SERVICE_ROLE_KEY='));
-    if (line) {
-      let v = line.slice('SERVICE_ROLE_KEY='.length).trim();
-      if (
-        (v.startsWith('"') && v.endsWith('"')) ||
-        (v.startsWith("'") && v.endsWith("'"))
-      )
-        v = v.slice(1, -1);
-      if (v) return v;
-    }
-  } catch {
-    /* ignore */
-  }
-  return mustGetEnv('SUPABASE_SERVICE_ROLE_KEY');
-}
+} from './sample-data-generator';
 
 // ── config ───────────────────────────────────────────────────────────────────
 
-loadEnvFiles(['.env.local', '.env']);
-
-const supabaseUrl =
-  process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://127.0.0.1:54321';
-const serviceRoleKey = resolveServiceRoleKey();
+const { url: supabaseUrl, serviceRoleKey } = getLocalSupabaseEnv();
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
@@ -116,8 +52,8 @@ const SAMPLE_SEED = Number.parseInt(
   10,
 );
 
-const senderNames = new Map();
-function senderNameFor(userId) {
+const senderNames = new Map<string, string | null>();
+function senderNameFor(userId: string): string | null {
   return senderNames.get(userId) ?? null;
 }
 
@@ -129,28 +65,31 @@ main().catch(err => {
   process.exit(1);
 });
 
-async function main() {
+async function main(): Promise<void> {
   console.log('[db:seed:sample] Generating sample expense & income data...');
 
   const owner = await findUserByEmail(OWNER_EMAIL);
-  if (!owner)
+  if (!owner) {
     throw new Error(
       `Owner user ${OWNER_EMAIL} not found — run pnpm db:seed first`,
     );
+  }
   const member = await findUserByEmail(MEMBER_EMAIL);
-  if (!member)
+  if (!member) {
     throw new Error(
       `Member user ${MEMBER_EMAIL} not found — run pnpm db:seed first`,
     );
+  }
 
   const { data: membership } = await supabase
     .from('household_members')
     .select('household_id')
     .eq('user_id', owner.id)
     .single();
-  if (!membership)
+  if (!membership) {
     throw new Error('Owner has no household — run pnpm db:seed first');
-  const householdId = membership.household_id;
+  }
+  const householdId = membership.household_id as string;
 
   senderNames.set(owner.id, displayNameOf(owner));
   senderNames.set(member.id, displayNameOf(member));
@@ -193,20 +132,22 @@ async function main() {
   });
 
   // Insert chat messages first (in order) so we can link expenses back via chat_message_id.
-  const messageIds = [];
+  const messageIds: string[] = [];
   for (let i = 0; i < pairs.length; i += BATCH_SIZE) {
     const batch = pairs.slice(i, i + BATCH_SIZE).map(p => p.message);
     const { data, error } = await supabase
       .from('chat_messages')
       .insert(batch)
       .select('id');
-    if (error)
+    if (error) {
       throw new Error(`Message insert failed at batch ${i}: ${error.message}`);
-    if (!data || data.length !== batch.length)
+    }
+    if (!data || data.length !== batch.length) {
       throw new Error(
         `Message insert returned ${data?.length ?? 0} ids for batch of ${batch.length}`,
       );
-    for (const row of data) messageIds.push(row.id);
+    }
+    for (const row of data) messageIds.push(row.id as string);
   }
 
   // Insert expenses with the matching chat_message_id.
@@ -217,7 +158,9 @@ async function main() {
       chat_message_id: messageIds[i + j],
     }));
     const { error } = await supabase.from('expenses').insert(batch);
-    if (error) throw new Error(`Insert failed at batch ${i}: ${error.message}`);
+    if (error) {
+      throw new Error(`Insert failed at batch ${i}: ${error.message}`);
+    }
     inserted += batch.length;
   }
 
@@ -226,18 +169,16 @@ async function main() {
   );
 }
 
-function displayNameOf(user) {
-  return (
-    user?.user_metadata?.name ??
-    user?.user_metadata?.full_name ??
-    user?.email ??
-    null
-  );
+function displayNameOf(user: User): string | null {
+  const meta = user.user_metadata as
+    | { name?: string; full_name?: string }
+    | undefined;
+  return meta?.name ?? meta?.full_name ?? user.email ?? null;
 }
 
 // ── user lookup ──────────────────────────────────────────────────────────────
 
-async function findUserByEmail(email) {
+async function findUserByEmail(email: string): Promise<User | null> {
   let page = 1;
   while (true) {
     const { data, error } = await supabase.auth.admin.listUsers({
@@ -255,6 +196,18 @@ async function findUserByEmail(email) {
 
 // ── chat message scaffolding ─────────────────────────────────────────────────
 
+type ChatMessageInput = {
+  userId: string;
+  householdId: string;
+  year: number;
+  month: number;
+  day: number;
+  amountCents: number;
+  note: string | null;
+  merchant: string | null;
+  category: string | null;
+};
+
 // Build a chat_messages row that "would have" produced the paired expense.
 // Content mirrors how a user types it in chat — e.g. "uber 25", "salary 3750".
 function buildChatMessage({
@@ -267,8 +220,8 @@ function buildChatMessage({
   note,
   merchant,
   category,
-}) {
-  const label = (note ?? merchant ?? category ?? '').toLowerCase().trim();
+}: ChatMessageInput) {
+  const label = chatLabelFor({ note, merchant, category });
   const amount = formatAmount(amountCents);
   const content = label ? `${label} ${amount}` : amount;
   return {
@@ -282,12 +235,12 @@ function buildChatMessage({
   };
 }
 
-function formatAmount(cents) {
+function formatAmount(cents: number): string {
   const dollars = cents / 100;
   return Number.isInteger(dollars) ? String(dollars) : dollars.toFixed(2);
 }
 
-function timestampForDay(year, month, day) {
+function timestampForDay(year: number, month: number, day: number): string {
   const hour = randInt(8, 22);
   const minute = randInt(0, 59);
   const second = randInt(0, 59);
@@ -296,11 +249,11 @@ function timestampForDay(year, month, day) {
 
 // ── utils ────────────────────────────────────────────────────────────────────
 
-function maybeNullMerchant(merchant) {
+function maybeNullMerchant(merchant: string | null): string | null {
   if (merchant == null) return null;
   return Math.random() < MERCHANT_NULL_PROBABILITY ? null : merchant;
 }
 
-function randInt(min, max) {
+function randInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
