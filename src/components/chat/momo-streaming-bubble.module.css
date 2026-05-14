@@ -1,21 +1,6 @@
 .momo-streaming-bubble {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-1);
   max-width: 100%;
   text-align: start;
-}
-
-.momo-streaming-bubble__avatar {
-  flex-shrink: 0;
-  margin-top: var(--space-0_5);
-  overflow: hidden;
-  padding: 0;
-}
-
-.momo-streaming-bubble__avatar-logo {
-  font-size: 0.95rem;
-  line-height: 1;
 }
 
 .momo-streaming-bubble__message {
@@ -173,8 +158,8 @@
   margin-left: 0.15em;
   vertical-align: -0.12em;
   background-color: currentColor;
-  animation: momo-streaming-bubble-blink var(--duration-toggle) var(--ease-pop)
-    infinite;
+  animation: momo-streaming-bubble-blink calc(var(--duration-toggle) * 2)
+    var(--ease-pop) infinite;
 }
 
 @keyframes momo-streaming-bubble-blink {
