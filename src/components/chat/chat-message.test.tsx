@@ -1,5 +1,6 @@
 import type { ChatMessage as ChatMessageRecord } from '@lib-types/chat';
 import { render, screen } from '@testing-library/react';
+import logoStyles from '@ui/logo/logo.module.css';
 import { ChatMessage } from './chat-message';
 import bubbleStyles from './chat-message-bubble.module.css';
 
@@ -159,7 +160,7 @@ describe('ChatMessage MoMo rendering', () => {
     expect(actionsSlot).toBeNull();
   });
 
-  it('does not render a household sender label or avatar on MoMo rows', () => {
+  it('does not render a household sender label on MoMo rows', () => {
     const { container } = render(
       <ChatMessage
         message={buildMomoMessage({
@@ -176,5 +177,53 @@ describe('ChatMessage MoMo rendering', () => {
       `.${bubbleStyles['momo-chat-bubble__sender']}`,
     );
     expect(sender).toBeNull();
+  });
+
+  it('renders the MoMo logo avatar on MoMo rows in personal scope', () => {
+    const { container } = render(
+      <ChatMessage
+        message={buildMomoMessage()}
+        currentUserId="user-1"
+        isHousehold={false}
+      />,
+    );
+
+    const logo = container.querySelector(`.${logoStyles['momo-logo']}`);
+    expect(logo).toBeInTheDocument();
+    expect(logo).toHaveTextContent('M');
+  });
+
+  it('renders the MoMo logo avatar on MoMo rows in household scope', () => {
+    const { container } = render(
+      <ChatMessage
+        message={buildMomoMessage({ household_id: 'house-1' })}
+        currentUserId="user-1"
+        isHousehold
+      />,
+    );
+
+    const logo = container.querySelector(`.${logoStyles['momo-logo']}`);
+    expect(logo).toBeInTheDocument();
+    expect(logo).toHaveTextContent('M');
+  });
+
+  it('does not render an avatar for non-MoMo incoming messages in personal scope', () => {
+    const { container } = render(
+      <ChatMessage
+        message={buildMessage({
+          user_id: 'user-2',
+          sender_name: 'User Two',
+        })}
+        currentUserId="user-1"
+        isHousehold={false}
+      />,
+    );
+
+    const logo = container.querySelector(`.${logoStyles['momo-logo']}`);
+    expect(logo).toBeNull();
+    const placeholder = container.querySelector(
+      `.${bubbleStyles['momo-chat-bubble__avatar-placeholder']}`,
+    );
+    expect(placeholder).toBeInTheDocument();
   });
 });

@@ -7,6 +7,7 @@ import { Dialog, useDialogController } from '@ui/dialog/dialog';
 import { AlertIcon } from '@ui/icons/alert';
 import { CircleCheckIcon } from '@ui/icons/circle-check';
 import { ThreeDotsIcon } from '@ui/icons/three-dots';
+import { Logo } from '@ui/logo/logo';
 import { Margin } from '@ui/margin/margin';
 import { Menu } from '@ui/menu/menu';
 import { Typography } from '@ui/typography/typography';
@@ -212,7 +213,7 @@ export function ChatMessage({
   const showActions = isOwn;
   const senderNameRaw =
     isHousehold && !isOwn && !isMomo ? (message.sender_name ?? null) : null;
-  const showAvatar = isHousehold && !isOwn && !isMomo;
+  const showAvatar = isMomo || (isHousehold && !isOwn);
   const timestamp = message.created_at
     ? format(new Date(message.created_at), 'p')
     : null;
@@ -294,11 +295,20 @@ export function ChatMessage({
 
   const avatarSlot = showAvatar ? (
     <Margin marginTop={0.5}>
-      <Avatar
-        size="extra-small"
-        displayName={senderDisplay || senderNameRaw || '?'}
-        color="mauve-magic"
-      />
+      {isMomo ? (
+        <Avatar
+          size="extra-small"
+          displayName={null}
+          color="mauve-magic"
+          slot={<Logo size="xs" text="M" />}
+        />
+      ) : (
+        <Avatar
+          size="extra-small"
+          displayName={senderDisplay || senderNameRaw || '?'}
+          color="mauve-magic"
+        />
+      )}
     </Margin>
   ) : null;
 
