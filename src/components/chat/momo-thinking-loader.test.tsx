@@ -1,7 +1,10 @@
+import enMessages from '@messages/en.json';
 import { act, render, screen } from '@testing-library/react';
 import { MomoThinkingLoader } from './momo-thinking-loader';
 
 const ROTATION_MS = 2200;
+const THINKING_COPY = enMessages.chat.momo.thinking as string[];
+const THINKING_ARIA_LABEL = enMessages.chat.momo.thinkingAriaLabel;
 
 function mockMatchMedia(prefersReduced: boolean) {
   const implementation = (query: string) =>
@@ -31,6 +34,12 @@ function mockMatchMedia(prefersReduced: boolean) {
   });
 }
 
+function getCurrentCopy() {
+  const status = screen.getByRole('status', { name: THINKING_ARIA_LABEL });
+  const text = status.textContent ?? '';
+  return THINKING_COPY.find(candidate => text.includes(candidate));
+}
+
 describe('MomoThinkingLoader', () => {
   beforeEach(() => {
     jest.useFakeTimers();
@@ -40,46 +49,54 @@ describe('MomoThinkingLoader', () => {
     jest.useRealTimers();
   });
 
+  it('renders copy from the localized rotation list', () => {
+    mockMatchMedia(false);
+    render(<MomoThinkingLoader />);
+
+    const initial = getCurrentCopy();
+    expect(initial).toBeTruthy();
+    expect(THINKING_COPY).toContain(initial);
+  });
+
   it('rotates through the copy strings on a timer', () => {
     mockMatchMedia(false);
     render(<MomoThinkingLoader />);
 
-    const initial = screen.getByRole('status', {
-      name: 'MoMo is thinking',
-    }).textContent;
-    expect(initial).toBeTruthy();
+    const initial = getCurrentCopy();
 
     act(() => {
       jest.advanceTimersByTime(ROTATION_MS);
     });
-    const afterOne = screen.getByRole('status', {
-      name: 'MoMo is thinking',
-    }).textContent;
+    const afterOne = getCurrentCopy();
     expect(afterOne).not.toEqual(initial);
+    expect(THINKING_COPY).toContain(afterOne);
 
     act(() => {
       jest.advanceTimersByTime(ROTATION_MS);
     });
-    const afterTwo = screen.getByRole('status', {
-      name: 'MoMo is thinking',
-    }).textContent;
+    const afterTwo = getCurrentCopy();
     expect(afterTwo).not.toEqual(afterOne);
+    expect(THINKING_COPY).toContain(afterTwo);
   });
 
   it('does not rotate when prefers-reduced-motion is set', () => {
     mockMatchMedia(true);
     render(<MomoThinkingLoader />);
 
-    const initial = screen.getByRole('status', {
-      name: 'MoMo is thinking',
-    }).textContent;
+    const initial = getCurrentCopy();
 
     act(() => {
       jest.advanceTimersByTime(ROTATION_MS * 3);
     });
 
-    expect(
-      screen.getByRole('status', { name: 'MoMo is thinking' }).textContent,
-    ).toEqual(initial);
+    expect(getCurrentCopy()).toEqual(initial);
+  });
+
+  it('renders the MoMo brand mark as an avatar slot', () => {
+    mockMatchMedia(false);
+    render(<MomoThinkingLoader />);
+
+    const status = screen.getByRole('status', { name: THINKING_ARIA_LABEL });
+    expect(status.textContent ?? '').toContain('MoMo');
   });
 });

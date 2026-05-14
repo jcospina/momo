@@ -1,5 +1,13 @@
 .momo-thinking-loader {
   display: flex;
+  align-items: flex-start;
+  gap: calc(var(--spacing));
+  max-width: 100%;
+  text-align: start;
+}
+
+.momo-thinking-loader__bubble {
+  display: flex;
   align-items: center;
   gap: calc(var(--spacing));
   border-radius: var(--border-radius);
@@ -8,7 +16,13 @@
   background-color: var(--color-mauve-magic);
   padding: var(--space-1) var(--space-2);
   max-width: 720px;
+  min-width: 0;
   color: var(--color-dark);
+}
+
+.momo-thinking-loader__logo {
+  font-size: 0.85rem;
+  line-height: 1;
 }
 
 .momo-thinking-loader__copy-slot {
