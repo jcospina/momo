@@ -50,6 +50,16 @@
       "expenseFailed": "gasto fallido",
       "expenseCreated": "gasto creado",
       "expensesCreated": "gastos creados"
+    },
+    "momo": {
+      "thinkingAriaLabel": "MoMo está pensando",
+      "thinking": [
+        "Haciendo cuentas…",
+        "Contando tus cafés…",
+        "Sacando la calculadora…",
+        "A ver, a ver…",
+        "Sumando recibos…"
+      ]
     }
   },
   "expenses": {

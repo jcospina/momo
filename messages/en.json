@@ -50,6 +50,16 @@
       "expenseFailed": "expense failed",
       "expenseCreated": "expense created",
       "expensesCreated": "expenses created"
+    },
+    "momo": {
+      "thinkingAriaLabel": "MoMo is thinking",
+      "thinking": [
+        "Crunching numbers…",
+        "Counting your coffees…",
+        "Doing the math…",
+        "Hmm, let me see…",
+        "Tallying receipts…"
+      ]
     }
   },
   "expenses": {
