@@ -14,6 +14,9 @@ function buildMessage(
     expense_count: 1,
     created_at: '2026-03-20T10:00:00.000Z',
     sender_name: 'User One',
+    author_kind: 'user',
+    momo_source: null,
+    momo_invocation_tagged: false,
     ...overrides,
   };
 }
