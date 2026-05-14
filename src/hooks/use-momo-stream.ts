@@ -1,96 +1,177 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { streamMomo } from '@/lib/data/messages/client';
-import type { StreamMomoInput } from '@/lib/data/messages/types';
 
-export type MomoStreamStatus =
-  | 'idle'
-  | 'sending'
-  | 'streaming'
-  | 'done'
-  | 'error';
+export type MomoStreamStatus = 'sending' | 'streaming' | 'done' | 'error';
 
-export type UseMomoStreamResult = {
+export type MomoStreamState = {
   status: MomoStreamStatus;
   text: string;
-  error: string | null;
-  start: (input: StartInput) => Promise<void>;
-  abort: () => void;
+  error: Error | null;
 };
 
-type StartInput = Omit<StreamMomoInput, 'signal'>;
+export type StartInput = {
+  content: string;
+  householdId: string | null;
+  triggeringMessageId: string;
+};
+
+export type UseMomoStreamResult = {
+  /**
+   * Read-only view of all in-flight or completed streams in the lifetime of
+   * this hook instance, keyed by `triggeringMessageId`.
+   */
+  streams: ReadonlyMap<string, MomoStreamState>;
+
+  /**
+   * Starts a new stream. If a stream with the same `triggeringMessageId` is
+   * already in flight (status `sending` or `streaming`), this is a no-op —
+   * we avoid the redundant fetch and rely on the DB layer's idempotency key
+   * for defense in depth.
+   *
+   * Streams keyed by different `triggeringMessageId`s run in parallel, each
+   * with its own `AbortController`.
+   */
+  start: (input: StartInput) => void;
+
+  /**
+   * Aborts a specific in-flight stream. No-op if the stream is not in flight.
+   */
+  abort: (triggeringMessageId: string) => void;
+};
+
+type InternalEntry = {
+  controller: AbortController;
+  state: MomoStreamState;
+};
 
 /**
- * Streams a Momo reply from `/api/momo-stream` via the messages facade.
+ * Streams MoMo replies from `/api/momo-stream` via the messages facade.
  *
- * State machine: `idle → sending → streaming → done | error`.
- *
- * `start()` is idempotent across invocations: a second call aborts the
- * previous stream, resets `text` to `''`, and starts fresh. `abort()`
- * cancels the in-flight request and transitions the hook back to `idle`
- * (the plan permits either `idle` or `error`; `idle` matches the "never
- * started, or `abort()` was called" semantics documented for the state).
+ * Multi-stream: multiple `@momo` mentions can stream concurrently, each
+ * keyed by its `triggeringMessageId`. Starting stream B never aborts a
+ * still-in-flight stream A, and `abort(id)` targets only the named stream.
  */
 export function useMomoStream(): UseMomoStreamResult {
-  const [status, setStatus] = useState<MomoStreamStatus>('idle');
-  const [text, setText] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const controllerRef = useRef<AbortController | null>(null);
+  // Authoritative storage. We keep both the `AbortController` and the latest
+  // `MomoStreamState` in this ref-held map so synchronous reads in `start()`
+  // and `abort()` see the live state without depending on the render cycle.
+  const entriesRef = useRef<Map<string, InternalEntry>>(new Map());
 
-  const abort = useCallback(() => {
-    const controller = controllerRef.current;
-    if (!controller) return;
-    controllerRef.current = null;
-    controller.abort();
-    setStatus('idle');
-  }, []);
+  // Reactive snapshot exposed to consumers. We swap to a new Map on every
+  // update so React (and `useEffect` deps) detect the change.
+  const [streams, setStreams] = useState<ReadonlyMap<string, MomoStreamState>>(
+    () => new Map(),
+  );
 
-  const start = useCallback(async (input: StartInput) => {
-    // Abort any in-flight stream before starting a new one. We don't reuse
-    // `abort()` here because it would flip status to `idle` after we set
-    // `sending` below, depending on microtask ordering.
-    controllerRef.current?.abort();
+  // Tracks whether the hook is still mounted so we can ignore late state
+  // updates from in-flight async iterators after unmount.
+  const mountedRef = useRef(true);
 
-    const controller = new AbortController();
-    controllerRef.current = controller;
-
-    setText('');
-    setError(null);
-    setStatus('sending');
-
-    try {
-      const iterable = streamMomo({
-        content: input.content,
-        householdId: input.householdId,
-        triggeringMessageId: input.triggeringMessageId,
-        signal: controller.signal,
-      });
-
-      let receivedFirstChunk = false;
-      for await (const chunk of iterable) {
-        if (controller.signal.aborted) return;
-        if (!receivedFirstChunk) {
-          receivedFirstChunk = true;
-          setStatus('streaming');
-        }
-        setText(prev => prev + chunk);
-      }
-
-      if (controller.signal.aborted) return;
-      setStatus('done');
-    } catch (err) {
-      if (controller.signal.aborted) return;
-      const message = err instanceof Error ? err.message : String(err);
-      setError(message);
-      setStatus('error');
-    } finally {
-      if (controllerRef.current === controller) {
-        controllerRef.current = null;
-      }
+  const publish = useCallback(() => {
+    if (!mountedRef.current) return;
+    const next = new Map<string, MomoStreamState>();
+    for (const [id, entry] of entriesRef.current) {
+      next.set(id, entry.state);
     }
+    setStreams(next);
   }, []);
 
-  return { status, text, error, start, abort };
+  const start = useCallback(
+    (input: StartInput) => {
+      const { triggeringMessageId } = input;
+      const existing = entriesRef.current.get(triggeringMessageId);
+      if (
+        existing &&
+        (existing.state.status === 'sending' ||
+          existing.state.status === 'streaming')
+      ) {
+        // Duplicate-request guard: don't re-fetch a stream that is already
+        // running for this trigger.
+        return;
+      }
+
+      const controller = new AbortController();
+      const entry: InternalEntry = {
+        controller,
+        state: { status: 'sending', text: '', error: null },
+      };
+      entriesRef.current.set(triggeringMessageId, entry);
+      publish();
+
+      void (async () => {
+        try {
+          const iterable = streamMomo({
+            content: input.content,
+            householdId: input.householdId,
+            triggeringMessageId,
+            signal: controller.signal,
+          });
+
+          let receivedFirstChunk = false;
+          for await (const chunk of iterable) {
+            if (controller.signal.aborted) return;
+            if (!receivedFirstChunk) {
+              receivedFirstChunk = true;
+              entry.state = { ...entry.state, status: 'streaming' };
+            }
+            entry.state = {
+              ...entry.state,
+              text: entry.state.text + chunk,
+            };
+            publish();
+          }
+
+          if (controller.signal.aborted) return;
+          entry.state = { ...entry.state, status: 'done' };
+          publish();
+        } catch (err) {
+          if (controller.signal.aborted) return;
+          const error = err instanceof Error ? err : new Error(String(err));
+          entry.state = { ...entry.state, status: 'error', error };
+          publish();
+        }
+      })();
+    },
+    [publish],
+  );
+
+  const abort = useCallback(
+    (triggeringMessageId: string) => {
+      const entry = entriesRef.current.get(triggeringMessageId);
+      if (!entry) return;
+      const { status } = entry.state;
+      if (status !== 'sending' && status !== 'streaming') return;
+      entry.controller.abort();
+      // Drop the aborted stream from the map so consumers can tell it's gone
+      // and so a follow-up `start()` with the same id can proceed.
+      entriesRef.current.delete(triggeringMessageId);
+      publish();
+    },
+    [publish],
+  );
+
+  // Cleanup: abort everything in flight when the hook unmounts. We reset
+  // `mountedRef` to `true` on mount as well so React 18 StrictMode (which
+  // mounts → unmounts → remounts effects in dev) leaves the ref in the
+  // correct state after the second mount.
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      for (const entry of entriesRef.current.values()) {
+        if (
+          entry.state.status === 'sending' ||
+          entry.state.status === 'streaming'
+        ) {
+          entry.controller.abort();
+        }
+      }
+      entriesRef.current.clear();
+    };
+  }, []);
+
+  return { streams, start, abort };
 }

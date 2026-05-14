@@ -3,13 +3,9 @@ import { TextDecoder, TextEncoder } from 'node:util';
 
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-import { useMomoStream } from './use-momo-stream';
-
 // jsdom doesn't ship `TextEncoder`, `TextDecoder`, or `ReadableStream`
-// natively. Pull them from Node so we can build streaming response fixtures
-// and so the facade's `new TextDecoder()` resolves. `Response` is not needed:
-// the facade only reads `.ok`, `.status`, and `.body`, so a minimal
-// duck-typed object suffices.
+// natively. Pull them from Node so anything downstream that constructs
+// them at module load works.
 if (typeof globalThis.TextEncoder === 'undefined') {
   (globalThis as unknown as { TextEncoder: typeof TextEncoder }).TextEncoder =
     TextEncoder;
@@ -25,268 +21,438 @@ if (typeof globalThis.ReadableStream === 'undefined') {
     ReadableStream as unknown as typeof globalThis.ReadableStream;
 }
 
-type FakeResponse = {
-  ok: boolean;
-  status: number;
-  body: ReadableStream<Uint8Array> | null;
-};
+jest.mock('@/lib/data/messages/client', () => ({
+  streamMomo: jest.fn(),
+}));
 
-type Deferred<T> = {
-  promise: Promise<T>;
-  resolve: (value: T) => void;
-  reject: (reason: unknown) => void;
-};
+import { streamMomo } from '@/lib/data/messages/client';
 
-function deferred<T>(): Deferred<T> {
-  let resolve!: (value: T) => void;
-  let reject!: (reason: unknown) => void;
-  const promise = new Promise<T>((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-  return { promise, resolve, reject };
-}
+import { useMomoStream } from './use-momo-stream';
 
-function makeStreamResponse(
-  chunks: Array<string | Uint8Array>,
-  init: { status?: number } = {},
-): FakeResponse {
-  const status = init.status ?? 200;
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream<Uint8Array>({
-    start(controller) {
-      for (const chunk of chunks) {
-        controller.enqueue(
-          typeof chunk === 'string' ? encoder.encode(chunk) : chunk,
-        );
-      }
-      controller.close();
-    },
-  });
-  return { ok: status >= 200 && status < 300, status, body: stream };
-}
+const mockStreamMomo = streamMomo as jest.MockedFunction<typeof streamMomo>;
 
-function makeControlledStreamResponse(init: { status?: number } = {}): {
-  response: FakeResponse;
+type ControlledStream = {
+  iterable: AsyncIterable<string>;
   push: (chunk: string) => void;
   close: () => void;
-} {
-  const status = init.status ?? 200;
-  const encoder = new TextEncoder();
-  let controllerRef: ReadableStreamDefaultController<Uint8Array> | null = null;
-  const stream = new ReadableStream<Uint8Array>({
-    start(controller) {
-      controllerRef = controller;
+  error: (err: Error) => void;
+  /** Resolves once the consumer is awaiting the next chunk. */
+  awaitConsumer: () => Promise<void>;
+};
+
+/**
+ * Manually-driven async iterable. The consumer (the hook) calls `next()` and
+ * blocks on the returned promise until a test pushes a chunk, closes the
+ * stream, or errors it.
+ */
+function makeControlledStream(signal?: AbortSignal): ControlledStream {
+  const queue: Array<
+    | { kind: 'chunk'; value: string }
+    | { kind: 'close' }
+    | {
+        kind: 'error';
+        err: Error;
+      }
+  > = [];
+  let pending: {
+    resolve: (r: IteratorResult<string>) => void;
+    reject: (e: unknown) => void;
+  } | null = null;
+  const consumerWaiters: Array<() => void> = [];
+
+  function notifyConsumerWaiting() {
+    const waiters = consumerWaiters.splice(0);
+    for (const w of waiters) w();
+  }
+
+  function flush() {
+    if (!pending || queue.length === 0) return;
+    const next = queue.shift();
+    if (!next) return;
+    const p = pending;
+    pending = null;
+    if (next.kind === 'chunk') {
+      p.resolve({ value: next.value, done: false });
+    } else if (next.kind === 'close') {
+      p.resolve({ value: undefined, done: true });
+    } else {
+      p.reject(next.err);
+    }
+  }
+
+  const iterable: AsyncIterable<string> = {
+    [Symbol.asyncIterator]() {
+      return {
+        next(): Promise<IteratorResult<string>> {
+          if (signal?.aborted) {
+            return Promise.resolve({ value: undefined, done: true });
+          }
+          return new Promise<IteratorResult<string>>((resolve, reject) => {
+            pending = { resolve, reject };
+            // Tell tests we've reached the await point.
+            notifyConsumerWaiting();
+            flush();
+          });
+        },
+        return(): Promise<IteratorResult<string>> {
+          return Promise.resolve({ value: undefined, done: true });
+        },
+      };
     },
-  });
+  };
+
   return {
-    response: { ok: status >= 200 && status < 300, status, body: stream },
-    push: (chunk: string) => controllerRef?.enqueue(encoder.encode(chunk)),
-    close: () => controllerRef?.close(),
+    iterable,
+    push: chunk => {
+      queue.push({ kind: 'chunk', value: chunk });
+      flush();
+    },
+    close: () => {
+      queue.push({ kind: 'close' });
+      flush();
+    },
+    error: err => {
+      queue.push({ kind: 'error', err });
+      flush();
+    },
+    awaitConsumer: () =>
+      new Promise<void>(resolve => {
+        if (pending) {
+          resolve();
+          return;
+        }
+        consumerWaiters.push(resolve);
+      }),
   };
 }
 
 describe('useMomoStream', () => {
-  const originalFetch = global.fetch;
-
-  afterEach(() => {
-    global.fetch = originalFetch;
-    jest.restoreAllMocks();
+  beforeEach(() => {
+    mockStreamMomo.mockReset();
   });
 
-  it('accumulates chunks and transitions sending → streaming → done', async () => {
-    const fetchMock = jest.fn(async (_url: string, _init?: RequestInit) =>
-      makeStreamResponse(['hello ', 'momo']),
-    );
-    global.fetch = fetchMock as unknown as typeof fetch;
+  it('streams chunks for a single trigger and transitions sending → streaming → done', async () => {
+    const controlled = makeControlledStream();
+    mockStreamMomo.mockReturnValueOnce(controlled.iterable);
 
     const { result } = renderHook(() => useMomoStream());
 
-    expect(result.current.status).toBe('idle');
-
-    await act(async () => {
-      await result.current.start({
-        content: '@momo hi',
-        householdId: null,
-        triggeringMessageId: 'trigger-1',
-      });
-    });
-
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock).toHaveBeenCalledWith(
-      '/api/momo-stream',
-      expect.objectContaining({
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-      }),
-    );
-    const [, init] = fetchMock.mock.calls[0];
-    expect(init).toBeDefined();
-    if (!init) throw new Error('expected fetch init');
-    expect(JSON.parse(init.body as string)).toEqual({
-      content: '@momo hi',
-      householdId: null,
-      triggeringMessageId: 'trigger-1',
-    });
-    expect(init.signal).toBeInstanceOf(AbortSignal);
-
-    expect(result.current.status).toBe('done');
-    expect(result.current.text).toBe('hello momo');
-    expect(result.current.error).toBeNull();
-  });
-
-  it('reports streaming state while chunks are arriving', async () => {
-    const controlled = makeControlledStreamResponse();
-    const fetchMock = jest.fn(async () => controlled.response);
-    global.fetch = fetchMock as unknown as typeof fetch;
-
-    const { result } = renderHook(() => useMomoStream());
-
-    let startPromise!: Promise<void>;
     act(() => {
-      startPromise = result.current.start({
+      result.current.start({
         content: '@momo hi',
-        householdId: null,
-        triggeringMessageId: 'trigger-1',
-      });
-    });
-
-    await act(async () => {
-      controlled.push('first ');
-    });
-
-    await waitFor(() => expect(result.current.status).toBe('streaming'));
-    expect(result.current.text).toBe('first ');
-
-    await act(async () => {
-      controlled.push('second');
-      controlled.close();
-      await startPromise;
-    });
-
-    expect(result.current.status).toBe('done');
-    expect(result.current.text).toBe('first second');
-  });
-
-  it('transitions to error when fetch rejects', async () => {
-    const fetchMock = jest.fn(async () => {
-      throw new Error('network down');
-    });
-    global.fetch = fetchMock as unknown as typeof fetch;
-
-    const { result } = renderHook(() => useMomoStream());
-
-    await act(async () => {
-      await result.current.start({
-        content: '@momo hi',
-        householdId: null,
-        triggeringMessageId: 'trigger-1',
-      });
-    });
-
-    expect(result.current.status).toBe('error');
-    expect(result.current.error).toBe('network down');
-    expect(result.current.text).toBe('');
-  });
-
-  it('transitions to error on a non-OK response', async () => {
-    const fetchMock = jest.fn(async () => ({
-      ok: false,
-      status: 401,
-      body: null,
-    }));
-    global.fetch = fetchMock as unknown as typeof fetch;
-
-    const { result } = renderHook(() => useMomoStream());
-
-    await act(async () => {
-      await result.current.start({
-        content: '@momo hi',
-        householdId: null,
-        triggeringMessageId: 'trigger-1',
-      });
-    });
-
-    expect(result.current.status).toBe('error');
-    expect(result.current.error).toBe('momo_stream_failed_401');
-  });
-
-  it('aborts an in-flight stream and returns to idle', async () => {
-    const fetchCalls: AbortSignal[] = [];
-    const responseDeferred = deferred<FakeResponse>();
-    const fetchMock = jest.fn(async (_url: string, init?: RequestInit) => {
-      if (init?.signal) fetchCalls.push(init.signal);
-      return responseDeferred.promise;
-    });
-    global.fetch = fetchMock as unknown as typeof fetch;
-
-    const { result } = renderHook(() => useMomoStream());
-
-    let startPromise!: Promise<void>;
-    act(() => {
-      startPromise = result.current.start({
-        content: '@momo hi',
-        householdId: null,
-        triggeringMessageId: 'trigger-1',
-      });
-    });
-
-    await waitFor(() => expect(result.current.status).toBe('sending'));
-    expect(fetchCalls).toHaveLength(1);
-    const signal = fetchCalls[0];
-    expect(signal.aborted).toBe(false);
-
-    await act(async () => {
-      result.current.abort();
-      // Unblock the pending fetch so the start() async flow can settle.
-      responseDeferred.resolve(makeStreamResponse(['late chunk']));
-      await startPromise;
-    });
-
-    expect(signal.aborted).toBe(true);
-    expect(result.current.status).toBe('idle');
-    expect(result.current.text).toBe('');
-  });
-
-  it('start() is idempotent: a second call aborts the prior stream and resets text', async () => {
-    const signals: AbortSignal[] = [];
-    const firstResponseDeferred = deferred<FakeResponse>();
-    let callIndex = 0;
-    const fetchMock = jest.fn(async (_url: string, init?: RequestInit) => {
-      if (init?.signal) signals.push(init.signal);
-      const isFirst = callIndex === 0;
-      callIndex += 1;
-      if (isFirst) return firstResponseDeferred.promise;
-      return makeStreamResponse(['second-run']);
-    });
-    global.fetch = fetchMock as unknown as typeof fetch;
-
-    const { result } = renderHook(() => useMomoStream());
-
-    let firstStart!: Promise<void>;
-    act(() => {
-      firstStart = result.current.start({
-        content: 'first',
         householdId: null,
         triggeringMessageId: 't-1',
       });
     });
 
-    await waitFor(() => expect(signals).toHaveLength(1));
+    await waitFor(() =>
+      expect(result.current.streams.get('t-1')?.status).toBe('sending'),
+    );
+    expect(mockStreamMomo).toHaveBeenCalledTimes(1);
+    expect(mockStreamMomo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: '@momo hi',
+        householdId: null,
+        triggeringMessageId: 't-1',
+        signal: expect.any(AbortSignal),
+      }),
+    );
 
     await act(async () => {
-      await result.current.start({
-        content: 'second',
-        householdId: null,
-        triggeringMessageId: 't-2',
-      });
-      // Settle the (now aborted) first request.
-      firstResponseDeferred.resolve(makeStreamResponse(['stale']));
-      await firstStart;
+      controlled.push('hello ');
+      await controlled.awaitConsumer();
+    });
+    await waitFor(() =>
+      expect(result.current.streams.get('t-1')?.status).toBe('streaming'),
+    );
+    expect(result.current.streams.get('t-1')?.text).toBe('hello ');
+
+    await act(async () => {
+      controlled.push('momo');
+      await controlled.awaitConsumer();
+      controlled.close();
+    });
+    await waitFor(() =>
+      expect(result.current.streams.get('t-1')?.status).toBe('done'),
+    );
+    expect(result.current.streams.get('t-1')?.text).toBe('hello momo');
+    expect(result.current.streams.get('t-1')?.error).toBeNull();
+  });
+
+  it('runs two streams in parallel without aborting the in-flight one', async () => {
+    const aSignals: AbortSignal[] = [];
+    const bSignals: AbortSignal[] = [];
+    const streamA = makeControlledStream();
+    const streamB = makeControlledStream();
+
+    mockStreamMomo.mockImplementationOnce(({ signal }) => {
+      if (signal) aSignals.push(signal);
+      return streamA.iterable;
+    });
+    mockStreamMomo.mockImplementationOnce(({ signal }) => {
+      if (signal) bSignals.push(signal);
+      return streamB.iterable;
     });
 
-    expect(signals[0].aborted).toBe(true);
-    expect(result.current.status).toBe('done');
-    expect(result.current.text).toBe('second-run');
+    const { result } = renderHook(() => useMomoStream());
+
+    act(() => {
+      result.current.start({
+        content: '@momo X',
+        householdId: null,
+        triggeringMessageId: 't-A',
+      });
+    });
+
+    await waitFor(() =>
+      expect(result.current.streams.get('t-A')?.status).toBe('sending'),
+    );
+    expect(aSignals).toHaveLength(1);
+    expect(aSignals[0].aborted).toBe(false);
+
+    // Start a second stream while the first is still in flight.
+    act(() => {
+      result.current.start({
+        content: '@momo Y',
+        householdId: null,
+        triggeringMessageId: 't-B',
+      });
+    });
+
+    await waitFor(() =>
+      expect(result.current.streams.get('t-B')?.status).toBe('sending'),
+    );
+
+    // Critical guarantee: starting B must NOT abort A.
+    expect(aSignals[0].aborted).toBe(false);
+    expect(bSignals).toHaveLength(1);
+    expect(bSignals[0].aborted).toBe(false);
+
+    // Each stream accumulates independently.
+    await act(async () => {
+      streamA.push('A1 ');
+      streamB.push('B1 ');
+      await streamA.awaitConsumer();
+      await streamB.awaitConsumer();
+    });
+    await waitFor(() =>
+      expect(result.current.streams.get('t-A')?.text).toBe('A1 '),
+    );
+    expect(result.current.streams.get('t-B')?.text).toBe('B1 ');
+
+    await act(async () => {
+      streamA.push('A2');
+      streamB.push('B2');
+      await streamA.awaitConsumer();
+      await streamB.awaitConsumer();
+      streamA.close();
+      streamB.close();
+    });
+
+    await waitFor(() => {
+      expect(result.current.streams.get('t-A')?.status).toBe('done');
+      expect(result.current.streams.get('t-B')?.status).toBe('done');
+    });
+    expect(result.current.streams.get('t-A')?.text).toBe('A1 A2');
+    expect(result.current.streams.get('t-B')?.text).toBe('B1 B2');
+  });
+
+  it('is a no-op when start() is called twice with the same triggeringMessageId', async () => {
+    const controlled = makeControlledStream();
+    mockStreamMomo.mockReturnValueOnce(controlled.iterable);
+
+    const { result } = renderHook(() => useMomoStream());
+
+    act(() => {
+      result.current.start({
+        content: '@momo hi',
+        householdId: null,
+        triggeringMessageId: 't-1',
+      });
+    });
+    await waitFor(() =>
+      expect(result.current.streams.get('t-1')?.status).toBe('sending'),
+    );
+    expect(mockStreamMomo).toHaveBeenCalledTimes(1);
+
+    // Second start() with same id should be a no-op.
+    act(() => {
+      result.current.start({
+        content: '@momo hi again',
+        householdId: null,
+        triggeringMessageId: 't-1',
+      });
+    });
+
+    expect(mockStreamMomo).toHaveBeenCalledTimes(1);
+    // State stays as it was — no reset to a fresh entry.
+    expect(result.current.streams.get('t-1')?.status).toBe('sending');
+
+    // Cleanup: let the original stream finish so React doesn't complain.
+    await act(async () => {
+      controlled.close();
+    });
+    await waitFor(() =>
+      expect(result.current.streams.get('t-1')?.status).toBe('done'),
+    );
+  });
+
+  it('abort() targets a single stream and leaves the others running', async () => {
+    const aSignals: AbortSignal[] = [];
+    const bSignals: AbortSignal[] = [];
+    const streamA = makeControlledStream();
+    const streamB = makeControlledStream();
+
+    mockStreamMomo.mockImplementationOnce(({ signal }) => {
+      if (signal) aSignals.push(signal);
+      return streamA.iterable;
+    });
+    mockStreamMomo.mockImplementationOnce(({ signal }) => {
+      if (signal) bSignals.push(signal);
+      return streamB.iterable;
+    });
+
+    const { result } = renderHook(() => useMomoStream());
+
+    act(() => {
+      result.current.start({
+        content: '@momo X',
+        householdId: null,
+        triggeringMessageId: 't-A',
+      });
+      result.current.start({
+        content: '@momo Y',
+        householdId: null,
+        triggeringMessageId: 't-B',
+      });
+    });
+
+    await waitFor(() => {
+      expect(result.current.streams.get('t-A')?.status).toBe('sending');
+      expect(result.current.streams.get('t-B')?.status).toBe('sending');
+    });
+
+    act(() => {
+      result.current.abort('t-A');
+    });
+
+    expect(aSignals[0].aborted).toBe(true);
+    expect(bSignals[0].aborted).toBe(false);
+    // Aborted stream is dropped from the map.
+    expect(result.current.streams.get('t-A')).toBeUndefined();
+    expect(result.current.streams.get('t-B')?.status).toBe('sending');
+
+    // B can still complete normally.
+    await act(async () => {
+      streamB.push('done-B');
+      await streamB.awaitConsumer();
+      streamB.close();
+    });
+    await waitFor(() =>
+      expect(result.current.streams.get('t-B')?.status).toBe('done'),
+    );
+    expect(result.current.streams.get('t-B')?.text).toBe('done-B');
+  });
+
+  it('abort() for an unknown trigger id is a no-op', () => {
+    const { result } = renderHook(() => useMomoStream());
+    expect(() => {
+      act(() => {
+        result.current.abort('nope');
+      });
+    }).not.toThrow();
+    expect(mockStreamMomo).not.toHaveBeenCalled();
+  });
+
+  it('aborts every in-flight stream on unmount', async () => {
+    const aSignals: AbortSignal[] = [];
+    const bSignals: AbortSignal[] = [];
+    const streamA = makeControlledStream();
+    const streamB = makeControlledStream();
+
+    mockStreamMomo.mockImplementationOnce(({ signal }) => {
+      if (signal) aSignals.push(signal);
+      return streamA.iterable;
+    });
+    mockStreamMomo.mockImplementationOnce(({ signal }) => {
+      if (signal) bSignals.push(signal);
+      return streamB.iterable;
+    });
+
+    const { result, unmount } = renderHook(() => useMomoStream());
+
+    act(() => {
+      result.current.start({
+        content: '@momo X',
+        householdId: null,
+        triggeringMessageId: 't-A',
+      });
+      result.current.start({
+        content: '@momo Y',
+        householdId: null,
+        triggeringMessageId: 't-B',
+      });
+    });
+
+    await waitFor(() => {
+      expect(result.current.streams.get('t-A')?.status).toBe('sending');
+      expect(result.current.streams.get('t-B')?.status).toBe('sending');
+    });
+
+    unmount();
+
+    expect(aSignals[0].aborted).toBe(true);
+    expect(bSignals[0].aborted).toBe(true);
+  });
+
+  it('transitions to error when the facade throws', async () => {
+    async function* throwIterable(): AsyncIterable<string> {
+      throw new Error('network down');
+      yield ''; // unreachable; satisfies the AsyncIterable shape
+    }
+    mockStreamMomo.mockReturnValueOnce(throwIterable());
+
+    const { result } = renderHook(() => useMomoStream());
+
+    act(() => {
+      result.current.start({
+        content: '@momo hi',
+        householdId: null,
+        triggeringMessageId: 't-1',
+      });
+    });
+
+    await waitFor(() =>
+      expect(result.current.streams.get('t-1')?.status).toBe('error'),
+    );
+    expect(result.current.streams.get('t-1')?.error?.message).toBe(
+      'network down',
+    );
+    expect(result.current.streams.get('t-1')?.text).toBe('');
+  });
+
+  it('surfaces non-OK responses propagated from the facade', async () => {
+    async function* throwIterable(): AsyncIterable<string> {
+      throw new Error('momo_stream_failed_401');
+      yield '';
+    }
+    mockStreamMomo.mockReturnValueOnce(throwIterable());
+
+    const { result } = renderHook(() => useMomoStream());
+
+    act(() => {
+      result.current.start({
+        content: '@momo hi',
+        householdId: null,
+        triggeringMessageId: 't-1',
+      });
+    });
+
+    await waitFor(() =>
+      expect(result.current.streams.get('t-1')?.status).toBe('error'),
+    );
+    expect(result.current.streams.get('t-1')?.error?.message).toBe(
+      'momo_stream_failed_401',
+    );
   });
 });
