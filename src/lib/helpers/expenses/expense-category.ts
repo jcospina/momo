@@ -17,6 +17,7 @@ import {
 } from '@lib-types/expenses';
 
 import { normalizeExpenseText } from './expense-normalize';
+import { dropStopWords } from './tag-stop-words';
 
 type ScoreMap = Record<ExpenseCategory, number>;
 type ScoreExpenseCategoryOptions = {
@@ -57,6 +58,41 @@ export function buildCategoryKey(input: string): string {
   const withoutAmounts = stripAmountTokens(normalized);
   const tokens = tokenize(withoutAmounts);
   return tokens.join(' ');
+}
+
+const TAG_NGRAM_MAX = 3;
+
+function tokenizeForTags(input: string): string[] {
+  const lowered = (input ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '');
+  const withoutAmounts = lowered.replace(AMOUNT_TOKEN_REGEX, ' ');
+  const tokens = withoutAmounts
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+  return dropStopWords(tokens);
+}
+
+export function extractTagNgrams(input: string, max = TAG_NGRAM_MAX): string[] {
+  const tokens = tokenizeForTags(input);
+  if (!tokens.length) return [];
+
+  const tags: string[] = [];
+  const seen = new Set<string>();
+  const upper = Math.min(max, tokens.length);
+
+  for (let size = 1; size <= upper; size += 1) {
+    for (let i = 0; i <= tokens.length - size; i += 1) {
+      const ngram = tokens.slice(i, i + size).join(' ');
+      if (seen.has(ngram)) continue;
+      seen.add(ngram);
+      tags.push(ngram);
+    }
+  }
+
+  return tags;
 }
 
 export function isExplicitIncomeEntry(input: string): boolean {

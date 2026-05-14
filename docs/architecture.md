@@ -1,3 +1,8 @@
+---
+version: 1.0
+last_updated: 2026-05-08
+---
+
 # Architecture
 
 ## Tech Stack
@@ -37,7 +42,7 @@ Enforced by `scripts/check-data-boundaries.mjs` (runs in `pnpm lint`).
 
 ### `src/app/`
 
-App Router pages + route handlers. API routes currently include `chat-history`, `chat-sync`, `realtime-token`, and `client-log`.
+App Router pages + route handlers. Product API routes include `chat-history`, `chat-sync`, `realtime-token`, and `client-log`.
 
 ### `src/lib/data/`
 
@@ -98,6 +103,7 @@ Reusable UI primitives, intentionally data-source agnostic.
 | `@ui/*` | `src/ui/*` |
 | `@utils/*` | `src/lib/utils/*` |
 | `@/*` | `src/*` |
+| `@messages/*` | `messages/*` |
 
 ## Conventions
 

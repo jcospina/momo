@@ -5,6 +5,8 @@ export type ChatMessageStatus =
   | 'failed'
   | 'no_expense';
 
+export type MessageAuthorKind = 'user' | 'momo';
+
 export type ChatMessage = {
   id: string;
   household_id: string | null;
@@ -14,11 +16,20 @@ export type ChatMessage = {
   expense_count: number;
   created_at: string;
   sender_name: string | null;
+  author_kind: MessageAuthorKind;
+  momo_source: string | null;
+  momo_invocation_tagged: boolean;
 };
 
 export type SendChatMessageResult = {
   errorCode?: 'message_empty' | 'auth_required' | 'chat_message_send_failed';
   message?: ChatMessage;
+};
+
+export type SendMomoMessageResult = {
+  errorCode?: 'message_empty' | 'auth_required' | 'momo_message_send_failed';
+  message?: ChatMessage;
+  reused?: boolean;
 };
 
 export type DeleteChatMessageResult = {

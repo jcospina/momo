@@ -1,0 +1,6374 @@
+{
+  "metadata": {
+    "currency": "COP",
+    "endDate": "2026-04-24",
+    "householdId": "sample-household",
+    "memberId": "sample-member",
+    "ownerId": "sample-owner",
+    "rowCount": 636,
+    "seed": 20260424,
+    "startDate": "2025-04-01"
+  },
+  "rows": [
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14250000,
+      "currency": "COP",
+      "expense_date": "2025-04-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14250000,
+      "currency": "COP",
+      "expense_date": "2025-04-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10450000,
+      "currency": "COP",
+      "expense_date": "2025-04-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10450000,
+      "currency": "COP",
+      "expense_date": "2025-04-15",
+      "merchant": "Globex Inc",
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 7602546,
+      "currency": "COP",
+      "expense_date": "2025-04-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "Mortgage payment"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1353142,
+      "currency": "COP",
+      "expense_date": "2025-04-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "HOA dues"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 6905854,
+      "currency": "COP",
+      "expense_date": "2025-04-05",
+      "merchant": null,
+      "category": "housing",
+      "note": "Property tax"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 485602,
+      "currency": "COP",
+      "expense_date": "2025-04-05",
+      "merchant": "City Power Co",
+      "category": "utilities",
+      "note": "Electricity"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 231192,
+      "currency": "COP",
+      "expense_date": "2025-04-08",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Water & sewer"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 247608,
+      "currency": "COP",
+      "expense_date": "2025-04-10",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Natural gas"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 273676,
+      "currency": "COP",
+      "expense_date": "2025-04-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Internet"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 190228,
+      "currency": "COP",
+      "expense_date": "2025-04-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Cell phone plan"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 497306,
+      "currency": "COP",
+      "expense_date": "2025-04-05",
+      "merchant": null,
+      "category": "groceries",
+      "note": "grocery run whole foods"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 397138,
+      "currency": "COP",
+      "expense_date": "2025-04-10",
+      "merchant": null,
+      "category": "groceries",
+      "note": "grocery run whole foods"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 553508,
+      "currency": "COP",
+      "expense_date": "2025-04-15",
+      "merchant": null,
+      "category": "groceries",
+      "note": "groceries whole foods"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 334856,
+      "currency": "COP",
+      "expense_date": "2025-04-20",
+      "merchant": "Kroger",
+      "category": "groceries",
+      "note": "weekly groceries kroger"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 431946,
+      "currency": "COP",
+      "expense_date": "2025-04-25",
+      "merchant": null,
+      "category": "groceries",
+      "note": "weekly groceries aldi"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 206340,
+      "currency": "COP",
+      "expense_date": "2025-04-26",
+      "merchant": "Denny's",
+      "category": "dining",
+      "note": "coffee dennys"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 65550,
+      "currency": "COP",
+      "expense_date": "2025-04-07",
+      "merchant": "Starbucks",
+      "category": "dining",
+      "note": "coffee starbucks"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 219982,
+      "currency": "COP",
+      "expense_date": "2025-04-16",
+      "merchant": null,
+      "category": "dining",
+      "note": "takeout panera bread"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 243048,
+      "currency": "COP",
+      "expense_date": "2025-04-14",
+      "merchant": null,
+      "category": "dining",
+      "note": "dinner dennys"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 174192,
+      "currency": "COP",
+      "expense_date": "2025-04-10",
+      "merchant": null,
+      "category": "dining",
+      "note": "coffee dennys"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 221198,
+      "currency": "COP",
+      "expense_date": "2025-04-06",
+      "merchant": "Shell",
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 205352,
+      "currency": "COP",
+      "expense_date": "2025-04-18",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 167922,
+      "currency": "COP",
+      "expense_date": "2025-04-14",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1704490,
+      "currency": "COP",
+      "expense_date": "2025-04-03",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Car payment — SUV"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1850220,
+      "currency": "COP",
+      "expense_date": "2025-04-15",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Auto insurance (quarterly)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1741920,
+      "currency": "COP",
+      "expense_date": "2025-04-01",
+      "merchant": null,
+      "category": "health",
+      "note": "Family health insurance premium"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 132544,
+      "currency": "COP",
+      "expense_date": "2025-04-09",
+      "merchant": null,
+      "category": "health",
+      "note": "Doctor copay"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 4540658,
+      "currency": "COP",
+      "expense_date": "2025-04-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Daycare tuition"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 567948,
+      "currency": "COP",
+      "expense_date": "2025-04-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Soccer league"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 607392,
+      "currency": "COP",
+      "expense_date": "2025-04-08",
+      "merchant": null,
+      "category": "education",
+      "note": "Piano lessons (kids)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 60458,
+      "currency": "COP",
+      "expense_date": "2025-04-01",
+      "merchant": "Netflix",
+      "category": "subscriptions",
+      "note": "Netflix"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 42028,
+      "currency": "COP",
+      "expense_date": "2025-04-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Spotify Family"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 56772,
+      "currency": "COP",
+      "expense_date": "2025-04-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "iCloud+ storage"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 188366,
+      "currency": "COP",
+      "expense_date": "2025-04-05",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Gym membership"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 38304,
+      "currency": "COP",
+      "expense_date": "2025-04-15",
+      "merchant": "Google",
+      "category": "subscriptions",
+      "note": "YouTube Premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 60914,
+      "currency": "COP",
+      "expense_date": "2025-04-20",
+      "merchant": "Disney",
+      "category": "subscriptions",
+      "note": "Disney+"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 199956,
+      "currency": "COP",
+      "expense_date": "2025-04-21",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Movie night"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 343368,
+      "currency": "COP",
+      "expense_date": "2025-04-06",
+      "merchant": "Aquarium",
+      "category": "entertainment",
+      "note": "Aquarium tickets"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 578208,
+      "currency": "COP",
+      "expense_date": "2025-04-14",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Electronics"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 207138,
+      "currency": "COP",
+      "expense_date": "2025-04-26",
+      "merchant": "IKEA",
+      "category": "shopping",
+      "note": "Home decor"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 156864,
+      "currency": "COP",
+      "expense_date": "2025-04-19",
+      "merchant": "Amazon",
+      "category": "shopping",
+      "note": "Household items"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 130264,
+      "currency": "COP",
+      "expense_date": "2025-04-15",
+      "merchant": null,
+      "category": "self_care",
+      "note": "Haircut"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 248254,
+      "currency": "COP",
+      "expense_date": "2025-04-17",
+      "merchant": null,
+      "category": "self_care",
+      "note": "Hair salon"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 194598,
+      "currency": "COP",
+      "expense_date": "2025-04-11",
+      "merchant": null,
+      "category": "gifts",
+      "note": "Birthday gift — friend"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 228646,
+      "currency": "COP",
+      "expense_date": "2025-04-15",
+      "merchant": "PetSmart",
+      "category": "pets",
+      "note": "Dog food & treats"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 1082164,
+      "currency": "COP",
+      "expense_date": "2025-04-20",
+      "merchant": null,
+      "category": "pets",
+      "note": "Vet checkup + vaccines"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1047698,
+      "currency": "COP",
+      "expense_date": "2025-04-18",
+      "merchant": null,
+      "category": "travel",
+      "note": "Cabin rental (weekend)"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 155154,
+      "currency": "COP",
+      "expense_date": "2025-04-18",
+      "merchant": null,
+      "category": "travel",
+      "note": "Gas for road trip"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14250000,
+      "currency": "COP",
+      "expense_date": "2025-05-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14250000,
+      "currency": "COP",
+      "expense_date": "2025-05-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10450000,
+      "currency": "COP",
+      "expense_date": "2025-05-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10450000,
+      "currency": "COP",
+      "expense_date": "2025-05-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 7569942,
+      "currency": "COP",
+      "expense_date": "2025-05-01",
+      "merchant": "First National Bank",
+      "category": "housing",
+      "note": "Mortgage payment"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1317004,
+      "currency": "COP",
+      "expense_date": "2025-05-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "HOA dues"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 488756,
+      "currency": "COP",
+      "expense_date": "2025-05-05",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Electricity"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 212610,
+      "currency": "COP",
+      "expense_date": "2025-05-08",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Water & sewer"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 240806,
+      "currency": "COP",
+      "expense_date": "2025-05-10",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Natural gas"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 275234,
+      "currency": "COP",
+      "expense_date": "2025-05-12",
+      "merchant": "Comcast",
+      "category": "utilities",
+      "note": "Internet"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 185782,
+      "currency": "COP",
+      "expense_date": "2025-05-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Cell phone plan"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 500346,
+      "currency": "COP",
+      "expense_date": "2025-05-04",
+      "merchant": "Trader Joe's",
+      "category": "groceries",
+      "note": "trader joes"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 748410,
+      "currency": "COP",
+      "expense_date": "2025-05-09",
+      "merchant": null,
+      "category": "groceries",
+      "note": "costco"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 833644,
+      "currency": "COP",
+      "expense_date": "2025-05-13",
+      "merchant": "Costco",
+      "category": "groceries",
+      "note": "groceries costco"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 435328,
+      "currency": "COP",
+      "expense_date": "2025-05-18",
+      "merchant": null,
+      "category": "groceries",
+      "note": "grocery run aldi"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 376846,
+      "currency": "COP",
+      "expense_date": "2025-05-22",
+      "merchant": null,
+      "category": "groceries",
+      "note": "weekly groceries kroger"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 342760,
+      "currency": "COP",
+      "expense_date": "2025-05-27",
+      "merchant": "Kroger",
+      "category": "groceries",
+      "note": "groceries kroger"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 279566,
+      "currency": "COP",
+      "expense_date": "2025-05-29",
+      "merchant": null,
+      "category": "dining",
+      "note": "snack buffalo wild wings"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 168036,
+      "currency": "COP",
+      "expense_date": "2025-05-23",
+      "merchant": "Sushi Zen",
+      "category": "dining",
+      "note": "breakfast sushi zen"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 264974,
+      "currency": "COP",
+      "expense_date": "2025-05-03",
+      "merchant": null,
+      "category": "dining",
+      "note": "coffee local pizza place"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 165718,
+      "currency": "COP",
+      "expense_date": "2025-05-23",
+      "merchant": null,
+      "category": "dining",
+      "note": "breakfast sushi zen"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 261250,
+      "currency": "COP",
+      "expense_date": "2025-05-05",
+      "merchant": "Denny's",
+      "category": "dining",
+      "note": "dennys"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 91998,
+      "currency": "COP",
+      "expense_date": "2025-05-16",
+      "merchant": "McDonald's",
+      "category": "dining",
+      "note": "dinner mcdonalds"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 184718,
+      "currency": "COP",
+      "expense_date": "2025-05-07",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 197942,
+      "currency": "COP",
+      "expense_date": "2025-05-18",
+      "merchant": "Chevron",
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 188442,
+      "currency": "COP",
+      "expense_date": "2025-05-11",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1697422,
+      "currency": "COP",
+      "expense_date": "2025-05-03",
+      "merchant": "Auto Lender",
+      "category": "vehicle",
+      "note": "Car payment — SUV"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1706998,
+      "currency": "COP",
+      "expense_date": "2025-05-01",
+      "merchant": null,
+      "category": "health",
+      "note": "Family health insurance premium"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 130644,
+      "currency": "COP",
+      "expense_date": "2025-05-24",
+      "merchant": "CVS Pharmacy",
+      "category": "health",
+      "note": "Prescription"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 4573338,
+      "currency": "COP",
+      "expense_date": "2025-05-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Daycare tuition"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 583528,
+      "currency": "COP",
+      "expense_date": "2025-05-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Soccer league"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 1317422,
+      "currency": "COP",
+      "expense_date": "2025-05-20",
+      "merchant": null,
+      "category": "kids",
+      "note": "Birthday party"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 611458,
+      "currency": "COP",
+      "expense_date": "2025-05-08",
+      "merchant": "Music Academy",
+      "category": "education",
+      "note": "Piano lessons (kids)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 61256,
+      "currency": "COP",
+      "expense_date": "2025-05-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Netflix"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 41382,
+      "currency": "COP",
+      "expense_date": "2025-05-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Spotify Family"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 57076,
+      "currency": "COP",
+      "expense_date": "2025-05-01",
+      "merchant": "Apple",
+      "category": "subscriptions",
+      "note": "iCloud+ storage"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 191672,
+      "currency": "COP",
+      "expense_date": "2025-05-05",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Gym membership"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 37696,
+      "currency": "COP",
+      "expense_date": "2025-05-15",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "YouTube Premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 60192,
+      "currency": "COP",
+      "expense_date": "2025-05-20",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Disney+"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 107616,
+      "currency": "COP",
+      "expense_date": "2025-05-31",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Mini golf with kids"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 307686,
+      "currency": "COP",
+      "expense_date": "2025-05-29",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Home improvement"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 229672,
+      "currency": "COP",
+      "expense_date": "2025-05-22",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Clothes"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 260452,
+      "currency": "COP",
+      "expense_date": "2025-05-17",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Home improvement"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 367954,
+      "currency": "COP",
+      "expense_date": "2025-05-12",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Home decor"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 262846,
+      "currency": "COP",
+      "expense_date": "2025-05-10",
+      "merchant": null,
+      "category": "self_care",
+      "note": "Hair salon"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 357010,
+      "currency": "COP",
+      "expense_date": "2025-05-11",
+      "merchant": null,
+      "category": "gifts",
+      "note": "Mother's Day gift"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 203870,
+      "currency": "COP",
+      "expense_date": "2025-05-04",
+      "merchant": null,
+      "category": "pets",
+      "note": "Dog food & treats"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 242706,
+      "currency": "COP",
+      "expense_date": "2025-05-19",
+      "merchant": null,
+      "category": "pets",
+      "note": "Dog grooming"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 1184004,
+      "currency": "COP",
+      "expense_date": "2025-05-18",
+      "merchant": "Urgent Care Center",
+      "category": "health",
+      "note": "Weekend urgent care visit"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14250000,
+      "currency": "COP",
+      "expense_date": "2025-06-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14250000,
+      "currency": "COP",
+      "expense_date": "2025-06-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10450000,
+      "currency": "COP",
+      "expense_date": "2025-06-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10450000,
+      "currency": "COP",
+      "expense_date": "2025-06-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 19000190,
+      "currency": "COP",
+      "expense_date": "2025-06-28",
+      "merchant": null,
+      "category": "income",
+      "note": "Mid-year bonus"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 7579024,
+      "currency": "COP",
+      "expense_date": "2025-06-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "Mortgage payment"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1335624,
+      "currency": "COP",
+      "expense_date": "2025-06-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "HOA dues"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 580716,
+      "currency": "COP",
+      "expense_date": "2025-06-05",
+      "merchant": "City Power Co",
+      "category": "utilities",
+      "note": "Electricity"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 257906,
+      "currency": "COP",
+      "expense_date": "2025-06-08",
+      "merchant": "City Water",
+      "category": "utilities",
+      "note": "Water & sewer"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 309586,
+      "currency": "COP",
+      "expense_date": "2025-06-10",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Natural gas"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 307534,
+      "currency": "COP",
+      "expense_date": "2025-06-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Internet"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 214092,
+      "currency": "COP",
+      "expense_date": "2025-06-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Cell phone plan"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 869440,
+      "currency": "COP",
+      "expense_date": "2025-06-05",
+      "merchant": null,
+      "category": "groceries",
+      "note": "groceries costco"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 979450,
+      "currency": "COP",
+      "expense_date": "2025-06-10",
+      "merchant": null,
+      "category": "groceries",
+      "note": "grocery run costco"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 583186,
+      "currency": "COP",
+      "expense_date": "2025-06-15",
+      "merchant": null,
+      "category": "groceries",
+      "note": "weekly groceries trader joes"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 358150,
+      "currency": "COP",
+      "expense_date": "2025-06-20",
+      "merchant": null,
+      "category": "groceries",
+      "note": "whole foods"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1045342,
+      "currency": "COP",
+      "expense_date": "2025-06-25",
+      "merchant": null,
+      "category": "groceries",
+      "note": "grocery run costco"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 221996,
+      "currency": "COP",
+      "expense_date": "2025-06-01",
+      "merchant": null,
+      "category": "dining",
+      "note": "snack olive garden"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 60610,
+      "currency": "COP",
+      "expense_date": "2025-06-19",
+      "merchant": "Chipotle",
+      "category": "dining",
+      "note": "breakfast chipotle"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 50882,
+      "currency": "COP",
+      "expense_date": "2025-06-02",
+      "merchant": "In-N-Out",
+      "category": "dining",
+      "note": "coffee in n out"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 243428,
+      "currency": "COP",
+      "expense_date": "2025-06-12",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 172938,
+      "currency": "COP",
+      "expense_date": "2025-06-22",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 154166,
+      "currency": "COP",
+      "expense_date": "2025-06-09",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1757234,
+      "currency": "COP",
+      "expense_date": "2025-06-03",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Car payment — SUV"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 291764,
+      "currency": "COP",
+      "expense_date": "2025-06-14",
+      "merchant": "Jiffy Lube",
+      "category": "vehicle",
+      "note": "Oil change"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1725390,
+      "currency": "COP",
+      "expense_date": "2025-06-01",
+      "merchant": "Blue Cross",
+      "category": "health",
+      "note": "Family health insurance premium"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 145122,
+      "currency": "COP",
+      "expense_date": "2025-06-29",
+      "merchant": null,
+      "category": "health",
+      "note": "Prescription"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 4555858,
+      "currency": "COP",
+      "expense_date": "2025-06-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Daycare tuition"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 583528,
+      "currency": "COP",
+      "expense_date": "2025-06-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Soccer league"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 617196,
+      "currency": "COP",
+      "expense_date": "2025-06-08",
+      "merchant": null,
+      "category": "education",
+      "note": "Piano lessons (kids)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 61180,
+      "currency": "COP",
+      "expense_date": "2025-06-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Netflix"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 41572,
+      "currency": "COP",
+      "expense_date": "2025-06-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Spotify Family"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 57494,
+      "currency": "COP",
+      "expense_date": "2025-06-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "iCloud+ storage"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 189848,
+      "currency": "COP",
+      "expense_date": "2025-06-05",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Gym membership"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 38152,
+      "currency": "COP",
+      "expense_date": "2025-06-15",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "YouTube Premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 61332,
+      "currency": "COP",
+      "expense_date": "2025-06-20",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Disney+"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 242402,
+      "currency": "COP",
+      "expense_date": "2025-06-17",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Family game night"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 184566,
+      "currency": "COP",
+      "expense_date": "2025-06-06",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Zoo visit"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 186010,
+      "currency": "COP",
+      "expense_date": "2025-06-05",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Kids trampoline park"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 168150,
+      "currency": "COP",
+      "expense_date": "2025-06-24",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Household items"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 248824,
+      "currency": "COP",
+      "expense_date": "2025-06-11",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Home decor"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 148770,
+      "currency": "COP",
+      "expense_date": "2025-06-07",
+      "merchant": "TJ Maxx",
+      "category": "shopping",
+      "note": "Clothes"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 137674,
+      "currency": "COP",
+      "expense_date": "2025-06-20",
+      "merchant": null,
+      "category": "self_care",
+      "note": "Haircut"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 248634,
+      "currency": "COP",
+      "expense_date": "2025-06-09",
+      "merchant": "Salon Luxe",
+      "category": "self_care",
+      "note": "Hair salon"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 280782,
+      "currency": "COP",
+      "expense_date": "2025-06-15",
+      "merchant": null,
+      "category": "gifts",
+      "note": "Father's Day gift"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 240692,
+      "currency": "COP",
+      "expense_date": "2025-06-06",
+      "merchant": "PetSmart",
+      "category": "pets",
+      "note": "Dog food & treats"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 53960,
+      "currency": "COP",
+      "expense_date": "2025-06-28",
+      "merchant": null,
+      "category": "fees",
+      "note": "ATM fee"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1081328,
+      "currency": "COP",
+      "expense_date": "2025-06-23",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Replaced broken water heater parts"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14421000,
+      "currency": "COP",
+      "expense_date": "2025-07-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14421000,
+      "currency": "COP",
+      "expense_date": "2025-07-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10575400,
+      "currency": "COP",
+      "expense_date": "2025-07-01",
+      "merchant": "Globex Inc",
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10575400,
+      "currency": "COP",
+      "expense_date": "2025-07-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 1710000,
+      "currency": "COP",
+      "expense_date": "2025-07-12",
+      "merchant": null,
+      "category": "income",
+      "note": "Sold old couch"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 7611628,
+      "currency": "COP",
+      "expense_date": "2025-07-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "Mortgage payment"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1335282,
+      "currency": "COP",
+      "expense_date": "2025-07-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "HOA dues"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 633650,
+      "currency": "COP",
+      "expense_date": "2025-07-05",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Electricity"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 279756,
+      "currency": "COP",
+      "expense_date": "2025-07-08",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Water & sewer"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 344812,
+      "currency": "COP",
+      "expense_date": "2025-07-10",
+      "merchant": "Gas Utility",
+      "category": "utilities",
+      "note": "Natural gas"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 356098,
+      "currency": "COP",
+      "expense_date": "2025-07-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Internet"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 245594,
+      "currency": "COP",
+      "expense_date": "2025-07-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Cell phone plan"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 592116,
+      "currency": "COP",
+      "expense_date": "2025-07-04",
+      "merchant": null,
+      "category": "groceries",
+      "note": "weekly groceries aldi"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 552330,
+      "currency": "COP",
+      "expense_date": "2025-07-09",
+      "merchant": null,
+      "category": "groceries",
+      "note": "weekly groceries whole foods"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 369892,
+      "currency": "COP",
+      "expense_date": "2025-07-13",
+      "merchant": "Kroger",
+      "category": "groceries",
+      "note": "weekly groceries kroger"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 857318,
+      "currency": "COP",
+      "expense_date": "2025-07-18",
+      "merchant": null,
+      "category": "groceries",
+      "note": "groceries costco"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 493240,
+      "currency": "COP",
+      "expense_date": "2025-07-22",
+      "merchant": null,
+      "category": "groceries",
+      "note": "trader joes"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 452504,
+      "currency": "COP",
+      "expense_date": "2025-07-27",
+      "merchant": null,
+      "category": "groceries",
+      "note": "grocery run whole foods"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 69122,
+      "currency": "COP",
+      "expense_date": "2025-07-03",
+      "merchant": null,
+      "category": "dining",
+      "note": "dinner starbucks"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 102828,
+      "currency": "COP",
+      "expense_date": "2025-07-14",
+      "merchant": null,
+      "category": "dining",
+      "note": "takeout chick fil a"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 110732,
+      "currency": "COP",
+      "expense_date": "2025-07-08",
+      "merchant": null,
+      "category": "dining",
+      "note": "lunch chipotle"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 66652,
+      "currency": "COP",
+      "expense_date": "2025-07-16",
+      "merchant": null,
+      "category": "dining",
+      "note": "chipotle"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 67526,
+      "currency": "COP",
+      "expense_date": "2025-07-16",
+      "merchant": "In-N-Out",
+      "category": "dining",
+      "note": "in n out"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 59736,
+      "currency": "COP",
+      "expense_date": "2025-07-28",
+      "merchant": null,
+      "category": "dining",
+      "note": "takeout in n out"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 245252,
+      "currency": "COP",
+      "expense_date": "2025-07-07",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 198664,
+      "currency": "COP",
+      "expense_date": "2025-07-22",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 158156,
+      "currency": "COP",
+      "expense_date": "2025-07-11",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1733978,
+      "currency": "COP",
+      "expense_date": "2025-07-03",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Car payment — SUV"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1829852,
+      "currency": "COP",
+      "expense_date": "2025-07-15",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Auto insurance (quarterly)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1749672,
+      "currency": "COP",
+      "expense_date": "2025-07-01",
+      "merchant": "Blue Cross",
+      "category": "health",
+      "note": "Family health insurance premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 4615670,
+      "currency": "COP",
+      "expense_date": "2025-07-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Daycare tuition"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 590482,
+      "currency": "COP",
+      "expense_date": "2025-07-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Soccer league"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 606442,
+      "currency": "COP",
+      "expense_date": "2025-07-08",
+      "merchant": null,
+      "category": "education",
+      "note": "Piano lessons (kids)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 60382,
+      "currency": "COP",
+      "expense_date": "2025-07-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Netflix"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 41496,
+      "currency": "COP",
+      "expense_date": "2025-07-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Spotify Family"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 56924,
+      "currency": "COP",
+      "expense_date": "2025-07-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "iCloud+ storage"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 190874,
+      "currency": "COP",
+      "expense_date": "2025-07-05",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Gym membership"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 37772,
+      "currency": "COP",
+      "expense_date": "2025-07-15",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "YouTube Premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 60800,
+      "currency": "COP",
+      "expense_date": "2025-07-20",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Disney+"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 153748,
+      "currency": "COP",
+      "expense_date": "2025-07-19",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Bowling"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 277096,
+      "currency": "COP",
+      "expense_date": "2025-07-30",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Family game night"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 168644,
+      "currency": "COP",
+      "expense_date": "2025-07-05",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Household items"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 356554,
+      "currency": "COP",
+      "expense_date": "2025-07-23",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Clothes"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 308028,
+      "currency": "COP",
+      "expense_date": "2025-07-20",
+      "merchant": "Salon Luxe",
+      "category": "self_care",
+      "note": "Hair salon"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 246164,
+      "currency": "COP",
+      "expense_date": "2025-07-15",
+      "merchant": "PetSmart",
+      "category": "pets",
+      "note": "Dog food & treats"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 260262,
+      "currency": "COP",
+      "expense_date": "2025-07-14",
+      "merchant": null,
+      "category": "pets",
+      "note": "Dog grooming"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 4098186,
+      "currency": "COP",
+      "expense_date": "2025-07-01",
+      "merchant": "Delta Airlines",
+      "category": "travel",
+      "note": "Flight tickets (family)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 6247466,
+      "currency": "COP",
+      "expense_date": "2025-07-05",
+      "merchant": null,
+      "category": "travel",
+      "note": "Hotel — beach resort (5 nights)"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 690688,
+      "currency": "COP",
+      "expense_date": "2025-07-06",
+      "merchant": null,
+      "category": "travel",
+      "note": "Rental car"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 367232,
+      "currency": "COP",
+      "expense_date": "2025-07-07",
+      "merchant": null,
+      "category": "travel",
+      "note": "Beach excursion"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1187500,
+      "currency": "COP",
+      "expense_date": "2025-07-08",
+      "merchant": null,
+      "category": "travel",
+      "note": "Vacation dining"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 329308,
+      "currency": "COP",
+      "expense_date": "2025-07-06",
+      "merchant": "Gift shop",
+      "category": "travel",
+      "note": "Souvenirs"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14421000,
+      "currency": "COP",
+      "expense_date": "2025-08-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14421000,
+      "currency": "COP",
+      "expense_date": "2025-08-15",
+      "merchant": "Acme Corp",
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10575400,
+      "currency": "COP",
+      "expense_date": "2025-08-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10575400,
+      "currency": "COP",
+      "expense_date": "2025-08-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 7575300,
+      "currency": "COP",
+      "expense_date": "2025-08-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "Mortgage payment"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1350064,
+      "currency": "COP",
+      "expense_date": "2025-08-01",
+      "merchant": "Sunrise HOA",
+      "category": "housing",
+      "note": "HOA dues"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 587404,
+      "currency": "COP",
+      "expense_date": "2025-08-05",
+      "merchant": "City Power Co",
+      "category": "utilities",
+      "note": "Electricity"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 322164,
+      "currency": "COP",
+      "expense_date": "2025-08-08",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Water & sewer"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 332386,
+      "currency": "COP",
+      "expense_date": "2025-08-10",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Natural gas"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 364420,
+      "currency": "COP",
+      "expense_date": "2025-08-12",
+      "merchant": "Comcast",
+      "category": "utilities",
+      "note": "Internet"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 250724,
+      "currency": "COP",
+      "expense_date": "2025-08-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Cell phone plan"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 588582,
+      "currency": "COP",
+      "expense_date": "2025-08-06",
+      "merchant": null,
+      "category": "groceries",
+      "note": "whole foods"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 1275926,
+      "currency": "COP",
+      "expense_date": "2025-08-12",
+      "merchant": "Costco",
+      "category": "groceries",
+      "note": "weekly groceries costco"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 424080,
+      "currency": "COP",
+      "expense_date": "2025-08-19",
+      "merchant": null,
+      "category": "groceries",
+      "note": "whole foods"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 528086,
+      "currency": "COP",
+      "expense_date": "2025-08-25",
+      "merchant": "Trader Joe's",
+      "category": "groceries",
+      "note": "grocery run trader joes"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 266228,
+      "currency": "COP",
+      "expense_date": "2025-08-11",
+      "merchant": null,
+      "category": "dining",
+      "note": "takeout buffalo wild wings"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 52136,
+      "currency": "COP",
+      "expense_date": "2025-08-18",
+      "merchant": null,
+      "category": "dining",
+      "note": "breakfast in n out"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 96330,
+      "currency": "COP",
+      "expense_date": "2025-08-18",
+      "merchant": null,
+      "category": "dining",
+      "note": "lunch in n out"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 165376,
+      "currency": "COP",
+      "expense_date": "2025-08-25",
+      "merchant": null,
+      "category": "dining",
+      "note": "lunch dennys"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 188480,
+      "currency": "COP",
+      "expense_date": "2025-08-28",
+      "merchant": "Olive Garden",
+      "category": "dining",
+      "note": "olive garden"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 246126,
+      "currency": "COP",
+      "expense_date": "2025-08-09",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 218994,
+      "currency": "COP",
+      "expense_date": "2025-08-23",
+      "merchant": "Chevron",
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 181754,
+      "currency": "COP",
+      "expense_date": "2025-08-13",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 84588,
+      "currency": "COP",
+      "expense_date": "2025-08-21",
+      "merchant": "Uber",
+      "category": "transportation",
+      "note": "trip uber"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1756550,
+      "currency": "COP",
+      "expense_date": "2025-08-03",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Car payment — SUV"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 2435420,
+      "currency": "COP",
+      "expense_date": "2025-08-14",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "New tires (set of 4)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1777754,
+      "currency": "COP",
+      "expense_date": "2025-08-01",
+      "merchant": null,
+      "category": "health",
+      "note": "Family health insurance premium"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 158384,
+      "currency": "COP",
+      "expense_date": "2025-08-14",
+      "merchant": null,
+      "category": "health",
+      "note": "Doctor copay"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 97052,
+      "currency": "COP",
+      "expense_date": "2025-08-14",
+      "merchant": null,
+      "category": "health",
+      "note": "Prescription"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 4658648,
+      "currency": "COP",
+      "expense_date": "2025-08-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Daycare tuition"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 571482,
+      "currency": "COP",
+      "expense_date": "2025-08-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Soccer league"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 680124,
+      "currency": "COP",
+      "expense_date": "2025-08-10",
+      "merchant": "Target",
+      "category": "kids",
+      "note": "Back-to-school supplies"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 1152920,
+      "currency": "COP",
+      "expense_date": "2025-08-12",
+      "merchant": null,
+      "category": "kids",
+      "note": "School clothes"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 114722,
+      "currency": "COP",
+      "expense_date": "2025-08-23",
+      "merchant": "Udemy",
+      "category": "education",
+      "note": "Online course"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 610204,
+      "currency": "COP",
+      "expense_date": "2025-08-08",
+      "merchant": null,
+      "category": "education",
+      "note": "Piano lessons (kids)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 64524,
+      "currency": "COP",
+      "expense_date": "2025-08-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Netflix"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 44764,
+      "currency": "COP",
+      "expense_date": "2025-08-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Spotify Family"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 60002,
+      "currency": "COP",
+      "expense_date": "2025-08-01",
+      "merchant": "Apple",
+      "category": "subscriptions",
+      "note": "iCloud+ storage"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 200526,
+      "currency": "COP",
+      "expense_date": "2025-08-05",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Gym membership"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 40470,
+      "currency": "COP",
+      "expense_date": "2025-08-15",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "YouTube Premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 64144,
+      "currency": "COP",
+      "expense_date": "2025-08-20",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Disney+"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 162146,
+      "currency": "COP",
+      "expense_date": "2025-08-19",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Movie night"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 331854,
+      "currency": "COP",
+      "expense_date": "2025-08-13",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Family game night"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 329878,
+      "currency": "COP",
+      "expense_date": "2025-08-18",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Clothes"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 458812,
+      "currency": "COP",
+      "expense_date": "2025-08-07",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Home decor"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 445132,
+      "currency": "COP",
+      "expense_date": "2025-08-17",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Home improvement"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 133228,
+      "currency": "COP",
+      "expense_date": "2025-08-15",
+      "merchant": null,
+      "category": "self_care",
+      "note": "Haircut"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 249090,
+      "currency": "COP",
+      "expense_date": "2025-08-05",
+      "merchant": null,
+      "category": "self_care",
+      "note": "Hair salon"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 230242,
+      "currency": "COP",
+      "expense_date": "2025-08-01",
+      "merchant": null,
+      "category": "pets",
+      "note": "Dog food & treats"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 2850418,
+      "currency": "COP",
+      "expense_date": "2025-08-11",
+      "merchant": "Midas",
+      "category": "vehicle",
+      "note": "Unexpected brake repair"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14421000,
+      "currency": "COP",
+      "expense_date": "2025-09-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14421000,
+      "currency": "COP",
+      "expense_date": "2025-09-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10575400,
+      "currency": "COP",
+      "expense_date": "2025-09-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10575400,
+      "currency": "COP",
+      "expense_date": "2025-09-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 5700000,
+      "currency": "COP",
+      "expense_date": "2025-09-22",
+      "merchant": "Side project client",
+      "category": "income",
+      "note": "Freelance web dev"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 7854524,
+      "currency": "COP",
+      "expense_date": "2025-09-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "Mortgage payment"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1381566,
+      "currency": "COP",
+      "expense_date": "2025-09-01",
+      "merchant": "Sunrise HOA",
+      "category": "housing",
+      "note": "HOA dues"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 553242,
+      "currency": "COP",
+      "expense_date": "2025-09-05",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Electricity"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 234802,
+      "currency": "COP",
+      "expense_date": "2025-09-08",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Water & sewer"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 315970,
+      "currency": "COP",
+      "expense_date": "2025-09-10",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Natural gas"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 316920,
+      "currency": "COP",
+      "expense_date": "2025-09-12",
+      "merchant": "Comcast",
+      "category": "utilities",
+      "note": "Internet"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 219678,
+      "currency": "COP",
+      "expense_date": "2025-09-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Cell phone plan"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 924654,
+      "currency": "COP",
+      "expense_date": "2025-09-04",
+      "merchant": "Costco",
+      "category": "groceries",
+      "note": "weekly groceries costco"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 454556,
+      "currency": "COP",
+      "expense_date": "2025-09-09",
+      "merchant": null,
+      "category": "groceries",
+      "note": "groceries whole foods"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 455088,
+      "currency": "COP",
+      "expense_date": "2025-09-13",
+      "merchant": null,
+      "category": "groceries",
+      "note": "grocery run kroger"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 550810,
+      "currency": "COP",
+      "expense_date": "2025-09-17",
+      "merchant": null,
+      "category": "groceries",
+      "note": "grocery run trader joes"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 545414,
+      "currency": "COP",
+      "expense_date": "2025-09-21",
+      "merchant": null,
+      "category": "groceries",
+      "note": "whole foods"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 1226564,
+      "currency": "COP",
+      "expense_date": "2025-09-26",
+      "merchant": null,
+      "category": "groceries",
+      "note": "weekly groceries costco"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 53542,
+      "currency": "COP",
+      "expense_date": "2025-09-26",
+      "merchant": null,
+      "category": "dining",
+      "note": "coffee starbucks"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 281694,
+      "currency": "COP",
+      "expense_date": "2025-09-15",
+      "merchant": null,
+      "category": "dining",
+      "note": "sushi zen"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 67488,
+      "currency": "COP",
+      "expense_date": "2025-09-09",
+      "merchant": null,
+      "category": "dining",
+      "note": "coffee starbucks"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 240274,
+      "currency": "COP",
+      "expense_date": "2025-09-07",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 246088,
+      "currency": "COP",
+      "expense_date": "2025-09-24",
+      "merchant": "Chevron",
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 217816,
+      "currency": "COP",
+      "expense_date": "2025-09-15",
+      "merchant": "BP",
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 75278,
+      "currency": "COP",
+      "expense_date": "2025-09-15",
+      "merchant": null,
+      "category": "transportation",
+      "note": "trip uber"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1754346,
+      "currency": "COP",
+      "expense_date": "2025-09-03",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Car payment — SUV"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 274968,
+      "currency": "COP",
+      "expense_date": "2025-09-15",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Oil change"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1774410,
+      "currency": "COP",
+      "expense_date": "2025-09-01",
+      "merchant": null,
+      "category": "health",
+      "note": "Family health insurance premium"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 284278,
+      "currency": "COP",
+      "expense_date": "2025-09-15",
+      "merchant": "Smile Dental",
+      "category": "health",
+      "note": "Dental cleaning — adult"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 299934,
+      "currency": "COP",
+      "expense_date": "2025-09-16",
+      "merchant": null,
+      "category": "health",
+      "note": "Dental cleaning — adult"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 197106,
+      "currency": "COP",
+      "expense_date": "2025-09-17",
+      "merchant": null,
+      "category": "health",
+      "note": "Dental cleaning — kids"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 4605106,
+      "currency": "COP",
+      "expense_date": "2025-09-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Daycare tuition"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 571634,
+      "currency": "COP",
+      "expense_date": "2025-09-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Soccer league"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 614574,
+      "currency": "COP",
+      "expense_date": "2025-09-08",
+      "merchant": "Music Academy",
+      "category": "education",
+      "note": "Piano lessons (kids)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 64410,
+      "currency": "COP",
+      "expense_date": "2025-09-01",
+      "merchant": "Netflix",
+      "category": "subscriptions",
+      "note": "Netflix"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 44422,
+      "currency": "COP",
+      "expense_date": "2025-09-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Spotify Family"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 60686,
+      "currency": "COP",
+      "expense_date": "2025-09-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "iCloud+ storage"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 202996,
+      "currency": "COP",
+      "expense_date": "2025-09-05",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Gym membership"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 40508,
+      "currency": "COP",
+      "expense_date": "2025-09-15",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "YouTube Premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 64942,
+      "currency": "COP",
+      "expense_date": "2025-09-20",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Disney+"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 339340,
+      "currency": "COP",
+      "expense_date": "2025-09-07",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Aquarium tickets"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 129352,
+      "currency": "COP",
+      "expense_date": "2025-09-03",
+      "merchant": null,
+      "category": "shopping",
+      "note": "purchase walmart"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 203224,
+      "currency": "COP",
+      "expense_date": "2025-09-14",
+      "merchant": "Amazon",
+      "category": "shopping",
+      "note": "Household items"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 121372,
+      "currency": "COP",
+      "expense_date": "2025-09-30",
+      "merchant": "Walmart",
+      "category": "shopping",
+      "note": "order walmart"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 275842,
+      "currency": "COP",
+      "expense_date": "2025-09-18",
+      "merchant": null,
+      "category": "self_care",
+      "note": "Hair salon"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 206682,
+      "currency": "COP",
+      "expense_date": "2025-09-04",
+      "merchant": null,
+      "category": "pets",
+      "note": "Dog food & treats"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 259046,
+      "currency": "COP",
+      "expense_date": "2025-09-18",
+      "merchant": null,
+      "category": "pets",
+      "note": "Dog grooming"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 55252,
+      "currency": "COP",
+      "expense_date": "2025-09-28",
+      "merchant": null,
+      "category": "fees",
+      "note": "ATM fee"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 262542,
+      "currency": "COP",
+      "expense_date": "2025-09-26",
+      "merchant": "City Parking",
+      "category": "fees",
+      "note": "Parking ticket"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14421000,
+      "currency": "COP",
+      "expense_date": "2025-10-01",
+      "merchant": "Acme Corp",
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14421000,
+      "currency": "COP",
+      "expense_date": "2025-10-15",
+      "merchant": "Acme Corp",
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10575400,
+      "currency": "COP",
+      "expense_date": "2025-10-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10575400,
+      "currency": "COP",
+      "expense_date": "2025-10-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 7871852,
+      "currency": "COP",
+      "expense_date": "2025-10-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "Mortgage payment"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1392016,
+      "currency": "COP",
+      "expense_date": "2025-10-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "HOA dues"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 7057246,
+      "currency": "COP",
+      "expense_date": "2025-10-05",
+      "merchant": null,
+      "category": "housing",
+      "note": "Property tax"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 432782,
+      "currency": "COP",
+      "expense_date": "2025-10-05",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Electricity"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 218272,
+      "currency": "COP",
+      "expense_date": "2025-10-08",
+      "merchant": "City Water",
+      "category": "utilities",
+      "note": "Water & sewer"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 248976,
+      "currency": "COP",
+      "expense_date": "2025-10-10",
+      "merchant": "Gas Utility",
+      "category": "utilities",
+      "note": "Natural gas"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 287508,
+      "currency": "COP",
+      "expense_date": "2025-10-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Internet"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 199804,
+      "currency": "COP",
+      "expense_date": "2025-10-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Cell phone plan"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 490162,
+      "currency": "COP",
+      "expense_date": "2025-10-06",
+      "merchant": "Whole Foods",
+      "category": "groceries",
+      "note": "grocery run whole foods"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 594282,
+      "currency": "COP",
+      "expense_date": "2025-10-12",
+      "merchant": null,
+      "category": "groceries",
+      "note": "grocery run whole foods"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 585086,
+      "currency": "COP",
+      "expense_date": "2025-10-19",
+      "merchant": null,
+      "category": "groceries",
+      "note": "weekly groceries kroger"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 966416,
+      "currency": "COP",
+      "expense_date": "2025-10-25",
+      "merchant": null,
+      "category": "groceries",
+      "note": "weekly groceries costco"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 219526,
+      "currency": "COP",
+      "expense_date": "2025-10-31",
+      "merchant": null,
+      "category": "dining",
+      "note": "takeout dennys"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 155610,
+      "currency": "COP",
+      "expense_date": "2025-10-14",
+      "merchant": null,
+      "category": "dining",
+      "note": "coffee dennys"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 264936,
+      "currency": "COP",
+      "expense_date": "2025-10-10",
+      "merchant": "Panera Bread",
+      "category": "dining",
+      "note": "lunch panera bread"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 87210,
+      "currency": "COP",
+      "expense_date": "2025-10-25",
+      "merchant": null,
+      "category": "dining",
+      "note": "breakfast chick fil a"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 263074,
+      "currency": "COP",
+      "expense_date": "2025-10-13",
+      "merchant": null,
+      "category": "dining",
+      "note": "lunch dennys"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 212154,
+      "currency": "COP",
+      "expense_date": "2025-10-11",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 176358,
+      "currency": "COP",
+      "expense_date": "2025-10-18",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 231876,
+      "currency": "COP",
+      "expense_date": "2025-10-08",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1759172,
+      "currency": "COP",
+      "expense_date": "2025-10-03",
+      "merchant": "Auto Lender",
+      "category": "vehicle",
+      "note": "Car payment — SUV"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1845014,
+      "currency": "COP",
+      "expense_date": "2025-10-15",
+      "merchant": "Geico",
+      "category": "vehicle",
+      "note": "Auto insurance (quarterly)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1799338,
+      "currency": "COP",
+      "expense_date": "2025-10-01",
+      "merchant": null,
+      "category": "health",
+      "note": "Family health insurance premium"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 158498,
+      "currency": "COP",
+      "expense_date": "2025-10-21",
+      "merchant": null,
+      "category": "health",
+      "note": "Doctor copay"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 147174,
+      "currency": "COP",
+      "expense_date": "2025-10-30",
+      "merchant": "CVS Pharmacy",
+      "category": "health",
+      "note": "Prescription"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 4660890,
+      "currency": "COP",
+      "expense_date": "2025-10-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Daycare tuition"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 586834,
+      "currency": "COP",
+      "expense_date": "2025-10-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Soccer league"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 625860,
+      "currency": "COP",
+      "expense_date": "2025-10-08",
+      "merchant": "Music Academy",
+      "category": "education",
+      "note": "Piano lessons (kids)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 64904,
+      "currency": "COP",
+      "expense_date": "2025-10-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Netflix"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 44156,
+      "currency": "COP",
+      "expense_date": "2025-10-01",
+      "merchant": "Spotify",
+      "category": "subscriptions",
+      "note": "Spotify Family"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 60458,
+      "currency": "COP",
+      "expense_date": "2025-10-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "iCloud+ storage"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 201628,
+      "currency": "COP",
+      "expense_date": "2025-10-05",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Gym membership"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 40736,
+      "currency": "COP",
+      "expense_date": "2025-10-15",
+      "merchant": "Google",
+      "category": "subscriptions",
+      "note": "YouTube Premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 64334,
+      "currency": "COP",
+      "expense_date": "2025-10-20",
+      "merchant": "Disney",
+      "category": "subscriptions",
+      "note": "Disney+"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 226290,
+      "currency": "COP",
+      "expense_date": "2025-10-08",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Zoo visit"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 232902,
+      "currency": "COP",
+      "expense_date": "2025-10-11",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Zoo visit"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 301416,
+      "currency": "COP",
+      "expense_date": "2025-10-30",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Escape room"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 319618,
+      "currency": "COP",
+      "expense_date": "2025-10-09",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Clothes"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 395618,
+      "currency": "COP",
+      "expense_date": "2025-10-13",
+      "merchant": "Best Buy",
+      "category": "shopping",
+      "note": "Electronics"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 139536,
+      "currency": "COP",
+      "expense_date": "2025-10-15",
+      "merchant": null,
+      "category": "self_care",
+      "note": "Haircut"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 255740,
+      "currency": "COP",
+      "expense_date": "2025-10-14",
+      "merchant": null,
+      "category": "self_care",
+      "note": "Hair salon"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 191976,
+      "currency": "COP",
+      "expense_date": "2025-10-19",
+      "merchant": null,
+      "category": "gifts",
+      "note": "Birthday gift — friend"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 248178,
+      "currency": "COP",
+      "expense_date": "2025-10-05",
+      "merchant": null,
+      "category": "pets",
+      "note": "Dog food & treats"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 1010686,
+      "currency": "COP",
+      "expense_date": "2025-10-20",
+      "merchant": null,
+      "category": "pets",
+      "note": "Vet checkup + vaccines"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14421000,
+      "currency": "COP",
+      "expense_date": "2025-11-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14421000,
+      "currency": "COP",
+      "expense_date": "2025-11-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10575400,
+      "currency": "COP",
+      "expense_date": "2025-11-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10575400,
+      "currency": "COP",
+      "expense_date": "2025-11-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 7827240,
+      "currency": "COP",
+      "expense_date": "2025-11-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "Mortgage payment"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1359412,
+      "currency": "COP",
+      "expense_date": "2025-11-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "HOA dues"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 778848,
+      "currency": "COP",
+      "expense_date": "2025-11-05",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Electricity"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 254942,
+      "currency": "COP",
+      "expense_date": "2025-11-08",
+      "merchant": "City Water",
+      "category": "utilities",
+      "note": "Water & sewer"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 337326,
+      "currency": "COP",
+      "expense_date": "2025-11-10",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Natural gas"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 317452,
+      "currency": "COP",
+      "expense_date": "2025-11-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Internet"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 217436,
+      "currency": "COP",
+      "expense_date": "2025-11-12",
+      "merchant": "T-Mobile",
+      "category": "utilities",
+      "note": "Cell phone plan"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 621870,
+      "currency": "COP",
+      "expense_date": "2025-11-05",
+      "merchant": null,
+      "category": "groceries",
+      "note": "weekly groceries kroger"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 707104,
+      "currency": "COP",
+      "expense_date": "2025-11-10",
+      "merchant": null,
+      "category": "groceries",
+      "note": "kroger"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 656298,
+      "currency": "COP",
+      "expense_date": "2025-11-15",
+      "merchant": null,
+      "category": "groceries",
+      "note": "grocery run whole foods"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 599716,
+      "currency": "COP",
+      "expense_date": "2025-11-20",
+      "merchant": null,
+      "category": "groceries",
+      "note": "weekly groceries whole foods"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1288048,
+      "currency": "COP",
+      "expense_date": "2025-11-25",
+      "merchant": null,
+      "category": "groceries",
+      "note": "groceries costco"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 286330,
+      "currency": "COP",
+      "expense_date": "2025-11-16",
+      "merchant": "Thai Orchid",
+      "category": "dining",
+      "note": "dinner thai orchid"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 284696,
+      "currency": "COP",
+      "expense_date": "2025-11-01",
+      "merchant": null,
+      "category": "dining",
+      "note": "dinner sushi zen"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 57190,
+      "currency": "COP",
+      "expense_date": "2025-11-22",
+      "merchant": "Chick-fil-A",
+      "category": "dining",
+      "note": "coffee chick fil a"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 267330,
+      "currency": "COP",
+      "expense_date": "2025-11-13",
+      "merchant": "Thai Orchid",
+      "category": "dining",
+      "note": "takeout thai orchid"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 293626,
+      "currency": "COP",
+      "expense_date": "2025-11-05",
+      "merchant": null,
+      "category": "dining",
+      "note": "local pizza place"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 53086,
+      "currency": "COP",
+      "expense_date": "2025-11-26",
+      "merchant": null,
+      "category": "dining",
+      "note": "snack in n out"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 235296,
+      "currency": "COP",
+      "expense_date": "2025-11-05",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 185250,
+      "currency": "COP",
+      "expense_date": "2025-11-20",
+      "merchant": "Chevron",
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 217170,
+      "currency": "COP",
+      "expense_date": "2025-11-10",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1758944,
+      "currency": "COP",
+      "expense_date": "2025-11-03",
+      "merchant": "Auto Lender",
+      "category": "vehicle",
+      "note": "Car payment — SUV"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1780528,
+      "currency": "COP",
+      "expense_date": "2025-11-01",
+      "merchant": null,
+      "category": "health",
+      "note": "Family health insurance premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 139422,
+      "currency": "COP",
+      "expense_date": "2025-11-19",
+      "merchant": null,
+      "category": "health",
+      "note": "Doctor copay"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 4749468,
+      "currency": "COP",
+      "expense_date": "2025-11-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Daycare tuition"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 598994,
+      "currency": "COP",
+      "expense_date": "2025-11-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Soccer league"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 619020,
+      "currency": "COP",
+      "expense_date": "2025-11-08",
+      "merchant": "Music Academy",
+      "category": "education",
+      "note": "Piano lessons (kids)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 63992,
+      "currency": "COP",
+      "expense_date": "2025-11-01",
+      "merchant": "Netflix",
+      "category": "subscriptions",
+      "note": "Netflix"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 44232,
+      "currency": "COP",
+      "expense_date": "2025-11-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Spotify Family"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 60914,
+      "currency": "COP",
+      "expense_date": "2025-11-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "iCloud+ storage"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 200146,
+      "currency": "COP",
+      "expense_date": "2025-11-05",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Gym membership"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 40660,
+      "currency": "COP",
+      "expense_date": "2025-11-15",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "YouTube Premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 64182,
+      "currency": "COP",
+      "expense_date": "2025-11-20",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Disney+"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 183502,
+      "currency": "COP",
+      "expense_date": "2025-11-04",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Kids trampoline park"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 147554,
+      "currency": "COP",
+      "expense_date": "2025-11-19",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Kids trampoline park"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 122550,
+      "currency": "COP",
+      "expense_date": "2025-11-26",
+      "merchant": null,
+      "category": "shopping",
+      "note": "purchase walmart"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 445246,
+      "currency": "COP",
+      "expense_date": "2025-11-24",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Home improvement"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 255664,
+      "currency": "COP",
+      "expense_date": "2025-11-04",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Clothes"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 299516,
+      "currency": "COP",
+      "expense_date": "2025-11-09",
+      "merchant": null,
+      "category": "self_care",
+      "note": "Hair salon"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 228456,
+      "currency": "COP",
+      "expense_date": "2025-11-14",
+      "merchant": null,
+      "category": "pets",
+      "note": "Dog food & treats"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 268812,
+      "currency": "COP",
+      "expense_date": "2025-11-15",
+      "merchant": null,
+      "category": "pets",
+      "note": "Dog grooming"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 2292806,
+      "currency": "COP",
+      "expense_date": "2025-11-22",
+      "merchant": null,
+      "category": "travel",
+      "note": "Flight tickets — Thanksgiving"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 859826,
+      "currency": "COP",
+      "expense_date": "2025-11-23",
+      "merchant": null,
+      "category": "travel",
+      "note": "Rental car — Thanksgiving"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 1667326,
+      "currency": "COP",
+      "expense_date": "2025-11-09",
+      "merchant": "Pediatric Dental",
+      "category": "kids",
+      "note": "Kid dental filling"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14649000,
+      "currency": "COP",
+      "expense_date": "2025-12-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14649000,
+      "currency": "COP",
+      "expense_date": "2025-12-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10742600,
+      "currency": "COP",
+      "expense_date": "2025-12-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10742600,
+      "currency": "COP",
+      "expense_date": "2025-12-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 28180952,
+      "currency": "COP",
+      "expense_date": "2025-12-20",
+      "merchant": "Acme Corp",
+      "category": "income",
+      "note": "Year-end bonus"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 16209812,
+      "currency": "COP",
+      "expense_date": "2025-12-20",
+      "merchant": null,
+      "category": "income",
+      "note": "Year-end bonus"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 7802160,
+      "currency": "COP",
+      "expense_date": "2025-12-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "Mortgage payment"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1370470,
+      "currency": "COP",
+      "expense_date": "2025-12-01",
+      "merchant": "Sunrise HOA",
+      "category": "housing",
+      "note": "HOA dues"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 935028,
+      "currency": "COP",
+      "expense_date": "2025-12-05",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Electricity"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 322848,
+      "currency": "COP",
+      "expense_date": "2025-12-08",
+      "merchant": "City Water",
+      "category": "utilities",
+      "note": "Water & sewer"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 301606,
+      "currency": "COP",
+      "expense_date": "2025-12-10",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Natural gas"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 372704,
+      "currency": "COP",
+      "expense_date": "2025-12-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Internet"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 253954,
+      "currency": "COP",
+      "expense_date": "2025-12-12",
+      "merchant": "T-Mobile",
+      "category": "utilities",
+      "note": "Cell phone plan"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1140266,
+      "currency": "COP",
+      "expense_date": "2025-12-05",
+      "merchant": null,
+      "category": "groceries",
+      "note": "weekly groceries costco"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 409070,
+      "currency": "COP",
+      "expense_date": "2025-12-10",
+      "merchant": null,
+      "category": "groceries",
+      "note": "weekly groceries aldi"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1423898,
+      "currency": "COP",
+      "expense_date": "2025-12-16",
+      "merchant": null,
+      "category": "groceries",
+      "note": "grocery run costco"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 664012,
+      "currency": "COP",
+      "expense_date": "2025-12-21",
+      "merchant": null,
+      "category": "groceries",
+      "note": "trader joes"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 678528,
+      "currency": "COP",
+      "expense_date": "2025-12-26",
+      "merchant": null,
+      "category": "groceries",
+      "note": "groceries aldi"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 299288,
+      "currency": "COP",
+      "expense_date": "2025-12-09",
+      "merchant": null,
+      "category": "dining",
+      "note": "lunch olive garden"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 234156,
+      "currency": "COP",
+      "expense_date": "2025-12-13",
+      "merchant": null,
+      "category": "dining",
+      "note": "coffee sushi zen"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 63612,
+      "currency": "COP",
+      "expense_date": "2025-12-14",
+      "merchant": "Chick-fil-A",
+      "category": "dining",
+      "note": "breakfast chick fil a"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 81206,
+      "currency": "COP",
+      "expense_date": "2025-12-26",
+      "merchant": null,
+      "category": "dining",
+      "note": "snack starbucks"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 206720,
+      "currency": "COP",
+      "expense_date": "2025-12-09",
+      "merchant": "Shell",
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 210938,
+      "currency": "COP",
+      "expense_date": "2025-12-21",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 206264,
+      "currency": "COP",
+      "expense_date": "2025-12-08",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1813930,
+      "currency": "COP",
+      "expense_date": "2025-12-03",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Car payment — SUV"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 323418,
+      "currency": "COP",
+      "expense_date": "2025-12-10",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Oil change"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1800098,
+      "currency": "COP",
+      "expense_date": "2025-12-01",
+      "merchant": null,
+      "category": "health",
+      "note": "Family health insurance premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 70908,
+      "currency": "COP",
+      "expense_date": "2025-12-28",
+      "merchant": null,
+      "category": "health",
+      "note": "Prescription"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 4740652,
+      "currency": "COP",
+      "expense_date": "2025-12-01",
+      "merchant": "Bright Horizons",
+      "category": "kids",
+      "note": "Daycare tuition"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 603554,
+      "currency": "COP",
+      "expense_date": "2025-12-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Soccer league"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 632244,
+      "currency": "COP",
+      "expense_date": "2025-12-08",
+      "merchant": null,
+      "category": "education",
+      "note": "Piano lessons (kids)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 65056,
+      "currency": "COP",
+      "expense_date": "2025-12-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Netflix"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 44612,
+      "currency": "COP",
+      "expense_date": "2025-12-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Spotify Family"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 61104,
+      "currency": "COP",
+      "expense_date": "2025-12-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "iCloud+ storage"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 203110,
+      "currency": "COP",
+      "expense_date": "2025-12-05",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Gym membership"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 40052,
+      "currency": "COP",
+      "expense_date": "2025-12-15",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "YouTube Premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 64828,
+      "currency": "COP",
+      "expense_date": "2025-12-20",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Disney+"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 266608,
+      "currency": "COP",
+      "expense_date": "2025-12-21",
+      "merchant": "Zoo",
+      "category": "entertainment",
+      "note": "Zoo visit"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 203908,
+      "currency": "COP",
+      "expense_date": "2025-12-22",
+      "merchant": "AMC Theaters",
+      "category": "entertainment",
+      "note": "Movie night"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 118028,
+      "currency": "COP",
+      "expense_date": "2025-12-02",
+      "merchant": null,
+      "category": "shopping",
+      "note": "purchase walmart"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 440420,
+      "currency": "COP",
+      "expense_date": "2025-12-21",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Home improvement"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 287964,
+      "currency": "COP",
+      "expense_date": "2025-12-22",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Clothes"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 136268,
+      "currency": "COP",
+      "expense_date": "2025-12-11",
+      "merchant": "Great Clips",
+      "category": "self_care",
+      "note": "Haircut"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 334666,
+      "currency": "COP",
+      "expense_date": "2025-12-09",
+      "merchant": null,
+      "category": "self_care",
+      "note": "Hair salon"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1577646,
+      "currency": "COP",
+      "expense_date": "2025-12-15",
+      "merchant": null,
+      "category": "gifts",
+      "note": "Holiday gifts — family"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 1320158,
+      "currency": "COP",
+      "expense_date": "2025-12-16",
+      "merchant": null,
+      "category": "gifts",
+      "note": "Holiday gifts — friends & teachers"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 458584,
+      "currency": "COP",
+      "expense_date": "2025-12-10",
+      "merchant": null,
+      "category": "gifts",
+      "note": "Holiday gift — spouse"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 214586,
+      "currency": "COP",
+      "expense_date": "2025-12-05",
+      "merchant": null,
+      "category": "pets",
+      "note": "Dog food & treats"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 58748,
+      "currency": "COP",
+      "expense_date": "2025-12-28",
+      "merchant": "Out-of-network ATM",
+      "category": "fees",
+      "note": "ATM fee"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14649000,
+      "currency": "COP",
+      "expense_date": "2026-01-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14649000,
+      "currency": "COP",
+      "expense_date": "2026-01-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10742600,
+      "currency": "COP",
+      "expense_date": "2026-01-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10742600,
+      "currency": "COP",
+      "expense_date": "2026-01-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 7914070,
+      "currency": "COP",
+      "expense_date": "2026-01-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "Mortgage payment"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1357246,
+      "currency": "COP",
+      "expense_date": "2026-01-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "HOA dues"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 847172,
+      "currency": "COP",
+      "expense_date": "2026-01-05",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Electricity"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 319010,
+      "currency": "COP",
+      "expense_date": "2026-01-08",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Water & sewer"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 363052,
+      "currency": "COP",
+      "expense_date": "2026-01-10",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Natural gas"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 370082,
+      "currency": "COP",
+      "expense_date": "2026-01-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Internet"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 252092,
+      "currency": "COP",
+      "expense_date": "2026-01-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Cell phone plan"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 534850,
+      "currency": "COP",
+      "expense_date": "2026-01-04",
+      "merchant": null,
+      "category": "groceries",
+      "note": "weekly groceries whole foods"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 968050,
+      "currency": "COP",
+      "expense_date": "2026-01-09",
+      "merchant": null,
+      "category": "groceries",
+      "note": "groceries costco"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 626734,
+      "currency": "COP",
+      "expense_date": "2026-01-13",
+      "merchant": null,
+      "category": "groceries",
+      "note": "aldi"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 453492,
+      "currency": "COP",
+      "expense_date": "2026-01-18",
+      "merchant": null,
+      "category": "groceries",
+      "note": "groceries trader joes"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 928340,
+      "currency": "COP",
+      "expense_date": "2026-01-22",
+      "merchant": null,
+      "category": "groceries",
+      "note": "grocery run costco"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 468350,
+      "currency": "COP",
+      "expense_date": "2026-01-27",
+      "merchant": "Trader Joe's",
+      "category": "groceries",
+      "note": "groceries trader joes"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 256500,
+      "currency": "COP",
+      "expense_date": "2026-01-28",
+      "merchant": null,
+      "category": "dining",
+      "note": "snack dennys"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 151164,
+      "currency": "COP",
+      "expense_date": "2026-01-20",
+      "merchant": null,
+      "category": "dining",
+      "note": "breakfast sushi zen"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 163096,
+      "currency": "COP",
+      "expense_date": "2026-01-14",
+      "merchant": "Panera Bread",
+      "category": "dining",
+      "note": "breakfast panera bread"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 257488,
+      "currency": "COP",
+      "expense_date": "2026-01-08",
+      "merchant": "Shell",
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 190228,
+      "currency": "COP",
+      "expense_date": "2026-01-23",
+      "merchant": "Chevron",
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 192470,
+      "currency": "COP",
+      "expense_date": "2026-01-11",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 72504,
+      "currency": "COP",
+      "expense_date": "2026-01-20",
+      "merchant": null,
+      "category": "transportation",
+      "note": "ride uber"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1793030,
+      "currency": "COP",
+      "expense_date": "2026-01-03",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Car payment — SUV"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1955062,
+      "currency": "COP",
+      "expense_date": "2026-01-15",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Auto insurance (quarterly)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1800136,
+      "currency": "COP",
+      "expense_date": "2026-01-01",
+      "merchant": "Blue Cross",
+      "category": "health",
+      "note": "Family health insurance premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 4774776,
+      "currency": "COP",
+      "expense_date": "2026-01-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Daycare tuition"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 602110,
+      "currency": "COP",
+      "expense_date": "2026-01-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Soccer league"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 627912,
+      "currency": "COP",
+      "expense_date": "2026-01-08",
+      "merchant": null,
+      "category": "education",
+      "note": "Piano lessons (kids)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 65930,
+      "currency": "COP",
+      "expense_date": "2026-01-01",
+      "merchant": "Netflix",
+      "category": "subscriptions",
+      "note": "Netflix"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 45714,
+      "currency": "COP",
+      "expense_date": "2026-01-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Spotify Family"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 62396,
+      "currency": "COP",
+      "expense_date": "2026-01-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "iCloud+ storage"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 207100,
+      "currency": "COP",
+      "expense_date": "2026-01-05",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Gym membership"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 41648,
+      "currency": "COP",
+      "expense_date": "2026-01-15",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "YouTube Premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 66880,
+      "currency": "COP",
+      "expense_date": "2026-01-20",
+      "merchant": "Disney",
+      "category": "subscriptions",
+      "note": "Disney+"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 582806,
+      "currency": "COP",
+      "expense_date": "2026-01-28",
+      "merchant": "Amazon",
+      "category": "subscriptions",
+      "note": "Amazon Prime (annual)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 197144,
+      "currency": "COP",
+      "expense_date": "2026-01-04",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Movie night"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 202502,
+      "currency": "COP",
+      "expense_date": "2026-01-04",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Kids trampoline park"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 409222,
+      "currency": "COP",
+      "expense_date": "2026-01-10",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Electronics"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 323190,
+      "currency": "COP",
+      "expense_date": "2026-01-16",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Home decor"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 297958,
+      "currency": "COP",
+      "expense_date": "2026-01-13",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Electronics"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 300010,
+      "currency": "COP",
+      "expense_date": "2026-01-15",
+      "merchant": null,
+      "category": "self_care",
+      "note": "Hair salon"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 226442,
+      "currency": "COP",
+      "expense_date": "2026-01-06",
+      "merchant": null,
+      "category": "pets",
+      "note": "Dog food & treats"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 267444,
+      "currency": "COP",
+      "expense_date": "2026-01-14",
+      "merchant": null,
+      "category": "pets",
+      "note": "Dog grooming"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1470790,
+      "currency": "COP",
+      "expense_date": "2026-01-16",
+      "merchant": null,
+      "category": "housing",
+      "note": "Washer repair"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14649000,
+      "currency": "COP",
+      "expense_date": "2026-02-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14649000,
+      "currency": "COP",
+      "expense_date": "2026-02-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10742600,
+      "currency": "COP",
+      "expense_date": "2026-02-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10742600,
+      "currency": "COP",
+      "expense_date": "2026-02-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 7815840,
+      "currency": "COP",
+      "expense_date": "2026-02-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "Mortgage payment"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1366594,
+      "currency": "COP",
+      "expense_date": "2026-02-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "HOA dues"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 977968,
+      "currency": "COP",
+      "expense_date": "2026-02-05",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Electricity"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 289522,
+      "currency": "COP",
+      "expense_date": "2026-02-08",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Water & sewer"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 397632,
+      "currency": "COP",
+      "expense_date": "2026-02-10",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Natural gas"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 376694,
+      "currency": "COP",
+      "expense_date": "2026-02-12",
+      "merchant": "Comcast",
+      "category": "utilities",
+      "note": "Internet"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 259768,
+      "currency": "COP",
+      "expense_date": "2026-02-12",
+      "merchant": "T-Mobile",
+      "category": "utilities",
+      "note": "Cell phone plan"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 438862,
+      "currency": "COP",
+      "expense_date": "2026-02-06",
+      "merchant": null,
+      "category": "groceries",
+      "note": "trader joes"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 466640,
+      "currency": "COP",
+      "expense_date": "2026-02-11",
+      "merchant": "Kroger",
+      "category": "groceries",
+      "note": "weekly groceries kroger"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 542830,
+      "currency": "COP",
+      "expense_date": "2026-02-17",
+      "merchant": null,
+      "category": "groceries",
+      "note": "groceries whole foods"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 608114,
+      "currency": "COP",
+      "expense_date": "2026-02-22",
+      "merchant": null,
+      "category": "groceries",
+      "note": "kroger"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 228304,
+      "currency": "COP",
+      "expense_date": "2026-02-04",
+      "merchant": "Local Pizza Place",
+      "category": "dining",
+      "note": "local pizza place"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 68362,
+      "currency": "COP",
+      "expense_date": "2026-02-11",
+      "merchant": null,
+      "category": "dining",
+      "note": "starbucks"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 195738,
+      "currency": "COP",
+      "expense_date": "2026-02-24",
+      "merchant": "Buffalo Wild Wings",
+      "category": "dining",
+      "note": "coffee buffalo wild wings"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 91808,
+      "currency": "COP",
+      "expense_date": "2026-02-19",
+      "merchant": null,
+      "category": "dining",
+      "note": "breakfast mcdonalds"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 250496,
+      "currency": "COP",
+      "expense_date": "2026-02-07",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 213028,
+      "currency": "COP",
+      "expense_date": "2026-02-19",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 158840,
+      "currency": "COP",
+      "expense_date": "2026-02-08",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 117306,
+      "currency": "COP",
+      "expense_date": "2026-02-28",
+      "merchant": null,
+      "category": "transportation",
+      "note": "ride uber"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1804658,
+      "currency": "COP",
+      "expense_date": "2026-02-03",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Car payment — SUV"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 1638712,
+      "currency": "COP",
+      "expense_date": "2026-02-22",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Brake pads + labor"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1849042,
+      "currency": "COP",
+      "expense_date": "2026-02-01",
+      "merchant": null,
+      "category": "health",
+      "note": "Family health insurance premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 101916,
+      "currency": "COP",
+      "expense_date": "2026-02-27",
+      "merchant": null,
+      "category": "health",
+      "note": "Prescription"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 4811674,
+      "currency": "COP",
+      "expense_date": "2026-02-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Daycare tuition"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 590368,
+      "currency": "COP",
+      "expense_date": "2026-02-01",
+      "merchant": "Youth Sports Assoc",
+      "category": "kids",
+      "note": "Soccer league"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 620540,
+      "currency": "COP",
+      "expense_date": "2026-02-08",
+      "merchant": null,
+      "category": "education",
+      "note": "Piano lessons (kids)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 67032,
+      "currency": "COP",
+      "expense_date": "2026-02-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Netflix"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 45182,
+      "currency": "COP",
+      "expense_date": "2026-02-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Spotify Family"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 61902,
+      "currency": "COP",
+      "expense_date": "2026-02-01",
+      "merchant": "Apple",
+      "category": "subscriptions",
+      "note": "iCloud+ storage"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 207176,
+      "currency": "COP",
+      "expense_date": "2026-02-05",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Gym membership"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 41344,
+      "currency": "COP",
+      "expense_date": "2026-02-15",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "YouTube Premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 65968,
+      "currency": "COP",
+      "expense_date": "2026-02-20",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Disney+"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 148998,
+      "currency": "COP",
+      "expense_date": "2026-02-09",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Kids trampoline park"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 186086,
+      "currency": "COP",
+      "expense_date": "2026-02-08",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Home improvement"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 312664,
+      "currency": "COP",
+      "expense_date": "2026-02-13",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Home improvement"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 293132,
+      "currency": "COP",
+      "expense_date": "2026-02-08",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Home decor"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 214320,
+      "currency": "COP",
+      "expense_date": "2026-02-15",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Home improvement"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 137788,
+      "currency": "COP",
+      "expense_date": "2026-02-18",
+      "merchant": "Great Clips",
+      "category": "self_care",
+      "note": "Haircut"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 356250,
+      "currency": "COP",
+      "expense_date": "2026-02-21",
+      "merchant": null,
+      "category": "self_care",
+      "note": "Hair salon"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 559018,
+      "currency": "COP",
+      "expense_date": "2026-02-14",
+      "merchant": null,
+      "category": "gifts",
+      "note": "Valentine's Day dinner + flowers"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 247836,
+      "currency": "COP",
+      "expense_date": "2026-02-09",
+      "merchant": null,
+      "category": "pets",
+      "note": "Dog food & treats"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 1138176,
+      "currency": "COP",
+      "expense_date": "2026-02-21",
+      "merchant": null,
+      "category": "pets",
+      "note": "Sick visit and medication"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14649000,
+      "currency": "COP",
+      "expense_date": "2026-03-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14649000,
+      "currency": "COP",
+      "expense_date": "2026-03-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10742600,
+      "currency": "COP",
+      "expense_date": "2026-03-01",
+      "merchant": "Globex Inc",
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10742600,
+      "currency": "COP",
+      "expense_date": "2026-03-15",
+      "merchant": "Globex Inc",
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 12160000,
+      "currency": "COP",
+      "expense_date": "2026-03-18",
+      "merchant": null,
+      "category": "income",
+      "note": "Tax refund"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 7920112,
+      "currency": "COP",
+      "expense_date": "2026-03-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "Mortgage payment"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1353218,
+      "currency": "COP",
+      "expense_date": "2026-03-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "HOA dues"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 685178,
+      "currency": "COP",
+      "expense_date": "2026-03-05",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Electricity"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 282340,
+      "currency": "COP",
+      "expense_date": "2026-03-08",
+      "merchant": "City Water",
+      "category": "utilities",
+      "note": "Water & sewer"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 337060,
+      "currency": "COP",
+      "expense_date": "2026-03-10",
+      "merchant": "Gas Utility",
+      "category": "utilities",
+      "note": "Natural gas"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 325926,
+      "currency": "COP",
+      "expense_date": "2026-03-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Internet"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 227734,
+      "currency": "COP",
+      "expense_date": "2026-03-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Cell phone plan"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 647292,
+      "currency": "COP",
+      "expense_date": "2026-03-05",
+      "merchant": null,
+      "category": "groceries",
+      "note": "weekly groceries aldi"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 596524,
+      "currency": "COP",
+      "expense_date": "2026-03-10",
+      "merchant": null,
+      "category": "groceries",
+      "note": "kroger"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 492480,
+      "currency": "COP",
+      "expense_date": "2026-03-16",
+      "merchant": "Trader Joe's",
+      "category": "groceries",
+      "note": "groceries trader joes"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 459306,
+      "currency": "COP",
+      "expense_date": "2026-03-21",
+      "merchant": "Kroger",
+      "category": "groceries",
+      "note": "grocery run kroger"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 563350,
+      "currency": "COP",
+      "expense_date": "2026-03-26",
+      "merchant": null,
+      "category": "groceries",
+      "note": "trader joes"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 262846,
+      "currency": "COP",
+      "expense_date": "2026-03-13",
+      "merchant": "Denny's",
+      "category": "dining",
+      "note": "dinner dennys"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 101384,
+      "currency": "COP",
+      "expense_date": "2026-03-29",
+      "merchant": null,
+      "category": "dining",
+      "note": "dinner in n out"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 95456,
+      "currency": "COP",
+      "expense_date": "2026-03-10",
+      "merchant": null,
+      "category": "dining",
+      "note": "dinner chick fil a"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 202008,
+      "currency": "COP",
+      "expense_date": "2026-03-15",
+      "merchant": null,
+      "category": "dining",
+      "note": "snack buffalo wild wings"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 195434,
+      "currency": "COP",
+      "expense_date": "2026-03-07",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 249166,
+      "currency": "COP",
+      "expense_date": "2026-03-19",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 166896,
+      "currency": "COP",
+      "expense_date": "2026-03-13",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1811726,
+      "currency": "COP",
+      "expense_date": "2026-03-03",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Car payment — SUV"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 287356,
+      "currency": "COP",
+      "expense_date": "2026-03-11",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Oil change"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1816476,
+      "currency": "COP",
+      "expense_date": "2026-03-01",
+      "merchant": null,
+      "category": "health",
+      "note": "Family health insurance premium"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 308826,
+      "currency": "COP",
+      "expense_date": "2026-03-15",
+      "merchant": null,
+      "category": "health",
+      "note": "Dental cleaning — adult"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 313120,
+      "currency": "COP",
+      "expense_date": "2026-03-16",
+      "merchant": null,
+      "category": "health",
+      "note": "Dental cleaning — adult"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 204250,
+      "currency": "COP",
+      "expense_date": "2026-03-17",
+      "merchant": null,
+      "category": "health",
+      "note": "Dental cleaning — kids"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 72922,
+      "currency": "COP",
+      "expense_date": "2026-03-02",
+      "merchant": null,
+      "category": "health",
+      "note": "Prescription"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 4846520,
+      "currency": "COP",
+      "expense_date": "2026-03-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Daycare tuition"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 608760,
+      "currency": "COP",
+      "expense_date": "2026-03-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Soccer league"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 99028,
+      "currency": "COP",
+      "expense_date": "2026-03-23",
+      "merchant": "Udemy",
+      "category": "education",
+      "note": "Online course"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 630420,
+      "currency": "COP",
+      "expense_date": "2026-03-08",
+      "merchant": null,
+      "category": "education",
+      "note": "Piano lessons (kids)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 66310,
+      "currency": "COP",
+      "expense_date": "2026-03-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Netflix"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 45676,
+      "currency": "COP",
+      "expense_date": "2026-03-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Spotify Family"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 61902,
+      "currency": "COP",
+      "expense_date": "2026-03-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "iCloud+ storage"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 207784,
+      "currency": "COP",
+      "expense_date": "2026-03-05",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Gym membership"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 41724,
+      "currency": "COP",
+      "expense_date": "2026-03-15",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "YouTube Premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 66842,
+      "currency": "COP",
+      "expense_date": "2026-03-20",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Disney+"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 282454,
+      "currency": "COP",
+      "expense_date": "2026-03-20",
+      "merchant": "Zoo",
+      "category": "entertainment",
+      "note": "Zoo visit"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 176358,
+      "currency": "COP",
+      "expense_date": "2026-03-27",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Movie night"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 162336,
+      "currency": "COP",
+      "expense_date": "2026-03-13",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Mini golf with kids"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 186086,
+      "currency": "COP",
+      "expense_date": "2026-03-31",
+      "merchant": "Walmart",
+      "category": "shopping",
+      "note": "walmart"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 425676,
+      "currency": "COP",
+      "expense_date": "2026-03-30",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Electronics"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 178524,
+      "currency": "COP",
+      "expense_date": "2026-03-05",
+      "merchant": null,
+      "category": "shopping",
+      "note": "walmart"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 197144,
+      "currency": "COP",
+      "expense_date": "2026-03-20",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Clothes"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 324596,
+      "currency": "COP",
+      "expense_date": "2026-03-18",
+      "merchant": null,
+      "category": "self_care",
+      "note": "Hair salon"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 234194,
+      "currency": "COP",
+      "expense_date": "2026-03-01",
+      "merchant": "PetSmart",
+      "category": "pets",
+      "note": "Dog food & treats"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 271016,
+      "currency": "COP",
+      "expense_date": "2026-03-18",
+      "merchant": null,
+      "category": "pets",
+      "note": "Dog grooming"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 60800,
+      "currency": "COP",
+      "expense_date": "2026-03-28",
+      "merchant": null,
+      "category": "fees",
+      "note": "ATM fee"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 2206090,
+      "currency": "COP",
+      "expense_date": "2026-03-06",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Phone replacement after cracked screen"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14649000,
+      "currency": "COP",
+      "expense_date": "2026-04-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 14649000,
+      "currency": "COP",
+      "expense_date": "2026-04-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10742600,
+      "currency": "COP",
+      "expense_date": "2026-04-01",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 10742600,
+      "currency": "COP",
+      "expense_date": "2026-04-15",
+      "merchant": null,
+      "category": "income",
+      "note": "Salary"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 7913918,
+      "currency": "COP",
+      "expense_date": "2026-04-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "Mortgage payment"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1351584,
+      "currency": "COP",
+      "expense_date": "2026-04-01",
+      "merchant": null,
+      "category": "housing",
+      "note": "HOA dues"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 7465252,
+      "currency": "COP",
+      "expense_date": "2026-04-05",
+      "merchant": null,
+      "category": "housing",
+      "note": "Property tax"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 511594,
+      "currency": "COP",
+      "expense_date": "2026-04-05",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Electricity"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 227392,
+      "currency": "COP",
+      "expense_date": "2026-04-08",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Water & sewer"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 253650,
+      "currency": "COP",
+      "expense_date": "2026-04-10",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Natural gas"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 298376,
+      "currency": "COP",
+      "expense_date": "2026-04-12",
+      "merchant": null,
+      "category": "utilities",
+      "note": "Internet"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 202198,
+      "currency": "COP",
+      "expense_date": "2026-04-12",
+      "merchant": "T-Mobile",
+      "category": "utilities",
+      "note": "Cell phone plan"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1103748,
+      "currency": "COP",
+      "expense_date": "2026-04-05",
+      "merchant": null,
+      "category": "groceries",
+      "note": "grocery run costco"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 474430,
+      "currency": "COP",
+      "expense_date": "2026-04-10",
+      "merchant": null,
+      "category": "groceries",
+      "note": "groceries trader joes"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 592914,
+      "currency": "COP",
+      "expense_date": "2026-04-14",
+      "merchant": null,
+      "category": "groceries",
+      "note": "grocery run whole foods"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 523868,
+      "currency": "COP",
+      "expense_date": "2026-04-19",
+      "merchant": null,
+      "category": "groceries",
+      "note": "whole foods"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 193154,
+      "currency": "COP",
+      "expense_date": "2026-04-11",
+      "merchant": null,
+      "category": "dining",
+      "note": "dinner dennys"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 102752,
+      "currency": "COP",
+      "expense_date": "2026-04-03",
+      "merchant": null,
+      "category": "dining",
+      "note": "takeout starbucks"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 79648,
+      "currency": "COP",
+      "expense_date": "2026-04-09",
+      "merchant": "McDonald's",
+      "category": "dining",
+      "note": "mcdonalds"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 235752,
+      "currency": "COP",
+      "expense_date": "2026-04-15",
+      "merchant": "Thai Orchid",
+      "category": "dining",
+      "note": "dinner thai orchid"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 255284,
+      "currency": "COP",
+      "expense_date": "2026-04-11",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 213142,
+      "currency": "COP",
+      "expense_date": "2026-04-18",
+      "merchant": "Chevron",
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 167428,
+      "currency": "COP",
+      "expense_date": "2026-04-13",
+      "merchant": null,
+      "category": "transportation",
+      "note": "Gas fill-up"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 101916,
+      "currency": "COP",
+      "expense_date": "2026-04-17",
+      "merchant": null,
+      "category": "transportation",
+      "note": "trip uber"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1844444,
+      "currency": "COP",
+      "expense_date": "2026-04-03",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Car payment — SUV"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1925384,
+      "currency": "COP",
+      "expense_date": "2026-04-15",
+      "merchant": null,
+      "category": "vehicle",
+      "note": "Auto insurance (quarterly)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1845242,
+      "currency": "COP",
+      "expense_date": "2026-04-01",
+      "merchant": "Blue Cross",
+      "category": "health",
+      "note": "Family health insurance premium"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 135318,
+      "currency": "COP",
+      "expense_date": "2026-04-13",
+      "merchant": null,
+      "category": "health",
+      "note": "Prescription"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 4855336,
+      "currency": "COP",
+      "expense_date": "2026-04-01",
+      "merchant": "Bright Horizons",
+      "category": "kids",
+      "note": "Daycare tuition"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 609064,
+      "currency": "COP",
+      "expense_date": "2026-04-01",
+      "merchant": null,
+      "category": "kids",
+      "note": "Soccer league"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 635322,
+      "currency": "COP",
+      "expense_date": "2026-04-08",
+      "merchant": null,
+      "category": "education",
+      "note": "Piano lessons (kids)"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 65892,
+      "currency": "COP",
+      "expense_date": "2026-04-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Netflix"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 45296,
+      "currency": "COP",
+      "expense_date": "2026-04-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Spotify Family"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 61674,
+      "currency": "COP",
+      "expense_date": "2026-04-01",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "iCloud+ storage"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 209000,
+      "currency": "COP",
+      "expense_date": "2026-04-05",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Gym membership"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 41306,
+      "currency": "COP",
+      "expense_date": "2026-04-15",
+      "merchant": "Google",
+      "category": "subscriptions",
+      "note": "YouTube Premium"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 65854,
+      "currency": "COP",
+      "expense_date": "2026-04-20",
+      "merchant": null,
+      "category": "subscriptions",
+      "note": "Disney+"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 163742,
+      "currency": "COP",
+      "expense_date": "2026-04-03",
+      "merchant": null,
+      "category": "entertainment",
+      "note": "Kids trampoline park"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 235600,
+      "currency": "COP",
+      "expense_date": "2026-04-17",
+      "merchant": "Target",
+      "category": "shopping",
+      "note": "purchase target"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 219716,
+      "currency": "COP",
+      "expense_date": "2026-04-04",
+      "merchant": null,
+      "category": "shopping",
+      "note": "Home improvement"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 144894,
+      "currency": "COP",
+      "expense_date": "2026-04-19",
+      "merchant": "Great Clips",
+      "category": "self_care",
+      "note": "Haircut"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 309700,
+      "currency": "COP",
+      "expense_date": "2026-04-16",
+      "merchant": null,
+      "category": "self_care",
+      "note": "Hair salon"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 224086,
+      "currency": "COP",
+      "expense_date": "2026-04-12",
+      "merchant": "Etsy",
+      "category": "gifts",
+      "note": "Birthday gift — friend"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 232484,
+      "currency": "COP",
+      "expense_date": "2026-04-09",
+      "merchant": null,
+      "category": "pets",
+      "note": "Dog food & treats"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 1196886,
+      "currency": "COP",
+      "expense_date": "2026-04-20",
+      "merchant": null,
+      "category": "pets",
+      "note": "Vet checkup + vaccines"
+    },
+    {
+      "user_id": "sample-owner",
+      "household_id": "sample-household",
+      "amount_cents": 1146270,
+      "currency": "COP",
+      "expense_date": "2026-04-18",
+      "merchant": null,
+      "category": "travel",
+      "note": "Cabin rental (weekend)"
+    },
+    {
+      "user_id": "sample-member",
+      "household_id": "sample-household",
+      "amount_cents": 168074,
+      "currency": "COP",
+      "expense_date": "2026-04-18",
+      "merchant": "Shell",
+      "category": "travel",
+      "note": "Gas for road trip"
+    }
+  ]
+}

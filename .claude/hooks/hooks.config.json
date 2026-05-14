@@ -1,0 +1,91 @@
+{
+  "enforcePackageManager": {
+    "enabled": true,
+    "allowed": "pnpm",
+    "alternatives": {
+      "npm": {
+        "commands": [
+          "npm install",
+          "npm ci",
+          "npm run",
+          "npm exec",
+          "npm add",
+          "npm remove",
+          "npm uninstall"
+        ],
+        "replacements": {
+          "npm install": "pnpm install",
+          "npm ci": "pnpm install --frozen-lockfile",
+          "npm run": "pnpm run",
+          "npm exec": "pnpm exec",
+          "npm add": "pnpm add",
+          "npm remove": "pnpm remove",
+          "npm uninstall": "pnpm remove"
+        }
+      },
+      "npx": {
+        "commands": ["npx"],
+        "replacements": {
+          "npx": "pnpm dlx"
+        }
+      },
+      "yarn": {
+        "commands": [
+          "yarn install",
+          "yarn add",
+          "yarn remove",
+          "yarn run",
+          "yarn dlx"
+        ],
+        "replacements": {
+          "yarn install": "pnpm install",
+          "yarn add": "pnpm add",
+          "yarn remove": "pnpm remove",
+          "yarn run": "pnpm run",
+          "yarn dlx": "pnpm dlx"
+        }
+      },
+      "bun": {
+        "commands": [
+          "bun install",
+          "bun add",
+          "bun remove",
+          "bun run",
+          "bun test",
+          "bunx"
+        ],
+        "replacements": {
+          "bun install": "pnpm install",
+          "bun add": "pnpm add",
+          "bun remove": "pnpm remove",
+          "bun run": "pnpm run",
+          "bun test": "pnpm test",
+          "bunx": "pnpm dlx"
+        }
+      }
+    }
+  },
+  "conventionalCommits": {
+    "enabled": true,
+    "prefixes": [
+      "feat",
+      "fix",
+      "chore",
+      "docs",
+      "style",
+      "refactor",
+      "perf",
+      "test",
+      "build",
+      "ci",
+      "revert"
+    ],
+    "pattern": "^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert)(\\(.+\\))?!?:\\s.+",
+    "requireScope": false,
+    "ticketPattern": null
+  },
+  "biomeLint": {
+    "enabled": true,
+    "extensions": [".ts", ".tsx", ".js", ".jsx", ".json", ".jsonc", ".css"]
+  }
+}

@@ -1,7 +1,9 @@
-# ADR-006: Cursor-Based Sync Fallback
+---
+version: 1.0
+last_updated: 2026-03-17
+---
 
-**Status:** Accepted
-**Date:** 2026-02-17
+# ADR-006: Cursor-Based Sync Fallback
 
 ## Context
 

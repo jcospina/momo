@@ -47,6 +47,9 @@ describe('data/messages/client facade', () => {
     expense_count: 0,
     created_at: '2026-03-17T00:00:00.000Z',
     sender_name: 'User',
+    author_kind: 'user',
+    momo_source: null,
+    momo_invocation_tagged: false,
   };
 
   beforeEach(() => {

@@ -1,252 +1,323 @@
-#!/usr/bin/env node
-
 /**
- * Generates ~1 year of realistic expense & income data for a married couple
- * with kids. Assumes `pnpm db:seed` has already been applied (users, household,
- * profiles all exist).
- *
- * Usage:  pnpm db:seed:sample
+ * Pure sample-data generation for MoMo evals, local fixtures, and DB seeding.
+ * This module has no Supabase dependency so golden datasets can be generated
+ * without local DB setup.
  */
 
-import { execSync } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
-import { createClient } from '@supabase/supabase-js';
+import { extractTagNgrams } from '@helpers/expenses/expense-category';
 
-// ── helpers shared with db-seed.mjs ──────────────────────────────────────────
+export { extractTagNgrams };
 
-function loadEnvFiles(files) {
-  for (const file of files) {
-    const absPath = path.resolve(process.cwd(), file);
-    if (!fs.existsSync(absPath)) continue;
-    const raw = fs.readFileSync(absPath, 'utf8');
-    for (const line of raw.split(/\r?\n/)) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#')) continue;
-      const withoutExport = trimmed.startsWith('export ')
-        ? trimmed.slice('export '.length).trim()
-        : trimmed;
-      const eq = withoutExport.indexOf('=');
-      if (eq < 1) continue;
-      const key = withoutExport.slice(0, eq).trim();
-      if (!key || process.env[key] !== undefined) continue;
-      let value = withoutExport.slice(eq + 1).trim();
-      if (
-        (value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith("'") && value.endsWith("'"))
-      )
-        value = value.slice(1, -1);
-      process.env[key] = value;
-    }
-  }
+export type SampleExpenseRow = {
+  user_id: string;
+  household_id: string;
+  amount_cents: number;
+  currency: string;
+  expense_date: string;
+  merchant: string | null;
+  category: string;
+  note: string | null;
+  tags: string[];
+};
+
+export type SampleExpenseMetadata = {
+  currency: string;
+  endDate: string;
+  householdId: string;
+  memberId: string;
+  ownerId: string;
+  rowCount: number;
+  seed: number;
+  startDate: string;
+};
+
+export type GenerateSampleExpenseOptions = {
+  currency?: string;
+  householdId?: string;
+  memberId?: string;
+  now?: string | Date;
+  ownerId?: string;
+  seed?: number;
+};
+
+export type SampleExpenseDataset = {
+  metadata: SampleExpenseMetadata;
+  rows: SampleExpenseRow[];
+};
+
+const DEFAULT_CURRENCY = 'USD';
+export const DEFAULT_SAMPLE_SEED = 20260424;
+export const DEFAULT_SAMPLE_NOW = '2026-04-24';
+
+let currentCurrency: string = DEFAULT_CURRENCY;
+let rngState: number = normalizeSeed(DEFAULT_SAMPLE_SEED);
+
+type ChatLabelInput = {
+  note?: string | null;
+  merchant?: string | null;
+  category?: string | null;
+};
+
+export function chatLabelFor({
+  note,
+  merchant,
+  category,
+}: ChatLabelInput): string {
+  return (note ?? merchant ?? category ?? '').toString().toLowerCase().trim();
 }
 
-function mustGetEnv(key) {
-  const value = process.env[key];
-  if (!value) throw new Error(`Missing ${key}`);
-  return value;
-}
+const ANNUAL_DRIFT_BY_CATEGORY: Record<string, number[]> = {
+  dining: [
+    1, 1.012, 1.018, 1.027, 1.035, 1.044, 1.052, 1.066, 1.072, 1.081, 1.094,
+    1.101, 1.114,
+  ],
+  groceries: [
+    1, 1.009, 1.017, 1.026, 1.041, 1.046, 1.052, 1.061, 1.075, 1.083, 1.091,
+    1.103, 1.112,
+  ],
+  health: [
+    1, 1, 1.021, 1.021, 1.037, 1.037, 1.037, 1.052, 1.052, 1.068, 1.068, 1.068,
+    1.083,
+  ],
+  housing: [
+    1, 1, 1, 1, 1, 1.033, 1.033, 1.033, 1.033, 1.033, 1.033, 1.033, 1.033,
+  ],
+  kids: [
+    1, 1, 1, 1.018, 1.018, 1.018, 1.018, 1.042, 1.042, 1.042, 1.058, 1.058,
+    1.058,
+  ],
+  pets: [
+    1, 1.011, 1.011, 1.026, 1.026, 1.026, 1.039, 1.039, 1.052, 1.052, 1.052,
+    1.064, 1.064,
+  ],
+  self_care: [
+    1, 1, 1.015, 1.015, 1.015, 1.034, 1.034, 1.034, 1.047, 1.047, 1.047, 1.059,
+    1.059,
+  ],
+  shopping: [
+    1, 1.005, 1.011, 1.019, 1.024, 1.035, 1.038, 1.044, 1.057, 1.063, 1.069,
+    1.077, 1.088,
+  ],
+  subscriptions: [
+    1, 1, 1, 1, 1.063, 1.063, 1.063, 1.063, 1.063, 1.093, 1.093, 1.093, 1.093,
+  ],
+  transportation: [
+    1, 0.982, 1.015, 1.044, 1.023, 1.071, 1.092, 1.063, 1.038, 1.076, 1.051,
+    1.089, 1.111,
+  ],
+  travel: [
+    1, 1, 1.018, 1.018, 1.037, 1.037, 1.061, 1.061, 1.081, 1.081, 1.096, 1.096,
+    1.112,
+  ],
+  utilities: [
+    1, 1.007, 1.019, 1.019, 1.036, 1.036, 1.051, 1.051, 1.063, 1.063, 1.079,
+    1.079, 1.094,
+  ],
+  vehicle: [
+    1, 1, 1.018, 1.018, 1.018, 1.036, 1.036, 1.036, 1.052, 1.052, 1.052, 1.069,
+    1.069,
+  ],
+};
 
-function resolveServiceRoleKey() {
-  try {
-    const output = execSync('supabase status -o env', {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    });
-    const line = output
-      .split(/\r?\n/)
-      .find(l => l.startsWith('SERVICE_ROLE_KEY='));
-    if (line) {
-      let v = line.slice('SERVICE_ROLE_KEY='.length).trim();
-      if (
-        (v.startsWith('"') && v.endsWith('"')) ||
-        (v.startsWith("'") && v.endsWith("'"))
-      )
-        v = v.slice(1, -1);
-      if (v) return v;
-    }
-  } catch {
-    /* ignore */
-  }
-  return mustGetEnv('SUPABASE_SERVICE_ROLE_KEY');
-}
+type OneOffEvent = {
+  monthOffset: number;
+  day: number;
+  category: string;
+  merchant: string;
+  note: string;
+  amount: number;
+  user: 'owner' | 'member';
+};
 
-// ── config ───────────────────────────────────────────────────────────────────
+const ONE_OFF_EVENTS: OneOffEvent[] = [
+  {
+    monthOffset: 1,
+    day: 18,
+    category: 'health',
+    merchant: 'Urgent Care Center',
+    note: 'Weekend urgent care visit',
+    amount: 31500,
+    user: 'member',
+  },
+  {
+    monthOffset: 2,
+    day: 23,
+    category: 'shopping',
+    merchant: 'Home Depot',
+    note: 'Replaced broken water heater parts',
+    amount: 28000,
+    user: 'owner',
+  },
+  {
+    monthOffset: 4,
+    day: 11,
+    category: 'vehicle',
+    merchant: 'Midas',
+    note: 'Unexpected brake repair',
+    amount: 73500,
+    user: 'member',
+  },
+  {
+    monthOffset: 5,
+    day: 26,
+    category: 'fees',
+    merchant: 'City Parking',
+    note: 'Parking ticket',
+    amount: 6800,
+    user: 'owner',
+  },
+  {
+    monthOffset: 7,
+    day: 9,
+    category: 'kids',
+    merchant: 'Pediatric Dental',
+    note: 'Kid dental filling',
+    amount: 42000,
+    user: 'member',
+  },
+  {
+    monthOffset: 9,
+    day: 16,
+    category: 'housing',
+    merchant: 'Appliance Repair Co',
+    note: 'Washer repair',
+    amount: 38500,
+    user: 'owner',
+  },
+  {
+    monthOffset: 10,
+    day: 21,
+    category: 'pets',
+    merchant: 'Happy Paws Vet',
+    note: 'Sick visit and medication',
+    amount: 29500,
+    user: 'member',
+  },
+  {
+    monthOffset: 11,
+    day: 6,
+    category: 'shopping',
+    merchant: 'Apple',
+    note: 'Phone replacement after cracked screen',
+    amount: 54900,
+    user: 'owner',
+  },
+];
 
-loadEnvFiles(['.env.local', '.env']);
-
-const supabaseUrl =
-  process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://127.0.0.1:54321';
-const serviceRoleKey = resolveServiceRoleKey();
-const supabase = createClient(supabaseUrl, serviceRoleKey, {
-  auth: { persistSession: false, autoRefreshToken: false },
-});
-
-const OWNER_EMAIL = (
-  process.env.MOMO_DEV_SEED_OWNER_EMAIL ?? 'dev.owner@momo.local'
-).toLowerCase();
-const MEMBER_EMAIL = (
-  process.env.MOMO_DEV_SEED_MEMBER_EMAIL ?? 'dev.member@momo.local'
-).toLowerCase();
-
-const CURRENCY = 'USD';
-const BATCH_SIZE = 200;
-
-// Resolved in main() — mapping user_id → display name for chat sender_name.
-const senderNames = new Map();
-function senderNameFor(userId) {
-  return senderNames.get(userId) ?? null;
-}
-
-// The year of data to generate: from exactly 12 months ago through today.
-// e.g. if today is 2026-03-20 → range is 2025-03 through 2026-03 (13 months,
-// with the current month capped at today's day).
-const NOW = new Date();
-const TODAY_YEAR = NOW.getFullYear();
-const TODAY_MONTH = NOW.getMonth() + 1; // 1-indexed
-const TODAY_DAY = NOW.getDate();
-const END_YEAR = TODAY_YEAR;
-const END_MONTH = TODAY_MONTH;
-const START_YEAR = TODAY_MONTH === 12 ? TODAY_YEAR : TODAY_YEAR - 1;
-const START_MONTH = TODAY_MONTH === 12 ? 1 : TODAY_MONTH;
-
-// ── main ─────────────────────────────────────────────────────────────────────
-
-main().catch(err => {
-  console.error('\n[db:seed:sample] Failed');
-  console.error(err instanceof Error ? err.message : String(err));
-  process.exit(1);
-});
-
-async function main() {
-  console.log('[db:seed:sample] Generating sample expense & income data...');
-
-  const owner = await findUserByEmail(OWNER_EMAIL);
-  if (!owner)
-    throw new Error(
-      `Owner user ${OWNER_EMAIL} not found — run pnpm db:seed first`,
-    );
-  const member = await findUserByEmail(MEMBER_EMAIL);
-  if (!member)
-    throw new Error(
-      `Member user ${MEMBER_EMAIL} not found — run pnpm db:seed first`,
-    );
-
-  const { data: membership } = await supabase
-    .from('household_members')
-    .select('household_id')
-    .eq('user_id', owner.id)
-    .single();
-  if (!membership)
-    throw new Error('Owner has no household — run pnpm db:seed first');
-  const householdId = membership.household_id;
-
-  senderNames.set(owner.id, displayNameOf(owner));
-  senderNames.set(member.id, displayNameOf(member));
-
-  console.log(`  owner:     ${owner.id} (${OWNER_EMAIL})`);
-  console.log(`  member:    ${member.id} (${MEMBER_EMAIL})`);
-  console.log(`  household: ${householdId}`);
-  console.log(
-    `  range:     ${START_YEAR}-${pad(START_MONTH)}-01 → ${END_YEAR}-${pad(END_MONTH)}-${pad(TODAY_DAY)}`,
-  );
-
-  const pairs = [];
-  forEachMonth((year, month, maxDay) => {
-    pairs.push(
+export function generateSampleExpenseData(
+  options: GenerateSampleExpenseOptions = {},
+): SampleExpenseDataset {
+  const {
+    currency = DEFAULT_CURRENCY,
+    householdId = 'sample-household',
+    memberId = 'sample-member',
+    now = DEFAULT_SAMPLE_NOW,
+    ownerId = 'sample-owner',
+    seed = DEFAULT_SAMPLE_SEED,
+  } = options;
+  const dateWindow = buildDateWindow(now);
+  currentCurrency = currency;
+  rngState = normalizeSeed(seed);
+  const rows: SampleExpenseRow[] = [];
+  forEachMonth(dateWindow, (year, month, maxDay, monthOffset) => {
+    rows.push(
       ...generateIncomeRows(
         year,
         month,
-        owner.id,
-        member.id,
+        ownerId,
+        memberId,
         householdId,
         maxDay,
+        monthOffset,
+        currency,
       ),
     );
-    pairs.push(
+    rows.push(
       ...generateExpenseRows(
         year,
         month,
-        owner.id,
-        member.id,
+        ownerId,
+        memberId,
         householdId,
         maxDay,
+        monthOffset,
+        currency,
       ),
     );
   });
 
-  console.log(`  total rows: ${pairs.length}`);
-
-  // Insert chat messages first (in order) so we can link expenses back via chat_message_id.
-  const messageIds = [];
-  for (let i = 0; i < pairs.length; i += BATCH_SIZE) {
-    const batch = pairs.slice(i, i + BATCH_SIZE).map(p => p.message);
-    const { data, error } = await supabase
-      .from('chat_messages')
-      .insert(batch)
-      .select('id');
-    if (error)
-      throw new Error(`Message insert failed at batch ${i}: ${error.message}`);
-    if (!data || data.length !== batch.length)
-      throw new Error(
-        `Message insert returned ${data?.length ?? 0} ids for batch of ${batch.length}`,
-      );
-    for (const row of data) messageIds.push(row.id);
-  }
-
-  // Insert expenses with the matching chat_message_id.
-  let inserted = 0;
-  for (let i = 0; i < pairs.length; i += BATCH_SIZE) {
-    const batch = pairs.slice(i, i + BATCH_SIZE).map((p, j) => ({
-      ...p.expense,
-      chat_message_id: messageIds[i + j],
-    }));
-    const { error } = await supabase.from('expenses').insert(batch);
-    if (error) throw new Error(`Insert failed at batch ${i}: ${error.message}`);
-    inserted += batch.length;
-  }
-
-  console.log(
-    `[db:seed:sample] Done — inserted ${messageIds.length} chat messages and ${inserted} expenses.`,
-  );
-}
-
-function displayNameOf(user) {
-  return (
-    user?.user_metadata?.name ??
-    user?.user_metadata?.full_name ??
-    user?.email ??
-    null
-  );
-}
-
-// ── user lookup ──────────────────────────────────────────────────────────────
-
-async function findUserByEmail(email) {
-  let page = 1;
-  while (true) {
-    const { data, error } = await supabase.auth.admin.listUsers({
-      page,
-      perPage: 200,
-    });
-    if (error) throw new Error(`listUsers: ${error.message}`);
-    const users = data?.users ?? [];
-    const found = users.find(u => u.email?.toLowerCase() === email);
-    if (found) return found;
-    if (users.length < 200) return null;
-    page++;
-  }
+  return {
+    metadata: {
+      currency,
+      endDate: dateStr(
+        dateWindow.endYear,
+        dateWindow.endMonth,
+        dateWindow.todayDay,
+      ),
+      householdId,
+      memberId,
+      ownerId,
+      rowCount: rows.length,
+      seed,
+      startDate: dateStr(dateWindow.startYear, dateWindow.startMonth, 1),
+    },
+    rows,
+  };
 }
 
 // ── iteration helper ─────────────────────────────────────────────────────────
 
-function forEachMonth(fn) {
-  let y = START_YEAR;
-  let m = START_MONTH;
+type DateWindow = {
+  endMonth: number;
+  endYear: number;
+  startMonth: number;
+  startYear: number;
+  todayDay: number;
+};
+
+function buildDateWindow(now: string | Date): DateWindow {
+  const date = parseSampleDate(now);
+  const todayYear = date.getUTCFullYear();
+  const todayMonth = date.getUTCMonth() + 1;
+  const todayDay = date.getUTCDate();
+  const startYear = todayMonth === 12 ? todayYear : todayYear - 1;
+  const startMonth = todayMonth === 12 ? 1 : todayMonth;
+
+  return {
+    endMonth: todayMonth,
+    endYear: todayYear,
+    startMonth,
+    startYear,
+    todayDay,
+  };
+}
+
+function parseSampleDate(value: string | Date): Date {
+  if (value instanceof Date) return value;
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error(`Invalid sample date "${value}". Use YYYY-MM-DD.`);
+  }
+  return parsed;
+}
+
+type MonthVisitor = (
+  year: number,
+  month: number,
+  maxDay: number | null,
+  monthOffset: number,
+) => void;
+
+function forEachMonth(dateWindow: DateWindow, fn: MonthVisitor): void {
+  let y = dateWindow.startYear;
+  let m = dateWindow.startMonth;
   for (let i = 0; i < 13; i++) {
     // For the current month, cap at today's day; past months use full range.
-    const maxDay = y === END_YEAR && m === END_MONTH ? TODAY_DAY : null;
-    fn(y, m, maxDay);
+    const maxDay =
+      y === dateWindow.endYear && m === dateWindow.endMonth
+        ? dateWindow.todayDay
+        : null;
+    fn(y, m, maxDay, i);
     m++;
     if (m > 12) {
       m = 1;
@@ -258,33 +329,39 @@ function forEachMonth(fn) {
 // ── income generation ────────────────────────────────────────────────────────
 
 function generateIncomeRows(
-  year,
-  month,
-  ownerId,
-  memberId,
-  householdId,
-  maxDay,
-) {
-  const rows = [];
+  year: number,
+  month: number,
+  ownerId: string,
+  memberId: string,
+  householdId: string,
+  maxDay: number | null,
+  monthOffset: number,
+  currency: string,
+): SampleExpenseRow[] {
+  const rows: SampleExpenseRow[] = [];
   const daysInMonth = new Date(year, month, 0).getDate();
   // Clamp day to month length and, for the current month, to today.
-  const d = day => Math.min(day, maxDay ?? daysInMonth);
-  const dayInRange = day => (maxDay ? day <= maxDay : true);
+  const d = (day: number) => Math.min(day, maxDay ?? daysInMonth);
+  const dayInRange = (day: number) => (maxDay ? day <= maxDay : true);
+
+  const ownerPaycheck = trendAmount(375000, 'income', monthOffset, 0);
+  const memberPaycheck = trendAmount(275000, 'income', monthOffset, 0);
 
   // Candidate income entries: [day, userId, amountCents, merchant, note, monthGuard]
   // monthGuard is null (every month) or a specific month number.
-  const candidates = [
-    // Owner salary: $7,500/mo paid on 1st and 15th ($3,750 each)
-    [1, ownerId, 375000, 'Acme Corp', 'Salary', null],
-    [15, ownerId, 375000, 'Acme Corp', 'Salary', null],
-    // Member salary: $5,500/mo paid on 1st and 15th ($2,750 each)
-    [1, memberId, 275000, 'Globex Inc', 'Salary', null],
-    [15, memberId, 275000, 'Globex Inc', 'Salary', null],
+  const candidates: Array<
+    [number, string, number, string, string, number | null]
+  > = [
+    // Salaries stay mostly steady, with small uneven raises across the window.
+    [1, ownerId, ownerPaycheck, 'Acme Corp', 'Salary', null],
+    [15, ownerId, ownerPaycheck, 'Acme Corp', 'Salary', null],
+    [1, memberId, memberPaycheck, 'Globex Inc', 'Salary', null],
+    [15, memberId, memberPaycheck, 'Globex Inc', 'Salary', null],
     // Occasional bonuses & one-offs
     [18, ownerId, 320000, 'IRS', 'Tax refund', 3],
-    [28, ownerId, 500000, 'Acme Corp', 'Mid-year bonus', 6],
-    [20, ownerId, 750000, 'Acme Corp', 'Year-end bonus', 12],
-    [20, memberId, 400000, 'Globex Inc', 'Year-end bonus', 12],
+    [28, ownerId, vary(500000, 0.08), 'Acme Corp', 'Mid-year bonus', 6],
+    [20, ownerId, vary(750000, 0.12), 'Acme Corp', 'Year-end bonus', 12],
+    [20, memberId, vary(400000, 0.1), 'Globex Inc', 'Year-end bonus', 12],
     [12, memberId, 45000, 'Facebook Marketplace', 'Sold old couch', 7],
     [22, ownerId, 150000, 'Side project client', 'Freelance web dev', 9],
   ];
@@ -302,6 +379,7 @@ function generateIncomeRows(
         amount,
         merchant,
         note,
+        currency,
       ),
     );
   }
@@ -310,58 +388,54 @@ function generateIncomeRows(
 }
 
 function incomeRow(
-  userId,
-  householdId,
-  year,
-  month,
-  day,
-  amountCents,
-  merchant,
-  note,
-) {
-  const expense = {
+  userId: string,
+  householdId: string,
+  year: number,
+  month: number,
+  day: number,
+  amountCents: number,
+  merchant: string,
+  note: string,
+  currency: string = currentCurrency,
+): SampleExpenseRow {
+  const category = 'income';
+  const tags = extractTagNgrams(chatLabelFor({ note, merchant, category }));
+  return {
     user_id: userId,
     household_id: householdId,
     amount_cents: amountCents,
-    currency: CURRENCY,
+    currency,
     expense_date: dateStr(year, month, day),
     merchant,
-    category: 'income',
+    category,
     note,
-    tags: [],
+    tags,
   };
-  const message = buildChatMessage({
-    userId,
-    householdId,
-    year,
-    month,
-    day,
-    amountCents,
-    note,
-    merchant,
-    category: 'income',
-  });
-  return { message, expense };
 }
 
 // ── expense generation ───────────────────────────────────────────────────────
 
 function generateExpenseRows(
-  year,
-  month,
-  ownerId,
-  memberId,
-  householdId,
-  maxDay,
-) {
-  const rows = [];
+  year: number,
+  month: number,
+  ownerId: string,
+  memberId: string,
+  householdId: string,
+  maxDay: number | null,
+  monthOffset: number,
+  currency: string,
+): SampleExpenseRow[] {
+  const rows: SampleExpenseRow[] = [];
   const daysInMonth = new Date(year, month, 0).getDate();
   const cap = maxDay ?? daysInMonth;
+  const amount = (base: number, category: string, pct = 0.1) =>
+    trendAmount(base, category, monthOffset, pct, month);
 
   // Helper to clamp day to month length and current-month cap.
-  const d = day => Math.min(day, cap);
+  const d = (day: number) => Math.min(day, cap);
   // For random ranges, limit upper bound to cap.
-  const randDay = (min, max) => randInt(Math.min(min, cap), Math.min(max, cap));
+  const randDay = (min: number, max: number) =>
+    randInt(Math.min(min, cap), Math.min(max, cap));
 
   // ── Housing ────────────────────────────────────────────────────────────────
   rows.push(
@@ -371,7 +445,7 @@ function generateExpenseRows(
       year,
       month,
       1,
-      200000,
+      amount(200000, 'housing', 0.01),
       'housing',
       'Mortgage payment',
       'First National Bank',
@@ -382,7 +456,7 @@ function generateExpenseRows(
       year,
       month,
       1,
-      35000,
+      amount(35000, 'housing', 0.02),
       'housing',
       'HOA dues',
       'Sunrise HOA',
@@ -397,7 +471,7 @@ function generateExpenseRows(
         year,
         month,
         5,
-        185000,
+        amount(185000, 'housing', 0.03),
         'housing',
         'Property tax',
         'County Tax Office',
@@ -409,7 +483,7 @@ function generateExpenseRows(
   // Electricity varies by season
   const elecBase =
     [1, 2, 3].includes(month) || [11, 12].includes(month) ? 18500 : 14000;
-  const elec = vary(elecBase, 0.15);
+  const elec = amount(elecBase, 'utilities', 0.15);
   rows.push(
     expense(
       memberId,
@@ -428,7 +502,7 @@ function generateExpenseRows(
       year,
       month,
       d(8),
-      vary(6500, 0.1),
+      amount(6500, 'utilities', 0.1),
       'utilities',
       'Water & sewer',
       'City Water',
@@ -439,7 +513,7 @@ function generateExpenseRows(
       year,
       month,
       d(10),
-      vary(7500, 0.15),
+      amount(7500, 'utilities', 0.15),
       'utilities',
       'Natural gas',
       'Gas Utility',
@@ -450,7 +524,7 @@ function generateExpenseRows(
       year,
       month,
       d(12),
-      7999,
+      amount(7999, 'utilities', 0.01),
       'utilities',
       'Internet',
       'Comcast',
@@ -461,7 +535,7 @@ function generateExpenseRows(
       year,
       month,
       d(12),
-      5500,
+      amount(5500, 'utilities', 0.02),
       'utilities',
       'Cell phone plan',
       'T-Mobile',
@@ -479,7 +553,10 @@ function generateExpenseRows(
       'Kroger',
       'Aldi',
     ]);
-    const amt = store === 'Costco' ? vary(25000, 0.25) : vary(12000, 0.3);
+    const amt =
+      store === 'Costco'
+        ? amount(25000, 'groceries', 0.25)
+        : amount(12000, 'groceries', 0.3);
     const dayOfMonth = d(
       Math.max(1, Math.round(((t + 1) / (groceryTrips + 1)) * cap)),
     );
@@ -524,7 +601,9 @@ function generateExpenseRows(
       "McDonald's",
       'In-N-Out',
     ].includes(rest);
-    const amt = isFast ? vary(1800, 0.4) : vary(5500, 0.35);
+    const amt = isFast
+      ? amount(1800, 'dining', 0.4)
+      : amount(5500, 'dining', 0.35);
     rows.push(
       expense(
         who,
@@ -548,7 +627,7 @@ function generateExpenseRows(
       year,
       month,
       d(randDay(5, 12)),
-      vary(5500, 0.2),
+      amount(5500, 'transportation', 0.2),
       'transportation',
       'Gas fill-up',
       'Shell',
@@ -559,7 +638,7 @@ function generateExpenseRows(
       year,
       month,
       d(randDay(18, 25)),
-      vary(5200, 0.2),
+      amount(5200, 'transportation', 0.2),
       'transportation',
       'Gas fill-up',
       'Chevron',
@@ -570,7 +649,7 @@ function generateExpenseRows(
       year,
       month,
       d(randDay(8, 15)),
-      vary(4800, 0.2),
+      amount(4800, 'transportation', 0.2),
       'transportation',
       'Gas fill-up',
       'BP',
@@ -585,7 +664,7 @@ function generateExpenseRows(
         year,
         month,
         d(randDay(1, cap)),
-        vary(2500, 0.4),
+        amount(2500, 'transportation', 0.4),
         'transportation',
         null,
         'Uber',
@@ -601,7 +680,7 @@ function generateExpenseRows(
       year,
       month,
       d(3),
-      45000,
+      amount(45000, 'vehicle', 0.01),
       'vehicle',
       'Car payment — SUV',
       'Auto Lender',
@@ -616,7 +695,7 @@ function generateExpenseRows(
         year,
         month,
         d(15),
-        48000,
+        amount(48000, 'vehicle', 0.03),
         'vehicle',
         'Auto insurance (quarterly)',
         'Geico',
@@ -632,7 +711,7 @@ function generateExpenseRows(
         year,
         month,
         d(randDay(10, 20)),
-        7500,
+        amount(7500, 'vehicle', 0.08),
         'vehicle',
         'Oil change',
         'Jiffy Lube',
@@ -648,7 +727,7 @@ function generateExpenseRows(
         year,
         month,
         14,
-        65000,
+        amount(65000, 'vehicle', 0.12),
         'vehicle',
         'New tires (set of 4)',
         'Discount Tire',
@@ -663,7 +742,7 @@ function generateExpenseRows(
         year,
         month,
         22,
-        42000,
+        amount(42000, 'vehicle', 0.15),
         'vehicle',
         'Brake pads + labor',
         'Midas',
@@ -679,7 +758,7 @@ function generateExpenseRows(
       year,
       month,
       1,
-      45000,
+      amount(45000, 'health', 0.02),
       'health',
       'Family health insurance premium',
       'Blue Cross',
@@ -694,7 +773,7 @@ function generateExpenseRows(
         year,
         month,
         d(randDay(5, 25)),
-        vary(4000, 0.3),
+        amount(4000, 'health', 0.3),
         'health',
         'Doctor copay',
         'Family Health Clinic',
@@ -710,7 +789,7 @@ function generateExpenseRows(
         year,
         month,
         d(15),
-        7500,
+        amount(7500, 'health', 0.04),
         'health',
         'Dental cleaning — adult',
         'Smile Dental',
@@ -721,7 +800,7 @@ function generateExpenseRows(
         year,
         month,
         d(16),
-        7500,
+        amount(7500, 'health', 0.04),
         'health',
         'Dental cleaning — adult',
         'Smile Dental',
@@ -732,7 +811,7 @@ function generateExpenseRows(
         year,
         month,
         d(17),
-        5000,
+        amount(5000, 'health', 0.04),
         'health',
         'Dental cleaning — kids',
         'Smile Dental',
@@ -748,7 +827,7 @@ function generateExpenseRows(
         year,
         month,
         d(randDay(1, cap)),
-        vary(2500, 0.5),
+        amount(2500, 'health', 0.5),
         'health',
         'Prescription',
         'CVS Pharmacy',
@@ -764,7 +843,7 @@ function generateExpenseRows(
       year,
       month,
       1,
-      120000,
+      amount(120000, 'kids', 0.01),
       'kids',
       'Daycare tuition',
       'Bright Horizons',
@@ -778,7 +857,7 @@ function generateExpenseRows(
       year,
       month,
       1,
-      15000,
+      amount(15000, 'kids', 0.03),
       'kids',
       'Soccer league',
       'Youth Sports Assoc',
@@ -793,7 +872,7 @@ function generateExpenseRows(
         year,
         month,
         d(10),
-        18500,
+        amount(18500, 'kids', 0.12),
         'kids',
         'Back-to-school supplies',
         'Target',
@@ -804,7 +883,7 @@ function generateExpenseRows(
         year,
         month,
         d(12),
-        32000,
+        amount(32000, 'kids', 0.12),
         'kids',
         'School clothes',
         'Old Navy',
@@ -820,7 +899,7 @@ function generateExpenseRows(
         year,
         month,
         d(20),
-        35000,
+        amount(35000, 'kids', 0.08),
         'kids',
         'Birthday party',
         'Party City + venue',
@@ -837,7 +916,7 @@ function generateExpenseRows(
         year,
         month,
         d(randDay(5, 25)),
-        vary(3000, 0.3),
+        amount(3000, 'education', 0.3),
         'education',
         'Online course',
         'Udemy',
@@ -852,7 +931,7 @@ function generateExpenseRows(
       year,
       month,
       d(8),
-      16000,
+      amount(16000, 'education', 0.02),
       'education',
       'Piano lessons (kids)',
       'Music Academy',
@@ -867,7 +946,7 @@ function generateExpenseRows(
       year,
       month,
       d(1),
-      1599,
+      amount(1599, 'subscriptions', 0.01),
       'subscriptions',
       'Netflix',
       'Netflix',
@@ -878,7 +957,7 @@ function generateExpenseRows(
       year,
       month,
       d(1),
-      1099,
+      amount(1099, 'subscriptions', 0.01),
       'subscriptions',
       'Spotify Family',
       'Spotify',
@@ -889,7 +968,7 @@ function generateExpenseRows(
       year,
       month,
       d(1),
-      1499,
+      amount(1499, 'subscriptions', 0.01),
       'subscriptions',
       'iCloud+ storage',
       'Apple',
@@ -900,7 +979,7 @@ function generateExpenseRows(
       year,
       month,
       d(5),
-      4999,
+      amount(4999, 'subscriptions', 0.01),
       'subscriptions',
       'Gym membership',
       'LA Fitness',
@@ -911,7 +990,7 @@ function generateExpenseRows(
       year,
       month,
       d(15),
-      999,
+      amount(999, 'subscriptions', 0.01),
       'subscriptions',
       'YouTube Premium',
       'Google',
@@ -922,7 +1001,7 @@ function generateExpenseRows(
       year,
       month,
       d(20),
-      1599,
+      amount(1599, 'subscriptions', 0.01),
       'subscriptions',
       'Disney+',
       'Disney',
@@ -937,7 +1016,7 @@ function generateExpenseRows(
         year,
         month,
         d(28),
-        13900,
+        amount(13900, 'subscriptions', 0.01),
         'subscriptions',
         'Amazon Prime (annual)',
         'Amazon',
@@ -966,7 +1045,7 @@ function generateExpenseRows(
         year,
         month,
         d(randDay(1, cap)),
-        vary(e.base, 0.2),
+        amount(e.base, 'entertainment', 0.2),
         'entertainment',
         e.note,
         e.merchant,
@@ -976,7 +1055,11 @@ function generateExpenseRows(
 
   // ── Shopping ───────────────────────────────────────────────────────────────
   const shopCount = randInt(1, 4);
-  const shopOptions = [
+  const shopOptions: Array<{
+    merchant: string;
+    note: string | null;
+    base: number;
+  }> = [
     { merchant: 'Amazon', note: 'Household items', base: 4500 },
     { merchant: 'Target', note: null, base: 6500 },
     { merchant: 'IKEA', note: 'Home decor', base: 8000 },
@@ -995,7 +1078,7 @@ function generateExpenseRows(
         year,
         month,
         d(randDay(1, cap)),
-        vary(s.base, 0.35),
+        amount(s.base, 'shopping', 0.35),
         'shopping',
         s.note,
         s.merchant,
@@ -1013,7 +1096,7 @@ function generateExpenseRows(
         year,
         month,
         d(randDay(10, 20)),
-        3500,
+        amount(3500, 'self_care', 0.03),
         'self_care',
         'Haircut',
         'Great Clips',
@@ -1027,7 +1110,7 @@ function generateExpenseRows(
       year,
       month,
       d(randDay(5, 25)),
-      vary(7500, 0.2),
+      amount(7500, 'self_care', 0.2),
       'self_care',
       'Hair salon',
       'Salon Luxe',
@@ -1044,7 +1127,7 @@ function generateExpenseRows(
         year,
         month,
         d(15),
-        45000,
+        amount(45000, 'gifts', 0.12),
         'gifts',
         'Holiday gifts — family',
         'Various',
@@ -1055,7 +1138,7 @@ function generateExpenseRows(
         year,
         month,
         d(16),
-        38000,
+        amount(38000, 'gifts', 0.12),
         'gifts',
         'Holiday gifts — friends & teachers',
         'Various',
@@ -1066,7 +1149,7 @@ function generateExpenseRows(
         year,
         month,
         d(10),
-        12000,
+        amount(12000, 'gifts', 0.1),
         'gifts',
         'Holiday gift — spouse',
         'Nordstrom',
@@ -1081,7 +1164,7 @@ function generateExpenseRows(
         year,
         month,
         d(14),
-        15000,
+        amount(15000, 'gifts', 0.1),
         'gifts',
         "Valentine's Day dinner + flowers",
         'Various',
@@ -1096,7 +1179,7 @@ function generateExpenseRows(
         year,
         month,
         d(11),
-        8500,
+        amount(8500, 'gifts', 0.12),
         'gifts',
         "Mother's Day gift",
         'Etsy',
@@ -1111,7 +1194,7 @@ function generateExpenseRows(
         year,
         month,
         d(15),
-        7500,
+        amount(7500, 'gifts', 0.12),
         'gifts',
         "Father's Day gift",
         'REI',
@@ -1127,7 +1210,7 @@ function generateExpenseRows(
         year,
         month,
         d(randDay(10, 20)),
-        vary(5000, 0.3),
+        amount(5000, 'gifts', 0.3),
         'gifts',
         'Birthday gift — friend',
         pick(['Amazon', 'Etsy', 'Target']),
@@ -1143,7 +1226,7 @@ function generateExpenseRows(
       year,
       month,
       d(randDay(1, 15)),
-      vary(5500, 0.15),
+      amount(5500, 'pets', 0.15),
       'pets',
       'Dog food & treats',
       'PetSmart',
@@ -1158,7 +1241,7 @@ function generateExpenseRows(
         year,
         month,
         d(20),
-        vary(25000, 0.2),
+        amount(25000, 'pets', 0.2),
         'pets',
         'Vet checkup + vaccines',
         'Happy Paws Vet',
@@ -1174,7 +1257,7 @@ function generateExpenseRows(
         year,
         month,
         d(randDay(10, 20)),
-        6500,
+        amount(6500, 'pets', 0.05),
         'pets',
         'Dog grooming',
         'PetSmart',
@@ -1191,7 +1274,7 @@ function generateExpenseRows(
         year,
         month,
         d(28),
-        1500,
+        amount(1500, 'fees', 0.08),
         'fees',
         'ATM fee',
         'Out-of-network ATM',
@@ -1209,7 +1292,7 @@ function generateExpenseRows(
         year,
         month,
         1,
-        85000,
+        amount(85000, 'travel', 0.1),
         'travel',
         'Flight tickets (family)',
         'Delta Airlines',
@@ -1220,7 +1303,7 @@ function generateExpenseRows(
         year,
         month,
         5,
-        120000,
+        amount(120000, 'travel', 0.14),
         'travel',
         'Hotel — beach resort (5 nights)',
         'Marriott',
@@ -1231,7 +1314,7 @@ function generateExpenseRows(
         year,
         month,
         6,
-        15000,
+        amount(15000, 'travel', 0.12),
         'travel',
         'Rental car',
         'Enterprise',
@@ -1242,7 +1325,7 @@ function generateExpenseRows(
         year,
         month,
         7,
-        8500,
+        amount(8500, 'travel', 0.1),
         'travel',
         'Beach excursion',
         'Local Tours',
@@ -1253,7 +1336,7 @@ function generateExpenseRows(
         year,
         month,
         8,
-        22000,
+        amount(22000, 'travel', 0.18),
         'travel',
         'Vacation dining',
         'Various restaurants',
@@ -1264,7 +1347,7 @@ function generateExpenseRows(
         year,
         month,
         6,
-        6500,
+        amount(6500, 'travel', 0.1),
         'travel',
         'Souvenirs',
         'Gift shop',
@@ -1280,7 +1363,7 @@ function generateExpenseRows(
         year,
         month,
         d(22),
-        42000,
+        amount(42000, 'travel', 0.16),
         'travel',
         'Flight tickets — Thanksgiving',
         'Southwest Airlines',
@@ -1291,7 +1374,7 @@ function generateExpenseRows(
         year,
         month,
         d(23),
-        18000,
+        amount(18000, 'travel', 0.12),
         'travel',
         'Rental car — Thanksgiving',
         'Hertz',
@@ -1307,7 +1390,7 @@ function generateExpenseRows(
         year,
         month,
         d(18),
-        25000,
+        amount(25000, 'travel', 0.14),
         'travel',
         'Cabin rental (weekend)',
         'Airbnb',
@@ -1318,10 +1401,32 @@ function generateExpenseRows(
         year,
         month,
         d(18),
-        4500,
+        amount(4500, 'transportation', 0.2),
         'travel',
         'Gas for road trip',
         'Shell',
+      ),
+    );
+  }
+
+  const userByKey: Record<'owner' | 'member', string> = {
+    member: memberId,
+    owner: ownerId,
+  };
+  for (const event of ONE_OFF_EVENTS) {
+    if (event.monthOffset !== monthOffset || event.day > cap) continue;
+    rows.push(
+      expense(
+        userByKey[event.user],
+        householdId,
+        year,
+        month,
+        d(event.day),
+        amount(event.amount, event.category, 0.04),
+        event.category,
+        event.note,
+        event.merchant,
+        currency,
       ),
     );
   }
@@ -1332,100 +1437,122 @@ function generateExpenseRows(
 // ── row builder ──────────────────────────────────────────────────────────────
 
 function expense(
-  userId,
-  householdId,
-  year,
-  month,
-  day,
-  amountCents,
-  category,
-  note,
-  merchant,
-) {
-  const expenseRow = {
-    user_id: userId,
-    household_id: householdId,
-    amount_cents: amountCents,
-    currency: CURRENCY,
-    expense_date: dateStr(year, month, day),
-    merchant: merchant ?? null,
-    category,
-    note: note ?? null,
-    tags: [],
-  };
-  const message = buildChatMessage({
-    userId,
-    householdId,
-    year,
-    month,
-    day,
-    amountCents,
-    note: note ?? null,
-    merchant: merchant ?? null,
-    category,
-  });
-  return { message, expense: expenseRow };
-}
-
-// Build a chat_messages row that "would have" produced the paired expense.
-// Content mirrors how a user types it in chat — e.g. "uber 25", "salary 3750".
-function buildChatMessage({
-  userId,
-  householdId,
-  year,
-  month,
-  day,
-  amountCents,
-  note,
-  merchant,
-  category,
-}) {
-  const label = (note ?? merchant ?? category ?? '').toLowerCase().trim();
-  const amount = formatAmount(amountCents);
-  const content = label ? `${label} ${amount}` : amount;
+  userId: string,
+  householdId: string,
+  year: number,
+  month: number,
+  day: number,
+  amountCents: number,
+  category: string,
+  note: string | null,
+  merchant: string | null,
+  currency: string = currentCurrency,
+): SampleExpenseRow {
+  const normalizedNote = note ?? null;
+  const normalizedMerchant = merchant ?? null;
+  const tags = extractTagNgrams(
+    chatLabelFor({
+      note: normalizedNote,
+      merchant: normalizedMerchant,
+      category,
+    }),
+  );
   return {
     user_id: userId,
     household_id: householdId,
-    content,
-    status: 'processed',
-    expense_count: 1,
-    sender_name: senderNameFor(userId),
-    created_at: timestampForDay(year, month, day),
+    amount_cents: amountCents,
+    currency,
+    expense_date: dateStr(year, month, day),
+    merchant: normalizedMerchant,
+    category,
+    note: normalizedNote,
+    tags,
   };
-}
-
-function formatAmount(cents) {
-  const dollars = cents / 100;
-  return Number.isInteger(dollars) ? String(dollars) : dollars.toFixed(2);
-}
-
-function timestampForDay(year, month, day) {
-  const hour = randInt(8, 22);
-  const minute = randInt(0, 59);
-  const second = randInt(0, 59);
-  return new Date(year, month - 1, day, hour, minute, second).toISOString();
 }
 
 // ── utils ────────────────────────────────────────────────────────────────────
 
-function dateStr(year, month, day) {
+function dateStr(year: number, month: number, day: number): string {
   return `${year}-${pad(month)}-${pad(day)}`;
 }
 
-function pad(n) {
+function pad(n: number): string {
   return String(n).padStart(2, '0');
 }
 
+function trendAmount(
+  base: number,
+  category: string,
+  monthOffset: number,
+  pct = 0,
+  month: number | null = null,
+): number {
+  const drift = getCategoryDrift(category, monthOffset);
+  const seasonality = getSeasonality(category, month);
+  const irregularity = pct > 0 ? 1 + (random() * 2 - 1) * pct : 1;
+  return Math.max(100, Math.round(base * drift * seasonality * irregularity));
+}
+
+function getCategoryDrift(category: string, monthOffset: number): number {
+  if (category === 'income') {
+    return monthOffset >= 8 ? 1.028 : monthOffset >= 3 ? 1.012 : 1;
+  }
+
+  const series = ANNUAL_DRIFT_BY_CATEGORY[category];
+  if (!series) return 1 + monthOffset * 0.004;
+  return series[Math.min(monthOffset, series.length - 1)];
+}
+
+function getSeasonality(category: string, month: number | null): number {
+  if (!month) return 1;
+
+  if (category === 'groceries') {
+    if ([11, 12].includes(month)) return 1.18;
+    if ([6, 7, 8].includes(month)) return 1.08;
+  }
+
+  if (category === 'dining') {
+    if ([7, 12].includes(month)) return 1.16;
+    if ([1, 2].includes(month)) return 0.92;
+  }
+
+  if (category === 'shopping') {
+    if ([8, 11, 12].includes(month)) return 1.28;
+    if ([1, 2].includes(month)) return 0.86;
+  }
+
+  if (category === 'utilities') {
+    if ([1, 2, 7, 8, 12].includes(month)) return 1.15;
+    if ([4, 5, 10].includes(month)) return 0.9;
+  }
+
+  if (category === 'travel') {
+    if ([6, 7, 11, 12].includes(month)) return 1.22;
+  }
+
+  return 1;
+}
+
 /** Vary an amount by ±pct (returns integer cents). */
-function vary(base, pct) {
-  const factor = 1 + (Math.random() * 2 - 1) * pct;
+function vary(base: number, pct: number): number {
+  const factor = 1 + (random() * 2 - 1) * pct;
   return Math.round(base * factor);
 }
 
-function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function randInt(min: number, max: number): number {
+  return Math.floor(random() * (max - min + 1)) + min;
 }
 
-function pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+function pick<T>(arr: readonly T[]): T {
+  return arr[Math.floor(random() * arr.length)];
+}
+
+function normalizeSeed(seed: number): number {
+  if (Number.isNaN(seed) || seed <= 0) return 1;
+  return seed % 2147483647 || 1;
+}
+
+function random(): number {
+  rngState = (rngState * 48271) % 2147483647;
+  return (rngState - 1) / 2147483646;
 }
