@@ -34,7 +34,7 @@ export async function sendChatMessage({
     return { errorCode: 'auth_required' };
   }
 
-  const { data, error } = await supabase
+  const { data: rawData, error } = await supabase
     .from('chat_messages')
     .insert({
       content: trimmed,
@@ -45,7 +45,7 @@ export async function sendChatMessage({
     .select(CHAT_MESSAGE_SELECT)
     .single();
 
-  if (error || !data) {
+  if (error || !rawData) {
     console.error('sendChatMessage failed', error);
     console.error('[chat] send failed', {
       error: error?.message ?? 'unknown',
@@ -53,6 +53,8 @@ export async function sendChatMessage({
     });
     return { errorCode: 'chat_message_send_failed' };
   }
+
+  const data = rawData as unknown as ChatMessage;
 
   try {
     await processChatMessage(data);
@@ -64,13 +66,13 @@ export async function sendChatMessage({
       .eq('id', data.id);
   }
 
-  const { data: updated, error: updatedError } = await supabase
+  const { data: updatedRaw, error: updatedError } = await supabase
     .from('chat_messages')
     .select(CHAT_MESSAGE_SELECT)
     .eq('id', data.id)
     .single();
 
-  if (updatedError || !updated) {
+  if (updatedError || !updatedRaw) {
     console.warn('[chat] message fetch after processing failed', {
       error: updatedError?.message ?? 'unknown',
       id: data.id,
@@ -78,7 +80,7 @@ export async function sendChatMessage({
     return { message: data };
   }
 
-  return { message: updated };
+  return { message: updatedRaw as unknown as ChatMessage };
 }
 
 type DeleteChatMessageInput = {
@@ -178,7 +180,7 @@ export async function sendMomoMessage({
       return { errorCode: 'momo_message_send_failed' };
     }
 
-    return { message: existing.data as ChatMessage, reused: true };
+    return { message: existing.data as unknown as ChatMessage, reused: true };
   }
 
   if (error || !data) {
@@ -186,5 +188,5 @@ export async function sendMomoMessage({
     return { errorCode: 'momo_message_send_failed' };
   }
 
-  return { message: data as ChatMessage, reused: false };
+  return { message: data as unknown as ChatMessage, reused: false };
 }
