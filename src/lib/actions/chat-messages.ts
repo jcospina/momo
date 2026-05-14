@@ -10,7 +10,7 @@ import type {
   SendMomoMessageResult,
 } from '@lib-types/chat';
 import { CHAT_MESSAGE_SELECT } from '@utils/chat-message';
-import { parseMomoMention } from '@utils/momo-mention';
+import { momoIdempotencyKey, parseMomoMention } from '@utils/momo-mention';
 
 type SendChatMessageInput = {
   content: string;
@@ -160,7 +160,7 @@ export async function sendMomoMessage({
     return { errorCode: 'auth_required' };
   }
 
-  const idempotencyKey = `momo:${triggeringMessageId}`;
+  const idempotencyKey = momoIdempotencyKey(triggeringMessageId);
 
   const { data, error } = await supabase
     .from('chat_messages')

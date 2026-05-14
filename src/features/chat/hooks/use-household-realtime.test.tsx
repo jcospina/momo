@@ -168,6 +168,7 @@ describe('useHouseholdRealtime', () => {
         author_kind: 'user',
         momo_source: null,
         momo_invocation_tagged: false,
+        idempotency_key: null,
       });
     });
     expect(onMessage).toHaveBeenCalledWith(
@@ -203,6 +204,7 @@ describe('useHouseholdRealtime', () => {
         author_kind: 'user',
         momo_source: null,
         momo_invocation_tagged: false,
+        idempotency_key: null,
       });
     });
 

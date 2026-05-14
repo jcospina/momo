@@ -19,6 +19,7 @@ export type ChatMessage = {
   author_kind: MessageAuthorKind;
   momo_source: string | null;
   momo_invocation_tagged: boolean;
+  idempotency_key: string | null;
 };
 
 export type SendChatMessageResult = {

@@ -17,3 +17,12 @@ const MOMO_MENTION_PATTERN = /(?:^|\s)@momo(?=[\s.,!?;:]|$)/i;
 export function parseMomoMention(content: string): { tagged: boolean } {
   return { tagged: MOMO_MENTION_PATTERN.test(content) };
 }
+
+/**
+ * Builds the `idempotency_key` value used to deduplicate MoMo replies on the
+ * `chat_messages` row. The persisted MoMo reply, the streaming agent route,
+ * and the chat panel's stream/persisted-row correlation all share this key.
+ */
+export function momoIdempotencyKey(triggeringMessageId: string): string {
+  return `momo:${triggeringMessageId}`;
+}

@@ -1,0 +1,15 @@
+.momo-stream-item__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.momo-stream-item__error {
+  display: inline-block;
+  max-width: 720px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--border-radius);
+  border: var(--border-width-thin) solid var(--color-dark);
+  box-shadow: var(--shadow-sm);
+  background-color: var(--color-mauve-magic);
+  color: var(--color-dark);
+}

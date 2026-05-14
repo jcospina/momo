@@ -1,8 +1,11 @@
 'use client';
 
+import type { MomoStreamState } from '@hooks/use-momo-stream';
+import { useMomoStream } from '@hooks/use-momo-stream';
 import type { ChatMessage, SyncReason } from '@lib-types/chat';
 import { useDialogController } from '@ui/dialog/dialog';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { momoIdempotencyKey } from '@utils/momo-mention';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   getList as getChatHistory,
   remove as removeChatMessage,
@@ -68,6 +71,11 @@ export function useChatPanel({
   // always send/load with null even if a household exists in the wider app.
   const effectiveHouseholdId = isHousehold ? householdId : null;
   const hasUsableScope = isHousehold ? Boolean(householdId) : true;
+
+  // Owns the lifecycle for every in-flight @momo stream in this panel. Keys
+  // are `triggeringMessageId`s so multiple @momo mentions can run in parallel
+  // and resolve independently.
+  const { start: startMomoStream, streams: momoStreams } = useMomoStream();
 
   const {
     messages,
@@ -193,6 +201,22 @@ export function useChatPanel({
     return () => clearTimeout(timer);
   }, [isActive, isHousehold, personalMessages, scheduleSync]);
 
+  // Server-side detection of `@momo` is signalled by `momo_invocation_tagged`
+  // on the persisted row. When set, fire the streaming agent — the full
+  // content (including the @momo token) is forwarded; the agent prompt
+  // handles the mention.
+  const maybeStartMomoStream = useCallback(
+    (message: ChatMessage) => {
+      if (!message.momo_invocation_tagged) return;
+      startMomoStream({
+        content: message.content,
+        householdId: effectiveHouseholdId,
+        triggeringMessageId: message.id,
+      });
+    },
+    [effectiveHouseholdId, startMomoStream],
+  );
+
   const handleSend = useCallback(
     async (content: string) => {
       const { tempId } = addOptimistic(content);
@@ -205,8 +229,15 @@ export function useChatPanel({
         return;
       }
       reconcile(tempId, result.message);
+      maybeStartMomoStream(result.message);
     },
-    [addOptimistic, effectiveHouseholdId, markFailed, reconcile],
+    [
+      addOptimistic,
+      effectiveHouseholdId,
+      markFailed,
+      maybeStartMomoStream,
+      reconcile,
+    ],
   );
 
   const handleRetrySend = useCallback(
@@ -222,8 +253,15 @@ export function useChatPanel({
         return;
       }
       reconcile(message.id, result.message);
+      maybeStartMomoStream(result.message);
     },
-    [effectiveHouseholdId, markFailed, markPending, reconcile],
+    [
+      effectiveHouseholdId,
+      markFailed,
+      markPending,
+      maybeStartMomoStream,
+      reconcile,
+    ],
   );
 
   const handleOpenExpenseDetails = useCallback(
@@ -303,6 +341,23 @@ export function useChatPanel({
 
   const composer = useComposer({ onSend: handleSend });
 
+  // Filter out streams whose persisted MoMo reply has already landed via
+  // realtime / sync. Once the row is in `messages`, the chat-message renderer
+  // owns the bubble and the streaming UI must disappear.
+  const pendingStreams = useMemo<ReadonlyMap<string, MomoStreamState>>(() => {
+    if (momoStreams.size === 0) return EMPTY_STREAMS;
+    const persistedKeys = new Set<string>();
+    for (const message of messages) {
+      if (message.idempotency_key) persistedKeys.add(message.idempotency_key);
+    }
+    const next = new Map<string, MomoStreamState>();
+    for (const [triggeringMessageId, state] of momoStreams) {
+      if (persistedKeys.has(momoIdempotencyKey(triggeringMessageId))) continue;
+      next.set(triggeringMessageId, state);
+    }
+    return next;
+  }, [messages, momoStreams]);
+
   return {
     messages,
     isHousehold,
@@ -320,7 +375,10 @@ export function useChatPanel({
     expenseDetailsDialog,
     expenseDetailsMessageId,
     onExpenseDetailsSaved: handleExpenseDetailsSaved,
+    pendingStreams,
   };
 }
+
+const EMPTY_STREAMS: ReadonlyMap<string, MomoStreamState> = new Map();
 
 export type UseChatPanelReturn = ReturnType<typeof useChatPanel>;

@@ -59,7 +59,8 @@
         "Sacando la calculadora…",
         "A ver, a ver…",
         "Sumando recibos…"
-      ]
+      ],
+      "streamError": "Se me trabó el cerebro. ¿Me lo repites?"
     }
   },
   "expenses": {

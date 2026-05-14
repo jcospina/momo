@@ -18,6 +18,7 @@ const baseMessage: ChatMessage = {
   author_kind: 'user',
   momo_source: null,
   momo_invocation_tagged: false,
+  idempotency_key: null,
 };
 
 describe('CHAT_MESSAGE_SELECT', () => {
@@ -27,8 +28,8 @@ describe('CHAT_MESSAGE_SELECT', () => {
     expect(CHAT_MESSAGE_SELECT).toContain('momo_invocation_tagged');
   });
 
-  it('does not expose idempotency_key to clients', () => {
-    expect(CHAT_MESSAGE_SELECT).not.toContain('idempotency_key');
+  it('exposes idempotency_key so clients can correlate persisted MoMo replies with in-flight streams', () => {
+    expect(CHAT_MESSAGE_SELECT).toContain('idempotency_key');
   });
 });
 
@@ -66,6 +67,16 @@ describe('isChatMessage', () => {
     expect(
       isChatMessage({ ...baseMessage, momo_invocation_tagged: 'no' }),
     ).toBe(false);
+  });
+
+  it('accepts payloads with a string idempotency_key', () => {
+    expect(
+      isChatMessage({ ...baseMessage, idempotency_key: 'momo:msg-1' }),
+    ).toBe(true);
+  });
+
+  it('rejects payloads with wrong idempotency_key type', () => {
+    expect(isChatMessage({ ...baseMessage, idempotency_key: 42 })).toBe(false);
   });
 });
 

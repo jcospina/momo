@@ -139,6 +139,7 @@ describe('POST /api/momo-stream', () => {
         author_kind: 'momo',
         momo_source: 'momo_agent',
         momo_invocation_tagged: false,
+        idempotency_key: 'momo:trigger-1',
       },
       reused: false,
     });
