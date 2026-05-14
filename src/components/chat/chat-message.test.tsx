@@ -1,6 +1,39 @@
 import type { ChatMessage as ChatMessageRecord } from '@lib-types/chat';
 import { render, screen } from '@testing-library/react';
 import logoStyles from '@ui/logo/logo.module.css';
+import type { ReactNode } from 'react';
+
+// react-markdown is ESM-only; mock it so jest doesn't need to transpile it.
+// The mock recognizes `**bold**` syntax so we can assert the regression case
+// (persisted MoMo rows must render Markdown, not literal asterisks).
+jest.mock('react-markdown', () => ({
+  __esModule: true,
+  default: ({ children }: { children: string }) => {
+    const parts: ReactNode[] = [];
+    const pattern = /\*\*(.+?)\*\*/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null = pattern.exec(children);
+    let key = 0;
+    while (match) {
+      if (match.index > lastIndex) {
+        parts.push(children.slice(lastIndex, match.index));
+      }
+      parts.push(<strong key={`b-${key++}`}>{match[1]}</strong>);
+      lastIndex = match.index + match[0].length;
+      match = pattern.exec(children);
+    }
+    if (lastIndex < children.length) {
+      parts.push(children.slice(lastIndex));
+    }
+    return <p>{parts}</p>;
+  },
+}));
+
+jest.mock('remark-gfm', () => ({
+  __esModule: true,
+  default: () => undefined,
+}));
+
 import { ChatMessage } from './chat-message';
 import bubbleStyles from './chat-message-bubble.module.css';
 
@@ -205,6 +238,22 @@ describe('ChatMessage MoMo rendering', () => {
     const logo = container.querySelector(`.${logoStyles['momo-logo']}`);
     expect(logo).toBeInTheDocument();
     expect(logo).toHaveTextContent('M');
+  });
+
+  it('renders Markdown bold in persisted MoMo content (regression: literal **$204** rendered as text)', () => {
+    render(
+      <ChatMessage
+        message={buildMomoMessage({
+          content: "You've spent **$204** this month.",
+        })}
+        currentUserId="user-1"
+        isHousehold={false}
+      />,
+    );
+
+    const strong = screen.getByText('$204');
+    expect(strong.tagName).toBe('STRONG');
+    expect(screen.queryByText(/\*\*\$204\*\*/)).not.toBeInTheDocument();
   });
 
   it('does not render an avatar for non-MoMo incoming messages in personal scope', () => {

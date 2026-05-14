@@ -18,6 +18,7 @@ import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import styles from './chat-message.module.css';
 import { ChatMessageBubble } from './chat-message-bubble';
+import { MomoMarkdown } from './momo-markdown';
 
 type StatusTone = 'error' | 'warning' | 'expense';
 
@@ -338,6 +339,7 @@ export function ChatMessage({
         statusSlot={statusSlot}
         actionsSlot={actionsSlot}
         belowSlot={belowSlot}
+        bodySlot={isMomo ? <MomoMarkdown text={message.content} /> : undefined}
         skipMountAnimation={skipMountAnimation}
       />
       <Dialog
