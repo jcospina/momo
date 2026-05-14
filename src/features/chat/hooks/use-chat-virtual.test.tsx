@@ -31,6 +31,9 @@ function buildMessage(
     expense_count: 0,
     created_at: createdAt,
     sender_name: null,
+    author_kind: 'user',
+    momo_source: null,
+    momo_invocation_tagged: false,
     ...overrides,
   };
 }
