@@ -48,6 +48,51 @@ type InternalEntry = {
 };
 
 /**
+ * Drives a single MoMo stream from `sending` through `streaming` to its
+ * terminal state (`done` or `error`). Dependencies are passed explicitly so
+ * this helper has no implicit closure capture from the hook body and stays
+ * trivially testable in isolation.
+ */
+async function runStream(
+  entry: InternalEntry,
+  controller: AbortController,
+  input: StartInput,
+  publish: () => void,
+): Promise<void> {
+  try {
+    const iterable = streamMomo({
+      content: input.content,
+      householdId: input.householdId,
+      triggeringMessageId: input.triggeringMessageId,
+      signal: controller.signal,
+    });
+
+    let receivedFirstChunk = false;
+    for await (const chunk of iterable) {
+      if (controller.signal.aborted) return;
+      if (!receivedFirstChunk) {
+        receivedFirstChunk = true;
+        entry.state = { ...entry.state, status: 'streaming' };
+      }
+      entry.state = {
+        ...entry.state,
+        text: entry.state.text + chunk,
+      };
+      publish();
+    }
+
+    if (controller.signal.aborted) return;
+    entry.state = { ...entry.state, status: 'done' };
+    publish();
+  } catch (err) {
+    if (controller.signal.aborted) return;
+    const error = err instanceof Error ? err : new Error(String(err));
+    entry.state = { ...entry.state, status: 'error', error };
+    publish();
+  }
+}
+
+/**
  * Streams MoMo replies from `/api/momo-stream` via the messages facade.
  *
  * Multi-stream: multiple `@momo` mentions can stream concurrently, each
@@ -101,39 +146,7 @@ export function useMomoStream(): UseMomoStreamResult {
       entriesRef.current.set(triggeringMessageId, entry);
       publish();
 
-      void (async () => {
-        try {
-          const iterable = streamMomo({
-            content: input.content,
-            householdId: input.householdId,
-            triggeringMessageId,
-            signal: controller.signal,
-          });
-
-          let receivedFirstChunk = false;
-          for await (const chunk of iterable) {
-            if (controller.signal.aborted) return;
-            if (!receivedFirstChunk) {
-              receivedFirstChunk = true;
-              entry.state = { ...entry.state, status: 'streaming' };
-            }
-            entry.state = {
-              ...entry.state,
-              text: entry.state.text + chunk,
-            };
-            publish();
-          }
-
-          if (controller.signal.aborted) return;
-          entry.state = { ...entry.state, status: 'done' };
-          publish();
-        } catch (err) {
-          if (controller.signal.aborted) return;
-          const error = err instanceof Error ? err : new Error(String(err));
-          entry.state = { ...entry.state, status: 'error', error };
-          publish();
-        }
-      })();
+      void runStream(entry, controller, input, publish);
     },
     [publish],
   );
