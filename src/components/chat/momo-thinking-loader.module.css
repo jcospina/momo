@@ -1,0 +1,42 @@
+.momo-thinking-loader {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing));
+  border-radius: var(--border-radius);
+  border: var(--border-width-thin) solid var(--color-dark);
+  box-shadow: var(--shadow-sm);
+  background-color: var(--color-mauve-magic);
+  padding: var(--space-1) var(--space-2);
+  max-width: 720px;
+  color: var(--color-dark);
+}
+
+.momo-thinking-loader__copy-slot {
+  position: relative;
+  min-width: 0;
+  flex: 1 1 auto;
+  /* Reserve vertical space so swaps don't shift layout. */
+  line-height: 1.4;
+}
+
+.momo-thinking-loader__copy {
+  display: block;
+  animation: momo-thinking-fade var(--duration-base) var(--ease-pop);
+}
+
+@keyframes momo-thinking-fade {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-thinking-loader__copy {
+    animation: none;
+  }
+}
