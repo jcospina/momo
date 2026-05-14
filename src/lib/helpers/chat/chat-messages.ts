@@ -72,7 +72,7 @@ export async function fetchChatMessages({
     return [];
   }
 
-  return (data as ChatMessage[]) ?? [];
+  return (data as unknown as ChatMessage[]) ?? [];
 }
 
 export async function fetchChatHistory({
@@ -108,7 +108,7 @@ export async function fetchChatHistory({
     return [];
   }
 
-  return (data as ChatMessage[] | null)?.reverse() ?? [];
+  return (data as unknown as ChatMessage[] | null)?.reverse() ?? [];
 }
 
 export async function fetchChatMessagesSince({
@@ -148,9 +148,8 @@ export async function fetchChatMessagesSince({
     return [];
   }
 
-  return cursor?.created_at && cursor?.id
-    ? ((data as ChatMessage[] | null) ?? [])
-    : (((data as ChatMessage[] | null) ?? []).reverse() as ChatMessage[]);
+  const typed = (data as unknown as ChatMessage[] | null) ?? [];
+  return cursor?.created_at && cursor?.id ? typed : typed.reverse();
 }
 
 export async function deleteChatMessage({

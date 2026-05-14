@@ -18,6 +18,9 @@ function buildMessage(overrides: Partial<ChatMessage> = {}): ChatMessage {
     expense_count: 0,
     created_at: new Date().toISOString(),
     sender_name: 'User',
+    author_kind: 'user',
+    momo_source: null,
+    momo_invocation_tagged: false,
     ...overrides,
   };
 }
