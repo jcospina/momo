@@ -47,48 +47,46 @@ type InternalEntry = {
   state: MomoStreamState;
 };
 
+type MomoStreamStateUpdater = (
+  update: (prev: MomoStreamState) => MomoStreamState,
+) => void;
+
 /**
  * Drives a single MoMo stream from `sending` through `streaming` to its
- * terminal state (`done` or `error`). Dependencies are passed explicitly so
- * this helper has no implicit closure capture from the hook body and stays
- * trivially testable in isolation.
+ * terminal state (`done` or `error`). The helper owns one responsibility:
+ * translate stream chunks/errors/completion into `MomoStreamState`
+ * transitions and emit them through `setState`. It is intentionally unaware
+ * of how those transitions are stored — the caller decides.
  */
 async function runStream(
-  entry: InternalEntry,
-  controller: AbortController,
+  signal: AbortSignal,
   input: StartInput,
-  publish: () => void,
+  setState: MomoStreamStateUpdater,
 ): Promise<void> {
   try {
     const iterable = streamMomo({
       content: input.content,
       householdId: input.householdId,
       triggeringMessageId: input.triggeringMessageId,
-      signal: controller.signal,
+      signal,
     });
 
     let receivedFirstChunk = false;
     for await (const chunk of iterable) {
-      if (controller.signal.aborted) return;
+      if (signal.aborted) return;
       if (!receivedFirstChunk) {
         receivedFirstChunk = true;
-        entry.state = { ...entry.state, status: 'streaming' };
+        setState(prev => ({ ...prev, status: 'streaming' }));
       }
-      entry.state = {
-        ...entry.state,
-        text: entry.state.text + chunk,
-      };
-      publish();
+      setState(prev => ({ ...prev, text: prev.text + chunk }));
     }
 
-    if (controller.signal.aborted) return;
-    entry.state = { ...entry.state, status: 'done' };
-    publish();
+    if (signal.aborted) return;
+    setState(prev => ({ ...prev, status: 'done' }));
   } catch (err) {
-    if (controller.signal.aborted) return;
+    if (signal.aborted) return;
     const error = err instanceof Error ? err : new Error(String(err));
-    entry.state = { ...entry.state, status: 'error', error };
-    publish();
+    setState(prev => ({ ...prev, status: 'error', error }));
   }
 }
 
@@ -146,7 +144,17 @@ export function useMomoStream(): UseMomoStreamResult {
       entriesRef.current.set(triggeringMessageId, entry);
       publish();
 
-      void runStream(entry, controller, input, publish);
+      // Bridge runStream's state setter to this hook's entries-map storage.
+      // If the entry was removed (e.g. by abort()), the update is dropped —
+      // defense in depth on top of runStream's own `signal.aborted` checks.
+      const updateEntryState: MomoStreamStateUpdater = updater => {
+        const current = entriesRef.current.get(triggeringMessageId);
+        if (!current) return;
+        current.state = updater(current.state);
+        publish();
+      };
+
+      void runStream(controller.signal, input, updateEntryState);
     },
     [publish],
   );
