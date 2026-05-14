@@ -120,6 +120,9 @@ export function useChatState({
         expense_count: 0,
         created_at: new Date().toISOString(),
         sender_name: null,
+        author_kind: 'user',
+        momo_source: null,
+        momo_invocation_tagged: false,
       };
       if (isHousehold) {
         setHouseholdMessages(prev => [...prev, optimistic]);
