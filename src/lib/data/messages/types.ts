@@ -46,6 +46,13 @@ export type SendMomoInput = {
   triggeringMessageId: string;
 };
 
+export type StreamMomoInput = {
+  content: string;
+  householdId: string | null;
+  triggeringMessageId: string;
+  signal?: AbortSignal;
+};
+
 export type RemoveInput = {
   messageId: string;
 };
@@ -84,6 +91,8 @@ export type GetSince = (input: MessageSinceInput) => Promise<ChatMessage[]>;
 export type Send = (input: SendInput) => Promise<SendChatMessageResult>;
 
 export type SendMomo = (input: SendMomoInput) => Promise<SendMomoMessageResult>;
+
+export type StreamMomo = (input: StreamMomoInput) => AsyncIterable<string>;
 
 export type Remove = (input: RemoveInput) => Promise<DeleteChatMessageResult>;
 

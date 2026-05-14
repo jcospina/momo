@@ -8,7 +8,14 @@ import {
 } from '@helpers/chat/chat-realtime';
 import { isChatMessageArray } from '@utils/chat-message';
 
-import type { GetHistory, GetSince, Remove, Send, Subscribe } from './types';
+import type {
+  GetHistory,
+  GetSince,
+  Remove,
+  Send,
+  StreamMomo,
+  Subscribe,
+} from './types';
 
 const DEFAULT_HISTORY_LIMIT = 30;
 const DEFAULT_SYNC_LIMIT = 100;
@@ -86,6 +93,48 @@ export const getSince: GetSince = async ({
 export const send: Send = async input => sendChatMessageAction(input);
 
 export const remove: Remove = async input => deleteChatMessageAction(input);
+
+export const streamMomo: StreamMomo = ({
+  content,
+  householdId,
+  triggeringMessageId,
+  signal,
+}) => {
+  async function* iterate(): AsyncIterable<string> {
+    const res = await fetch('/api/momo-stream', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ content, householdId, triggeringMessageId }),
+      signal,
+    });
+
+    if (!res.ok) {
+      throw new Error(`momo_stream_failed_${res.status}`);
+    }
+
+    if (!res.body) {
+      throw new Error('momo_stream_failed_no_body');
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        if (chunk) yield chunk;
+      }
+      const tail = decoder.decode();
+      if (tail) yield tail;
+    } finally {
+      reader.releaseLock();
+    }
+  }
+
+  return iterate();
+};
 
 export const subscribe: Subscribe = input => {
   if (input.scope === 'household') {
