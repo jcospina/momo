@@ -1,6 +1,7 @@
 import type { ChatMessage as ChatMessageRecord } from '@lib-types/chat';
 import { render, screen } from '@testing-library/react';
 import { ChatMessage } from './chat-message';
+import bubbleStyles from './chat-message-bubble.module.css';
 
 function buildMessage(
   overrides: Partial<ChatMessageRecord> = {},
@@ -14,6 +15,9 @@ function buildMessage(
     expense_count: 1,
     created_at: '2026-03-20T10:00:00.000Z',
     sender_name: 'User One',
+    author_kind: 'user',
+    momo_source: null,
+    momo_invocation_tagged: false,
     ...overrides,
   };
 }
@@ -70,5 +74,107 @@ describe('ChatMessage status indicator', () => {
     expect(
       screen.queryByRole('button', { name: 'expenses created' }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('ChatMessage MoMo rendering', () => {
+  function buildMomoMessage(
+    overrides: Partial<ChatMessageRecord> = {},
+  ): ChatMessageRecord {
+    return buildMessage({
+      id: 'momo-msg-1',
+      user_id: 'user-1',
+      content: 'Got it — logged $5 for coffee.',
+      status: 'processed',
+      expense_count: 0,
+      sender_name: null,
+      author_kind: 'momo',
+      momo_source: 'momo_agent',
+      momo_invocation_tagged: false,
+      ...overrides,
+    });
+  }
+
+  it('renders MoMo rows on the incoming side even when user_id matches the current user', () => {
+    const { container } = render(
+      <ChatMessage
+        message={buildMomoMessage()}
+        currentUserId="user-1"
+        isHousehold={false}
+      />,
+    );
+
+    const bubble = container.querySelector(
+      `.${bubbleStyles['momo-chat-bubble']}`,
+    );
+    expect(bubble).toBeInTheDocument();
+    expect(bubble).not.toHaveClass(bubbleStyles['momo-chat-bubble--own']);
+
+    const messageBlock = container.querySelector(
+      `.${bubbleStyles['momo-chat-bubble__message']}`,
+    );
+    expect(messageBlock).not.toHaveClass(
+      bubbleStyles['momo-chat-bubble__message--own'],
+    );
+  });
+
+  it('does not render expense-status, retry, category-picker, expense-created, or actions slots for MoMo rows', () => {
+    // expense_count=3 would normally render an "expenses created" badge on
+    // an incoming row; MoMo rows must suppress that regardless.
+    const { container } = render(
+      <ChatMessage
+        message={buildMomoMessage({ expense_count: 3, status: 'processed' })}
+        currentUserId="user-1"
+        isHousehold={false}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('button', { name: 'send failed' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'needs category' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'expense failed' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'expense created' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'expenses created' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Message actions' }),
+    ).not.toBeInTheDocument();
+
+    const statusSlot = container.querySelector(
+      `.${bubbleStyles['momo-chat-bubble__status-slot']}`,
+    );
+    expect(statusSlot).toBeNull();
+
+    const actionsSlot = container.querySelector(
+      `.${bubbleStyles['momo-chat-bubble__actions-slot']}`,
+    );
+    expect(actionsSlot).toBeNull();
+  });
+
+  it('does not render a household sender label or avatar on MoMo rows', () => {
+    const { container } = render(
+      <ChatMessage
+        message={buildMomoMessage({
+          household_id: 'house-1',
+          sender_name: 'Not Used',
+        })}
+        currentUserId="user-1"
+        isHousehold
+      />,
+    );
+
+    expect(screen.queryByText('Not Used')).not.toBeInTheDocument();
+    const sender = container.querySelector(
+      `.${bubbleStyles['momo-chat-bubble__sender']}`,
+    );
+    expect(sender).toBeNull();
   });
 });

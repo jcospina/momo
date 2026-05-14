@@ -10,6 +10,7 @@ import { ThreeDotsIcon } from '@ui/icons/three-dots';
 import { Margin } from '@ui/margin/margin';
 import { Menu } from '@ui/menu/menu';
 import { Typography } from '@ui/typography/typography';
+import { isMomoMessage } from '@utils/chat-message';
 import { cn } from '@utils/cn';
 import { firstName } from '@utils/user';
 import { format } from 'date-fns';
@@ -206,11 +207,12 @@ export function ChatMessage({
   skipMountAnimation = false,
 }: ChatMessageProps) {
   const tChat = useTranslations('chat');
-  const isOwn = message.user_id === currentUserId;
+  const isMomo = isMomoMessage(message);
+  const isOwn = !isMomo && message.user_id === currentUserId;
   const showActions = isOwn;
   const senderNameRaw =
-    isHousehold && !isOwn ? (message.sender_name ?? null) : null;
-  const showAvatar = isHousehold && !isOwn;
+    isHousehold && !isOwn && !isMomo ? (message.sender_name ?? null) : null;
+  const showAvatar = isHousehold && !isOwn && !isMomo;
   const timestamp = message.created_at
     ? format(new Date(message.created_at), 'p')
     : null;
@@ -218,7 +220,7 @@ export function ChatMessage({
     ? firstName(senderNameRaw, null) || senderNameRaw
     : null;
 
-  const status = getStatusDisplay(message, isOwn);
+  const status = isMomo ? null : getStatusDisplay(message, isOwn);
   const deleteDialog = useDialogController();
 
   const handleRetrySend = () => {
