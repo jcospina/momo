@@ -1,5 +1,7 @@
 'use client';
 
+import { Circle } from '@ui/circle/circle';
+import { Logo } from '@ui/logo/logo';
 import { cn } from '@utils/cn';
 import type { Components } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
@@ -43,6 +45,17 @@ export function MomoStreamingBubble({
 }: MomoStreamingBubbleProps) {
   return (
     <div className={cn(styles['momo-streaming-bubble'], className)}>
+      <Circle
+        size="extra-small"
+        color="mauve-magic"
+        className={styles['momo-streaming-bubble__avatar']}
+      >
+        <Logo
+          size="sm"
+          text="M"
+          className={styles['momo-streaming-bubble__avatar-logo']}
+        />
+      </Circle>
       <article className={styles['momo-streaming-bubble__message']}>
         <div className={styles['momo-streaming-bubble__content']}>
           <ReactMarkdown
