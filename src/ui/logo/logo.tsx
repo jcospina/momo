@@ -3,7 +3,7 @@ import { cn } from '@utils/cn';
 
 import styles from './logo.module.css';
 
-export type LogoSize = 'sm' | 'md' | 'lg' | 'fluid';
+export type LogoSize = 'xs' | 'sm' | 'md' | 'lg' | 'fluid';
 
 interface LogoProps {
   /** Override the displayed brand text. @default 'MoMo' */
@@ -11,7 +11,7 @@ interface LogoProps {
   /**
    * Visual size variant.
    * - `fluid` (default): responsive `clamp()` driven by viewport width.
-   * - `sm` | `md` | `lg`: fixed font-size (2rem | 3rem | 5rem).
+   * - `xs` | `sm` | `md` | `lg`: fixed font-size (1rem | 2rem | 3rem | 5rem).
    * @default 'fluid'
    */
   size?: LogoSize;

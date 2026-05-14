@@ -7,15 +7,18 @@ import { Dialog, useDialogController } from '@ui/dialog/dialog';
 import { AlertIcon } from '@ui/icons/alert';
 import { CircleCheckIcon } from '@ui/icons/circle-check';
 import { ThreeDotsIcon } from '@ui/icons/three-dots';
+import { Logo } from '@ui/logo/logo';
 import { Margin } from '@ui/margin/margin';
 import { Menu } from '@ui/menu/menu';
 import { Typography } from '@ui/typography/typography';
+import { isMomoMessage } from '@utils/chat-message';
 import { cn } from '@utils/cn';
 import { firstName } from '@utils/user';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import styles from './chat-message.module.css';
 import { ChatMessageBubble } from './chat-message-bubble';
+import { MomoMarkdown } from './momo-markdown';
 
 type StatusTone = 'error' | 'warning' | 'expense';
 
@@ -206,11 +209,12 @@ export function ChatMessage({
   skipMountAnimation = false,
 }: ChatMessageProps) {
   const tChat = useTranslations('chat');
-  const isOwn = message.user_id === currentUserId;
+  const isMomo = isMomoMessage(message);
+  const isOwn = !isMomo && message.user_id === currentUserId;
   const showActions = isOwn;
   const senderNameRaw =
-    isHousehold && !isOwn ? (message.sender_name ?? null) : null;
-  const showAvatar = isHousehold && !isOwn;
+    isHousehold && !isOwn && !isMomo ? (message.sender_name ?? null) : null;
+  const showAvatar = isMomo || (isHousehold && !isOwn);
   const timestamp = message.created_at
     ? format(new Date(message.created_at), 'p')
     : null;
@@ -218,7 +222,7 @@ export function ChatMessage({
     ? firstName(senderNameRaw, null) || senderNameRaw
     : null;
 
-  const status = getStatusDisplay(message, isOwn);
+  const status = isMomo ? null : getStatusDisplay(message, isOwn);
   const deleteDialog = useDialogController();
 
   const handleRetrySend = () => {
@@ -292,11 +296,20 @@ export function ChatMessage({
 
   const avatarSlot = showAvatar ? (
     <Margin marginTop={0.5}>
-      <Avatar
-        size="extra-small"
-        displayName={senderDisplay || senderNameRaw || '?'}
-        color="mauve-magic"
-      />
+      {isMomo ? (
+        <Avatar
+          size="extra-small"
+          displayName={null}
+          color="mauve-magic"
+          slot={<Logo size="xs" text="M" />}
+        />
+      ) : (
+        <Avatar
+          size="extra-small"
+          displayName={senderDisplay || senderNameRaw || '?'}
+          color="mauve-magic"
+        />
+      )}
     </Margin>
   ) : null;
 
@@ -326,6 +339,7 @@ export function ChatMessage({
         statusSlot={statusSlot}
         actionsSlot={actionsSlot}
         belowSlot={belowSlot}
+        bodySlot={isMomo ? <MomoMarkdown text={message.content} /> : undefined}
         skipMountAnimation={skipMountAnimation}
       />
       <Dialog
