@@ -10,6 +10,7 @@ import type {
   SendMomoMessageResult,
 } from '@lib-types/chat';
 import { CHAT_MESSAGE_SELECT } from '@utils/chat-message';
+import { parseMomoMention } from '@utils/momo-mention';
 
 type SendChatMessageInput = {
   content: string;
@@ -34,14 +35,19 @@ export async function sendChatMessage({
     return { errorCode: 'auth_required' };
   }
 
+  const { tagged } = parseMomoMention(trimmed);
+
+  const insertPayload = {
+    content: trimmed,
+    household_id: householdId,
+    user_id: user.id,
+    sender_name: user.user_metadata?.name ?? user.email ?? null,
+    ...(tagged ? { momo_invocation_tagged: true, status: 'processed' } : {}),
+  };
+
   const { data: rawData, error } = await supabase
     .from('chat_messages')
-    .insert({
-      content: trimmed,
-      household_id: householdId,
-      user_id: user.id,
-      sender_name: user.user_metadata?.name ?? user.email ?? null,
-    })
+    .insert(insertPayload)
     .select(CHAT_MESSAGE_SELECT)
     .single();
 
@@ -55,6 +61,12 @@ export async function sendChatMessage({
   }
 
   const data = rawData as unknown as ChatMessage;
+
+  // Tagged user messages bypass the expense pipeline — they're routed to the
+  // momo agent by a downstream handler, not extracted for expenses.
+  if (tagged) {
+    return { message: data };
+  }
 
   try {
     await processChatMessage(data);
