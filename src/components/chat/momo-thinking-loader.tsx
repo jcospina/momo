@@ -2,9 +2,6 @@
 
 import { MomoLoader } from '@components/loader/loader';
 import { useMediaQuery } from '@hooks/use-media-query';
-import { Circle } from '@ui/circle/circle';
-import { Logo } from '@ui/logo/logo';
-import { Margin } from '@ui/margin/margin';
 import { Typography } from '@ui/typography/typography';
 import { cn } from '@utils/cn';
 import { useTranslations } from 'next-intl';
@@ -47,24 +44,17 @@ export function MomoThinkingLoader({ className }: MomoThinkingLoaderProps) {
       aria-label={tChat('momo.thinkingAriaLabel')}
       className={cn(styles['momo-thinking-loader'], className)}
     >
-      <Margin marginTop={0.5}>
-        <Circle size="extra-small" color="mauve-magic">
-          <Logo size="sm" className={styles['momo-thinking-loader__logo']} />
-        </Circle>
-      </Margin>
-      <div className={styles['momo-thinking-loader__bubble']}>
-        <MomoLoader size="sm" />
-        <span className={styles['momo-thinking-loader__copy-slot']}>
-          <Typography
-            as="span"
-            size="md"
-            key={safeIndex}
-            className={styles['momo-thinking-loader__copy']}
-          >
-            {copy[safeIndex]}
-          </Typography>
-        </span>
-      </div>
+      <MomoLoader size="sm" />
+      <span className={styles['momo-thinking-loader__copy-slot']}>
+        <Typography
+          as="span"
+          size="md"
+          key={safeIndex}
+          className={styles['momo-thinking-loader__copy']}
+        >
+          {copy[safeIndex]}
+        </Typography>
+      </span>
     </div>
   );
 }

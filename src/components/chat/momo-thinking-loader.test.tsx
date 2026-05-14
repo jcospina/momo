@@ -91,12 +91,4 @@ describe('MomoThinkingLoader', () => {
 
     expect(getCurrentCopy()).toEqual(initial);
   });
-
-  it('renders the MoMo brand mark as an avatar slot', () => {
-    mockMatchMedia(false);
-    render(<MomoThinkingLoader />);
-
-    const status = screen.getByRole('status', { name: THINKING_ARIA_LABEL });
-    expect(status.textContent ?? '').toContain('MoMo');
-  });
 });
