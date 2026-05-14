@@ -1,0 +1,4 @@
+interface:
+  display_name: "MoMo Update Docs"
+  short_description: "Audit and refresh MoMo technical docs"
+  default_prompt: "Use $momo-update-docs to audit MoMo technical docs against code, SQL migrations, and git history before updating them."

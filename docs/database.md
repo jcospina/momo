@@ -1,3 +1,8 @@
+---
+version: 1.0
+last_updated: 2026-05-08
+---
+
 # Database
 
 This document explains the design rationale behind the database schema.
@@ -81,7 +86,11 @@ Messages sent in the chat interface. Each message can be personal (`household_id
 
 ### `expenses`
 
-Individual expense entries. Linked to a chat message via `chat_message_id` (nullable — future direct-entry support). `amount_cents` is always positive (enforced by check constraint). COP stores whole units; EUR/USD store minor units (cents). Tags are stored as a `text[]` array, cleaned by the `clean_expense_tags` trigger.
+Individual expense entries. Linked to a chat message via `chat_message_id` (nullable — future direct-entry support). `amount_cents` is always positive (enforced by check constraint). COP stores whole units; EUR/USD store minor units (cents). Income is represented with `category = 'income'`; expense views exclude it unless they are cashflow-specific. Tags are stored as a `text[]` array, cleaned by the `clean_expense_tags` trigger.
+
+### `category_rules`
+
+Learned category overrides keyed by normalized entry text. Personal rules are unique by `(user_id, normalized_text)` where `household_id IS NULL`; household rules are unique by `(household_id, normalized_text)` where `household_id IS NOT NULL`. They are written after successful categorized expense edits and read during chat processing after deterministic parsing.
 
 ## RLS Strategy
 
@@ -95,6 +104,7 @@ All tables have Row Level Security enabled. The strategy uses two membership che
 
 - Personal data (profiles, prefs): `user_id = auth.uid()`
 - Household data (expenses, messages): `is_member_uid(household_id, auth.uid())` OR personal fallback `(household_id IS NULL AND user_id = auth.uid())`
+- Learned category rules: personal rules by `user_id` and null `household_id`, household rules by `is_member_definer_uid(household_id, auth.uid())`
 - Cross-table lookups (chat select): `is_member_definer_uid(household_id, auth.uid())`
 
 ## Triggers
@@ -117,11 +127,14 @@ Views handle stats aggregation, all with `security_invoker = true` so they respe
 
 | View | Purpose |
 | ------ | --------- |
-| `monthly_by_category` | Total cents per category per month (personal + household) |
-| `monthly_totals` | Total cents per month (personal + household) |
-| `monthly_totals_by_user` | Total cents per user per month (household only, uses `get_user_label`) |
-| `monthly_by_category_user` | Total cents per category per user per month (household only) |
-| `daily_totals_by_month` | Daily totals + cumulative running total per month |
+| `monthly_by_category` | Expense totals per category per month, excluding `income` |
+| `monthly_totals` | Expense totals per month, excluding `income` |
+| `monthly_totals_by_user` | Household expense totals per user per month, excluding `income` and using `get_user_label` |
+| `monthly_by_category_user` | Household expense totals per category per user per month, excluding `income` |
+| `daily_totals_by_month` | Daily expense totals + cumulative running total per month, excluding `income` |
+| `monthly_cashflow_income` | Monthly totals for `income` entries |
+| `monthly_cashflow_expense` | Monthly totals for non-income expense entries |
+| `monthly_cashflow_net` | Monthly income, expense, and net totals |
 
 The household-only views use `is_member_definer_uid` to perform membership checks within the view query.
 
@@ -130,6 +143,7 @@ The household-only views use `is_member_definer_uid` to perform membership check
 - **`get_user_label(user_id)`** — Returns `display_name` or falls back to `email`. `SECURITY DEFINER` so it can read `user_profiles` regardless of calling context.
 - **`get_share_link_info(token)`** — Used by the invite flow. Looks up the inviter by token, returns household info and status (`no_household`, `household_full`, `household_valid`). `SECURITY DEFINER` to allow unauthenticated invite page lookups.
 - **`get_household_member_profiles(household_id)`** — Returns member roles and display info. Uses `is_member_definer_uid` to verify the caller is a member.
+- **`upsert_category_rule(user_id, household_id, normalized_text, category)`** — Upserts personal or household learned category rules. Runs as `SECURITY INVOKER` and is constrained by `category_rules` RLS.
 
 ## Indexes
 
@@ -139,4 +153,8 @@ The household-only views use `is_member_definer_uid` to perform membership check
 | `idx_chat_messages_user_created` | `chat_messages` | Fast lookup by user + time |
 | `idx_chat_messages_status_pending` | `chat_messages` | Partial index for pending messages |
 | `idx_expenses_tags_gin` | `expenses` | GIN index for tag array queries |
+| `idx_expenses_household_category_expense_date` | `expenses` | Household stats/cashflow lookup by category and date |
+| `idx_expenses_personal_user_category_expense_date` | `expenses` | Personal stats/cashflow lookup by user, category, and date |
+| `idx_category_rules_personal_text` | `category_rules` | Unique personal learned-rule lookup |
+| `idx_category_rules_household_text` | `category_rules` | Unique household learned-rule lookup |
 | `one_household_per_user` | `household_members` | Unique constraint on `user_id` |

@@ -43,6 +43,9 @@ function buildMessage(overrides: Partial<ChatMessage> = {}): ChatMessage {
     expense_count: 0,
     created_at: new Date().toISOString(),
     sender_name: 'User',
+    author_kind: 'user',
+    momo_source: null,
+    momo_invocation_tagged: false,
     ...overrides,
   };
 }
@@ -140,33 +143,31 @@ describe('processChatMessage', () => {
     });
     expect(mockPersistParsedExpenses).toHaveBeenCalledWith(
       message,
-      [buildEntry({ ...dictionaryEntry, category: 'dining', tags: ['uber'] })],
+      [buildEntry({ ...dictionaryEntry, category: 'dining' })],
       'processed',
     );
   });
 
-  it('re-scores learned-rule matches without fuzzy correction', async () => {
+  it('preserves deterministic parser tags when applying learned rules', async () => {
     const message = buildMessage({ content: 'yber 20' });
-    const fuzzyResolvedEntry = buildEntry({
+    const parsedEntry = buildEntry({
       raw: 'yber 20',
       normalized: 'yber 20',
-      tags: ['uber'],
+      tags: ['yber'],
       category: 'transportation',
     });
     mockParseChatEntries.mockReturnValue({
       status: 'parsed',
-      entries: [fuzzyResolvedEntry],
+      entries: [parsedEntry],
       errors: [],
     });
-    mockFetchCategoryRules.mockResolvedValue(
-      new Map([['yber', 'transportation']]),
-    );
+    mockFetchCategoryRules.mockResolvedValue(new Map([['yber', 'shopping']]));
 
     await processChatMessage(message);
 
     expect(mockPersistParsedExpenses).toHaveBeenCalledWith(
       message,
-      [buildEntry({ ...fuzzyResolvedEntry, tags: [] })],
+      [buildEntry({ ...parsedEntry, category: 'shopping', tags: ['yber'] })],
       'processed',
     );
   });
@@ -210,7 +211,6 @@ describe('processChatMessage', () => {
         buildEntry({
           ...uncategorizedExpense,
           category: 'transportation',
-          tags: ['taxi'],
         }),
       ],
       'processed',

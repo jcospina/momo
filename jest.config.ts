@@ -27,6 +27,8 @@ const config: Config = {
     '^@utils/(.*)$': '<rootDir>/src/lib/utils/$1',
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@messages/(.*)$': '<rootDir>/messages/$1',
+    '^@evals/(.*)$': '<rootDir>/evals/$1',
+    '^@scripts/(.*)$': '<rootDir>/scripts/$1',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/'],

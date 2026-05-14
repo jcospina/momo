@@ -7,6 +7,7 @@
     "build": "next build",
     "typecheck": "tsc --noEmit",
     "start": "next start",
+    "agent:eval": "braintrust eval evals/momo-agent.eval.ts",
     "lint": "pnpm lint:biome && pnpm lint:data-boundaries",
     "lint:biome": "biome lint .",
     "lint:data-boundaries": "node scripts/check-data-boundaries.mjs",
@@ -18,8 +19,8 @@
     "db:stop": "supabase stop",
     "db:new": "bash scripts/db-new.sh",
     "db:reset": "supabase db reset --local",
-    "db:seed": "pnpm db:reset && node scripts/db-seed.mjs",
-    "db:seed:sample": "node scripts/db-seed-sample-data.mjs",
+    "db:seed": "tsx scripts/db-seed.ts",
+    "db:seed:sample": "tsx scripts/db-seed-sample-data.ts",
     "db:lint": "supabase db lint --local",
     "db:push:dry-run": "bash scripts/db-push-dry-run.sh",
     "db:push": "bash scripts/db-push.sh",
@@ -28,6 +29,7 @@
     "supabase": "supabase"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.58",
     "@base-ui/react": "^1.0.0",
     "@gsap/react": "^2.1.2",
     "@supabase/ssr": "^0.7.0",
@@ -41,17 +43,21 @@
     "@visx/scale": "4.0.0-alpha.11",
     "@visx/shape": "4.0.0-alpha.11",
     "@visx/tooltip": "4.0.0-alpha.11",
+    "ai": "^6.0.168",
+    "braintrust": "^3.9.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "gsap": "^3.15.0",
     "lenis": "^1.3.23",
     "next": "16.0.10",
     "next-intl": "^4.9.0",
+    "openai": "^6.34.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.7",
@@ -72,6 +78,7 @@
     "supabase": "^2.98.2",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   },
   "lint-staged": {
