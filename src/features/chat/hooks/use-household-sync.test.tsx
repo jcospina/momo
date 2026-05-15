@@ -23,6 +23,7 @@ const sampleMessage = (id: string): ChatMessage => ({
   author_kind: 'user',
   momo_source: null,
   momo_invocation_tagged: false,
+  idempotency_key: null,
 });
 
 describe('useHouseholdSync', () => {

@@ -1,23 +1,15 @@
-.momo-streaming-bubble {
-  max-width: 100%;
-  text-align: start;
+.momo-stream-item__body {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
-.momo-streaming-bubble__message {
+.momo-stream-item__error {
   display: inline-block;
   max-width: 720px;
-  min-width: 0;
   padding: var(--space-1) var(--space-2);
   border-radius: var(--border-radius);
   border: var(--border-width-thin) solid var(--color-dark);
   box-shadow: var(--shadow-sm);
   background-color: var(--color-mauve-magic);
   color: var(--color-dark);
-  font: var(--body);
-}
-
-.momo-streaming-bubble__content {
-  min-width: 0;
-  word-break: break-word;
-  overflow-wrap: anywhere;
 }

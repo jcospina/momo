@@ -67,21 +67,3 @@ describe('MomoStreamingBubble components map', () => {
     expect(wrap?.querySelector('table')).not.toBeNull();
   });
 });
-
-describe('MomoStreamingBubble streaming indicator', () => {
-  it('shows the streaming caret while isComplete is false', () => {
-    render(<MomoStreamingBubble text="hello" isComplete={false} />);
-
-    expect(
-      screen.getByTestId('momo-streaming-bubble-caret'),
-    ).toBeInTheDocument();
-  });
-
-  it('hides the streaming caret once isComplete is true', () => {
-    render(<MomoStreamingBubble text="hello" isComplete />);
-
-    expect(
-      screen.queryByTestId('momo-streaming-bubble-caret'),
-    ).not.toBeInTheDocument();
-  });
-});

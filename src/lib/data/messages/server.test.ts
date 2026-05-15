@@ -51,6 +51,7 @@ describe('data/messages/server facade', () => {
       author_kind: 'user' as const,
       momo_source: null,
       momo_invocation_tagged: false,
+      idempotency_key: null,
     },
   ];
 

@@ -1,6 +1,5 @@
 'use client';
 
-import { MomoLoader } from '@components/loader/loader';
 import { useMediaQuery } from '@hooks/use-media-query';
 import { Typography } from '@ui/typography/typography';
 import { cn } from '@utils/cn';
@@ -44,7 +43,6 @@ export function MomoThinkingLoader({ className }: MomoThinkingLoaderProps) {
       aria-label={tChat('momo.thinkingAriaLabel')}
       className={cn(styles['momo-thinking-loader'], className)}
     >
-      <MomoLoader size="sm" />
       <span className={styles['momo-thinking-loader__copy-slot']}>
         <Typography
           as="span"

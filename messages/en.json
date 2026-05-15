@@ -59,7 +59,8 @@
         "Doing the math…",
         "Hmm, let me see…",
         "Tallying receipts…"
-      ]
+      ],
+      "streamError": "My brain hiccuped. Mind asking that again?"
     }
   },
   "expenses": {

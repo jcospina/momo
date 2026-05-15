@@ -14,6 +14,7 @@ import { useState } from 'react';
 import styles from './chat.module.css';
 import { ChatDateSeparator } from './chat-date-separator';
 import { ChatList } from './chat-list';
+import { MomoStreamItem } from './momo-stream-item';
 
 type ChatPanelProps = {
   scope: 'personal' | 'household';
@@ -66,11 +67,13 @@ export function ChatPanel({
           isLoadingMore={panel.isLoadingMore}
           onLoadMore={panel.loadOlder}
           currentUserId={userId}
+          pendingStreams={panel.pendingStreams}
           renderMessage={(msg, prevMsg) => {
             const msgDate = new Date(msg.created_at);
             const prevDate = prevMsg ? new Date(prevMsg.created_at) : null;
             const showSeparator =
               !prevDate || msgDate.toDateString() !== prevDate.toDateString();
+            const pendingStream = panel.pendingStreams.get(msg.id);
             return (
               <Flex direction="column" isFullWidth>
                 {showSeparator && (
@@ -91,6 +94,11 @@ export function ChatPanel({
                     new Date(msg.created_at).getTime() < mountedAt
                   }
                 />
+                {pendingStream ? (
+                  <Flex marginTop={1} isFullWidth>
+                    <MomoStreamItem state={pendingStream} />
+                  </Flex>
+                ) : null}
               </Flex>
             );
           }}
