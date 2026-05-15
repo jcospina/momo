@@ -1,4 +1,6 @@
+import { formatCurrencyAmount } from '@helpers/currency';
 import type { ExpenseRecord } from '@lib-types/expenses';
+import type { SupportedCurrency } from '@lib-types/user-preferences';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { AgentAuthContext, AgentContext } from '@/agent/context';
 import type { AgentToolExecutors } from '@/agent/tools/tools';
@@ -249,14 +251,18 @@ function emptySpendingStatsResult({
   context: AgentContext;
   input: GetSpendingStatsInput;
 }): GetSpendingStatsResult {
+  const zero = formatCurrencyAmount(0, context.currency);
   return {
     currency: context.currency,
     scope: input.scope,
     startDate: input.startDate,
     endDate: input.endDate,
     totalExpenseCents: 0,
+    totalExpenseFormatted: zero,
     totalIncomeCents: 0,
+    totalIncomeFormatted: zero,
     netCents: 0,
+    netFormatted: zero,
     savingsRate: null,
     savingsRateBasis: 'unavailable_zero_income',
     transactionCount: 0,
@@ -276,15 +282,22 @@ function normalizeSpendingStatsResult({
   input: GetSpendingStatsInput;
 }): GetSpendingStatsResult {
   const result = (data ?? {}) as Partial<GetSpendingStatsResult>;
+  const { currency } = context;
+  const totalExpenseCents = Number(result.totalExpenseCents ?? 0);
+  const totalIncomeCents = Number(result.totalIncomeCents ?? 0);
+  const netCents = Number(result.netCents ?? 0);
 
   return {
-    currency: context.currency,
+    currency,
     scope: input.scope,
     startDate: input.startDate,
     endDate: input.endDate,
-    totalExpenseCents: Number(result.totalExpenseCents ?? 0),
-    totalIncomeCents: Number(result.totalIncomeCents ?? 0),
-    netCents: Number(result.netCents ?? 0),
+    totalExpenseCents,
+    totalExpenseFormatted: formatCurrencyAmount(totalExpenseCents, currency),
+    totalIncomeCents,
+    totalIncomeFormatted: formatCurrencyAmount(totalIncomeCents, currency),
+    netCents,
+    netFormatted: formatCurrencyAmount(netCents, currency),
     savingsRate:
       typeof result.savingsRate === 'number' ? result.savingsRate : null,
     savingsRateBasis:
@@ -294,30 +307,41 @@ function normalizeSpendingStatsResult({
     transactionCount: Number(result.transactionCount ?? 0),
     groupBy: input.groupBy,
     groups: Array.isArray(result.groups)
-      ? result.groups.map(group => ({
-          label: String(group.label),
-          amountCents: Number(group.amountCents ?? 0),
-          transactionCount: Number(group.transactionCount ?? 0),
-          percentageOfTotal:
-            typeof group.percentageOfTotal === 'number'
-              ? group.percentageOfTotal
-              : null,
-          tags: normalizeTagEntries(group.tags),
-        }))
+      ? result.groups.map(group => {
+          const amountCents = Number(group.amountCents ?? 0);
+          return {
+            label: String(group.label),
+            amountCents,
+            amountFormatted: formatCurrencyAmount(amountCents, currency),
+            transactionCount: Number(group.transactionCount ?? 0),
+            percentageOfTotal:
+              typeof group.percentageOfTotal === 'number'
+                ? group.percentageOfTotal
+                : null,
+            tags: normalizeTagEntries(group.tags, currency),
+          };
+        })
       : input.groupBy
         ? []
         : null,
-    tags: normalizeTagEntries(result.tags),
+    tags: normalizeTagEntries(result.tags, currency),
   };
 }
 
-function normalizeTagEntries(value: unknown): SpendingStatsTagEntry[] {
+function normalizeTagEntries(
+  value: unknown,
+  currency: SupportedCurrency,
+): SpendingStatsTagEntry[] {
   if (!Array.isArray(value)) return [];
-  return value.map(entry => ({
-    tag: String(entry.tag ?? ''),
-    count: Number(entry.count ?? 0),
-    amountCents: Number(entry.amountCents ?? 0),
-  }));
+  return value.map(entry => {
+    const amountCents = Number(entry.amountCents ?? 0);
+    return {
+      tag: String(entry.tag ?? ''),
+      count: Number(entry.count ?? 0),
+      amountCents,
+      amountFormatted: formatCurrencyAmount(amountCents, currency),
+    };
+  });
 }
 
 function currentDateInTimezone(timezone: string): string {

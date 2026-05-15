@@ -52,9 +52,13 @@ export type QueryExpensesInput = AgentExpenseFilters & {
   limit: number | null;
 };
 
+export type AgentExpenseRow = ExpenseRecord & {
+  amount_formatted: string;
+};
+
 export type QueryExpensesResult = {
   currency: SupportedCurrency;
-  expenses: ExpenseRecord[];
+  expenses: AgentExpenseRow[];
   appliedFilters: QueryExpensesInput;
   truncated: boolean;
 };
@@ -79,11 +83,13 @@ export type SpendingStatsTagEntry = {
   tag: string;
   count: number;
   amountCents: number;
+  amountFormatted: string;
 };
 
 export type SpendingStatsGroup = {
   label: string;
   amountCents: number;
+  amountFormatted: string;
   transactionCount: number;
   percentageOfTotal: number | null;
   tags: SpendingStatsTagEntry[];
@@ -95,8 +101,11 @@ export type GetSpendingStatsResult = {
   startDate: string | null;
   endDate: string | null;
   totalExpenseCents: number;
+  totalExpenseFormatted: string;
   totalIncomeCents: number;
+  totalIncomeFormatted: string;
   netCents: number;
+  netFormatted: string;
   savingsRate: number | null;
   savingsRateBasis: 'income' | 'unavailable_zero_income';
   transactionCount: number;

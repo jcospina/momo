@@ -117,6 +117,7 @@ type HarnessProps = {
   resultRef?: { current: UseChatVirtualResult | null };
   scrollerOut?: { current: MutableEl | null };
   pendingStreams?: ReadonlyMap<string, MomoStreamState>;
+  isActive?: boolean;
 };
 
 function ChatItemSlot({
@@ -151,6 +152,7 @@ function Harness({
   resultRef,
   scrollerOut,
   pendingStreams,
+  isActive,
 }: HarnessProps) {
   const result = useChatVirtual({
     messages,
@@ -159,6 +161,7 @@ function Harness({
     isLoadingMore,
     onLoadMore,
     pendingStreams,
+    isActive,
   });
   if (resultRef) resultRef.current = result;
   return (
@@ -832,6 +835,95 @@ describe('useChatVirtual — pending stream autoscroll', () => {
       await flushRaf();
     });
     expect(scrollToSpy).not.toHaveBeenCalled();
+    expect(getWrites(scroller)).toBe(writesBefore);
+  });
+});
+
+describe('useChatVirtual — tab activation', () => {
+  it('snaps to bottom when isActive transitions false → true', () => {
+    const messages = Array.from({ length: 5 }, (_, i) =>
+      buildMessage(`m${i + 1}`, `2024-01-01T00:00:0${i + 1}.000Z`),
+    );
+    const scrollerOut = { current: null as MutableEl | null };
+
+    // Hidden mount: scroller has zero dimensions (display:none equivalent).
+    const { rerender } = render(
+      <Harness
+        messages={messages}
+        scrollerProps={{ scrollHeight: 0, clientHeight: 0 }}
+        scrollerOut={scrollerOut}
+        isActive={false}
+      />,
+    );
+    const scroller = scrollerOut.current!;
+    expect(scroller).not.toBeNull();
+    // First-paint scroll ran against the zero-sized scroller — no-op (0 = 0).
+    expect(getScrollTop(scroller)).toBe(0);
+
+    // Tab becomes active: dimensions resolve and we re-snap to the bottom.
+    rerender(
+      <Harness
+        messages={messages}
+        scrollerProps={{ scrollHeight: 5 * ITEM_HEIGHT, clientHeight: 600 }}
+        scrollerOut={scrollerOut}
+        isActive
+      />,
+    );
+    expect(getScrollTop(scroller)).toBe(5 * ITEM_HEIGHT);
+  });
+
+  it('does not re-snap on isActive stays true (no transition)', () => {
+    const messages = Array.from({ length: 5 }, (_, i) =>
+      buildMessage(`m${i + 1}`, `2024-01-01T00:00:0${i + 1}.000Z`),
+    );
+    const scrollerOut = { current: null as MutableEl | null };
+    const { rerender } = render(
+      <Harness
+        messages={messages}
+        scrollerProps={{ scrollHeight: 5 * ITEM_HEIGHT, clientHeight: 600 }}
+        scrollerOut={scrollerOut}
+        isActive
+      />,
+    );
+    const scroller = scrollerOut.current!;
+    // First-paint scroll landed us at the bottom (one write).
+    expect(getWrites(scroller)).toBe(1);
+
+    rerender(
+      <Harness
+        messages={messages}
+        scrollerProps={{ scrollHeight: 5 * ITEM_HEIGHT, clientHeight: 600 }}
+        scrollerOut={scrollerOut}
+        isActive
+      />,
+    );
+    // No additional scrollTop write — the activation effect should bail.
+    expect(getWrites(scroller)).toBe(1);
+  });
+
+  it('does not snap when isActive stays false', () => {
+    const messages = Array.from({ length: 5 }, (_, i) =>
+      buildMessage(`m${i + 1}`, `2024-01-01T00:00:0${i + 1}.000Z`),
+    );
+    const scrollerOut = { current: null as MutableEl | null };
+    const { rerender } = render(
+      <Harness
+        messages={messages}
+        scrollerProps={{ scrollHeight: 0, clientHeight: 0 }}
+        scrollerOut={scrollerOut}
+        isActive={false}
+      />,
+    );
+    const scroller = scrollerOut.current!;
+    const writesBefore = getWrites(scroller);
+    rerender(
+      <Harness
+        messages={messages}
+        scrollerProps={{ scrollHeight: 0, clientHeight: 0 }}
+        scrollerOut={scrollerOut}
+        isActive={false}
+      />,
+    );
     expect(getWrites(scroller)).toBe(writesBefore);
   });
 });

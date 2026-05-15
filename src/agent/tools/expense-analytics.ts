@@ -1,3 +1,4 @@
+import { formatCurrencyAmount } from '@helpers/currency';
 import type { ExpenseRecord } from '@lib-types/expenses';
 import type { SupportedCurrency } from '@lib-types/user-preferences';
 import type {
@@ -83,7 +84,13 @@ export function buildQueryExpensesResult({
 
   return {
     currency: context.currency,
-    expenses: filtered.slice(0, limit),
+    expenses: filtered.slice(0, limit).map(expense => ({
+      ...expense,
+      amount_formatted: formatCurrencyAmount(
+        expense.amount_cents,
+        context.currency,
+      ),
+    })),
     appliedFilters: input,
     truncated,
   };

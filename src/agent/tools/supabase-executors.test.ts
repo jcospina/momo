@@ -45,6 +45,7 @@ describe('Supabase agent tool executors', () => {
     );
     expect(result.expenses).toHaveLength(1);
     expect(result.expenses[0]?.id).toBe('may-1');
+    expect(result.expenses[0]?.amount_formatted).toBe('$50.00');
   });
 
   it('calls the stats RPC with exact arbitrary date bounds and filters', async () => {
@@ -55,6 +56,7 @@ describe('Supabase agent tool executors', () => {
           {
             label: 'vehicle',
             amountCents: 12000,
+            amountFormatted: '$120.00',
             transactionCount: 2,
             percentageOfTotal: 100,
             tags: [],
@@ -100,12 +102,14 @@ describe('Supabase agent tool executors', () => {
       groups: [
         {
           amountCents: 12000,
+          amountFormatted: '$120.00',
           label: 'vehicle',
           percentageOfTotal: 100,
           transactionCount: 2,
         },
       ],
       totalExpenseCents: 12000,
+      totalExpenseFormatted: '$120.00',
       transactionCount: 2,
     });
   });
@@ -272,27 +276,82 @@ describe('Supabase agent tool executors', () => {
     );
 
     expect(result.tags).toEqual([
-      { tag: 'costco', count: 2, amountCents: 5000 },
+      { tag: 'costco', count: 2, amountCents: 5000, amountFormatted: '$50.00' },
     ]);
     expect(result.groups).toEqual([
       {
         label: 'groceries',
         amountCents: 5000,
+        amountFormatted: '$50.00',
         transactionCount: 2,
         percentageOfTotal: 100,
         tags: [
-          { tag: 'costco', count: 2, amountCents: 5000 },
-          { tag: '', count: 0, amountCents: 0 },
+          {
+            tag: 'costco',
+            count: 2,
+            amountCents: 5000,
+            amountFormatted: '$50.00',
+          },
+          { tag: '', count: 0, amountCents: 0, amountFormatted: '$0.00' },
         ],
       },
       {
         label: 'dining',
         amountCents: 0,
+        amountFormatted: '$0.00',
         transactionCount: 0,
         percentageOfTotal: 0,
         tags: [],
       },
     ]);
+  });
+
+  it.each([
+    { currency: 'USD', rawAmount: 20000000, expected: '200,000.00' },
+    { currency: 'EUR', rawAmount: 20000000, expected: '200.000,00' },
+    { currency: 'COP', rawAmount: 200000, expected: '200.000' },
+  ] as const)('formats group amounts with the user currency ($currency)', async ({
+    currency,
+    rawAmount,
+    expected,
+  }) => {
+    const { supabase } = mockSupabaseRpc(
+      statsResult({
+        currency,
+        groupBy: 'category',
+        groups: [
+          {
+            label: 'kids',
+            amountCents: rawAmount,
+            amountFormatted: 'rpc-raw',
+            transactionCount: 1,
+            percentageOfTotal: 100,
+            tags: [],
+          },
+        ],
+        totalExpenseCents: rawAmount,
+        transactionCount: 1,
+      }),
+    );
+    createAgentSupabaseClientMock.mockReturnValue(supabase as never);
+
+    const result = await getSpendingStats(
+      {
+        scope: 'personal',
+        startDate: null,
+        endDate: null,
+        categories: null,
+        merchants: null,
+        tags: null,
+        includeIncome: null,
+        groupBy: 'category',
+        limit: null,
+      },
+      { currency, auth: authContext() },
+    );
+
+    expect(result.totalExpenseFormatted).toContain(expected);
+    expect(result.groups?.[0]?.amountFormatted).toContain(expected);
   });
 
   it('empty household stats include an empty tags sidecar', async () => {
@@ -457,8 +516,11 @@ function statsResult(
     startDate: input.startDate ?? null,
     endDate: input.endDate ?? null,
     totalExpenseCents: input.totalExpenseCents ?? 0,
+    totalExpenseFormatted: input.totalExpenseFormatted ?? '$0.00',
     totalIncomeCents: input.totalIncomeCents ?? 0,
+    totalIncomeFormatted: input.totalIncomeFormatted ?? '$0.00',
     netCents: input.netCents ?? 0,
+    netFormatted: input.netFormatted ?? '$0.00',
     savingsRate: input.savingsRate ?? null,
     savingsRateBasis: input.savingsRateBasis ?? 'unavailable_zero_income',
     transactionCount: input.transactionCount ?? 0,

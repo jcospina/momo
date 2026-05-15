@@ -54,19 +54,10 @@ function currencySection(context: AgentContext): string {
   const symbol = meta.symbol;
   const name = meta.name;
 
-  if (currency === 'COP') {
-    return [
-      `The user's currency is **COP** (${symbol}, ${name}).`,
-      'Tool results return amounts in fields like `amountCents`, `totalExpenseCents`, `netCents`. For COP these values are already whole pesos — do NOT divide by 100.',
-      `When showing amounts, use the COP convention: no decimals, '.' as the thousands separator, currency symbol prefixed (example: ${symbol}1.234.567).`,
-      'Always include the currency symbol when presenting amounts.',
-    ].join(' ');
-  }
-
-  const example = currency === 'EUR' ? '1.234,56 €' : `${symbol}1,234.56`;
   return [
     `The user's currency is **${currency}** (${symbol}, ${name}).`,
-    'Tool results return amounts in the smallest unit (cents) under fields like `amountCents`, `totalExpenseCents`, `netCents`. Divide by 100 to get the major unit and show 2 decimal places.',
-    `Use locale-appropriate formatting (example: ${example}) and always include the currency symbol when presenting amounts.`,
+    'Tool results include raw integer fields (e.g. `amountCents`, `totalExpenseCents`, `netCents`, row-level `amount_cents`) and pre-formatted sibling strings (e.g. `amountFormatted`, `totalExpenseFormatted`, `netFormatted`, row-level `amount_formatted`).',
+    'When showing any amount to the user, use the `*Formatted` (or `amount_formatted`) string verbatim — do not do currency math, do not divide by 100, do not reformat.',
+    'Use the raw `*Cents` (or `amount_cents`) fields only for comparisons or arithmetic between amounts in the same currency.',
   ].join(' ');
 }

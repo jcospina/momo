@@ -82,7 +82,7 @@ export function buildAgentTools(
         'Use this when the user wants examples, recent transactions, a sample of merchants, or anything that needs row-level detail.',
         "Do NOT use this to compute totals or breakdowns — call getSpendingStats instead, which is cheaper and won't truncate.",
         'Results are bounded by `limit`; when more rows existed than the limit, `truncated` is true.',
-        'The result includes a top-level `currency` field that indicates how to interpret `amount_cents` on each row.',
+        'The result includes a top-level `currency` field that indicates how to interpret `amount_cents` on each row. Each row also includes `amount_formatted` — a pre-formatted display string; use it verbatim when showing the amount to the user.',
       ].join(' '),
       inputSchema: z.object({
         scope: z
@@ -142,7 +142,7 @@ export function buildAgentTools(
         'Get aggregated spending numbers for the given scope and filters.',
         'By default this is expense-only: use it for questions like "how much did I spend" without mentioning income, net, or savings in the answer.',
         'Set `includeIncome` to true only when the user asks about income, cashflow, net, savings, or explicitly wants income included.',
-        'The result includes a `currency` field that indicates how to interpret amount fields.',
+        'The result includes a `currency` field that indicates how to interpret amount fields. Every `*Cents` field has a pre-formatted `*Formatted` sibling string (e.g. `totalExpenseFormatted`, group `amountFormatted`) — use those verbatim when showing amounts to the user.',
         'Pass `groupBy` to also receive a per-group breakdown (sorted from largest amount to smallest, except month/day/dayOfWeek which sort chronologically).',
         'To compare two periods, call this twice with different date ranges and reason over the deltas — there is no separate compare tool.',
         'Every response includes a `tags` sidecar — a top-10 breakdown of primary tags by spend, both globally and per group. Use it to break down spend within a category without an extra call.',

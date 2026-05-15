@@ -23,6 +23,13 @@ type ChatListProps = {
    * grows. Optional — falsy / empty map disables stream-driven scrolling.
    */
   pendingStreams?: ReadonlyMap<string, MomoStreamState>;
+  /**
+   * Whether the enclosing panel is the active tab. Required when sibling
+   * panels are mounted in parallel and toggled with `display: none`, so the
+   * hook can re-snap to the bottom on tab activation. Defaults to true for
+   * stand-alone usage.
+   */
+  isActive?: boolean;
 };
 
 function ChatItemSlot({
@@ -55,6 +62,7 @@ export function ChatList({
   isLoadingMore = false,
   currentUserId,
   pendingStreams,
+  isActive = true,
 }: ChatListProps) {
   const { scrollerRef, recordHeight, onScroll } = useChatVirtual({
     messages,
@@ -63,6 +71,7 @@ export function ChatList({
     isLoadingMore,
     onLoadMore,
     pendingStreams,
+    isActive,
   });
 
   return (
