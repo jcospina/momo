@@ -1,3 +1,4 @@
+import type { MomoStreamState } from '@hooks/use-momo-stream';
 import type { ChatMessage } from '@lib-types/chat';
 import { act, render } from '@testing-library/react';
 import {
@@ -115,6 +116,7 @@ type HarnessProps = {
   itemHeights?: Record<string, number>;
   resultRef?: { current: UseChatVirtualResult | null };
   scrollerOut?: { current: MutableEl | null };
+  pendingStreams?: ReadonlyMap<string, MomoStreamState>;
 };
 
 function ChatItemSlot({
@@ -148,6 +150,7 @@ function Harness({
   itemHeights,
   resultRef,
   scrollerOut,
+  pendingStreams,
 }: HarnessProps) {
   const result = useChatVirtual({
     messages,
@@ -155,6 +158,7 @@ function Harness({
     hasMore,
     isLoadingMore,
     onLoadMore,
+    pendingStreams,
   });
   if (resultRef) resultRef.current = result;
   return (
@@ -626,5 +630,208 @@ describe('useChatVirtual — isAtBottom transitions', () => {
       resultRef.current!.onScroll();
     });
     expect(resultRef.current!.isAtBottom).toBe(true);
+  });
+});
+
+describe('useChatVirtual — pending stream autoscroll', () => {
+  it('smooth-scrolls to bottom when a pending stream first appears (loader mount) at bottom', async () => {
+    const messages = [
+      buildMessage('m1', '2024-01-01T00:00:01.000Z', { user_id: 'u1' }),
+    ];
+    const scrollerOut = { current: null as MutableEl | null };
+    const resultRef = { current: null as UseChatVirtualResult | null };
+    const { rerender } = render(
+      <Harness
+        messages={messages}
+        currentUserId="u1"
+        scrollerProps={{ scrollHeight: ITEM_HEIGHT, clientHeight: 600 }}
+        scrollerOut={scrollerOut}
+        resultRef={resultRef}
+        pendingStreams={new Map()}
+      />,
+    );
+    const scroller = scrollerOut.current!;
+    expect(resultRef.current!.isAtBottom).toBe(true);
+    scrollToSpy.mockClear();
+
+    // Loader mounts — pendingStreams gains one 'sending' entry. Content
+    // height grows to reflect the new bubble.
+    const streams = new Map<string, MomoStreamState>([
+      ['m1', { status: 'sending', text: '', error: null }],
+    ]);
+    rerender(
+      <Harness
+        messages={messages}
+        currentUserId="u1"
+        scrollerProps={{
+          scrollHeight: ITEM_HEIGHT + 80,
+          clientHeight: 600,
+        }}
+        scrollerOut={scrollerOut}
+        resultRef={resultRef}
+        pendingStreams={streams}
+      />,
+    );
+    await act(async () => {
+      await flushRaf();
+    });
+    expect(scrollToSpy).toHaveBeenCalled();
+    const lastCall = scrollToSpy.mock.calls.at(-1)![0] as ScrollToOptions;
+    expect(lastCall.behavior).toBe('smooth');
+    expect(lastCall.top).toBe(ITEM_HEIGHT + 80 - 600);
+    expect(getScrollTop(scroller)).toBe(ITEM_HEIGHT + 80 - 600);
+  });
+
+  it('smooth-scrolls to bottom as streaming tokens grow the bubble', async () => {
+    const messages = [
+      buildMessage('m1', '2024-01-01T00:00:01.000Z', { user_id: 'u1' }),
+    ];
+    const scrollerOut = { current: null as MutableEl | null };
+    const resultRef = { current: null as UseChatVirtualResult | null };
+    const initialStreams = new Map<string, MomoStreamState>([
+      ['m1', { status: 'streaming', text: 'hello', error: null }],
+    ]);
+    const { rerender } = render(
+      <Harness
+        messages={messages}
+        currentUserId="u1"
+        scrollerProps={{ scrollHeight: ITEM_HEIGHT + 80, clientHeight: 600 }}
+        scrollerOut={scrollerOut}
+        resultRef={resultRef}
+        pendingStreams={initialStreams}
+      />,
+    );
+    const scroller = scrollerOut.current!;
+    await act(async () => {
+      await flushRaf();
+    });
+    scrollToSpy.mockClear();
+
+    // Tokens arrive — text grows, content height grows, signal grows.
+    const grownStreams = new Map<string, MomoStreamState>([
+      [
+        'm1',
+        {
+          status: 'streaming',
+          text: 'hello world, this is more text',
+          error: null,
+        },
+      ],
+    ]);
+    rerender(
+      <Harness
+        messages={messages}
+        currentUserId="u1"
+        scrollerProps={{
+          scrollHeight: ITEM_HEIGHT + 160,
+          clientHeight: 600,
+        }}
+        scrollerOut={scrollerOut}
+        resultRef={resultRef}
+        pendingStreams={grownStreams}
+      />,
+    );
+    await act(async () => {
+      await flushRaf();
+    });
+    expect(scrollToSpy).toHaveBeenCalled();
+    const lastCall = scrollToSpy.mock.calls.at(-1)![0] as ScrollToOptions;
+    expect(lastCall.top).toBe(ITEM_HEIGHT + 160 - 600);
+    expect(getScrollTop(scroller)).toBe(ITEM_HEIGHT + 160 - 600);
+  });
+
+  it('does NOT scroll on pending-stream growth when the user has scrolled up', async () => {
+    const messages = Array.from({ length: 5 }, (_, i) =>
+      buildMessage(`m${i + 1}`, `2024-01-01T00:00:0${i + 1}.000Z`, {
+        user_id: 'u1',
+      }),
+    );
+    const scrollerOut = { current: null as MutableEl | null };
+    const resultRef = { current: null as UseChatVirtualResult | null };
+    const { rerender } = render(
+      <Harness
+        messages={messages}
+        currentUserId="u1"
+        scrollerProps={{ scrollHeight: 5 * ITEM_HEIGHT, clientHeight: 100 }}
+        scrollerOut={scrollerOut}
+        resultRef={resultRef}
+        pendingStreams={new Map()}
+      />,
+    );
+    const scroller = scrollerOut.current!;
+    // User scrolls up. Distance = 240 - 0 - 100 = 140 > 48 → isAtBottom flips to false.
+    scroller.__scrollTop = 0;
+    act(() => {
+      resultRef.current!.onScroll();
+    });
+    expect(resultRef.current!.isAtBottom).toBe(false);
+    scrollToSpy.mockClear();
+    const writesBefore = getWrites(scroller);
+
+    const streams = new Map<string, MomoStreamState>([
+      ['m5', { status: 'streaming', text: 'incoming', error: null }],
+    ]);
+    rerender(
+      <Harness
+        messages={messages}
+        currentUserId="u1"
+        scrollerProps={{
+          scrollHeight: 5 * ITEM_HEIGHT + 200,
+          clientHeight: 100,
+        }}
+        scrollerOut={scrollerOut}
+        resultRef={resultRef}
+        pendingStreams={streams}
+      />,
+    );
+    await act(async () => {
+      await flushRaf();
+    });
+    expect(scrollToSpy).not.toHaveBeenCalled();
+    expect(getWrites(scroller)).toBe(writesBefore);
+  });
+
+  it('does NOT scroll when pending-stream signal shrinks (stream resolved + removed)', async () => {
+    const messages = [
+      buildMessage('m1', '2024-01-01T00:00:01.000Z', { user_id: 'u1' }),
+    ];
+    const scrollerOut = { current: null as MutableEl | null };
+    const resultRef = { current: null as UseChatVirtualResult | null };
+    const initial = new Map<string, MomoStreamState>([
+      ['m1', { status: 'streaming', text: 'partial reply', error: null }],
+    ]);
+    const { rerender } = render(
+      <Harness
+        messages={messages}
+        currentUserId="u1"
+        scrollerProps={{ scrollHeight: ITEM_HEIGHT + 80, clientHeight: 600 }}
+        scrollerOut={scrollerOut}
+        resultRef={resultRef}
+        pendingStreams={initial}
+      />,
+    );
+    const scroller = scrollerOut.current!;
+    await act(async () => {
+      await flushRaf();
+    });
+    scrollToSpy.mockClear();
+    const writesBefore = getWrites(scroller);
+
+    // Stream filtered out (persisted MoMo row landed) — map empties.
+    rerender(
+      <Harness
+        messages={messages}
+        currentUserId="u1"
+        scrollerProps={{ scrollHeight: ITEM_HEIGHT + 80, clientHeight: 600 }}
+        scrollerOut={scrollerOut}
+        resultRef={resultRef}
+        pendingStreams={new Map()}
+      />,
+    );
+    await act(async () => {
+      await flushRaf();
+    });
+    expect(scrollToSpy).not.toHaveBeenCalled();
+    expect(getWrites(scroller)).toBe(writesBefore);
   });
 });

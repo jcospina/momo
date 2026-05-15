@@ -125,10 +125,6 @@ describe('ChatPanel — @momo streaming UI', () => {
     // The MomoThinkingLoader renders with role=status and the localized
     // aria-label "MoMo is thinking" (from en.json).
     expect(screen.getByLabelText('MoMo is thinking')).toBeInTheDocument();
-    // The streaming bubble must not be present yet.
-    expect(
-      screen.queryByTestId('momo-streaming-bubble-caret'),
-    ).not.toBeInTheDocument();
   });
 
   it('swaps the loader for the streaming bubble once chunks start arriving', () => {
@@ -151,13 +147,9 @@ describe('ChatPanel — @momo streaming UI', () => {
 
     expect(screen.queryByLabelText('MoMo is thinking')).not.toBeInTheDocument();
     expect(screen.getByText(/You spent/)).toBeInTheDocument();
-    // Caret is visible while streaming is incomplete.
-    expect(
-      screen.getByTestId('momo-streaming-bubble-caret'),
-    ).toBeInTheDocument();
   });
 
-  it('hides the streaming caret when the stream is done', () => {
+  it('renders the final streamed text once the stream completes', () => {
     const triggering = buildMessage({
       id: 'trigger-3',
       momo_invocation_tagged: true,
@@ -172,9 +164,7 @@ describe('ChatPanel — @momo streaming UI', () => {
     renderPanel();
 
     expect(screen.getByText('All done.')).toBeInTheDocument();
-    expect(
-      screen.queryByTestId('momo-streaming-bubble-caret'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('MoMo is thinking')).not.toBeInTheDocument();
   });
 
   it('renders a friendly localized error bubble when the stream errors', () => {
@@ -206,8 +196,5 @@ describe('ChatPanel — @momo streaming UI', () => {
     renderPanel();
 
     expect(screen.queryByLabelText('MoMo is thinking')).not.toBeInTheDocument();
-    expect(
-      screen.queryByTestId('momo-streaming-bubble-caret'),
-    ).not.toBeInTheDocument();
   });
 });

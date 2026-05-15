@@ -1,5 +1,6 @@
 'use client';
 
+import type { MomoStreamState } from '@hooks/use-momo-stream';
 import type { ChatMessage } from '@lib-types/chat';
 import {
   type RefObject,
@@ -29,6 +30,15 @@ type UseChatVirtualArgs = {
   hasMore?: boolean;
   isLoadingMore?: boolean;
   onLoadMore?: () => void;
+  /**
+   * Optional map of in-flight @momo streams keyed by triggering message id.
+   * When this map's "content signal" grows (a new entry appears, or an
+   * existing entry's text grows), the hook nudges the scroll position to
+   * the bottom — but only if the user is already at the bottom. This keeps
+   * the loader and streaming bubble in view as they mount and grow, without
+   * yanking the user back down if they have scrolled up to read history.
+   */
+  pendingStreams?: ReadonlyMap<string, MomoStreamState>;
 };
 
 export type UseChatVirtualResult = {
@@ -81,12 +91,28 @@ function smoothScrollToBottom(scroller: HTMLElement) {
   });
 }
 
+// Monotonic-growing scalar derived from the pending-streams map: it grows
+// when a new stream enters and as existing streams accumulate tokens, and
+// shrinks only when streams are filtered out. We use only the delta sign,
+// not the absolute value.
+function computePendingStreamsSignal(
+  pendingStreams: ReadonlyMap<string, MomoStreamState> | undefined,
+): number {
+  if (!pendingStreams || pendingStreams.size === 0) return 0;
+  let total = pendingStreams.size;
+  for (const state of pendingStreams.values()) {
+    total += state.text.length;
+  }
+  return total;
+}
+
 export function useChatVirtual({
   messages,
   currentUserId,
   hasMore = false,
   isLoadingMore = false,
   onLoadMore,
+  pendingStreams,
 }: UseChatVirtualArgs): UseChatVirtualResult {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const heightCacheRef = useRef<Map<string, number>>(new Map());
@@ -223,6 +249,36 @@ export function useChatVirtual({
       });
     }
   }, [messages, currentUserId]);
+
+  // Path D: scroll on pending-stream growth. The loader + streaming bubble
+  // are derived from `pendingStreams`, NOT `messages`, so they slip past
+  // path-BC's append-driven autoscroll. We track a single monotonic signal
+  // (entry count + total text length) and nudge to bottom on growth — but
+  // only when the user is already at the bottom. Manual upward scroll is
+  // respected via `isAtBottomRef`.
+  const prevPendingStreamsSignalRef = useRef<number>(0);
+
+  useEffect(() => {
+    const signal = computePendingStreamsSignal(pendingStreams);
+    const prev = prevPendingStreamsSignalRef.current;
+    prevPendingStreamsSignalRef.current = signal;
+    if (signal <= prev) return;
+    if (!isAtBottomRef.current) return;
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    debugLog('path-D:stream-grow', {
+      prev,
+      next: signal,
+      scrollTop: scroller.scrollTop,
+      scrollHeight: scroller.scrollHeight,
+      clientHeight: scroller.clientHeight,
+    });
+    requestAnimationFrame(() => {
+      const el = scrollerRef.current;
+      if (!el) return;
+      smoothScrollToBottom(el);
+    });
+  }, [pendingStreams]);
 
   const recordHeight = useCallback((id: string, height: number) => {
     heightCacheRef.current.set(id, height);
