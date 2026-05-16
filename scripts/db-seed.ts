@@ -5,7 +5,7 @@ import {
   type SupabaseClient,
   type User,
 } from '@supabase/supabase-js';
-import { getLocalSupabaseEnv } from './lib/supabase-env';
+import { getLocalSupabaseEnv, mustGetEnv } from './lib/supabase-env';
 
 // ─────────────────────────────────────────────────────────────────
 // Constants & types
@@ -23,6 +23,13 @@ const DEFAULT_SEED = {
   householdName: 'Dev Household',
 } as const;
 
+const DEMO_SEED = {
+  ownerName: 'Momo Demo',
+  memberEmail: 'momo-demo-member@joq.dev',
+  memberName: 'Demo Partner',
+  householdName: 'Demo Household',
+} as const;
+
 type SeedUser = {
   email: string;
   password: string | undefined;
@@ -35,6 +42,7 @@ type SeedConfig = {
   member: SeedUser;
   householdName: string;
   createMissingUsers: boolean;
+  demoMode: boolean;
 };
 
 type EnsureUserResult = {
@@ -70,7 +78,9 @@ main().catch(error => {
  */
 async function main(): Promise<void> {
   const config = loadConfig();
-  console.log('[db:seed] Seeding local Supabase data...');
+  console.log(
+    `[db:seed] Seeding ${config.demoMode ? 'DEMO' : 'local'} Supabase data...`,
+  );
   console.log(
     `[db:seed] auth user mode: ${
       config.createMissingUsers ? 'create-if-missing' : 'must-exist'
@@ -128,30 +138,43 @@ async function main(): Promise<void> {
 
 /**
  * Resolve Supabase config + seed-user/household settings from env vars (with
- * defaults), and construct the admin client.
+ * defaults), and construct the admin client. When MOMO_DEMO_MODE=true, owner
+ * credentials come from MOMO_DEMO_EMAIL/PASSWORD and demo-flavored defaults
+ * are used.
  */
 function loadConfig(): SeedConfig {
   const { url, serviceRoleKey } = getLocalSupabaseEnv();
   const supabase = createAdminClient(url, serviceRoleKey);
+  const demoMode = parseBooleanEnv('MOMO_DEMO_MODE', false);
 
-  const owner = readSeedUserFromEnv(
-    'OWNER',
-    DEFAULT_SEED.ownerEmail,
-    DEFAULT_SEED.ownerName,
-  );
-  const member = readSeedUserFromEnv(
-    'MEMBER',
-    DEFAULT_SEED.memberEmail,
-    DEFAULT_SEED.memberName,
-  );
-  const householdName =
-    process.env.MOMO_DEV_SEED_HOUSEHOLD_NAME ?? DEFAULT_SEED.householdName;
-  const createMissingUsers = parseBooleanEnv(
-    'MOMO_DEV_SEED_CREATE_MISSING_USERS',
-    false,
-  );
+  const owner = demoMode
+    ? readDemoOwnerFromEnv()
+    : readSeedUserFromEnv(
+        'OWNER',
+        DEFAULT_SEED.ownerEmail,
+        DEFAULT_SEED.ownerName,
+      );
+  const member = demoMode
+    ? readDemoMemberFromEnv()
+    : readSeedUserFromEnv(
+        'MEMBER',
+        DEFAULT_SEED.memberEmail,
+        DEFAULT_SEED.memberName,
+      );
+  const householdName = demoMode
+    ? (process.env.MOMO_DEMO_HOUSEHOLD_NAME ?? DEMO_SEED.householdName)
+    : (process.env.MOMO_DEV_SEED_HOUSEHOLD_NAME ?? DEFAULT_SEED.householdName);
+  const createMissingUsers =
+    demoMode || parseBooleanEnv('MOMO_DEV_SEED_CREATE_MISSING_USERS', false);
 
-  return { supabase, owner, member, householdName, createMissingUsers };
+  return {
+    supabase,
+    owner,
+    member,
+    householdName,
+    createMissingUsers,
+    demoMode,
+  };
 }
 
 /** Build a service-role Supabase client suitable for admin operations. */
@@ -179,6 +202,32 @@ function readSeedUserFromEnv(
       process.env[`MOMO_DEV_SEED_${role}_PASSWORD`] ??
       process.env.MOMO_DEV_SEED_PASSWORD,
     displayName: process.env[`MOMO_DEV_SEED_${role}_NAME`] ?? defaultName,
+  };
+}
+
+/**
+ * Demo-mode owner: credentials must come from MOMO_DEMO_EMAIL/PASSWORD so the
+ * /login "demo" button can sign in with a known account.
+ */
+function readDemoOwnerFromEnv(): SeedUser {
+  return {
+    email: mustGetEnv('MOMO_DEMO_EMAIL'),
+    password: mustGetEnv('MOMO_DEMO_PASSWORD'),
+    displayName: process.env.MOMO_DEMO_NAME ?? DEMO_SEED.ownerName,
+  };
+}
+
+/**
+ * Demo-mode member: a partner account that shares the demo household.
+ * Falls back to a synthetic local email so the demo doesn't require a second
+ * real account.
+ */
+function readDemoMemberFromEnv(): SeedUser {
+  return {
+    email: process.env.MOMO_DEMO_MEMBER_EMAIL ?? DEMO_SEED.memberEmail,
+    password:
+      process.env.MOMO_DEMO_MEMBER_PASSWORD ?? process.env.MOMO_DEMO_PASSWORD,
+    displayName: process.env.MOMO_DEMO_MEMBER_NAME ?? DEMO_SEED.memberName,
   };
 }
 

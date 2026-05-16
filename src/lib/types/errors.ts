@@ -17,6 +17,13 @@ export const AUTH_ERRORS = [
   'auth_exchange_failed', // Could not get session information
   'auth_user_missing', // Something very weird happened during login and there is no user,
   'auth_provider_failed', // Login with Google failed
+  'auth_invalid_credentials', // signInWithPassword returned an auth error
+  'auth_email_invalid', // Submitted email did not match the validation regex
+  'auth_password_too_short', // Submitted password shorter than the minimum
+  'auth_password_mismatch', // Signup confirm-password did not match password
+  'auth_email_in_use', // Signup against an email that already exists
+  'auth_signup_failed', // Generic signup failure
+  'auth_demo_not_configured', // Demo env vars missing on the server
   'logout_failed',
 ] as const;
 

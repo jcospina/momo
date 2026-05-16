@@ -4,7 +4,28 @@
       "welcome": "Bienvenido a",
       "tagline": "Más plata, más diversión",
       "signInGoogle": "Iniciar sesión con Google",
+      "emailLabel": "Correo",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "Tu contraseña",
+      "signInPassword": "Iniciar sesión",
+      "signingIn": "Iniciando sesión…",
+      "dividerOr": "o",
+      "noAccount": "¿Aún no tienes cuenta? <link>Crea una</link>.",
       "legalConsent": "Al iniciar sesión, aceptas la <privacy>Política de privacidad</privacy> y los <terms>Términos del servicio</terms>."
+    },
+    "signup": {
+      "welcome": "Únete a",
+      "tagline": "Registra tus gastos, sin enredos",
+      "emailLabel": "Correo",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "Mínimo 8 caracteres",
+      "confirmPasswordLabel": "Confirma la contraseña",
+      "confirmPasswordPlaceholder": "Escríbela de nuevo",
+      "createAccount": "Crear cuenta",
+      "creatingAccount": "Creando cuenta…",
+      "haveAccount": "¿Ya tienes cuenta? <link>Inicia sesión</link>."
     },
     "onboarding": {
       "householdPrompt": "Vamos a crear tu <feature>hogar</feature> para que puedas registrar gastos junto a tus <highlight>seres queridos.</highlight>",
@@ -26,7 +47,14 @@
     "no_household": "Alguien te engañó haciéndote creer que esta invitación era válida. Deberían sentir vergüenza.",
     "user_has_a_household": "Ya perteneces a un hogar, nada de trampas por favor.",
     "profile_create_failed": "No puedo crear tu perfil. La culpa es mía.",
-    "user_pref_update_failed": "No puedo actualizar tus preferencias, perdona."
+    "user_pref_update_failed": "No puedo actualizar tus preferencias, perdona.",
+    "auth_invalid_credentials": "Ese correo y contraseña no me cuadran con nada. ¿Lo intentamos de nuevo?",
+    "auth_email_invalid": "Ese correo no me suena bien.",
+    "auth_password_too_short": "Las contraseñas necesitan al menos 8 caracteres. Yo no hago las reglas.",
+    "auth_password_mismatch": "Esas dos contraseñas no coinciden. Échale otro vistazo.",
+    "auth_email_in_use": "Ese correo ya está registrado. ¿Mejor inicias sesión?",
+    "auth_signup_failed": "No pude crear tu cuenta. La culpa es mía. Perdona.",
+    "auth_demo_not_configured": "El modo demo no está configurado en este servidor. Hoy no hay tour rápido, perdona."
   },
   "chat": {
     "tabs": {
@@ -172,7 +200,8 @@
     "nav": {
       "how": "Cómo funciona",
       "features": "Funciones",
-      "login": "Login"
+      "login": "Login",
+      "signup": "Crear cuenta"
     },
     "hero": {
       "eyebrow": "Un control de gastos tipo chat",

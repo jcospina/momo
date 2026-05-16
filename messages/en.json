@@ -4,7 +4,28 @@
       "welcome": "Welcome to",
       "tagline": "More money, More fun",
       "signInGoogle": "Sign in with Google",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Your password",
+      "signInPassword": "Sign in",
+      "signingIn": "Signing in…",
+      "dividerOr": "or",
+      "noAccount": "Don't have an account yet? <link>Sign up</link>.",
       "legalConsent": "By logging in, you accept the <privacy>Privacy Policy</privacy> and <terms>Terms of Service</terms>."
+    },
+    "signup": {
+      "welcome": "Join",
+      "tagline": "Track expenses, the easy way",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "confirmPasswordLabel": "Confirm password",
+      "confirmPasswordPlaceholder": "Type it again",
+      "createAccount": "Create account",
+      "creatingAccount": "Creating account…",
+      "haveAccount": "Already have an account? <link>Sign in</link>."
     },
     "onboarding": {
       "householdPrompt": "Let's set up your <feature>household</feature> so you can start tracking expenses together with your <highlight>loved ones.</highlight>",
@@ -26,7 +47,14 @@
     "no_household": "Someone tricked you into believing this invite was valid. Shame on them.",
     "user_has_a_household": "You already belong to one home, no cheating please.",
     "profile_create_failed": "I cannot create your profile. This one is on me.",
-    "user_pref_update_failed": "I cannot update your preferences, sorry mate."
+    "user_pref_update_failed": "I cannot update your preferences, sorry mate.",
+    "auth_invalid_credentials": "That email and password don't match anything I have. Try again?",
+    "auth_email_invalid": "That email doesn't look right to me.",
+    "auth_password_too_short": "Passwords need at least 8 characters. I don't make the rules.",
+    "auth_password_mismatch": "Those two passwords don't match. Take another look.",
+    "auth_email_in_use": "That email is already on the books. Try signing in?",
+    "auth_signup_failed": "I couldn't create your account. This one is on me. Sorry.",
+    "auth_demo_not_configured": "Demo mode isn't set up on this server. No quick tour today, sorry."
   },
   "chat": {
     "tabs": {
@@ -172,7 +200,8 @@
     "nav": {
       "how": "How it works",
       "features": "Features",
-      "login": "Login"
+      "login": "Login",
+      "signup": "Sign up"
     },
     "hero": {
       "eyebrow": "A chat-first money tracker",

@@ -20,7 +20,11 @@
  */
 
 import { createClient, type User } from '@supabase/supabase-js';
-import { getLocalSupabaseEnv } from './lib/supabase-env';
+import {
+  getLocalSupabaseEnv,
+  mustGetEnv,
+  parseBooleanEnv,
+} from './lib/supabase-env';
 import {
   chatLabelFor,
   DEFAULT_SAMPLE_SEED,
@@ -34,11 +38,17 @@ const supabase = createClient(supabaseUrl, serviceRoleKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
+const DEMO_MODE = parseBooleanEnv('MOMO_DEMO_MODE', false);
+
 const OWNER_EMAIL = (
-  process.env.MOMO_DEV_SEED_OWNER_EMAIL ?? 'dev.owner@momo.local'
+  DEMO_MODE
+    ? mustGetEnv('MOMO_DEMO_EMAIL')
+    : (process.env.MOMO_DEV_SEED_OWNER_EMAIL ?? 'dev.owner@momo.local')
 ).toLowerCase();
 const MEMBER_EMAIL = (
-  process.env.MOMO_DEV_SEED_MEMBER_EMAIL ?? 'dev.member@momo.local'
+  DEMO_MODE
+    ? (process.env.MOMO_DEMO_MEMBER_EMAIL ?? 'momo-demo-member@joq.dev')
+    : (process.env.MOMO_DEV_SEED_MEMBER_EMAIL ?? 'dev.member@momo.local')
 ).toLowerCase();
 
 const CURRENCY = 'USD';

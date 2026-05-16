@@ -6,6 +6,7 @@ import { useMediaQuery } from '@hooks/use-media-query';
 import { useScrollTick } from '@hooks/use-scroll-progress';
 import { Logo } from '@ui/logo/logo';
 import { Navbar } from '@ui/navbar/navbar';
+import { cn } from '@utils/cn';
 import gsap from 'gsap';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -85,9 +86,21 @@ export function LandingNavbar() {
   );
 
   const links = (
-    <Link href="/login" className={styles['momo-landing-navbar__link']}>
-      {t('login')}
-    </Link>
+    <>
+      <Link
+        href="/signup"
+        className={cn(
+          styles['momo-landing-navbar__link'],
+          styles['momo-landing-navbar__link--signup'],
+          styles['momo-landing-navbar__link--desktop-only'],
+        )}
+      >
+        {t('signup')}
+      </Link>
+      <Link href="/login" className={styles['momo-landing-navbar__link']}>
+        {t('login')}
+      </Link>
+    </>
   );
 
   return (

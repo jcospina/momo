@@ -21,6 +21,7 @@
     "db:reset": "supabase db reset --local",
     "db:seed": "tsx scripts/db-seed.ts",
     "db:seed:sample": "tsx scripts/db-seed-sample-data.ts",
+    "db:seed:demo": "MOMO_DEMO_MODE=true MOMO_ALLOW_REMOTE_SUPABASE=true tsx scripts/db-seed.ts && MOMO_DEMO_MODE=true MOMO_ALLOW_REMOTE_SUPABASE=true tsx scripts/db-seed-sample-data.ts",
     "db:lint": "supabase db lint --local",
     "db:push:dry-run": "bash scripts/db-push-dry-run.sh",
     "db:push": "bash scripts/db-push.sh",

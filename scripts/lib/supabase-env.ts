@@ -65,7 +65,7 @@ function loadEnvFiles(files: string[]): void {
   }
 }
 
-function mustGetEnv(key: string): string {
+export function mustGetEnv(key: string): string {
   const value = process.env[key];
   if (!value) {
     throw new Error(
@@ -73,6 +73,21 @@ function mustGetEnv(key: string): string {
     );
   }
   return value;
+}
+
+export function parseBooleanEnv(name: string, fallback: boolean): boolean {
+  const value = process.env[name];
+  if (value === undefined) return fallback;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === '1' || normalized === 'true' || normalized === 'yes') {
+    return true;
+  }
+  if (normalized === '0' || normalized === 'false' || normalized === 'no') {
+    return false;
+  }
+  throw new Error(
+    `Invalid ${name} value "${value}". Use true/false (or 1/0, yes/no).`,
+  );
 }
 
 function assertLocalSupabaseUrl(urlString: string): void {
@@ -86,11 +101,19 @@ function assertLocalSupabaseUrl(urlString: string): void {
   const host = parsed.hostname.toLowerCase();
   const isLocalHost = host === 'localhost' || host === '127.0.0.1';
 
-  if (!isLocalHost) {
-    throw new Error(
-      `Refusing to target non-local Supabase (${parsed.origin}). Point NEXT_PUBLIC_SUPABASE_URL to local Supabase first.`,
+  if (isLocalHost) return;
+
+  if (parseBooleanEnv('MOMO_ALLOW_REMOTE_SUPABASE', false)) {
+    console.warn(
+      `\n⚠  TARGETING REMOTE SUPABASE (${parsed.origin}). This is destructive against the real DB.`,
     );
+    console.warn('⚠  Continuing because MOMO_ALLOW_REMOTE_SUPABASE=true.\n');
+    return;
   }
+
+  throw new Error(
+    `Refusing to target non-local Supabase (${parsed.origin}). Point NEXT_PUBLIC_SUPABASE_URL to local Supabase, or set MOMO_ALLOW_REMOTE_SUPABASE=true if you really mean to target this URL.`,
+  );
 }
 
 function resolveServiceRoleKey(): string {

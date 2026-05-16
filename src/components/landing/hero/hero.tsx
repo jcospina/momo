@@ -50,7 +50,7 @@ export function Hero() {
         <Button
           variant="primary"
           asLink
-          href="/login"
+          href="/signup"
           className={styles['momo-landing-hero__account-cta']}
         >
           {t('cta_primary')}

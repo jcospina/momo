@@ -39,7 +39,7 @@ export function CloserSection() {
         <Button
           variant="primary"
           asLink
-          href="/login"
+          href="/signup"
           className={styles['momo-landing-closer__cta']}
         >
           {t('cta')}

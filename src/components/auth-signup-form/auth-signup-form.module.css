@@ -1,0 +1,9 @@
+.auth-signup-form__input,
+.auth-signup-form__submit {
+  width: 100%;
+}
+
+.auth-signup-form__error {
+  color: var(--color-vibrant-coral);
+  margin: 0;
+}

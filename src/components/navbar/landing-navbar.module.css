@@ -28,3 +28,20 @@
   text-decoration-thickness: 2px;
   text-underline-offset: 4px;
 }
+
+.momo-landing-navbar__link--signup {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--color-amber-glow);
+}
+
+.momo-landing-navbar__link--signup:hover {
+  text-decoration-thickness: 3px;
+}
+
+@media (max-width: 720px) {
+  .momo-landing-navbar__link--desktop-only {
+    display: none;
+  }
+}
