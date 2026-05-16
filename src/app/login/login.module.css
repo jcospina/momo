@@ -1,59 +1,3 @@
-.login {
-  --login-nav-offset: 4.75rem;
-  min-height: 100svh;
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  padding-top: var(--login-nav-offset);
-}
-
-.login__main {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--space-4) var(--space-4) var(--space-2);
-}
-
-.login__content {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
-}
-
-.login__panel {
-  width: min(100%, 44rem);
-}
-
-.login__panel-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-6);
-}
-
-.login__actions {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: var(--space-2);
-  padding-bottom: var(--space-0_5);
-}
-
-.login__password-form {
-  width: 100%;
-}
-
-.login__provider {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
-
 .login__divider {
   display: flex;
   align-items: center;
@@ -78,6 +22,10 @@
   letter-spacing: 0.08em;
 }
 
+.login__provider-button {
+  width: 100%;
+}
+
 .login__signup-cta {
   text-align: center;
   margin: 0;
@@ -95,88 +43,4 @@
 
 .login__signup-link:hover {
   text-decoration-thickness: 3px;
-}
-
-.login__header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  text-align: center;
-}
-
-.login__welcome {
-  color: var(--fg-primary);
-}
-
-.login__tagline {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.4em;
-  line-height: 1.1;
-}
-
-.login__logo {
-  color: var(--color-amber-glow);
-}
-
-.login__legal-copy {
-  max-width: 28rem;
-  margin: 0;
-  color: color-mix(in oklch, var(--fg-primary), var(--bg-panel) 36%);
-  text-align: center;
-  line-height: 1.4;
-}
-
-.login__legal-link {
-  color: inherit;
-  font-weight: var(--weight-bold);
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.16em;
-  transition: text-decoration-thickness var(--duration-fast) ease;
-}
-
-.login__legal-link:hover {
-  text-decoration-thickness: 3px;
-}
-
-.login__footer {
-  margin-top: 0;
-}
-
-.login__toast {
-  width: min(100%, 44rem);
-}
-
-@media screen and (max-width: 720px) {
-  .login {
-    --login-nav-offset: 5.25rem;
-  }
-
-  .login__main {
-    padding: var(--space-3) var(--space-2) var(--space-1);
-  }
-
-  .login__panel-content {
-    gap: var(--space-5);
-  }
-
-  .login__actions {
-    gap: calc(var(--spacing) * 2.5);
-    padding-bottom: var(--space-1);
-  }
-
-  .login__header {
-    gap: var(--space-1);
-  }
-
-  .login__logo {
-    font-size: clamp(4rem, 18vw, 5.25rem);
-  }
-
-  .login__footer {
-    padding-top: var(--space-1);
-  }
 }

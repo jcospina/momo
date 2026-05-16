@@ -5,6 +5,7 @@ import { Highlight } from '@ui/highlight/highlight';
 import { Logo } from '@ui/logo/logo';
 import { Typography } from '@ui/typography/typography';
 import { useTranslations } from 'next-intl';
+import { SIGNUP_PATH } from '@/lib/routes';
 import styles from './closer-section.module.css';
 
 export function CloserSection() {
@@ -39,7 +40,7 @@ export function CloserSection() {
         <Button
           variant="primary"
           asLink
-          href="/signup"
+          href={SIGNUP_PATH}
           className={styles['momo-landing-closer__cta']}
         >
           {t('cta')}

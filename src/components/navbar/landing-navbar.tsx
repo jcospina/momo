@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
+import { LOGIN_PATH, SIGNUP_PATH } from '@/lib/routes';
 import styles from './landing-navbar.module.css';
 
 function clampProgress(progress: number): number {
@@ -88,7 +89,7 @@ export function LandingNavbar() {
   const links = (
     <>
       <Link
-        href="/signup"
+        href={SIGNUP_PATH}
         className={cn(
           styles['momo-landing-navbar__link'],
           styles['momo-landing-navbar__link--signup'],
@@ -97,7 +98,7 @@ export function LandingNavbar() {
       >
         {t('signup')}
       </Link>
-      <Link href="/login" className={styles['momo-landing-navbar__link']}>
+      <Link href={LOGIN_PATH} className={styles['momo-landing-navbar__link']}>
         {t('login')}
       </Link>
     </>

@@ -3,6 +3,7 @@ import { Highlight } from '@ui/highlight/highlight';
 import { Typography } from '@ui/typography/typography';
 import { cn } from '@utils/cn';
 import { useTranslations } from 'next-intl';
+import { SIGNUP_PATH } from '@/lib/routes';
 import styles from './hero.module.css';
 import { HeroChatPreview } from './hero-chat-preview';
 import { HeroChatPreviewMobile } from './hero-chat-preview-mobile';
@@ -50,7 +51,7 @@ export function Hero() {
         <Button
           variant="primary"
           asLink
-          href="/signup"
+          href={SIGNUP_PATH}
           className={styles['momo-landing-hero__account-cta']}
         >
           {t('cta_primary')}

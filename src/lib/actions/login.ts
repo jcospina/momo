@@ -1,7 +1,8 @@
 'use server';
 
 import { createSupabaseServerClient } from '@lib-supabase/server';
-import type { Provider, SupabaseClient } from '@supabase/supabase-js';
+import { HOME_PATH, LOGIN_PATH, ONBOARDING_PATH } from '@proxy/constants';
+import type { Provider, SupabaseClient, User } from '@supabase/supabase-js';
 import { redirectWithError } from '@utils/redirect-with-error';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
@@ -26,11 +27,11 @@ export async function loginWithProvider(provider: Provider): Promise<void> {
 
   if (error) {
     console.error('Provider login failed', error);
-    return redirectWithError('/login', 'auth_provider_failed');
+    return redirectWithError(LOGIN_PATH, 'auth_provider_failed');
   }
 
   if (!data.url) {
-    redirectWithError('/login', 'auth_provider_failed');
+    redirectWithError(LOGIN_PATH, 'auth_provider_failed');
   }
   redirect(data.url);
 }
@@ -51,13 +52,16 @@ export async function loginWithPassword(
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
-  if (error) {
+  if (error || !data.user) {
     return { error: tErrors('auth_invalid_credentials') };
   }
 
-  return completePostLogin(supabase);
+  return redirectAfterAuth(supabase, data.user);
 }
 
 export async function signupWithPassword(
@@ -80,18 +84,21 @@ export async function signupWithPassword(
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabase.auth.signUp({ email, password });
 
   if (error) {
-    const message = error.message ?? '';
-    if (/already|exists|registered|duplicate/i.test(message)) {
+    if (error.code === 'user_already_exists' || error.code === 'email_exists') {
       return { error: tErrors('auth_email_in_use') };
     }
     console.error('Signup failed', error);
     return { error: tErrors('auth_signup_failed') };
   }
 
-  return completePostLogin(supabase);
+  if (!data.user) {
+    return { error: tErrors('auth_signup_failed') };
+  }
+
+  return redirectAfterAuth(supabase, data.user);
 }
 
 export async function loginAsDemo(): Promise<void> {
@@ -100,35 +107,35 @@ export async function loginAsDemo(): Promise<void> {
 
   if (!email || !password) {
     console.error('Demo login attempted without MOMO_DEMO_EMAIL/PASSWORD set');
-    redirectWithError('/login', 'auth_demo_not_configured');
+    redirectWithError(LOGIN_PATH, 'auth_demo_not_configured');
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
-  if (error) {
+  if (error || !data.user) {
     console.error('Demo login failed', error);
-    redirectWithError('/login', 'auth_invalid_credentials');
+    redirectWithError(LOGIN_PATH, 'auth_invalid_credentials');
   }
 
-  return completePostLogin(supabase);
+  return redirectAfterAuth(supabase, data.user);
 }
 
-async function completePostLogin(supabase: SupabaseClient): Promise<never> {
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+async function redirectAfterAuth(
+  supabase: SupabaseClient,
+  user: User,
+): Promise<never> {
+  const [profileError, membership] = await Promise.all([
+    createProfile(user),
+    getMembership(user.id, { supabase }),
+  ]);
 
-  if (userError || !user) {
-    redirectWithError('/login', 'auth_user_missing');
-  }
-
-  const profileError = await createProfile(user);
   if (profileError) {
-    redirectWithError('/login', 'profile_create_failed');
+    redirectWithError(LOGIN_PATH, 'profile_create_failed');
   }
 
-  const membership = await getMembership(user.id, { supabase });
-  redirect(membership ? '/home' : '/onboarding');
+  redirect(membership ? HOME_PATH : ONBOARDING_PATH);
 }

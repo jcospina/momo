@@ -1,3 +1,7 @@
-export const HOME_PATH = '/home';
-export const ONBOARDING_PATH = '/onboarding';
-export const ROOT_PATH = '/';
+export {
+  HOME_PATH,
+  LOGIN_PATH,
+  ONBOARDING_PATH,
+  ROOT_PATH,
+  SIGNUP_PATH,
+} from '@/lib/routes';
