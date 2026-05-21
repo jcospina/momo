@@ -1,128 +1,111 @@
 .auth-shell {
-  --auth-shell-nav-offset: 4.75rem;
-  min-height: 100svh;
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  padding-top: var(--auth-shell-nav-offset);
+    --auth-shell-nav-offset: 5.25rem;
+    min-height: 100svh;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    padding-top: var(--auth-shell-nav-offset);
 }
 
 .auth-shell__main {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--space-4) var(--space-4) var(--space-2);
-}
-
-.auth-shell__content {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-3) var(--space-2) var(--space-1);
 }
 
 .auth-shell__panel {
-  width: min(100%, 44rem);
+    position: relative;
+    width: min(100%, 44rem);
+}
+
+.auth-shell__panel-start {
+    position: absolute;
+    top: var(--space-1);
+    left: var(--space-1);
+    display: flex;
 }
 
 .auth-shell__panel-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-6);
+    gap: var(--space-4) !important;
 }
 
 .auth-shell__actions {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: var(--space-2);
-  padding-bottom: var(--space-0_5);
-}
-
-.auth-shell__header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  text-align: center;
+    padding-bottom: var(--space-1);
 }
 
 .auth-shell__welcome {
-  color: var(--fg-primary);
+    color: var(--fg-primary);
 }
 
 .auth-shell__tagline {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.4em;
-  line-height: 1.1;
+    display: none;
+}
+
+.auth-shell__header {
+    text-align: center;
 }
 
 .auth-shell__logo {
-  color: var(--color-amber-glow);
+    color: var(--color-amber-glow);
 }
 
 .auth-shell__footer {
-  margin-top: 0;
+    display: none;
 }
 
 .auth-shell__legal-copy {
-  max-width: 28rem;
-  margin: 0 auto;
-  color: color-mix(in oklch, var(--fg-primary), var(--bg-panel) 36%);
-  text-align: center;
-  line-height: 1.4;
+    max-width: 28rem;
+    margin: 0 auto;
+    color: color-mix(in oklch, var(--fg-primary), var(--bg-panel) 36%);
+    text-align: center;
+    line-height: 1.4;
 }
 
 .auth-shell__legal-link {
-  color: inherit;
-  font-weight: var(--weight-bold);
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.16em;
-  transition: text-decoration-thickness var(--duration-fast) ease;
+    color: inherit;
+    font-weight: var(--weight-bold);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.16em;
+    transition: text-decoration-thickness var(--duration-fast) ease;
 }
 
 .auth-shell__legal-link:hover {
-  text-decoration-thickness: 3px;
+    text-decoration-thickness: 3px;
 }
 
 .auth-shell__toast {
-  width: min(100%, 44rem);
+    width: min(100%, 44rem);
 }
 
-@media screen and (max-width: 720px) {
-  .auth-shell {
-    --auth-shell-nav-offset: 5.25rem;
-  }
+@media screen and (min-width: 768px) {
+    .auth-shell {
+        --auth-shell-nav-offset: 4.75rem;
+    }
 
-  .auth-shell__main {
-    padding: var(--space-3) var(--space-2) var(--space-1);
-  }
+    .auth-shell__main {
+        padding: var(--space-4) var(--space-4) var(--space-2);
+    }
 
-  .auth-shell__panel-content {
-    gap: var(--space-5);
-  }
+    .auth-shell__panel-content {
+        gap: var(--space-8) !important;
+    }
 
-  .auth-shell__actions {
-    gap: calc(var(--spacing) * 2.5);
-    padding-bottom: var(--space-1);
-  }
+    .auth-shell__actions {
+        padding-bottom: var(--space-0_5);
+    }
 
-  .auth-shell__header {
-    gap: var(--space-1);
-  }
+    .auth-shell__footer {
+        display: revert;
+        margin-top: 0;
+        padding-top: 0;
+    }
 
-  .auth-shell__logo {
-    font-size: clamp(4rem, 18vw, 5.25rem);
-  }
-
-  .auth-shell__footer {
-    padding-top: var(--space-1);
-  }
+    .auth-shell__tagline {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.4em;
+        line-height: 1.1;
+    }
 }

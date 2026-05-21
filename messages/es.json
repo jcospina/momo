@@ -2,8 +2,10 @@
   "auth": {
     "login": {
       "welcome": "Bienvenido a",
-      "tagline": "Más plata, más diversión",
+      "tagline": "More money, More fun",
       "signInGoogle": "Iniciar sesión con Google",
+      "signInEmail": "Iniciar sesión con email",
+      "backAria": "Volver a las opciones",
       "emailLabel": "Correo",
       "emailPlaceholder": "tu@ejemplo.com",
       "passwordLabel": "Contraseña",
@@ -16,13 +18,11 @@
     },
     "signup": {
       "welcome": "Únete a",
-      "tagline": "Registra tus gastos, sin enredos",
+      "tagline": "More money, More fun",
       "emailLabel": "Correo",
       "emailPlaceholder": "tu@ejemplo.com",
       "passwordLabel": "Contraseña",
       "passwordPlaceholder": "Mínimo 8 caracteres",
-      "confirmPasswordLabel": "Confirma la contraseña",
-      "confirmPasswordPlaceholder": "Escríbela de nuevo",
       "createAccount": "Crear cuenta",
       "creatingAccount": "Creando cuenta…",
       "haveAccount": "¿Ya tienes cuenta? <link>Inicia sesión</link>."
@@ -51,7 +51,6 @@
     "auth_invalid_credentials": "Ese correo y contraseña no me cuadran con nada. ¿Lo intentamos de nuevo?",
     "auth_email_invalid": "Ese correo no me suena bien.",
     "auth_password_too_short": "Las contraseñas necesitan al menos 8 caracteres. Yo no hago las reglas.",
-    "auth_password_mismatch": "Esas dos contraseñas no coinciden. Échale otro vistazo.",
     "auth_email_in_use": "Ese correo ya está registrado. ¿Mejor inicias sesión?",
     "auth_signup_failed": "No pude crear tu cuenta. La culpa es mía. Perdona.",
     "auth_demo_not_configured": "El modo demo no está configurado en este servidor. Hoy no hay tour rápido, perdona."

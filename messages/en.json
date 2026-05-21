@@ -4,6 +4,8 @@
       "welcome": "Welcome to",
       "tagline": "More money, More fun",
       "signInGoogle": "Sign in with Google",
+      "signInEmail": "Sign in with email",
+      "backAria": "Back to sign-in options",
       "emailLabel": "Email",
       "emailPlaceholder": "you@example.com",
       "passwordLabel": "Password",
@@ -16,13 +18,11 @@
     },
     "signup": {
       "welcome": "Join",
-      "tagline": "Track expenses, the easy way",
+      "tagline": "More money, More fun",
       "emailLabel": "Email",
       "emailPlaceholder": "you@example.com",
       "passwordLabel": "Password",
       "passwordPlaceholder": "At least 8 characters",
-      "confirmPasswordLabel": "Confirm password",
-      "confirmPasswordPlaceholder": "Type it again",
       "createAccount": "Create account",
       "creatingAccount": "Creating account…",
       "haveAccount": "Already have an account? <link>Sign in</link>."
@@ -51,7 +51,6 @@
     "auth_invalid_credentials": "That email and password don't match anything I have. Try again?",
     "auth_email_invalid": "That email doesn't look right to me.",
     "auth_password_too_short": "Passwords need at least 8 characters. I don't make the rules.",
-    "auth_password_mismatch": "Those two passwords don't match. Take another look.",
     "auth_email_in_use": "That email is already on the books. Try signing in?",
     "auth_signup_failed": "I couldn't create your account. This one is on me. Sorry.",
     "auth_demo_not_configured": "Demo mode isn't set up on this server. No quick tour today, sorry."

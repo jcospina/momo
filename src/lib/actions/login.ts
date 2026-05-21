@@ -71,16 +71,12 @@ export async function signupWithPassword(
   const tErrors = await getTranslations('errors');
   const email = String(formData.get('email') ?? '').trim();
   const password = String(formData.get('password') ?? '');
-  const confirmPassword = String(formData.get('confirmPassword') ?? '');
 
   if (!EMAIL_PATTERN.test(email)) {
     return { error: tErrors('auth_email_invalid') };
   }
   if (password.length < MIN_PASSWORD_LENGTH) {
     return { error: tErrors('auth_password_too_short') };
-  }
-  if (password !== confirmPassword) {
-    return { error: tErrors('auth_password_mismatch') };
   }
 
   const supabase = await createSupabaseServerClient();

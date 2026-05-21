@@ -28,7 +28,11 @@ export function AuthLoginForm({ className }: PropsWithClassName) {
       className={className}
       isFullWidth
     >
-      <Flex direction="column" gap={1} isFullWidth>
+      <Flex
+        direction="column"
+        isFullWidth
+        className={styles['auth-login-form__field']}
+      >
         <Typography
           as="label"
           htmlFor="auth-login-email"
@@ -48,7 +52,11 @@ export function AuthLoginForm({ className }: PropsWithClassName) {
           className={styles['auth-login-form__input']}
         />
       </Flex>
-      <Flex direction="column" gap={1} isFullWidth>
+      <Flex
+        direction="column"
+        isFullWidth
+        className={styles['auth-login-form__field']}
+      >
         <Typography
           as="label"
           htmlFor="auth-login-password"

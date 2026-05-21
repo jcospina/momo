@@ -28,7 +28,11 @@ export function AuthSignupForm({ className }: PropsWithClassName) {
       className={className}
       isFullWidth
     >
-      <Flex direction="column" gap={1} isFullWidth>
+      <Flex
+        direction="column"
+        isFullWidth
+        className={styles['auth-signup-form__field']}
+      >
         <Typography
           as="label"
           htmlFor="auth-signup-email"
@@ -48,7 +52,11 @@ export function AuthSignupForm({ className }: PropsWithClassName) {
           className={styles['auth-signup-form__input']}
         />
       </Flex>
-      <Flex direction="column" gap={1} isFullWidth>
+      <Flex
+        direction="column"
+        isFullWidth
+        className={styles['auth-signup-form__field']}
+      >
         <Typography
           as="label"
           htmlFor="auth-signup-password"
@@ -62,27 +70,6 @@ export function AuthSignupForm({ className }: PropsWithClassName) {
           name="password"
           type="password"
           placeholder={t('passwordPlaceholder')}
-          autoComplete="new-password"
-          required
-          minLength={8}
-          disabled={pending}
-          className={styles['auth-signup-form__input']}
-        />
-      </Flex>
-      <Flex direction="column" gap={1} isFullWidth>
-        <Typography
-          as="label"
-          htmlFor="auth-signup-confirm"
-          size="md"
-          weight="bold"
-        >
-          {t('confirmPasswordLabel')}
-        </Typography>
-        <Input
-          id="auth-signup-confirm"
-          name="confirmPassword"
-          type="password"
-          placeholder={t('confirmPasswordPlaceholder')}
           autoComplete="new-password"
           required
           minLength={8}

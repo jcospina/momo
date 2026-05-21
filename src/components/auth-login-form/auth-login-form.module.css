@@ -3,7 +3,17 @@
   width: 100%;
 }
 
+.auth-login-form__field {
+  gap: 0;
+}
+
 .auth-login-form__error {
   color: var(--color-vibrant-coral);
   margin: 0;
+}
+
+@media screen and (min-width: 768px) {
+  .auth-login-form__field {
+    gap: calc(var(--spacing) * 1);
+  }
 }
