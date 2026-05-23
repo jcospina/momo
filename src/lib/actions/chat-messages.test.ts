@@ -1,4 +1,5 @@
 import { processChatMessage } from '@helpers/chat/chat-processor';
+import { isAiEnabled } from '@helpers/user-prefs';
 import { createSupabaseServerClient } from '@lib-supabase/server';
 import { sendChatMessage, sendMomoMessage } from './chat-messages';
 
@@ -12,6 +13,10 @@ jest.mock('@helpers/chat/chat-messages', () => ({
 
 jest.mock('@helpers/chat/chat-processor', () => ({
   processChatMessage: jest.fn(),
+}));
+
+jest.mock('@helpers/user-prefs', () => ({
+  isAiEnabled: jest.fn(),
 }));
 
 type InsertResult = {
@@ -312,9 +317,12 @@ describe('sendChatMessage action', () => {
     createSupabaseServerClient,
   );
   const processChatMessageMock = jest.mocked(processChatMessage);
+  const isAiEnabledMock = jest.mocked(isAiEnabled);
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Default existing tests to the AI-on path; specific tests override.
+    isAiEnabledMock.mockResolvedValue(true);
   });
 
   it('returns message_empty when content is blank', async () => {
@@ -395,6 +403,47 @@ describe('sendChatMessage action', () => {
       content: 'hey @momo can you help?',
       momo_invocation_tagged: true,
     });
+  });
+
+  it('ignores @momo and runs the expense pipeline when AI is disabled', async () => {
+    isAiEnabledMock.mockResolvedValue(false);
+    const inserted = {
+      id: 'msg-disabled',
+      household_id: null,
+      user_id: 'user-1',
+      content: '@momo what is my total?',
+      status: 'pending',
+      expense_count: 0,
+      created_at: '2026-05-13T00:00:00.000Z',
+      sender_name: null,
+      author_kind: 'user',
+      momo_source: null,
+      momo_invocation_tagged: false,
+    };
+    const updated = { ...inserted, status: 'no_expense' };
+    const supabase = createSendChatSupabaseMock({
+      insert: { data: inserted, error: null },
+      refetch: { data: updated, error: null },
+    });
+    createSupabaseServerClientMock.mockResolvedValue(supabase.client as never);
+    processChatMessageMock.mockResolvedValueOnce(undefined as never);
+
+    const result = await sendChatMessage({
+      content: '@momo what is my total?',
+    });
+
+    // Insert payload must NOT carry momo_invocation_tagged or processed status.
+    expect(supabase.insertPayloads).toEqual([
+      {
+        content: '@momo what is my total?',
+        household_id: null,
+        user_id: 'user-1',
+        sender_name: null,
+      },
+    ]);
+    expect(processChatMessageMock).toHaveBeenCalledTimes(1);
+    expect(processChatMessageMock).toHaveBeenCalledWith(inserted);
+    expect(result).toEqual({ message: updated });
   });
 
   it('runs the expense pipeline and re-fetches when content is untagged', async () => {

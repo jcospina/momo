@@ -59,6 +59,14 @@ export async function POST(request: Request) {
   }
 
   const prefs = await getUserPreferences(user.id);
+
+  // Defense-in-depth: the client gate in sendChatMessage already prevents
+  // tagging a message when AI is disabled, but a stale client or direct
+  // caller could still hit this endpoint. Refuse unless AI is explicitly on.
+  if (prefs?.ai_enabled !== true) {
+    return NextResponse.json({ error: 'ai_disabled' }, { status: 403 });
+  }
+
   const currency: SupportedCurrency = prefs?.currency ?? DEFAULT_CURRENCY;
 
   const context: AgentContext = {

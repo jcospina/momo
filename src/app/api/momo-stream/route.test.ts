@@ -102,6 +102,35 @@ describe('POST /api/momo-stream', () => {
     expect(streamAgentMock).not.toHaveBeenCalled();
   });
 
+  it('returns 403 ai_disabled when ai_enabled is not explicitly true', async () => {
+    const supabase = mockSupabase({
+      user: { id: 'user-1' },
+      session: { access_token: 'access-token-123' },
+    });
+    createSupabaseServerClientMock.mockResolvedValue(supabase as never);
+    // Covers all "not true" cases the helper considers off — null prefs row,
+    // undefined ai_enabled, and explicit false.
+    getUserPreferencesMock.mockResolvedValueOnce(null);
+    getUserPreferencesMock.mockResolvedValueOnce({ currency: 'USD' });
+    getUserPreferencesMock.mockResolvedValueOnce({ ai_enabled: false });
+
+    for (let i = 0; i < 3; i += 1) {
+      const response = await POST(
+        makeRequest({
+          content: '@momo total?',
+          householdId: null,
+          triggeringMessageId: 'trigger-1',
+        }),
+      );
+
+      expect(response.status).toBe(403);
+      await expect(response.json()).resolves.toEqual({ error: 'ai_disabled' });
+    }
+
+    expect(streamAgentMock).not.toHaveBeenCalled();
+    expect(sendMomoMessageMock).not.toHaveBeenCalled();
+  });
+
   it('streams the agent response and persists it via sendMomoMessage onFinish', async () => {
     const supabase = mockSupabase({
       user: { id: 'user-1' },
@@ -111,6 +140,7 @@ describe('POST /api/momo-stream', () => {
     getUserPreferencesMock.mockResolvedValue({
       onboarding_status: 'completed',
       currency: 'EUR',
+      ai_enabled: true,
     });
 
     const streamResponse = new Response('hello from momo', {
@@ -186,7 +216,7 @@ describe('POST /api/momo-stream', () => {
       session: { access_token: 'access-token-123' },
     });
     createSupabaseServerClientMock.mockResolvedValue(supabase as never);
-    getUserPreferencesMock.mockResolvedValue(null);
+    getUserPreferencesMock.mockResolvedValue({ ai_enabled: true });
 
     let capturedOnFinish:
       | ((event: { text: string }) => Promise<void> | void)
@@ -239,7 +269,7 @@ describe('POST /api/momo-stream', () => {
       session: { access_token: 'access-token-123' },
     });
     createSupabaseServerClientMock.mockResolvedValue(supabase as never);
-    getUserPreferencesMock.mockResolvedValue(null);
+    getUserPreferencesMock.mockResolvedValue({ ai_enabled: true });
     streamAgentMock.mockReturnValue({
       toTextStreamResponse: () => new Response('ok'),
     } as never);

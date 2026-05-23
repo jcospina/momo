@@ -18,6 +18,15 @@
             "command": "bash .claude/hooks/conventional-commits.sh"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/block-no-verify.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [

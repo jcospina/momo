@@ -2,6 +2,7 @@
 
 import { deleteChatMessage as deleteChatMessageRow } from '@helpers/chat/chat-messages';
 import { processChatMessage } from '@helpers/chat/chat-processor';
+import { isAiEnabled } from '@helpers/user-prefs';
 import { createSupabaseServerClient } from '@lib-supabase/server';
 import type {
   ChatMessage,
@@ -35,7 +36,11 @@ export async function sendChatMessage({
     return { errorCode: 'auth_required' };
   }
 
-  const { tagged } = parseMomoMention(trimmed);
+  // @momo only triggers the agent when AI is enabled for the user; otherwise
+  // the mention is ignored and the message falls through to the regular
+  // (non-AI) expense pipeline.
+  const aiEnabled = await isAiEnabled(user.id);
+  const tagged = aiEnabled && parseMomoMention(trimmed).tagged;
 
   const insertPayload = {
     content: trimmed,
