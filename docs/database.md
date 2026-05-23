@@ -38,10 +38,21 @@ MoMo currently uses one hosted Supabase project for all branches. Branch names d
 - Reset + seed local dev fixture data: `pnpm db:seed`
 - Lint SQL locally: `pnpm db:lint`
 - Preview hosted apply: `pnpm db:push:dry-run`
-- Apply hosted migrations (guarded, `development` branch only): `pnpm db:push`
+- Apply hosted migrations manually (escape hatch — preflight + `APPLY` confirmation): `pnpm db:push`. Day-to-day, migrations are applied automatically by the Supabase GitHub integration on merge to `main` — see [Hosted Apply Workflow](#hosted-apply-workflow) below.
 - Refresh snapshot docs: `pnpm db:schema:snapshot`
 
 `schema/` should contain only `momo_snapshot.sql`. Do not add per-table/manual SQL files there.
+
+### Hosted Apply Workflow
+
+Migrations land in production via the **Supabase native GitHub integration**, not a custom GitHub Actions workflow. The flow:
+
+1. PR is opened. `.github/workflows/db-migrations-check.yml` runs `pnpm lint` → `supabase db reset --local` → `supabase db lint --local`. This is a required status check on `main`; failures block merge.
+2. PR is merged to `main`. The Supabase GitHub integration applies any new files under `supabase/migrations/` to the hosted Supabase project automatically. Edge Functions and storage buckets declared in `config.toml` are also deployed; API/Auth config and `seed.sql` are ignored. See the [Supabase docs](https://supabase.com/docs/guides/deployment/branching/github-integration) for the integration's full scope.
+
+The integration is configured in the Supabase dashboard (Project Settings → Integrations → GitHub Integration). Working directory is `.`, production branch is `main`, "Deploy to production" is enabled. No GitHub secrets are required — auth runs through the Supabase GitHub App.
+
+`pnpm db:push` (and `pnpm db:push:dry-run`) remain as a manual escape hatch for when CI is broken or for one-off operations. They no longer have a branch guard. The `APPLY` confirmation prompt is the only gate.
 
 ### Local Seed Workflow
 

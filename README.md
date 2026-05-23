@@ -50,7 +50,7 @@ pnpm db:start         # Start local Supabase containers
 pnpm db:reset         # Replay migrations locally
 pnpm db:seed          # Reset local DB + seed users/household/preferences
 pnpm db:lint          # Lint local SQL
-pnpm db:push          # Apply to linked hosted project (guarded)
+pnpm db:push          # Manual apply to linked hosted project (escape hatch; normally auto-applied via Supabase GitHub integration on merge to main)
 ```
 
 For local agent smoke tests, keep using the repo's existing `.env` flow. Add
