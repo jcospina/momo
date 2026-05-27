@@ -4,7 +4,7 @@ import { loginWithProvider } from '@actions/login';
 import { redirectWithError } from '@utils/redirect-with-error';
 import { cookies } from 'next/headers';
 
-export async function startInviteAcceptFlow(token: string) {
+export async function startInviteAcceptFlow(token: string): Promise<void> {
   if (typeof token !== 'string' || !token) {
     redirectWithError('/login', 'household_invalid');
   }

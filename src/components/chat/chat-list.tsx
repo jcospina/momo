@@ -1,6 +1,7 @@
 'use client';
 
 import { useChatVirtual } from '@features/chat/hooks/use-chat-virtual';
+import type { MomoStreamState } from '@hooks/use-momo-stream';
 import type { ChatMessage } from '@lib-types/chat';
 import { Flex } from '@ui/flex/flex';
 import { type ReactNode, useLayoutEffect, useRef } from 'react';
@@ -16,6 +17,19 @@ type ChatListProps = {
   hasMore?: boolean;
   isLoadingMore?: boolean;
   currentUserId?: string;
+  /**
+   * In-flight @momo streams. Passed through to `useChatVirtual` so the
+   * autoscroll can react when the loader mounts or the streaming bubble
+   * grows. Optional — falsy / empty map disables stream-driven scrolling.
+   */
+  pendingStreams?: ReadonlyMap<string, MomoStreamState>;
+  /**
+   * Whether the enclosing panel is the active tab. Required when sibling
+   * panels are mounted in parallel and toggled with `display: none`, so the
+   * hook can re-snap to the bottom on tab activation. Defaults to true for
+   * stand-alone usage.
+   */
+  isActive?: boolean;
 };
 
 function ChatItemSlot({
@@ -47,6 +61,8 @@ export function ChatList({
   hasMore = false,
   isLoadingMore = false,
   currentUserId,
+  pendingStreams,
+  isActive = true,
 }: ChatListProps) {
   const { scrollerRef, recordHeight, onScroll } = useChatVirtual({
     messages,
@@ -54,6 +70,8 @@ export function ChatList({
     hasMore,
     isLoadingMore,
     onLoadMore,
+    pendingStreams,
+    isActive,
   });
 
   return (

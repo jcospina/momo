@@ -1,0 +1,110 @@
+.auth-shell {
+  --auth-shell-nav-offset: 5.25rem;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  padding-top: var(--auth-shell-nav-offset);
+}
+
+.auth-shell__main {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-2) var(--space-1);
+}
+
+.auth-shell__panel {
+  position: relative;
+  width: min(100%, 44rem);
+}
+
+.auth-shell__panel-start {
+  position: absolute;
+  top: var(--space-1);
+  left: var(--space-1);
+  display: flex;
+}
+
+.auth-shell__panel-content {
+  gap: var(--space-4) !important;
+}
+
+.auth-shell__actions {
+  padding-bottom: var(--space-1);
+}
+
+.auth-shell__welcome {
+  color: var(--fg-primary);
+}
+
+.auth-shell__tagline {
+  display: none;
+}
+
+.auth-shell__header {
+  text-align: center;
+}
+
+.auth-shell__logo {
+  color: var(--color-amber-glow);
+}
+
+.auth-shell__legal-copy {
+  max-width: 28rem;
+  margin: 0 auto;
+  color: color-mix(in oklch, var(--fg-primary), var(--bg-panel) 36%);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.auth-shell__legal-link {
+  color: inherit;
+  font-weight: var(--weight-bold);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.16em;
+  transition: text-decoration-thickness var(--duration-fast) ease;
+}
+
+.auth-shell__legal-link:hover {
+  text-decoration-thickness: 3px;
+}
+
+.auth-shell__toast {
+  width: min(100%, 44rem);
+}
+
+@media screen and (min-width: 768px) {
+  .auth-shell {
+    --auth-shell-nav-offset: 4.75rem;
+  }
+
+  .auth-shell__main {
+    padding: var(--space-4) var(--space-4) var(--space-2);
+  }
+
+  .auth-shell__panel-start {
+    top: var(--space-2);
+    left: var(--space-2);
+  }
+
+  .auth-shell__panel-content {
+    gap: var(--space-5) !important;
+  }
+
+  .auth-shell__actions {
+    padding-bottom: var(--space-0_5);
+  }
+
+  .auth-shell__logo {
+    font-size: 5rem;
+  }
+
+  .auth-shell__tagline {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4em;
+    line-height: 1.1;
+  }
+}

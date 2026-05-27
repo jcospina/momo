@@ -1,5 +1,6 @@
 import { MomoColor } from '@lib-types/common';
 import type { CircleSize } from '@ui/circle/circle.types';
+import type { ReactNode } from 'react';
 
 /** Re-export of {@link CircleSize} for Avatar-specific usage. */
 export type AvatarSize = CircleSize;
@@ -13,4 +14,6 @@ export type AvatarProps = {
   color?: MomoColor;
   /** When provided, the avatar becomes clickable. */
   onClick?: () => void;
+  /** Optional content rendered inside the circle in place of the initial (e.g. brand logo, icon). */
+  slot?: ReactNode;
 };

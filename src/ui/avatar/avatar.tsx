@@ -13,12 +13,16 @@ import { AvatarProps } from './avatar.types';
  * {@link getInitial} and renders it inside a coloured circle. Falls back to
  * `?` when `displayName` is `null` or empty.
  *
+ * Pass `slot` to render arbitrary content (e.g. a brand logo) inside the
+ * circle in place of the initial.
+ *
  * @example
  * ```tsx
  * <Avatar displayName="Alice" />
  * <Avatar displayName="Bob" size="large" color="vibrant-coral" />
  * <Avatar displayName={null} />          // renders "?"
  * <Avatar displayName="Carol" onClick={() => openProfile()} />
+ * <Avatar displayName={null} slot={<Logo size="xs" text="M" />} />
  * ```
  */
 export function Avatar(props: PropsWithClassName<AvatarProps>) {
@@ -28,6 +32,7 @@ export function Avatar(props: PropsWithClassName<AvatarProps>) {
     className,
     onClick,
     color = 'sky-aqua',
+    slot,
   } = props;
   return (
     <Circle
@@ -36,7 +41,7 @@ export function Avatar(props: PropsWithClassName<AvatarProps>) {
       className={cn(styles['momo-avatar'], className)}
       onClick={onClick}
     >
-      {getInitial(displayName)}
+      {slot ?? getInitial(displayName)}
     </Circle>
   );
 }

@@ -1,6 +1,7 @@
 import {
   deleteChatMessage as deleteChatMessageAction,
   sendChatMessage as sendChatMessageAction,
+  sendMomoMessage as sendMomoMessageAction,
 } from '@actions/chat-messages';
 import {
   fetchChatHistory as fetchChatHistoryHelper,
@@ -8,10 +9,18 @@ import {
   fetchChatMessagesSince as fetchChatMessagesSinceHelper,
 } from '@helpers/chat/chat-messages';
 
-import { getHistory, getList, getSince, remove, send } from './server';
+import {
+  getHistory,
+  getList,
+  getSince,
+  remove,
+  send,
+  sendMomo,
+} from './server';
 
 jest.mock('@actions/chat-messages', () => ({
   sendChatMessage: jest.fn(),
+  sendMomoMessage: jest.fn(),
   deleteChatMessage: jest.fn(),
 }));
 
@@ -26,6 +35,7 @@ describe('data/messages/server facade', () => {
   const fetchChatHistoryMock = jest.mocked(fetchChatHistoryHelper);
   const fetchChatMessagesSinceMock = jest.mocked(fetchChatMessagesSinceHelper);
   const sendChatMessageMock = jest.mocked(sendChatMessageAction);
+  const sendMomoMessageMock = jest.mocked(sendMomoMessageAction);
   const deleteChatMessageMock = jest.mocked(deleteChatMessageAction);
 
   const sample = [
@@ -38,6 +48,10 @@ describe('data/messages/server facade', () => {
       expense_count: 0,
       created_at: '2026-03-17T00:00:00.000Z',
       sender_name: 'User',
+      author_kind: 'user' as const,
+      momo_source: null,
+      momo_invocation_tagged: false,
+      idempotency_key: null,
     },
   ];
 
@@ -131,6 +145,29 @@ describe('data/messages/server facade', () => {
     const result = await remove({ messageId: 'm1' });
 
     expect(deleteChatMessageMock).toHaveBeenCalledWith({ messageId: 'm1' });
+    expect(result).toEqual(actionResult);
+  });
+
+  it('delegates momo message send', async () => {
+    const momoMessage = {
+      ...sample[0],
+      id: 'momo-1',
+      content: 'Sure, here is your total.',
+      author_kind: 'momo' as const,
+      momo_source: 'momo_agent',
+    };
+    const actionResult = { message: momoMessage, reused: false };
+    sendMomoMessageMock.mockResolvedValue(actionResult);
+
+    const input = {
+      content: 'Sure, here is your total.',
+      householdId: null,
+      userId: 'user-1',
+      triggeringMessageId: 'm1',
+    };
+    const result = await sendMomo(input);
+
+    expect(sendMomoMessageMock).toHaveBeenCalledWith(input);
     expect(result).toEqual(actionResult);
   });
 });

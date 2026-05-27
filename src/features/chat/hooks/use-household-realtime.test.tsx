@@ -165,6 +165,10 @@ describe('useHouseholdRealtime', () => {
         expense_count: 0,
         created_at: new Date().toISOString(),
         sender_name: null,
+        author_kind: 'user',
+        momo_source: null,
+        momo_invocation_tagged: false,
+        idempotency_key: null,
       });
     });
     expect(onMessage).toHaveBeenCalledWith(
@@ -197,6 +201,10 @@ describe('useHouseholdRealtime', () => {
         expense_count: 0,
         created_at: new Date().toISOString(),
         sender_name: null,
+        author_kind: 'user',
+        momo_source: null,
+        momo_invocation_tagged: false,
+        idempotency_key: null,
       });
     });
 

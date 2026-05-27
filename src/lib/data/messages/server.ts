@@ -3,6 +3,7 @@ import 'server-only';
 import {
   deleteChatMessage as deleteChatMessageAction,
   sendChatMessage as sendChatMessageAction,
+  sendMomoMessage as sendMomoMessageAction,
 } from '@actions/chat-messages';
 import {
   fetchChatHistory as fetchChatHistoryHelper,
@@ -11,7 +12,14 @@ import {
 } from '@helpers/chat/chat-messages';
 import { createSupabaseServerClient } from '@lib-supabase/server';
 
-import type { GetHistory, GetList, GetSince, Remove, Send } from './types';
+import type {
+  GetHistory,
+  GetList,
+  GetSince,
+  Remove,
+  Send,
+  SendMomo,
+} from './types';
 
 const DEFAULT_HISTORY_LIMIT = 30;
 const DEFAULT_SYNC_LIMIT = 100;
@@ -84,6 +92,12 @@ export const send: Send = async input => {
   'use server';
 
   return sendChatMessageAction(input);
+};
+
+export const sendMomo: SendMomo = async input => {
+  'use server';
+
+  return sendMomoMessageAction(input);
 };
 
 export const remove: Remove = async input => {

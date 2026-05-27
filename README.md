@@ -39,14 +39,24 @@ pnpm lint             # Lint checks
 pnpm format           # Formatter (write)
 pnpm test             # Jest tests
 
+# Local @momo agent runtime
+pnpm agent:dev        # Start the Cloudflare Worker/Durable Object locally
+pnpm agent -- "@momo how much did I spend this month?"
+pnpm agent:eval       # Placeholder Braintrust eval harness
+
 # Database migrations
 pnpm db:new -- <name> # Create migration
 pnpm db:start         # Start local Supabase containers
 pnpm db:reset         # Replay migrations locally
 pnpm db:seed          # Reset local DB + seed users/household/preferences
 pnpm db:lint          # Lint local SQL
-pnpm db:push          # Apply to linked hosted project (guarded)
+pnpm db:push          # Manual apply to linked hosted project (escape hatch; normally auto-applied via Supabase GitHub integration on merge to main)
 ```
+
+For local agent smoke tests, keep using the repo's existing `.env` flow. Add
+`OPENAI_API_KEY`, optionally `MOMO_AGENT_MODEL`, and set
+`MOMO_AGENT_TOOL_MODE=mock` when you want Wrangler to answer from the bundled
+golden expense fixture instead of the production tool stubs.
 
 ## Project Structure
 

@@ -37,3 +37,17 @@ Use only when the task needs extra context:
 
 - [`README.md`](README.md)
 - [`docs/`](docs/) core set (architecture, database, chat-system, expense-system, stats-system, auth-and-households, ADRs) plus [`implementations/decouple-data-layer/`](implementations/decouple-data-layer/) plan and progress
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as markdown files under `.scratch/` in this repo. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-role vocabulary (needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout — one `CONTEXT.md` at the repo root + `docs/adr/`. See `docs/agents/domain.md`.

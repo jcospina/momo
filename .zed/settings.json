@@ -1,0 +1,77 @@
+// Project-level Zed settings. Mirrors .vscode/settings.json so Zed's
+// autosave doesn't fight Biome (biome.json) on JS/TS/JSON/CSS files.
+{
+  "format_on_save": "on",
+  "formatter": {
+    "language_server": { "name": "biome" }
+  },
+  "code_actions_on_format": {
+    "source.fixAll.biome": true,
+    "source.organizeImports.biome": true
+  },
+  "languages": {
+    "JavaScript": {
+      "language_servers": ["biome", "!prettier", "..."],
+      "format_on_save": "on",
+      "formatter": { "language_server": { "name": "biome" } },
+      "code_actions_on_format": {
+        "source.fixAll.biome": true,
+        "source.organizeImports.biome": true
+      }
+    },
+    "TypeScript": {
+      "language_servers": ["biome", "!prettier", "..."],
+      "format_on_save": "on",
+      "formatter": { "language_server": { "name": "biome" } },
+      "code_actions_on_format": {
+        "source.fixAll.biome": true,
+        "source.organizeImports.biome": true
+      }
+    },
+    "TSX": {
+      "language_servers": ["biome", "!prettier", "..."],
+      "format_on_save": "on",
+      "formatter": { "language_server": { "name": "biome" } },
+      "code_actions_on_format": {
+        "source.fixAll.biome": true,
+        "source.organizeImports.biome": true
+      }
+    },
+    "JSX": {
+      "language_servers": ["biome", "!prettier", "..."],
+      "format_on_save": "on",
+      "formatter": { "language_server": { "name": "biome" } },
+      "code_actions_on_format": {
+        "source.fixAll.biome": true,
+        "source.organizeImports.biome": true
+      }
+    },
+    "JSON": {
+      "language_servers": ["biome", "!prettier", "..."],
+      "format_on_save": "on",
+      "formatter": { "language_server": { "name": "biome" } },
+      "code_actions_on_format": {
+        "source.fixAll.biome": true,
+        "source.organizeImports.biome": true
+      }
+    },
+    "JSONC": {
+      "language_servers": ["biome", "!prettier", "..."],
+      "format_on_save": "on",
+      "formatter": { "language_server": { "name": "biome" } },
+      "code_actions_on_format": {
+        "source.fixAll.biome": true,
+        "source.organizeImports.biome": true
+      }
+    },
+    "CSS": {
+      "language_servers": ["biome", "!prettier", "..."],
+      "format_on_save": "on",
+      "formatter": { "language_server": { "name": "biome" } },
+      "code_actions_on_format": {
+        "source.fixAll.biome": true,
+        "source.organizeImports.biome": true
+      }
+    }
+  }
+}

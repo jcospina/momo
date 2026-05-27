@@ -1,5 +1,6 @@
 'use client';
 
+import type { MomoStreamState } from '@hooks/use-momo-stream';
 import type { ChatMessage } from '@lib-types/chat';
 import {
   type RefObject,
@@ -29,6 +30,24 @@ type UseChatVirtualArgs = {
   hasMore?: boolean;
   isLoadingMore?: boolean;
   onLoadMore?: () => void;
+  /**
+   * Optional map of in-flight @momo streams keyed by triggering message id.
+   * When this map's "content signal" grows (a new entry appears, or an
+   * existing entry's text grows), the hook nudges the scroll position to
+   * the bottom — but only if the user is already at the bottom. This keeps
+   * the loader and streaming bubble in view as they mount and grow, without
+   * yanking the user back down if they have scrolled up to read history.
+   */
+  pendingStreams?: ReadonlyMap<string, MomoStreamState>;
+  /**
+   * Whether the scroller's containing panel is the active tab. When the
+   * panel is hidden via `display: none`, the scroller's `scrollHeight` and
+   * `clientHeight` are 0, so the first-paint scroll-to-bottom no-ops and
+   * the guard latches. We re-snap to the bottom on every false → true
+   * transition so switching tabs always lands the user at the latest
+   * message, matching the standard chat UX.
+   */
+  isActive?: boolean;
 };
 
 export type UseChatVirtualResult = {
@@ -81,12 +100,35 @@ function smoothScrollToBottom(scroller: HTMLElement) {
   });
 }
 
+// Approximate upper bound for a smooth scrollTo to land. Used to flag when a
+// programmatic scroll is still animating so path-D can distinguish "user
+// scrolled away" from "the prior auto-scroll for the user's own message is
+// still in flight and isAtBottomRef is transiently false".
+const SMOOTH_SCROLL_INFLIGHT_MS = 600;
+
+// Monotonic-growing scalar derived from the pending-streams map: it grows
+// when a new stream enters and as existing streams accumulate tokens, and
+// shrinks only when streams are filtered out. We use only the delta sign,
+// not the absolute value.
+function computePendingStreamsSignal(
+  pendingStreams: ReadonlyMap<string, MomoStreamState> | undefined,
+): number {
+  if (!pendingStreams || pendingStreams.size === 0) return 0;
+  let total = pendingStreams.size;
+  for (const state of pendingStreams.values()) {
+    total += state.text.length;
+  }
+  return total;
+}
+
 export function useChatVirtual({
   messages,
   currentUserId,
   hasMore = false,
   isLoadingMore = false,
   onLoadMore,
+  pendingStreams,
+  isActive = true,
 }: UseChatVirtualArgs): UseChatVirtualResult {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const heightCacheRef = useRef<Map<string, number>>(new Map());
@@ -101,7 +143,36 @@ export function useChatVirtual({
   } | null>(null);
   const isAtBottomRef = useRef<boolean>(true);
   const didFirstPaintScrollRef = useRef<boolean>(false);
+  const smoothScrollInFlightRef = useRef<boolean>(false);
+  const smoothScrollClearTimerRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
+
+  // Inlined-at-call helper: not a useCallback because including it in effect
+  // dep arrays would change their size if it was added in a hot-reload patch,
+  // triggering React's "array size changed" error. It only reads refs, so
+  // identity stability doesn't matter — just call it directly.
+  const startTrackedScroll = (scroller: HTMLElement) => {
+    smoothScrollInFlightRef.current = true;
+    if (smoothScrollClearTimerRef.current) {
+      clearTimeout(smoothScrollClearTimerRef.current);
+    }
+    smoothScrollClearTimerRef.current = setTimeout(() => {
+      smoothScrollInFlightRef.current = false;
+      smoothScrollClearTimerRef.current = null;
+    }, SMOOTH_SCROLL_INFLIGHT_MS);
+    smoothScrollToBottom(scroller);
+  };
+
+  useEffect(
+    () => () => {
+      if (smoothScrollClearTimerRef.current) {
+        clearTimeout(smoothScrollClearTimerRef.current);
+      }
+    },
+    [],
+  );
 
   // In-render diff. Detects prepend (for path A) and reconciliation
   // (warm-start the height cache so the re-mounted item under the real id
@@ -154,6 +225,26 @@ export function useChatVirtual({
       clientHeight: scroller.clientHeight,
     });
   }, []);
+
+  // Tab activation. Both ChatPanels are mounted in parallel and toggled with
+  // `display: none/flex`, so a hidden panel's scroller has scrollHeight=0 on
+  // first commit and the first-paint effect above no-ops against it. Re-snap
+  // to the bottom whenever the panel transitions from hidden → visible.
+  const prevIsActiveRef = useRef<boolean>(isActive);
+  useLayoutEffect(() => {
+    const wasActive = prevIsActiveRef.current;
+    prevIsActiveRef.current = isActive;
+    if (wasActive || !isActive) return;
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    scroller.scrollTop = scroller.scrollHeight;
+    isAtBottomRef.current = true;
+    setIsAtBottom(true);
+    debugLog('tab-activate', {
+      scrollHeight: scroller.scrollHeight,
+      clientHeight: scroller.clientHeight,
+    });
+  }, [isActive]);
 
   // Path A: prepend anchor. Synchronous, before paint.
   useLayoutEffect(() => {
@@ -219,10 +310,58 @@ export function useChatVirtual({
       requestAnimationFrame(() => {
         const el = scrollerRef.current;
         if (!el) return;
-        smoothScrollToBottom(el);
+        startTrackedScroll(el);
       });
     }
   }, [messages, currentUserId]);
+
+  // Path D: scroll on pending-stream growth. The loader + streaming bubble
+  // are derived from `pendingStreams`, NOT `messages`, so they slip past
+  // path-BC's append-driven autoscroll. Two cases:
+  //   - New entry (loader mount): the user just sent an @momo message and
+  //     path-BC's smooth-scroll for the optimistic user message is often
+  //     still animating, so isAtBottomRef is transiently false. We trust
+  //     `smoothScrollInFlightRef` to mean "we initiated that auto-scroll
+  //     ourselves, so override isAtBottomRef here". When the user has
+  //     genuinely scrolled away (no auto-scroll in flight), still respect
+  //     isAtBottomRef.
+  //   - Pure token growth: respect isAtBottomRef so we don't yank the user
+  //     back down if they scrolled up to read history.
+  const prevPendingStreamsSignalRef = useRef<number>(0);
+  const prevPendingEntryCountRef = useRef<number>(0);
+
+  useEffect(() => {
+    const signal = computePendingStreamsSignal(pendingStreams);
+    const prevSignal = prevPendingStreamsSignalRef.current;
+    prevPendingStreamsSignalRef.current = signal;
+    const entryCount = pendingStreams?.size ?? 0;
+    const prevEntryCount = prevPendingEntryCountRef.current;
+    prevPendingEntryCountRef.current = entryCount;
+    if (signal <= prevSignal) return;
+    const isNewEntry = entryCount > prevEntryCount;
+    const allowScroll =
+      isAtBottomRef.current || (isNewEntry && smoothScrollInFlightRef.current);
+    if (!allowScroll) return;
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    debugLog('path-D:stream-grow', {
+      prevSignal,
+      nextSignal: signal,
+      prevEntryCount,
+      nextEntryCount: entryCount,
+      isNewEntry,
+      isAtBottom: isAtBottomRef.current,
+      autoScrollInFlight: smoothScrollInFlightRef.current,
+      scrollTop: scroller.scrollTop,
+      scrollHeight: scroller.scrollHeight,
+      clientHeight: scroller.clientHeight,
+    });
+    requestAnimationFrame(() => {
+      const el = scrollerRef.current;
+      if (!el) return;
+      startTrackedScroll(el);
+    });
+  }, [pendingStreams]);
 
   const recordHeight = useCallback((id: string, height: number) => {
     heightCacheRef.current.set(id, height);

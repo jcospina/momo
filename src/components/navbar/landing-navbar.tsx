@@ -6,11 +6,13 @@ import { useMediaQuery } from '@hooks/use-media-query';
 import { useScrollTick } from '@hooks/use-scroll-progress';
 import { Logo } from '@ui/logo/logo';
 import { Navbar } from '@ui/navbar/navbar';
+import { cn } from '@utils/cn';
 import gsap from 'gsap';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
+import { LOGIN_PATH, SIGNUP_PATH } from '@/lib/routes';
 import styles from './landing-navbar.module.css';
 
 function clampProgress(progress: number): number {
@@ -30,6 +32,7 @@ export function LandingNavbar() {
   const curtainRefs = useOptionalLandingCurtainRefs();
   const navRef = useRef<HTMLElement | null>(null);
   const isLandingRoot = pathname === '/';
+  const isAuthRoute = pathname === LOGIN_PATH || pathname === SIGNUP_PATH;
 
   useScrollTick(() => {
     const nav = navRef.current;
@@ -84,10 +87,21 @@ export function LandingNavbar() {
     </Link>
   );
 
-  const links = (
-    <Link href="/login" className={styles['momo-landing-navbar__link']}>
-      {t('login')}
-    </Link>
+  const links = isAuthRoute ? null : (
+    <>
+      <Link
+        href={SIGNUP_PATH}
+        className={cn(
+          styles['momo-landing-navbar__link'],
+          styles['momo-landing-navbar__link--desktop-only'],
+        )}
+      >
+        {t('signup')}
+      </Link>
+      <Link href={LOGIN_PATH} className={styles['momo-landing-navbar__link']}>
+        {t('login')}
+      </Link>
+    </>
   );
 
   return (

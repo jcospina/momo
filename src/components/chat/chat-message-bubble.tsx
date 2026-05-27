@@ -17,6 +17,7 @@ type ChatMessageBubbleProps = {
   statusSlot?: ReactNode;
   actionsSlot?: ReactNode;
   belowSlot?: ReactNode;
+  bodySlot?: ReactNode;
   skipMountAnimation?: boolean;
   className?: string;
 };
@@ -38,6 +39,7 @@ export function ChatMessageBubble({
   statusSlot,
   actionsSlot,
   belowSlot,
+  bodySlot,
   skipMountAnimation,
   className,
 }: ChatMessageBubbleProps) {
@@ -128,13 +130,19 @@ export function ChatMessageBubble({
                 {statusSlot}
               </span>
             ) : null}
-            <Typography
-              as="p"
-              size="md"
-              className={styles['momo-chat-bubble__content']}
-            >
-              {text}
-            </Typography>
+            {bodySlot ? (
+              <div className={styles['momo-chat-bubble__content']}>
+                {bodySlot}
+              </div>
+            ) : (
+              <Typography
+                as="p"
+                size="md"
+                className={styles['momo-chat-bubble__content']}
+              >
+                {text}
+              </Typography>
+            )}
             {actionsSlot ? (
               <span className={styles['momo-chat-bubble__actions-slot']}>
                 {actionsSlot}

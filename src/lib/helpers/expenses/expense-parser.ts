@@ -6,6 +6,7 @@ import {
 import type { EntryError, ParsedEntry, ParseResult } from '@lib-types/expenses';
 import type { SupportedCurrency } from '@lib-types/user-preferences';
 import {
+  extractTagNgrams,
   isExplicitIncomeEntry,
   scoreExpenseCategory,
 } from './expense-category';
@@ -138,8 +139,9 @@ export function parseChatEntries(
     }
 
     const { candidate, needsReview } = amountResolution;
-    const { tags, category } = scoreExpenseCategory(entry);
+    const { category } = scoreExpenseCategory(entry);
     const entryClassification = resolveCategory(entry, category, needsReview);
+    const tags = extractTagNgrams(entry);
 
     parsed.push({
       raw: entry,

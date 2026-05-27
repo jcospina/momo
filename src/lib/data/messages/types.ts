@@ -3,6 +3,7 @@ import type {
   ChatMessage,
   DeleteChatMessageResult,
   SendChatMessageResult,
+  SendMomoMessageResult,
 } from '@lib-types/chat';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -36,6 +37,20 @@ export type MessageSinceInput = {
 export type SendInput = {
   content: string;
   householdId?: string | null;
+};
+
+export type SendMomoInput = {
+  content: string;
+  householdId: string | null;
+  userId: string;
+  triggeringMessageId: string;
+};
+
+export type StreamMomoInput = {
+  content: string;
+  householdId: string | null;
+  triggeringMessageId: string;
+  signal?: AbortSignal;
 };
 
 export type RemoveInput = {
@@ -74,6 +89,10 @@ export type GetHistory = (input: MessageHistoryInput) => Promise<ChatMessage[]>;
 export type GetSince = (input: MessageSinceInput) => Promise<ChatMessage[]>;
 
 export type Send = (input: SendInput) => Promise<SendChatMessageResult>;
+
+export type SendMomo = (input: SendMomoInput) => Promise<SendMomoMessageResult>;
+
+export type StreamMomo = (input: StreamMomoInput) => AsyncIterable<string>;
 
 export type Remove = (input: RemoveInput) => Promise<DeleteChatMessageResult>;
 

@@ -28,3 +28,9 @@
   text-decoration-thickness: 2px;
   text-underline-offset: 4px;
 }
+
+@media (max-width: 720px) {
+  .momo-landing-navbar__link--desktop-only {
+    display: none;
+  }
+}

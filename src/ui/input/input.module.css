@@ -18,8 +18,15 @@
 
 .momo-input-wrapper:focus-within {
   outline: none;
-  transform: translate(6px, -6px);
-  box-shadow: -6px 6px 0 var(--color-dark);
+  transform: translate(3px, -3px);
+  box-shadow: -3px 3px 0 var(--color-dark);
+}
+
+@media screen and (min-width: 768px) {
+  .momo-input-wrapper:focus-within {
+    transform: translate(6px, -6px);
+    box-shadow: -6px 6px 0 var(--color-dark);
+  }
 }
 
 @media (hover: hover) {

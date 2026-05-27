@@ -16,3 +16,9 @@ export async function getUserPreferences(
   }
   return data as UserPreferences;
 }
+
+// Strict: only an explicit `true` enables AI. Missing prefs / null / false → off.
+export async function isAiEnabled(userId: string): Promise<boolean> {
+  const prefs = await getUserPreferences(userId);
+  return prefs?.ai_enabled === true;
+}

@@ -1,0 +1,18 @@
+.signup__login-cta {
+  text-align: center;
+  margin: 0;
+  color: var(--fg-primary);
+}
+
+.signup__login-link {
+  color: inherit;
+  font-weight: var(--weight-bold);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.16em;
+  transition: text-decoration-thickness var(--duration-fast) ease;
+}
+
+.signup__login-link:hover {
+  text-decoration-thickness: 3px;
+}

@@ -114,4 +114,16 @@ describe('parseChatEntries', () => {
     expect(result.entries).toHaveLength(0);
     expect(result.errors).toHaveLength(1);
   });
+
+  it('produces deterministic word n-gram tags from entry text', () => {
+    const result = parseChatEntries('80 doctors appointment');
+    expect(result.status).toBe('parsed');
+    if (result.status === 'parsed') {
+      expect(result.entries[0].tags).toEqual([
+        'doctors',
+        'appointment',
+        'doctors appointment',
+      ]);
+    }
+  });
 });

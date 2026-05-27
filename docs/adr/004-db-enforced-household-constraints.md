@@ -1,7 +1,9 @@
-# ADR-004: DB-Enforced Household Constraints
+---
+version: 1.0
+last_updated: 2026-02-17
+---
 
-**Status:** Accepted
-**Date:** 2026-02-17
+# ADR-004: DB-Enforced Household Constraints
 
 ## Context
 

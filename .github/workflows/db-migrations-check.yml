@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - main
-      - development
     paths:
       - "supabase/**"
       - "scripts/db-*.sh"
@@ -20,6 +19,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
 
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
