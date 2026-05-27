@@ -1,4 +1,3 @@
-import { Footer } from '@components/landing/footer/footer';
 import { LandingNavbar } from '@components/navbar/landing-navbar';
 import { Toast } from '@components/toast/toast';
 import type { MomoError } from '@lib-types/errors';
@@ -96,7 +95,6 @@ export async function AuthShell({
           )}
         </Flex>
       </main>
-      <Footer className={styles['auth-shell__footer']} />
     </div>
   );
 }

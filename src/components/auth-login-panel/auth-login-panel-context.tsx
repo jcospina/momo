@@ -1,6 +1,5 @@
 'use client';
 
-import { useMediaQuery } from '@hooks/use-media-query';
 import { useTranslations } from 'next-intl';
 import {
   createContext,
@@ -46,12 +45,11 @@ export function useAuthLoginPanel() {
 
 export function AuthLoginBackButton() {
   const t = useTranslations('auth.login');
-  const isWide = useMediaQuery('(min-width: 440px)');
   const { view, setView } = useAuthLoginPanel();
 
   const handleBack = useCallback(() => setView('options'), [setView]);
 
-  if (isWide || view !== 'form') {
+  if (view !== 'form') {
     return null;
   }
 

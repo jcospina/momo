@@ -1,10 +1,8 @@
 'use client';
 
 import { AuthLoginForm } from '@components/auth-login-form/auth-login-form';
-import { useMediaQuery } from '@hooks/use-media-query';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useEffect } from 'react';
 import { Button } from '@/ui/button/button';
 import { Typography } from '@/ui/typography/typography';
 import styles from './auth-login-panel.module.css';
@@ -20,14 +18,7 @@ export function AuthLoginPanel({
   signupHref,
 }: AuthLoginPanelProps) {
   const t = useTranslations('auth.login');
-  const isWide = useMediaQuery('(min-width: 440px)');
   const { view, setView } = useAuthLoginPanel();
-
-  useEffect(() => {
-    if (isWide && view !== 'options') {
-      setView('options');
-    }
-  }, [isWide, view, setView]);
 
   const signupCta = (
     <Typography size="sm" className={styles['auth-login-panel__signup-cta']}>
@@ -55,21 +46,6 @@ export function AuthLoginPanel({
       </Button>
     </form>
   );
-
-  if (isWide) {
-    return (
-      <div className={styles['auth-login-panel']}>
-        <AuthLoginForm />
-        <div className={styles['auth-login-panel__divider']} aria-hidden="true">
-          <span className={styles['auth-login-panel__divider-label']}>
-            {t('dividerOr')}
-          </span>
-        </div>
-        {googleForm}
-        {signupCta}
-      </div>
-    );
-  }
 
   const showingForm = view === 'form';
 

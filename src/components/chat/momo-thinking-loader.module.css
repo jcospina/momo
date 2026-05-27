@@ -1,5 +1,5 @@
 .momo-thinking-loader {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: calc(var(--spacing));
   border-radius: var(--border-radius);
@@ -14,7 +14,6 @@
 .momo-thinking-loader__copy-slot {
   position: relative;
   min-width: 0;
-  flex: 1 1 auto;
   /* Reserve vertical space so swaps don't shift layout. */
   line-height: 1.4;
 }

@@ -2,7 +2,7 @@
   --auth-shell-nav-offset: 5.25rem;
   min-height: 100svh;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr);
   padding-top: var(--auth-shell-nav-offset);
 }
 
@@ -49,10 +49,6 @@
   color: var(--color-amber-glow);
 }
 
-.auth-shell__footer {
-  display: none;
-}
-
 .auth-shell__legal-copy {
   max-width: 28rem;
   margin: 0 auto;
@@ -87,18 +83,21 @@
     padding: var(--space-4) var(--space-4) var(--space-2);
   }
 
+  .auth-shell__panel-start {
+    top: var(--space-2);
+    left: var(--space-2);
+  }
+
   .auth-shell__panel-content {
-    gap: var(--space-8) !important;
+    gap: var(--space-5) !important;
   }
 
   .auth-shell__actions {
     padding-bottom: var(--space-0_5);
   }
 
-  .auth-shell__footer {
-    display: revert;
-    margin-top: 0;
-    padding-top: 0;
+  .auth-shell__logo {
+    font-size: 5rem;
   }
 
   .auth-shell__tagline {

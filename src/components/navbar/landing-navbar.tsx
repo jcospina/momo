@@ -32,6 +32,7 @@ export function LandingNavbar() {
   const curtainRefs = useOptionalLandingCurtainRefs();
   const navRef = useRef<HTMLElement | null>(null);
   const isLandingRoot = pathname === '/';
+  const isAuthRoute = pathname === LOGIN_PATH || pathname === SIGNUP_PATH;
 
   useScrollTick(() => {
     const nav = navRef.current;
@@ -86,13 +87,12 @@ export function LandingNavbar() {
     </Link>
   );
 
-  const links = (
+  const links = isAuthRoute ? null : (
     <>
       <Link
         href={SIGNUP_PATH}
         className={cn(
           styles['momo-landing-navbar__link'],
-          styles['momo-landing-navbar__link--signup'],
           styles['momo-landing-navbar__link--desktop-only'],
         )}
       >

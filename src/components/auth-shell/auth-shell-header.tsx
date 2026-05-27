@@ -15,7 +15,8 @@ type AuthShellHeaderProps = {
 
 export function AuthShellHeader({ welcome, tagline }: AuthShellHeaderProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)');
-  const headingSize = isDesktop ? 'xxl' : 'display';
+  const welcomeSize = isDesktop ? 'xxl' : 'display';
+  const taglineSize = isDesktop ? 'xl' : 'display';
 
   const [taglineLead, ...taglineRest] = tagline
     .split(',')
@@ -33,7 +34,7 @@ export function AuthShellHeader({ welcome, tagline }: AuthShellHeaderProps) {
     >
       <Typography
         as="h1"
-        size={headingSize}
+        size={welcomeSize}
         weight="bold"
         className={styles['auth-shell__welcome']}
       >
@@ -42,7 +43,7 @@ export function AuthShellHeader({ welcome, tagline }: AuthShellHeaderProps) {
       <Logo className={styles['auth-shell__logo']} />
       <Typography
         as="p"
-        size={headingSize}
+        size={taglineSize}
         weight="bold"
         className={styles['auth-shell__tagline']}
       >
