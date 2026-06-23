@@ -111,8 +111,14 @@ describe('POST /api/momo-stream', () => {
     // Covers all "not true" cases the helper considers off — null prefs row,
     // undefined ai_enabled, and explicit false.
     getUserPreferencesMock.mockResolvedValueOnce(null);
-    getUserPreferencesMock.mockResolvedValueOnce({ currency: 'USD' });
-    getUserPreferencesMock.mockResolvedValueOnce({ ai_enabled: false });
+    getUserPreferencesMock.mockResolvedValueOnce({
+      onboarding_status: 'completed',
+      currency: 'USD',
+    });
+    getUserPreferencesMock.mockResolvedValueOnce({
+      onboarding_status: 'completed',
+      ai_enabled: false,
+    });
 
     for (let i = 0; i < 3; i += 1) {
       const response = await POST(
@@ -216,7 +222,10 @@ describe('POST /api/momo-stream', () => {
       session: { access_token: 'access-token-123' },
     });
     createSupabaseServerClientMock.mockResolvedValue(supabase as never);
-    getUserPreferencesMock.mockResolvedValue({ ai_enabled: true });
+    getUserPreferencesMock.mockResolvedValue({
+      onboarding_status: 'completed',
+      ai_enabled: true,
+    });
 
     let capturedOnFinish:
       | ((event: { text: string }) => Promise<void> | void)
@@ -269,7 +278,10 @@ describe('POST /api/momo-stream', () => {
       session: { access_token: 'access-token-123' },
     });
     createSupabaseServerClientMock.mockResolvedValue(supabase as never);
-    getUserPreferencesMock.mockResolvedValue({ ai_enabled: true });
+    getUserPreferencesMock.mockResolvedValue({
+      onboarding_status: 'completed',
+      ai_enabled: true,
+    });
     streamAgentMock.mockReturnValue({
       toTextStreamResponse: () => new Response('ok'),
     } as never);
