@@ -4,51 +4,92 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - "supabase/**"
-      - "scripts/db-*.sh"
-      - "package.json"
-      - ".github/workflows/db-migrations-check.yml"
   workflow_dispatch:
 
 jobs:
   migrations-check:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: read
 
     steps:
+      - name: Detect migration changes
+        id: migration-changes
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          if [ "$EVENT_NAME" != "pull_request" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "Manual run; running migration checks."
+            exit 0
+          fi
+
+          migration_files="$(
+            gh api --paginate "repos/${REPOSITORY}/pulls/${PR_NUMBER}/files" \
+              --jq '.[] | select(.filename | test("^supabase/migrations/[^/]+\\.sql$")) | .filename'
+          )"
+
+          if [ -n "$migration_files" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "Migration files changed:"
+            echo "$migration_files"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "No migration files changed; skipping Supabase migration checks."
+          fi
+
+      - name: Skip migration checks
+        if: steps.migration-changes.outputs.should_run != 'true'
+        run: echo "No migration files changed."
+
       - name: Checkout
+        if: steps.migration-changes.outputs.should_run == 'true'
         uses: actions/checkout@v4
 
       - name: Setup pnpm
+        if: steps.migration-changes.outputs.should_run == 'true'
         uses: pnpm/action-setup@v4
 
       - name: Setup Node
+        if: steps.migration-changes.outputs.should_run == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: pnpm
 
       - name: Install dependencies
+        if: steps.migration-changes.outputs.should_run == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Lint
+        if: steps.migration-changes.outputs.should_run == 'true'
         run: pnpm lint
 
       - name: Setup Supabase CLI
+        if: steps.migration-changes.outputs.should_run == 'true'
         uses: supabase/setup-cli@v1
         with:
           version: latest
 
       - name: Start local Supabase
+        if: steps.migration-changes.outputs.should_run == 'true'
         run: supabase start
 
       - name: Reset local DB from migrations
+        if: steps.migration-changes.outputs.should_run == 'true'
         run: supabase db reset --local
 
       - name: Lint DB SQL
+        if: steps.migration-changes.outputs.should_run == 'true'
         run: supabase db lint --local
 
       - name: Stop local Supabase
-        if: always()
+        if: always() && steps.migration-changes.outputs.should_run == 'true'
         run: supabase stop
