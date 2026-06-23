@@ -6,11 +6,19 @@ import { Highlight } from '@ui/highlight/highlight';
 import { CircleCheckIcon } from '@ui/icons/circle-check';
 import { ThreeDotsIcon } from '@ui/icons/three-dots';
 import { Typography } from '@ui/typography/typography';
+import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import { LandingMiniRing } from './charts/landing-mini-ring';
 import { SceneShell } from './scene-shell';
 import styles from './scene-together.module.css';
+
+// Below-the-fold chart: defer the visx/d3 bundle out of the landing's initial
+// JS. The ring container reserves a 1:1 aspect-ratio box in CSS, so the lazy
+// mount does not shift layout.
+const LandingMiniRing = dynamic(
+  () => import('./charts/landing-mini-ring').then(m => m.LandingMiniRing),
+  { ssr: false },
+);
 
 type ThreadMessage = {
   text: string;

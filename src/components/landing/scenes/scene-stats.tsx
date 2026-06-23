@@ -6,11 +6,19 @@ import { useMediaQuery } from '@hooks/use-media-query';
 import { Highlight } from '@ui/highlight/highlight';
 import { Typography } from '@ui/typography/typography';
 import gsap from 'gsap';
+import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { useMemo, useRef } from 'react';
-import { LandingMiniBar } from './charts/landing-mini-bar';
 import { SceneShell } from './scene-shell';
 import styles from './scene-stats.module.css';
+
+// Below-the-fold chart: defer the visx/d3 bundle (~23KB gz) out of the
+// landing's initial JS. The container reserves a fixed height in CSS, so the
+// lazy mount does not shift layout.
+const LandingMiniBar = dynamic(
+  () => import('./charts/landing-mini-bar').then(m => m.LandingMiniBar),
+  { ssr: false },
+);
 
 const CATEGORY_KEYS = ['food', 'groceries', 'transit', 'fun'] as const;
 

@@ -6,7 +6,7 @@ Personal finance tracker with a chat-like interface. Log expenses by typing mess
 
 - **Next.js 16** (App Router) + **React 19**
 - **Supabase** (Postgres, RLS, Google OAuth, Realtime)
-- **ECharts** for data visualizations
+- **visx** (D3-powered) for data visualizations
 - **CSS Modules** for component styling
 
 ## Getting Started

@@ -18,37 +18,59 @@ export default async function StatsPage() {
     redirect('/login');
   }
 
-  const prefs = await getUserPreferences(user.id);
-  const currency = prefs?.currency ?? 'USD';
   const currentMonth = format(new Date(), 'yyyy-MM');
 
-  const [personalMonthly, householdMonthly] = await Promise.all([
-    getMonthlyHistory({ scope: 'personal' }),
-    getMonthlyHistory({ scope: 'household' }),
-  ]);
+  // Kick off every query that doesn't depend on household availability up
+  // front so they run concurrently. Previously these ran as three sequential
+  // Promise.all groups behind an awaited prefs fetch — a four-level waterfall
+  // even though only the household daily query actually depends on another.
+  const prefsPromise = getUserPreferences(user.id);
+  const personalMonthlyPromise = getMonthlyHistory({ scope: 'personal' });
+  const householdMonthlyPromise = getMonthlyHistory({ scope: 'household' });
+  const personalDailyPromise = getDailyComparisonData({
+    currentMonth,
+    scope: 'personal',
+  });
+  const personalIncomeVsExpensePromise = getMonthlyIncomeVsExpenseData({
+    scope: 'personal',
+  });
+  const personalCumulativeSavingsPromise = getCumulativeSavingsData({
+    scope: 'personal',
+  });
 
+  // Household daily comparison is the only query gated on whether a household
+  // exists, so resolve that signal first, then fan back out.
+  const householdMonthly = await householdMonthlyPromise;
   const householdAvailable = householdMonthly.errorCode !== 'no_household';
+  const householdDailyPromise = householdAvailable
+    ? getDailyComparisonData({ currentMonth, scope: 'household' })
+    : Promise.resolve({
+        data: {
+          currentMonth,
+          previousMonth: currentMonth,
+          current: [],
+          previous: [],
+        },
+        errorCode: 'no_household' as const,
+      });
 
-  const [personalDaily, householdDaily] = await Promise.all([
-    getDailyComparisonData({ currentMonth, scope: 'personal' }),
-    householdAvailable
-      ? getDailyComparisonData({ currentMonth, scope: 'household' })
-      : Promise.resolve({
-          data: {
-            currentMonth,
-            previousMonth: currentMonth,
-            current: [],
-            previous: [],
-          },
-          errorCode: 'no_household' as const,
-        }),
+  const [
+    prefs,
+    personalMonthly,
+    personalDaily,
+    householdDaily,
+    personalIncomeVsExpense,
+    personalCumulativeSavings,
+  ] = await Promise.all([
+    prefsPromise,
+    personalMonthlyPromise,
+    personalDailyPromise,
+    householdDailyPromise,
+    personalIncomeVsExpensePromise,
+    personalCumulativeSavingsPromise,
   ]);
 
-  const [personalIncomeVsExpense, personalCumulativeSavings] =
-    await Promise.all([
-      getMonthlyIncomeVsExpenseData({ scope: 'personal' }),
-      getCumulativeSavingsData({ scope: 'personal' }),
-    ]);
+  const currency = prefs?.currency ?? 'USD';
 
   return (
     <Flex direction="column" padding={3} gap={5}>
