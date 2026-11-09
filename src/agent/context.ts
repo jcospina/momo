@@ -10,4 +10,7 @@ export type AgentAuthContext = {
 export type AgentContext = {
   currency: SupportedCurrency;
   auth?: AgentAuthContext;
+  currentDate?: string;
+  timezone?: string;
+  householdId?: string | null;
 };

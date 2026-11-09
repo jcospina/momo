@@ -5,6 +5,7 @@ import { createSupabaseServerClient } from '@lib-supabase/server';
 import type { SupportedCurrency } from '@lib-types/user-preferences';
 import { NextResponse } from 'next/server';
 import { streamAgent } from '@/agent/agent-core';
+import { DEFAULT_AGENT_MODEL } from '@/agent/constants';
 import type { AgentContext } from '@/agent/context';
 import { productionToolExecutors } from '@/agent/tools/tools';
 
@@ -16,10 +17,10 @@ type MomoStreamRequest = {
 
 const DEFAULT_CURRENCY: SupportedCurrency = 'USD';
 
-// `MOMO_AGENT_MODEL` is shared with `evals/momo-agent.eval.ts` so any model
+// `MOMO_AGENT_MODEL` is shared with the local evaluation runners so any model
 // change can be validated against the eval harness without code changes.
 const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const modelId = process.env.MOMO_AGENT_MODEL ?? 'gpt-5.4-mini';
+const modelId = process.env.MOMO_AGENT_MODEL ?? DEFAULT_AGENT_MODEL;
 
 export async function POST(request: Request) {
   const payload = (await request.json()) as MomoStreamRequest;
@@ -71,6 +72,7 @@ export async function POST(request: Request) {
 
   const context: AgentContext = {
     currency,
+    householdId: householdId ?? undefined,
     auth: {
       userId: user.id,
       accessToken: session.access_token,

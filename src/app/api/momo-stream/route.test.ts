@@ -200,6 +200,7 @@ describe('POST /api/momo-stream', () => {
     ]);
     expect(streamArgs.context).toEqual({
       currency: 'EUR',
+      householdId: 'house-1',
       auth: {
         userId: 'user-1',
         accessToken: 'access-token-123',
@@ -296,6 +297,8 @@ describe('POST /api/momo-stream', () => {
 
     expect(streamAgentMock).toHaveBeenCalledTimes(1);
     const args = streamAgentMock.mock.calls[0][0];
+    // Personal chat is a destination, not a prohibition on household questions.
+    expect(args.context.householdId).toBeUndefined();
     expect(args.messages[0]).toEqual({
       role: 'user',
       content: '@momo what did I spend on groceries last week?',

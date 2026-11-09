@@ -7,15 +7,16 @@ import {
   streamText,
   type ToolSet,
 } from 'ai';
-import { buildSystemPrompt } from './constants';
+import { AGENT_PROVIDER_OPTIONS, buildSystemPrompt } from './constants';
 import type { AgentContext } from './context';
 import {
   type AgentToolExecutors,
   buildAgentTools,
+  MAX_SQL_QUERIES,
   productionToolExecutors,
 } from './tools/tools';
 
-const DEFAULT_MAX_STEPS = 5;
+const DEFAULT_MAX_STEPS = MAX_SQL_QUERIES + 1;
 
 type AgentArgs = {
   model: LanguageModel;
@@ -46,7 +47,14 @@ export function streamAgent({
     system: system ?? buildSystemPrompt(context),
     messages,
     tools,
-    stopWhen: stepCountIs(maxSteps),
+    providerOptions: AGENT_PROVIDER_OPTIONS,
+    stopWhen: stepCountIs(Math.min(maxSteps, DEFAULT_MAX_STEPS)),
+    prepareStep: ({ steps }) => ({
+      toolChoice:
+        steps.flatMap(step => step.toolCalls).length >= MAX_SQL_QUERIES
+          ? 'none'
+          : 'auto',
+    }),
     onFinish: onFinish as StreamTextOnFinishCallback<typeof tools> | undefined,
   });
 }
@@ -64,7 +72,14 @@ export async function runAgent({
     system: system ?? buildSystemPrompt(context),
     messages,
     tools: buildAgentTools(toolExecutors, context),
-    stopWhen: stepCountIs(maxSteps),
+    providerOptions: AGENT_PROVIDER_OPTIONS,
+    stopWhen: stepCountIs(Math.min(maxSteps, DEFAULT_MAX_STEPS)),
+    prepareStep: ({ steps }) => ({
+      toolChoice:
+        steps.flatMap(step => step.toolCalls).length >= MAX_SQL_QUERIES
+          ? 'none'
+          : 'auto',
+    }),
   });
 
   return {

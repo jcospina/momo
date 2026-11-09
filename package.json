@@ -8,7 +8,9 @@
     "build": "next build",
     "typecheck": "tsc --noEmit",
     "start": "next start",
-    "agent:eval": "braintrust eval evals/momo-agent.eval.ts",
+    "agent:eval": "tsx evals/local/household.ts",
+    "agent:eval:legacy": "tsx evals/local/run.ts",
+    "agent:eval:typed": "tsx evals/local/typed-tags.ts",
     "lint": "pnpm lint:biome && pnpm lint:data-boundaries",
     "lint:biome": "biome lint .",
     "lint:data-boundaries": "node scripts/check-data-boundaries.mjs",
@@ -58,6 +60,7 @@
     "react-dom": "19.2.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
+    "sql.js": "^1.15.2",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.3.6"
   },

@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/.scratch/momo-sql-evals/
+/.scratch/momo-household-evals/
 
 # next.js
 /.next/

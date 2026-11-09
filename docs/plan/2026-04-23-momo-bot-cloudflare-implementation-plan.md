@@ -5,6 +5,11 @@ last_updated: 2026-05-13
 
 # Implementation Plan: `@momo` Agent
 
+> The tool and evaluation design below is historical. On November 9, 2026,
+> [ADR-008](../adr/008-read-only-sql-assistant.md) replaced the three fixed
+> tools with one read-only SQL tool and local evaluations. ADR-007 streaming
+> transport remains in use.
+
 **Date:** 2026-04-23 (v1.0), 2026-05-11 (v2.0 scope reduction), 2026-05-13 (v3.0 runtime change + progress tracking), 2026-05-13 (v3.1 Phase 4 landed)
 
 **Owner:** MoMo engineering  
