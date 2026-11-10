@@ -42,7 +42,7 @@ export function buildAgentTools(
   return {
     querySql: tool({
       description:
-        'Run one parameterized read-only SQLite SELECT (including CTEs, joins, subqueries and window functions) on the authorized expenses table. Choose personal or household scope. Inspect stored descriptions to interpret meaning, then calculate in SQL. Errors consume a query and can be corrected. Maximum ten queries.',
+        'Run one parameterized read-only SQLite SELECT (including CTEs, joins, subqueries and window functions) on the authorized expenses table. Choose personal or household scope. Match broad concepts to categories first; discover tags and inspect notes for narrower or cross-category concepts, then calculate in SQL. Monthly spending averages require monthly sums, not average transaction size. Errors consume a query and can be corrected. Maximum ten queries.',
       inputSchema: z.object({
         scope: z.enum(['personal', 'household']),
         sql: z.string(),

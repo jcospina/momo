@@ -31,7 +31,7 @@ export function fixtureRuntime(currency: SupportedCurrency) {
     currency,
     currentDate: fixture.metadata.endDate,
     timezone: 'America/Bogota',
-    householdId: 'sample-household',
+    // Legacy questions originate in personal chat; household requests are explicit.
     auth: {
       userId: 'sample-owner',
       accessToken: 'offline-fixture-only',

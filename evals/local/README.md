@@ -15,6 +15,7 @@ pnpm agent:eval
 pnpm agent:eval --filter=lunch
 pnpm agent:eval --reference
 pnpm agent:eval:typed
+pnpm exec tsx evals/local/grocery-averages.ts
 pnpm exec tsx evals/local/apple-tags.ts
 ```
 
@@ -100,3 +101,9 @@ pnpm exec tsx evals/local/build-smoke.ts
 
 [FINDINGS.md](FINDINGS.md) preserves earlier evaluation history. Its results
 belong to the prompt versions recorded there, not every later prompt revision.
+
+The grocery regression suite exercises category semantics, household chat defaults,
+monthly versus transaction averages, translated synonyms, explicit empty months,
+and personal scope overrides using invented expenses and independent arithmetic.
+Run with `--reference` for offline expected values or `--filter=case-id` for one
+model case. Traces go to `.scratch/momo-grocery-evals/`.

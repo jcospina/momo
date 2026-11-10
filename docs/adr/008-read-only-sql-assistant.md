@@ -42,7 +42,11 @@ SELECT or WITH statement is accepted, with SQLite `query_only` enabled after
 loading. The worker has no application database attached. Its bundled SQL engine
 has no host file functions. The model cannot issue ATTACH, PRAGMA or mutations.
 
-Typed notes and their derived tags are the primary evidence. Merchant is optional
+Broad category questions use the saved category, matching the category charts.
+The system prompt includes the application category vocabulary; the model maps
+ordinary language and translated synonyms to it before considering tag filters.
+For narrower items and cross-category concepts, typed notes and their derived
+tags provide the evidence. Merchant is optional
 metadata and is not derived by the entry parser. The read-only
 `expense_tags(expense_id, tag)` view exposes distinct normalized pairs for direct
 filtering and grouping. Saved tags are supplemented with the output of the same
@@ -53,8 +57,26 @@ snapshot still obeys the size bounds below.
 
 Tag groups overlap: a meal can match its activity, place and combined phrase.
 Totals use distinct expense IDs/EXISTS; group totals cannot be assumed additive.
-The prompt prioritizes exact discovered tag values, semantic interpretation and
-candidate-note review, with populated merchant values as supporting evidence.
+The prompt prioritizes semantic category matching, then tag vocabulary discovery
+and candidate-note review for more specific concepts. Exact tag equality is a
+final filter after interpretation, not a replacement for it. Vocabulary is read
+from the authorized snapshot on demand and paged when necessary, rather than
+preloading an unbounded list into every prompt. Populated merchant values remain
+supporting evidence.
+
+The active chat sets the default ledger: household questions include all members
+shared records unless the user explicitly restricts the question to their own
+records. Personal chat defaults to personal records; explicit household requests
+can still select household scope.
+
+An unqualified category spending average means monthly spending, with that
+interpretation stated. Explicit per-purchase questions use transaction averages.
+Monthly averages sum by month first. Explicit periods include every requested
+calendar month; whole-history averages use months with ledger records in the
+selected scope, including zero category spending in those months. Responses
+state the period and denominator and show monthly totals; absent historical
+months and partial months are disclosed, not silently treated as complete.
+An unspecified period does not imply the last four months.
 
 Bounds fail explicitly instead of returning incomplete answers:
 

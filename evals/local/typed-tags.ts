@@ -89,7 +89,7 @@ async function main() {
     currency: 'COP',
     currentDate: '2026-11-09',
     timezone: 'America/Bogota',
-    householdId: 'typed-home',
+    // These questions start in personal chat and explicitly name household scope.
     auth: {
       userId: 'typed-owner',
       accessToken: 'synthetic-fixture-only',
@@ -137,7 +137,7 @@ async function main() {
                     rows.filter(row =>
                       query.scope === 'personal'
                         ? row.user_id === context.auth?.userId
-                        : row.household_id === context.householdId,
+                        : row.household_id === 'typed-home',
                     ),
                     query,
                     'COP',
