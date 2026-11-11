@@ -13,7 +13,7 @@ Personal finance tracker with a chat-like interface. Log expenses by typing mess
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 26.13.1 LTS (pinned in `.nvmrc` and `.node-version`)
 - pnpm
 
 ### Setup
@@ -23,6 +23,8 @@ Personal finance tracker with a chat-like interface. Log expenses by typing mess
 3. Install dependencies and start the dev server:
 
 ```bash
+nvm install
+nvm use
 pnpm install
 pnpm dev
 ```

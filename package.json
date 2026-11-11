@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": "26.13.1"
+  },
   "scripts": {
     "dev": "pnpm db:start && next dev",
     "build": "next build",
@@ -33,11 +36,11 @@
     "supabase": "supabase"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^3.0.58",
+    "@ai-sdk/openai": "^3.0.141",
     "@base-ui/react": "^1.0.0",
     "@gsap/react": "^2.1.2",
     "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.81.1",
+    "@supabase/supabase-js": "^2.119.0",
     "@visx/axis": "4.0.0-alpha.11",
     "@visx/curve": "4.0.0-alpha.11",
     "@visx/event": "4.0.0-alpha.11",
@@ -47,14 +50,14 @@
     "@visx/scale": "4.0.0-alpha.11",
     "@visx/shape": "4.0.0-alpha.11",
     "@visx/tooltip": "4.0.0-alpha.11",
-    "ai": "^6.0.168",
-    "braintrust": "^3.9.0",
+    "ai": "^6.0.330",
+    "braintrust": "^3.44.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "gsap": "^3.15.0",
     "lenis": "^1.3.23",
-    "next": "16.0.10",
-    "next-intl": "^4.9.0",
+    "next": "16.4.6",
+    "next-intl": "^4.15.0",
     "openai": "^6.34.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
@@ -62,11 +65,11 @@
     "remark-gfm": "^4.0.1",
     "sql.js": "^1.15.2",
     "tailwind-merge": "^3.4.0",
-    "zod": "^4.3.6"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.7",
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/postcss": "^4.3.5",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
@@ -77,13 +80,13 @@
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "husky": "^9.1.7",
-    "jest": "^30.2.0",
-    "jest-environment-jsdom": "^30.2.0",
-    "lint-staged": "^16.2.6",
-    "supabase": "^2.98.2",
-    "tailwindcss": "^4",
+    "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2",
+    "lint-staged": "^16.4.0",
+    "supabase": "^2.122.1",
+    "tailwindcss": "^4.3.5",
     "ts-node": "^10.9.2",
-    "tsx": "^4.21.0",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   },
   "lint-staged": {

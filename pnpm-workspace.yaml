@@ -2,3 +2,12 @@ onlyBuiltDependencies:
   - sharp
   - supabase
   - unrs-resolver
+
+# Jest's glob ranges still include GHSA-3g3m-2fjr-6pw4 and vulnerable minimatch.
+# Remove these overrides when the parent packages require patched versions.
+overrides:
+  'jest-config>glob': 14.0.5
+  'jest-runtime>glob': 14.0.5
+  '@jest/reporters>glob': 14.0.5
+  'test-exclude>glob': 14.0.5
+  'test-exclude>minimatch': 11.0.8
