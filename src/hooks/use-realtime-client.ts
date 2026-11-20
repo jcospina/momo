@@ -118,11 +118,19 @@ export function useRealtimeClient(): UseRealtimeClientResult {
               autoRefreshToken: false,
               detectSessionInUrl: false,
             },
-            // realtime: {
-            //   logger: (kind, msg, data) => {
-            //     console.log(`${kind}: ${msg}`, data);
-            //   },
-            // },
+            realtime: {
+              // Without this, supabase-js points realtime at its own auth
+              // session, which is empty on this client, so it falls back to the
+              // anon key. realtime-js re-reads that callback after every channel
+              // join and heartbeat, so every join after the first (e.g. after a
+              // chat tab switch) would carry the anon key and the server would
+              // silently drop its postgres_changes subscription. Pin it to the
+              // user token; the client is rebuilt before that token expires.
+              accessToken: async () => token.access_token,
+              // logger: (kind, msg, data) => {
+              //   console.log(`${kind}: ${msg}`, data);
+              // },
+            },
           },
         );
 
