@@ -12,4 +12,4 @@ if [ -z "${SUPABASE_DB_PASSWORD:-}" ]; then
 fi
 
 echo "Running dry-run migration push against linked Supabase project..."
-supabase db push --linked --dry-run
+supabase db push --remote --dry-run

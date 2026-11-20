@@ -190,6 +190,20 @@ describe('MonthlyTotalsBarChart (Visx)', () => {
     });
   });
 
+  it('renders a window whose months have no spending without crashing', () => {
+    const emptyWindow = [
+      { month: '2026-09', categories: [] },
+      { month: '2026-10', categories: [] },
+      { month: '2026-11', categories: [] },
+    ];
+
+    const { queryAllByTestId } = render(
+      <MonthlyTotalsBarChart months={emptyWindow} currency="USD" />,
+    );
+
+    expect(queryAllByTestId('bar-segment')).toHaveLength(0);
+  });
+
   it('renders a tooltip on first touch of a bar segment', () => {
     const { getAllByTestId, getByText } = render(
       <MonthlyTotalsBarChart months={months} currency="USD" />,

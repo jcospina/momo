@@ -111,6 +111,7 @@ export type UpdateExpensesResult = {
   errorCode?:
     | 'auth_required'
     | 'expense_update_failed'
-    | 'expense_amount_invalid';
+    | 'expense_amount_invalid'
+    | 'expense_category_invalid';
   updatedIds?: string[];
 };

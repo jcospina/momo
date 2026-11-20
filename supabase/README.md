@@ -4,7 +4,7 @@
 
 ## One-Time Bootstrap (existing hosted DB)
 
-1. Install Docker Desktop and Supabase CLI.
+1. Install Docker Desktop. The Supabase CLI is pinned to 3.2.0 as a devDependency (run it as `pnpm supabase …`) and in CI.
 2. Authenticate and link:
    - `pnpm supabase login`
    - `pnpm supabase link --project-ref <your-project-ref>`
@@ -29,7 +29,7 @@
    - `pnpm db:push:dry-run`
 4. Apply hosted migration:
    - `pnpm db:push`
-   - Guardrail: this command now runs local preflight checks first (`supabase start`, `supabase db reset --local`, `supabase db lint --local`) before prompting for hosted apply.
+   - Guardrail: this command now runs local preflight checks first (`supabase start`, `supabase db reset`, `supabase db lint`) before prompting for hosted apply. After `APPLY`, it runs `supabase db push --remote --yes`.
 5. Refresh schema snapshot docs:
    - `pnpm db:schema:snapshot`
 

@@ -76,7 +76,9 @@ jobs:
         if: steps.migration-changes.outputs.should_run == 'true'
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          # Pinned so a new CLI major can't break unrelated PRs. Keep in sync
+          # with the local CLI (`supabase --version`) when upgrading.
+          version: 3.2.0
 
       - name: Start local Supabase
         if: steps.migration-changes.outputs.should_run == 'true'
@@ -84,11 +86,11 @@ jobs:
 
       - name: Reset local DB from migrations
         if: steps.migration-changes.outputs.should_run == 'true'
-        run: supabase db reset --local
+        run: supabase db reset
 
       - name: Lint DB SQL
         if: steps.migration-changes.outputs.should_run == 'true'
-        run: supabase db lint --local
+        run: supabase db lint
 
       - name: Stop local Supabase
         if: always() && steps.migration-changes.outputs.should_run == 'true'

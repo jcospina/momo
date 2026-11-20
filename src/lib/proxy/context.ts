@@ -1,3 +1,4 @@
+import { SUPABASE_AUTH_COOKIE_OPTIONS } from '@lib-supabase/cookie-options';
 import type { ProxyContext } from '@proxy/types';
 import { createServerClient } from '@supabase/ssr';
 import type { NextRequest } from 'next/server';
@@ -25,9 +26,7 @@ export async function buildProxyContext(
           );
         },
       },
-      cookieOptions: {
-        secure: process.env.NODE_ENV === 'production',
-      },
+      cookieOptions: SUPABASE_AUTH_COOKIE_OPTIONS,
     },
   );
 

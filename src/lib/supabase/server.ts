@@ -2,6 +2,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import { SUPABASE_AUTH_COOKIE_OPTIONS } from './cookie-options';
 
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
@@ -27,9 +28,7 @@ export async function createSupabaseServerClient() {
           }
         },
       },
-      cookieOptions: {
-        secure: process.env.NODE_ENV === 'production',
-      },
+      cookieOptions: SUPABASE_AUTH_COOKIE_OPTIONS,
     },
   );
 }

@@ -2,7 +2,11 @@
 
 import { useCallback, useMemo } from 'react';
 
-import { RingChart, type RingChartItem } from './ring-chart';
+import {
+  RingChart,
+  type RingChartItem,
+  type RingChartTooltipLine,
+} from './ring-chart';
 
 type UserTotalItem = {
   user_label: string;
@@ -58,9 +62,9 @@ export function UserTotalsRingChart({
         });
         const top = breakdown.slice(0, MAX_CATEGORIES);
         const rest = breakdown.slice(MAX_CATEGORIES);
-        const lines = top.map(entry => {
+        const lines: RingChartTooltipLine[] = top.map(entry => {
           const value = entry.totalCents / (currency === 'COP' ? 1 : 100);
-          return `${entry.category}: ${formatter.format(value)}`;
+          return { label: entry.category, value: formatter.format(value) };
         });
         if (rest.length > 0) {
           const othersTotal = rest.reduce(
@@ -68,7 +72,7 @@ export function UserTotalsRingChart({
             0,
           );
           const othersValue = othersTotal / (currency === 'COP' ? 1 : 100);
-          lines.push(`Others: ${formatter.format(othersValue)}`);
+          lines.push({ label: 'Others', value: formatter.format(othersValue) });
         }
         return lines;
       }}

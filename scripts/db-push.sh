@@ -13,8 +13,8 @@ fi
 
 echo "Running required local migration preflight checks before hosted apply..."
 supabase start
-supabase db reset --local
-supabase db lint --local
+supabase db reset
+supabase db lint
 echo "Preflight checks passed."
 
 echo "This will apply pending migrations to your linked hosted Supabase project."
@@ -27,4 +27,6 @@ if [ "$confirmation" != "APPLY" ]; then
   exit 1
 fi
 
-supabase db push --linked
+# The APPLY prompt above is the confirmation; --yes stops CLI v3 from asking a
+# second time (its own prompt defaults to No).
+supabase db push --remote --yes

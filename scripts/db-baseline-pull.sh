@@ -21,4 +21,4 @@ name="${1:-baseline_$(date +%Y%m%d%H%M%S)}"
 
 echo "Pulling current hosted schema into supabase/migrations as: $name"
 echo "When prompted to update remote migration history, answer 'Y'."
-supabase db pull "$name"
+supabase db pull "$name" --remote

@@ -77,6 +77,34 @@ describe('updateExpenses action', () => {
     jest.clearAllMocks();
   });
 
+  it.each([
+    ['<img src=x onerror=alert(1)>'],
+    ['Groceries'],
+    ['not_a_category'],
+  ])('rejects category %p that is not in the app vocabulary', async category => {
+    const supabase = createSupabaseMock();
+    createSupabaseServerClientMock.mockResolvedValue(supabase as never);
+
+    const result = await updateExpenses({
+      updates: [
+        {
+          id: 'expense-1',
+          amount: '10',
+          expense_date: '2026-03-20',
+          category: category as never,
+          merchant: null,
+          currency: 'USD',
+        },
+      ],
+      messageId: 'message-1',
+    });
+
+    expect(result).toEqual({ errorCode: 'expense_category_invalid' });
+    expect(updateExpenseRowsMock).not.toHaveBeenCalled();
+    expect(upsertCategoryRuleMock).not.toHaveBeenCalled();
+    expect(supabase.chatMessagesBuilder.update).not.toHaveBeenCalled();
+  });
+
   it('normalizes optional income note and keeps processed status when all rows have category', async () => {
     const supabase = createSupabaseMock();
     createSupabaseServerClientMock.mockResolvedValue(supabase as never);

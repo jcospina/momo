@@ -25,12 +25,20 @@ export type RingChartItem = {
   value: number;
 };
 
+// Tooltip lines are plain data rendered as React text, never as HTML: labels
+// carry user-controlled values (expense categories, member display names).
+export type RingChartTooltipLine = {
+  label: string;
+  value: string;
+  emphasizeLabel?: boolean;
+};
+
 export type RingChartProps = {
   items: RingChartItem[];
   currency: string;
   centerLabel?: string;
   onItemClick?: (payload: RingChartItem) => void;
-  getTooltipLines?: (payload: RingChartItem) => string[];
+  getTooltipLines?: (payload: RingChartItem) => RingChartTooltipLine[];
 };
 
 type ArcDatum = {
@@ -43,7 +51,7 @@ type TooltipDatum = {
   name: string;
   value: number;
   percent: number;
-  extra: string[];
+  extra: RingChartTooltipLine[];
 };
 
 type PieArcDatum<Datum> = PieProvidedProps<Datum>['arcs'][number];
@@ -252,7 +260,10 @@ function RingChartCanvas({
             ({tooltipData.percent.toFixed(1)}%)
           </div>
           {tooltipData.extra.map(line => (
-            <div key={line} dangerouslySetInnerHTML={{ __html: line }} />
+            <div key={`${line.label}:${line.value}`}>
+              {line.emphasizeLabel ? <strong>{line.label}</strong> : line.label}
+              : {line.value}
+            </div>
           ))}
         </TooltipInPortal>
       ) : null}

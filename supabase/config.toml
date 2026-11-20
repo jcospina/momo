@@ -51,7 +51,7 @@ redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"
 enabled = true
 file_size_limit = "50MiB"
 
-[inbucket]
+[local_smtp]
 enabled = true
 port = 54324
 

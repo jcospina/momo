@@ -14,4 +14,4 @@ fi
 mkdir -p schema
 
 echo "Generating schema snapshot at schema/momo_snapshot.sql from linked project..."
-supabase db dump --linked --schema public -f schema/momo_snapshot.sql
+supabase db dump --remote --schema public -f schema/momo_snapshot.sql
