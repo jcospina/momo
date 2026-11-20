@@ -4,7 +4,7 @@ import styles from './navbar.module.css';
 
 type NavbarProps = {
   logo: ReactNode;
-  themeSelector: ReactNode;
+  themeSelector?: ReactNode;
   links?: ReactNode;
   navRef?: Ref<HTMLElement>;
   className?: string;

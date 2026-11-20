@@ -158,6 +158,11 @@
       "en": "English",
       "es": "Spanish"
     },
+    "theme": {
+      "label": "Theme",
+      "placeholder": "Select a theme",
+      "ariaLabel": "Color theme"
+    },
     "invite": {
       "linkCopied": "Link copied",
       "shared": "Shared!",

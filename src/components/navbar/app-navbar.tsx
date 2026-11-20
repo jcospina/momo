@@ -1,7 +1,6 @@
 'use client';
 
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
-import { ThemeSelector } from '@components/theme-selector/theme-selector';
 import { useMediaQuery } from '@hooks/use-media-query';
 import { useNavigationProgress } from '@providers/navigation-progress-provider';
 import { Highlight } from '@ui/highlight/highlight';
@@ -187,6 +186,21 @@ export function AppNavbar() {
     '--momo-app-navbar-drawer-top': `${drawerTop}px`,
   } as CSSProperties;
 
+  const isStats = pathname === STATS;
+  const mobileShortcutHref = isStats ? HOME : STATS;
+  const MobileShortcutIcon = isStats ? MessageIcon : ChartIcon;
+
+  const mobileShortcut = (
+    <a
+      href={mobileShortcutHref}
+      onClick={handleNavItemClick(mobileShortcutHref, false)}
+      aria-label={isStats ? t('home') : t('stats')}
+      className={styles['momo-app-navbar__icon-link']}
+    >
+      <MobileShortcutIcon width={24} height={24} aria-hidden="true" />
+    </a>
+  );
+
   const mobileMenuButton = (
     <BaseDialog.Trigger
       id={triggerId}
@@ -209,7 +223,6 @@ export function AppNavbar() {
         navRef={navRef}
         className={styles['momo-app-navbar']}
         logo={logo}
-        themeSelector={<ThemeSelector />}
         links={desktopLinks}
       />
     );
@@ -226,8 +239,12 @@ export function AppNavbar() {
         navRef={navRef}
         className={styles['momo-app-navbar']}
         logo={logo}
-        themeSelector={<ThemeSelector />}
-        links={mobileMenuButton}
+        links={
+          <>
+            {mobileShortcut}
+            {mobileMenuButton}
+          </>
+        }
       />
       <BaseDialog.Portal>
         <BaseDialog.Backdrop
