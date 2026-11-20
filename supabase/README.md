@@ -21,7 +21,7 @@
    - `pnpm db:new -- add_my_change`
 2. Validate locally:
    - `pnpm db:start`
-   - ensure `.env.local` points to local Supabase (`http://127.0.0.1:54321` + local keys)
+   - ensure `.env.local` points to local Supabase (`http://127.0.0.1:55321` + local keys)
    - `pnpm db:reset`
    - Optional dev bootstrap data: `pnpm db:seed`
    - `pnpm db:lint`
@@ -55,7 +55,7 @@ Google OAuth note: app login remains Google-only.
   - `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID`
   - `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET`
   Define them in `.env` before `pnpm db:start`.
-- Configure your Google OAuth app callback URL as `http://127.0.0.1:54321/auth/v1/callback`.
+- Configure your Google OAuth app callback URL as `http://127.0.0.1:55321/auth/v1/callback`.
 
 Optional seed env vars:
 
