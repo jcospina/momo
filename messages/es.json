@@ -181,7 +181,11 @@
     "profile": "Perfil",
     "openMenu": "Abrir menu de navegacion",
     "closeMenu": "Cerrar menu de navegacion",
-    "navigation": "Navegacion"
+    "navigation": "Navegacion",
+    "homeBlurb": "Registra gastos con solo decirlo",
+    "statsBlurb": "En qué se fue el dinero",
+    "profileBlurb": "Hogar, invitaciones y ajustes",
+    "greeting": "Hola,"
   },
   "stats": {
     "expensesByCategory": "Gastos por categoría",

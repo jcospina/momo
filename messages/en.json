@@ -181,7 +181,11 @@
     "profile": "Profile",
     "openMenu": "Open navigation menu",
     "closeMenu": "Close navigation menu",
-    "navigation": "Navigation"
+    "navigation": "Navigation",
+    "homeBlurb": "Log spending by just saying it",
+    "statsBlurb": "Where the money went",
+    "profileBlurb": "Household, invites and settings",
+    "greeting": "Hello,"
   },
   "stats": {
     "expensesByCategory": "Expenses by category",

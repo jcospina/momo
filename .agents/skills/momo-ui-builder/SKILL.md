@@ -39,6 +39,7 @@ Read `references/component-map.md` first, then load only specific files:
 - `references/padding.md`
 - `references/panel.md`
 - `references/select.md`
+- `references/sticker.md`
 - `references/toggle-group.md`
 - `references/tooltip.md`
 - `references/typography.md`

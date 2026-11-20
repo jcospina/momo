@@ -6,7 +6,7 @@ import { useMediaQuery } from '@hooks/use-media-query';
 import { useScrollTick } from '@hooks/use-scroll-progress';
 import { Logo } from '@ui/logo/logo';
 import { Navbar } from '@ui/navbar/navbar';
-import { cn } from '@utils/cn';
+import { Sticker } from '@ui/sticker/sticker';
 import gsap from 'gsap';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -79,28 +79,30 @@ export function LandingNavbar() {
     gsap.set(nav, { yPercent: translatePercent });
   });
 
+  const brand = (
+    <Logo size="sm" className={styles['momo-landing-navbar__logo']} />
+  );
   const logo = isLandingRoot ? (
-    <Logo size="sm" />
+    brand
   ) : (
     <Link href="/" className={styles['momo-landing-navbar__logo-link']}>
-      <Logo size="sm" />
+      {brand}
     </Link>
   );
 
   const links = isAuthRoute ? null : (
     <>
-      <Link
+      <Sticker
+        as={Link}
         href={SIGNUP_PATH}
-        className={cn(
-          styles['momo-landing-navbar__link'],
-          styles['momo-landing-navbar__link--desktop-only'],
-        )}
+        variant="primary"
+        className={styles['momo-landing-navbar__desktop-only']}
       >
         {t('signup')}
-      </Link>
-      <Link href={LOGIN_PATH} className={styles['momo-landing-navbar__link']}>
+      </Sticker>
+      <Sticker as={Link} href={LOGIN_PATH}>
         {t('login')}
-      </Link>
+      </Sticker>
     </>
   );
 

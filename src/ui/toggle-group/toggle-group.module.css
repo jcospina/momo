@@ -1,3 +1,5 @@
+/* Toggles move like the navbar stickers: hover peels one up, pressing
+   squashes it, and the chosen one springs into place with a slight tilt. */
 .momo-toggle {
   border: 2px solid var(--color-dark);
   border-radius: calc(var(--border-radius) - 2px);
@@ -6,19 +8,42 @@
   background: var(--color-light);
   color: var(--color-dark);
   cursor: pointer;
+  transform-origin: 30% 50%;
   transition:
-    box-shadow 150ms ease,
-    background-color 150ms ease;
+    transform var(--duration-spring) var(--ease-spring),
+    box-shadow var(--duration-spring) var(--ease-pop),
+    background-color var(--duration-base) var(--ease-pop);
 }
 
-.momo-toggle:hover {
-  box-shadow: -1px 1px 0 var(--color-dark);
+@media (hover: hover) {
+  .momo-toggle:not([data-pressed]):not([data-disabled]):hover {
+    transform: rotate(var(--tilt-peel)) translateY(-2px);
+    box-shadow: -3px 3px 0 var(--color-dark);
+  }
+}
+
+.momo-toggle:not([data-disabled]):active {
+  transform: scale(0.96);
+  box-shadow: none;
 }
 
 .momo-toggle[data-pressed] {
   background: var(--color-sky-aqua);
   color: var(--color-dark);
   box-shadow: -2px 2px 0 var(--color-dark);
+  transform: rotate(var(--tilt-placed));
+  animation: momo-sticker-place var(--duration-place) var(--ease-spring);
+}
+
+/* Played whenever a sticker becomes the selected one, including when it
+   mounts or its panel reappears (where a transition would never run). */
+@keyframes momo-sticker-place {
+  from {
+    transform: rotate(var(--tilt-peel)) translateY(-4px) scale(1.06);
+  }
+  to {
+    transform: rotate(var(--tilt-placed));
+  }
 }
 
 .momo-toggle:focus-visible {
@@ -36,8 +61,10 @@
 @media (prefers-reduced-motion: reduce) {
   .momo-toggle {
     transition: none;
+    animation: none;
   }
 }
+
 .momo-toggle-group {
   display: inline-flex;
   gap: calc(var(--spacing) * 1);

@@ -1,14 +1,16 @@
+/* No band: the bar sits straight on the page, and its links carry the
+   borders. Consumers that float over content (the landing) add their own
+   background. */
 .momo-navbar {
   width: 100%;
-  background: var(--bg-page);
-  border-bottom: var(--border-width-thin) solid var(--color-dark);
-  transition: background-color var(--duration-toggle) var(--ease-pop);
+  color: var(--color-dark);
 }
 
 .momo-navbar__inner {
-  max-width: 1200px;
+  /* Consumers can widen the bar via --momo-navbar-max-width and tighten its
+     height via --momo-navbar-padding-block. */
+  max-width: var(--momo-navbar-max-width, 1200px);
   margin: 0 auto;
-  /* Consumers can tighten the bar's height via --momo-navbar-padding-block. */
   padding: var(--momo-navbar-padding-block, var(--space-2)) var(--space-3);
   display: flex;
   align-items: center;
@@ -26,11 +28,5 @@
 .momo-navbar__links {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-}
-
-@media (max-width: 720px) {
-  .momo-navbar__links {
-    gap: var(--space-2);
-  }
+  gap: var(--space-2);
 }

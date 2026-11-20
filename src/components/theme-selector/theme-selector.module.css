@@ -10,15 +10,25 @@
   font-weight: var(--weight-bold);
   cursor: pointer;
   color: var(--color-dark);
+  /* Same peel as the navbar stickers it sits next to. */
+  transform-origin: 30% 50%;
   transition:
-    transform var(--duration-fast) var(--ease-pop),
-    box-shadow var(--duration-fast) var(--ease-pop),
+    transform var(--duration-spring) var(--ease-spring),
+    box-shadow var(--duration-spring) var(--ease-pop),
     background-color var(--duration-toggle) var(--ease-pop);
 }
 
-.momo-theme-selector__trigger:hover {
-  transform: translate(-2px, 0);
-  box-shadow: var(--shadow-sm);
+@media (hover: hover) {
+  .momo-theme-selector__trigger:hover {
+    transform: rotate(var(--tilt-peel)) translateY(-2px);
+    box-shadow: -3px 3px 0 var(--color-dark);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-theme-selector__trigger {
+    transition: none;
+  }
 }
 
 .momo-theme-selector__swatches {

@@ -1,0 +1,77 @@
+.momo-sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1);
+  padding: 6px 14px;
+  border: var(--border-width-thin) solid var(--color-dark);
+  background: var(--bg-panel);
+  color: var(--color-dark);
+  font: inherit;
+  font-size: var(--type-md);
+  font-weight: var(--weight-bold);
+  line-height: 1.1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  /* Pivot a little left of centre so it peels like a corner lifting. */
+  transform-origin: 30% 50%;
+  transition:
+    transform var(--duration-spring) var(--ease-spring),
+    box-shadow var(--duration-spring) var(--ease-pop),
+    background-color var(--duration-base) var(--ease-pop);
+}
+
+.momo-sticker--tag {
+  border-radius: calc(var(--border-radius) - 2px);
+}
+
+.momo-sticker--pill {
+  border-radius: var(--radius-pill);
+}
+
+.momo-sticker--primary {
+  background: var(--accent-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (hover: hover) {
+  .momo-sticker:not([data-active]):hover {
+    transform: rotate(var(--tilt-peel)) translateY(-2px);
+    box-shadow: -3px 3px 0 var(--color-dark);
+  }
+}
+
+.momo-sticker:not([data-active]):active {
+  transform: scale(0.96);
+  box-shadow: none;
+}
+
+.momo-sticker[data-active] {
+  background: var(--accent-info);
+  transform: rotate(var(--tilt-placed));
+  box-shadow: var(--shadow-sm);
+  animation: momo-sticker-place var(--duration-place) var(--ease-spring);
+}
+
+/* Played whenever a sticker becomes the selected one, including when it
+   mounts or its panel reappears (where a transition would never run). */
+@keyframes momo-sticker-place {
+  from {
+    transform: rotate(var(--tilt-peel)) translateY(-4px) scale(1.06);
+  }
+  to {
+    transform: rotate(var(--tilt-placed));
+  }
+}
+
+.momo-sticker:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-sticker {
+    transition: none;
+    animation: none;
+  }
+}

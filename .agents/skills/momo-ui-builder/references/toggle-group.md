@@ -21,6 +21,8 @@ Source: `src/ui/toggle-group/toggle-group.tsx`, `src/ui/toggle-group/toggle-grou
 - Built on Base UI `ToggleGroup` + `Toggle`.
 - Always reports selection as string array.
 - Group-level `disabled` disables all items; each item can also be disabled.
+- Moves like `Sticker`: hover peels a toggle up, press squashes it, and the
+  pressed one springs into a slight tilt (sky fill).
 
 ## Guidance
 

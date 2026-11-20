@@ -8,7 +8,6 @@ import {
 import { AppNavbar } from './app-navbar';
 
 const navigateSpy = jest.fn();
-const useMediaQueryMock = jest.fn();
 const usePathnameMock = jest.fn();
 
 jest.mock('@providers/navigation-progress-provider', () => ({
@@ -17,8 +16,13 @@ jest.mock('@providers/navigation-progress-provider', () => ({
   }),
 }));
 
-jest.mock('@hooks/use-media-query', () => ({
-  useMediaQuery: (query: string) => useMediaQueryMock(query),
+jest.mock('@providers/profile-provider', () => ({
+  useProfile: () => ({
+    user_id: 'user-1',
+    display_name: 'Momo Demo',
+    email: 'demo@momo.local',
+    invite_token: 'token',
+  }),
 }));
 
 jest.mock('@ui/logo/logo', () => ({
@@ -29,115 +33,104 @@ jest.mock('next/navigation', () => ({
   usePathname: () => usePathnameMock(),
 }));
 
-describe('AppNavbar desktop links', () => {
+async function openMenu() {
+  fireEvent.click(
+    screen.getByRole('button', { name: /open navigation menu/i }),
+  );
+  return screen.findByRole('dialog', { name: 'Navigation' });
+}
+
+describe('AppNavbar stickers', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     usePathnameMock.mockReturnValue('/home');
-    useMediaQueryMock.mockImplementation((query: string) => {
-      if (query === '(max-width: 720px)') return false;
-      if (query === '(prefers-reduced-motion: reduce)') return false;
-      return false;
-    });
   });
 
-  it('shows all links in chat, stats, profile order and highlights the current route', () => {
+  it('shows chat, stats and your profile chip, marking the current route', () => {
     render(<AppNavbar />);
 
-    const navLinks = screen.getAllByRole('link');
-    expect(navLinks.map(link => link.textContent)).toEqual([
+    const links = screen.getAllByRole('link');
+    expect(links.map(link => link.textContent)).toEqual([
       'Chat',
       'Stats',
-      'Profile',
+      'MProfile: Momo',
     ]);
     expect(screen.getByRole('link', { name: 'Chat' })).toHaveAttribute(
       'aria-current',
       'page',
     );
+    expect(screen.getByRole('link', { name: 'Stats' })).not.toHaveAttribute(
+      'aria-current',
+    );
   });
 
-  it('navigates when selecting an inactive desktop route', () => {
+  it('navigates when selecting an inactive route', () => {
     render(<AppNavbar />);
 
     fireEvent.click(screen.getByRole('link', { name: 'Stats' }));
 
     expect(navigateSpy).toHaveBeenCalledWith('/home/stats');
   });
-});
 
-describe('AppNavbar mobile drawer', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    usePathnameMock.mockReturnValue('/home');
-    useMediaQueryMock.mockImplementation((query: string) => {
-      if (query === '(max-width: 720px)') return true;
-      if (query === '(prefers-reduced-motion: reduce)') return false;
-      return false;
-    });
-  });
-
-  it('shows the mobile rail with the stats shortcut and menu toggle', () => {
+  it('does not navigate when selecting the current route', () => {
     render(<AppNavbar />);
-
-    expect(screen.getByRole('link', { name: 'Stats' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Open navigation menu' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('link', { name: 'Profile' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('navigates to stats from the mobile shortcut without opening the drawer', () => {
-    render(<AppNavbar />);
-
-    fireEvent.click(screen.getByRole('link', { name: 'Stats' }));
-
-    expect(navigateSpy).toHaveBeenCalledWith('/home/stats');
-    expect(
-      screen.queryByRole('dialog', { name: 'Navigation' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('swaps the shortcut to chat when on the stats page', () => {
-    usePathnameMock.mockReturnValue('/home/stats');
-
-    render(<AppNavbar />);
-
-    expect(
-      screen.queryByRole('link', { name: 'Stats' }),
-    ).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('link', { name: 'Chat' }));
 
+    expect(navigateSpy).not.toHaveBeenCalled();
+  });
+
+  it('links the logo home everywhere except home', () => {
+    usePathnameMock.mockReturnValue('/home/profile');
+
+    render(<AppNavbar />);
+
+    expect(
+      screen.getByRole('link', { name: /profile: momo/i }),
+    ).toHaveAttribute('aria-current', 'page');
+    fireEvent.click(screen.getByRole('link', { name: 'MoMo' }));
+
     expect(navigateSpy).toHaveBeenCalledWith('/home');
   });
+});
 
-  it('renders the drawer list with icons and highlights the current route', async () => {
-    render(<AppNavbar />);
-
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Open navigation menu' }),
-    );
-
-    const drawer = await screen.findByRole('dialog', { name: 'Navigation' });
-    expect(within(drawer).getByText('Chat')).toBeInTheDocument();
-    expect(within(drawer).getByText('Stats')).toBeInTheDocument();
-    expect(within(drawer).getByText('Profile')).toBeInTheDocument();
-    expect(
-      within(drawer).getByText('Chat').closest('[aria-current="page"]'),
-    ).toHaveAttribute('aria-current', 'page');
+describe('AppNavbar phone menu', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    usePathnameMock.mockReturnValue('/home/stats');
   });
 
-  it('closes the drawer on backdrop click', async () => {
+  it('names the current page on the menu trigger', () => {
     render(<AppNavbar />);
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Open navigation menu' }),
+    expect(
+      screen.getByRole('button', { name: /open navigation menu/i }),
+    ).toHaveTextContent(/^Stats/);
+  });
+
+  it('lists every destination with its purpose and marks the current one', async () => {
+    render(<AppNavbar />);
+
+    const menu = await openMenu();
+
+    expect(within(menu).getByText('Where the money went')).toBeInTheDocument();
+    expect(within(menu).getByRole('link', { name: /^Stats/ })).toHaveAttribute(
+      'aria-current',
+      'page',
     );
+    expect(
+      within(menu).getByRole('link', { name: /^Chat/ }),
+    ).not.toHaveAttribute('aria-current');
+    expect(within(menu).getByText('Hello,')).toBeInTheDocument();
+  });
 
-    const backdrop = await screen.findByTestId('app-navbar-drawer-backdrop');
-    fireEvent.click(backdrop);
+  it('closes and navigates when selecting an inactive route', async () => {
+    render(<AppNavbar />);
 
+    const menu = await openMenu();
+    fireEvent.click(within(menu).getByRole('link', { name: /^Chat/ }));
+
+    expect(navigateSpy).toHaveBeenCalledWith('/home');
     await waitFor(() =>
       expect(
         screen.queryByRole('dialog', { name: 'Navigation' }),
@@ -145,64 +138,26 @@ describe('AppNavbar mobile drawer', () => {
     );
   });
 
-  it('closes the drawer and navigates when selecting an inactive route', async () => {
+  it('closes from the close button', async () => {
     render(<AppNavbar />);
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Open navigation menu' }),
-    );
-
-    const drawer = await screen.findByRole('dialog', { name: 'Navigation' });
-    fireEvent.click(within(drawer).getByRole('link', { name: 'Stats' }));
-
-    expect(navigateSpy).toHaveBeenCalledWith('/home/stats');
-    await waitFor(() =>
-      expect(
-        screen.queryByRole('dialog', { name: 'Navigation' }),
-      ).not.toBeInTheDocument(),
-    );
-  });
-
-  it('closes the drawer on Escape', async () => {
-    render(<AppNavbar />);
-
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Open navigation menu' }),
-    );
-
-    expect(
-      await screen.findByRole('dialog', { name: 'Navigation' }),
-    ).toBeInTheDocument();
-    fireEvent.keyDown(document, { key: 'Escape' });
-
-    await waitFor(() =>
-      expect(
-        screen.queryByRole('dialog', { name: 'Navigation' }),
-      ).not.toBeInTheDocument(),
-    );
-  });
-
-  it('still opens and closes correctly when reduced motion is preferred', async () => {
-    useMediaQueryMock.mockImplementation((query: string) => {
-      if (query === '(max-width: 720px)') return true;
-      if (query === '(prefers-reduced-motion: reduce)') return true;
-      return false;
-    });
-
-    render(<AppNavbar />);
-
-    const toggle = screen.getByRole('button', {
-      name: 'Open navigation menu',
-    });
-
-    fireEvent.click(toggle);
-    expect(
-      await screen.findByRole('dialog', { name: 'Navigation' }),
-    ).toBeInTheDocument();
-
+    await openMenu();
     fireEvent.click(
       screen.getByRole('button', { name: 'Close navigation menu' }),
     );
+
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('dialog', { name: 'Navigation' }),
+      ).not.toBeInTheDocument(),
+    );
+  });
+
+  it('closes on Escape', async () => {
+    render(<AppNavbar />);
+
+    await openMenu();
+    fireEvent.keyDown(document, { key: 'Escape' });
 
     await waitFor(() =>
       expect(

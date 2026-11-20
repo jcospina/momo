@@ -5,6 +5,9 @@
   right: 0;
   z-index: 5;
   will-change: transform;
+  /* Fixed over scrolling content, so it needs the page colour behind it. */
+  background: var(--bg-page);
+  transition: background-color var(--duration-toggle) var(--ease-pop);
 }
 
 .momo-landing-navbar__logo-link {
@@ -14,23 +17,14 @@
   align-items: center;
 }
 
-.momo-landing-navbar__link {
-  color: var(--color-dark);
-  text-decoration: none;
-  font-weight: var(--weight-bold);
-  font-size: var(--type-md);
-  padding: var(--space-1) 0;
-  transition: text-decoration-thickness var(--duration-fast) ease;
-}
-
-.momo-landing-navbar__link:hover {
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
-}
-
 @media (max-width: 720px) {
-  .momo-landing-navbar__link--desktop-only {
+  /* Two classes so this beats the Logo's own size class. */
+  .momo-landing-navbar .momo-landing-navbar__logo {
+    font-size: 1.6rem;
+  }
+
+  /* Two classes so this beats the Sticker's own display. */
+  .momo-landing-navbar .momo-landing-navbar__desktop-only {
     display: none;
   }
 }
