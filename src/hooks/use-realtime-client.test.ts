@@ -1,8 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { useRealtimeClient } from './use-realtime-client';
 
-// Uses the real supabase-js client (no mock): the bug lived in how
-// supabase-js and realtime-js pick the token for each channel join.
+// Uses the real realtime-js client (no mock): the bug lived in how
+// realtime-js picks the token for each channel join.
 describe('useRealtimeClient', () => {
   const originalEnv = { ...process.env };
   const originalFetch = global.fetch;
@@ -26,7 +26,7 @@ describe('useRealtimeClient', () => {
     const { result, unmount } = renderHook(() => useRealtimeClient());
 
     await waitFor(() => expect(result.current.client).not.toBeNull());
-    const realtime = result.current.client?.realtime;
+    const realtime = result.current.client;
     expect(realtime?.accessTokenValue).toBe('user-jwt');
 
     // realtime-js calls setAuth() with no token after every channel join and

@@ -68,6 +68,16 @@ Domain helpers for parsing, persistence, stats shaping/query helpers, and shared
 ### `src/lib/proxy/` + `src/proxy.ts`
 
 Route protection and redirects (unauthenticated redirects, root redirect, onboarding/home guards).
+The session is checked from verified token claims, and `/home` usually needs no database lookup
+before the first byte (see `docs/auth-and-households.md`).
+
+### `src/app/` route layout
+
+The site's own routes (landing, login, signup, legal, onboarding, invites) live in the `(site)` route
+group, which owns the full-screen `loading.tsx`. `/home` sits outside it: its layout does not wait on
+data, and each page streams a navbar plus a skeleton of itself in the first chunk, then swaps in the
+real content through a single Suspense boundary. React 19 holds a Suspense fallback for at least
+300 ms after first paint before revealing content, so pages keep one boundary rather than several.
 
 ### `src/features/`
 

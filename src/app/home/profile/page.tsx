@@ -1,17 +1,16 @@
 import type { MomoError } from '@lib-types/errors';
 import { firstName } from '@utils/user';
-import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { requireProfile, requireUserId } from '@/app/home/session';
 import { HouseholdForm } from '@/components/household-form/household-form';
 import { AppNavbar } from '@/components/navbar/app-navbar';
-import { getCurrentUser, logout } from '@/lib/data/auth/server';
+import { logout } from '@/lib/data/auth/server';
 import {
   createInline,
   getHouseholdForUser,
   getMembers,
 } from '@/lib/data/households/server';
 import { getUserPreferences } from '@/lib/data/prefs/server';
-import { getProfile } from '@/lib/data/profile/server';
 import { memberColorVar, memberInkVar } from '@/lib/theme/color-vars';
 import { Avatar } from '@/ui/avatar/avatar';
 import { Button } from '@/ui/button/button';
@@ -40,29 +39,24 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const { error } = await searchParams;
   const t = await getTranslations('profile');
   const tErrors = await getTranslations('errors');
-  const user = await getCurrentUser();
-  if (!user) {
-    redirect('/');
-  }
-
-  const profile = await getProfile(user.id);
-
-  if (!profile) {
-    redirect('/');
-  }
-
-  const prefs = await getUserPreferences(user.id);
+  const userId = await requireUserId();
+  // Independent reads share one round trip; only the members wait on the
+  // household.
+  const [profile, prefs, household] = await Promise.all([
+    requireProfile(userId),
+    getUserPreferences(userId),
+    getHouseholdForUser(userId),
+  ]);
 
   const displayName = profile.display_name;
   const shareUrl = buildShareUrl(profile.invite_token);
-  const household = await getHouseholdForUser(user.id);
   const members = household ? await getMembers(household.id) : [];
-  const isOwner = household ? household.owner === user.id : false;
+  const isOwner = household ? household.owner === userId : false;
   const isFull = members.length >= 5;
   // Your own fixed colour, so you look the same here as in chat and charts.
   // Without a household you'd be its first member, so slot 1.
   const ownSlot =
-    members.find(member => member.user_id === user.id)?.color_slot ?? 1;
+    members.find(member => member.user_id === userId)?.color_slot ?? 1;
 
   return (
     <Flex direction="column" padding={3} gap={5}>

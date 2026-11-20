@@ -1,6 +1,6 @@
 ---
 version: 1.0
-last_updated: 2026-11-19
+last_updated: 2026-11-20
 ---
 
 # Auth and Households
@@ -23,6 +23,22 @@ The `onboarding_status` field in `user_prefs` tracks where the user is in setup:
 - **`skipped`** — User skipped onboarding. Can still set up later.
 
 On first login, a `user_profiles` row is created with an auto-generated `invite_token` (via the `ensure_invite_token` trigger) and a `user_prefs` row with status `unknown`.
+
+### How the proxy checks this
+
+`src/lib/proxy/context.ts` verifies the access token with `auth.getClaims()`
+(checked locally against the project's cached signing keys, so no Auth server
+round trip with asymmetric keys) and reads the household membership and
+`onboarding_status` in one parallel round trip, only on `/`, `/onboarding` and
+`/home`. Server components identify the user the same way, through
+`getCurrentUserId()` in `src/lib/data/auth/server.ts`.
+
+The status only ever moves forward: the app writes `completed` or `skipped`,
+never `unknown` again. So once the proxy sees a finished status it stores it in
+the httpOnly `momo-onboarded` cookie (bound to the user id, see
+`src/lib/proxy/onboarded-cookie.ts`), and later `/home` requests skip both
+lookups. Anything that could set the status back to `unknown` must also clear
+that cookie.
 
 ## Household Model
 

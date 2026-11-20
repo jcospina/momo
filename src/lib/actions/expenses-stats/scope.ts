@@ -57,18 +57,19 @@ export async function getScopedContext({
   errorCode?: MomoError;
 }> {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Verified locally against the cached signing keys: no Auth server round
+  // trip per stats query. Row access is still enforced by RLS on the token.
+  const { data } = await supabase.auth.getClaims();
+  const userId = data?.claims?.sub;
 
-  if (!user) {
+  if (!userId) {
     return { context: null, errorCode: 'auth_required' };
   }
 
   const resolved = await resolveScope({
     scope,
     householdId,
-    userId: user.id,
+    userId,
     supabase,
   });
 
@@ -79,7 +80,7 @@ export async function getScopedContext({
   return {
     context: {
       supabase,
-      userId: user.id,
+      userId,
       householdId: resolved.householdId,
       scope,
     },

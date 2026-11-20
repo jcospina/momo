@@ -47,7 +47,7 @@ function createBoundsSupabase(months: string[]) {
 
   return {
     auth: {
-      getUser: () => Promise.resolve({ data: { user: { id: 'user-1' } } }),
+      getClaims: () => Promise.resolve({ data: { claims: { sub: 'user-1' } } }),
     },
     from() {
       return builder;
@@ -79,7 +79,7 @@ function createWindowSupabase(rows: Array<{ month: string }>) {
 
   return {
     auth: {
-      getUser: () => Promise.resolve({ data: { user: { id: 'user-1' } } }),
+      getClaims: () => Promise.resolve({ data: { claims: { sub: 'user-1' } } }),
     },
     from() {
       return builder;
@@ -116,7 +116,7 @@ function createHistorySupabase(rows: Array<{ month: string }>) {
 
   return {
     auth: {
-      getUser: () => Promise.resolve({ data: { user: { id: 'user-1' } } }),
+      getClaims: () => Promise.resolve({ data: { claims: { sub: 'user-1' } } }),
     },
     from() {
       return builder;
@@ -185,7 +185,8 @@ function createCashflowSupabase(
     tracker,
     supabase: {
       auth: {
-        getUser: () => Promise.resolve({ data: { user: { id: 'user-1' } } }),
+        getClaims: () =>
+          Promise.resolve({ data: { claims: { sub: 'user-1' } } }),
       },
       from(table: string) {
         tracker.fromCalls.push(table);
@@ -214,7 +215,8 @@ function createPersonalRollupCashflowSupabase(
     tracker,
     supabase: {
       auth: {
-        getUser: () => Promise.resolve({ data: { user: { id: 'user-1' } } }),
+        getClaims: () =>
+          Promise.resolve({ data: { claims: { sub: 'user-1' } } }),
       },
       from(table: string) {
         tracker.fromCalls.push(table);

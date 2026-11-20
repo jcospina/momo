@@ -112,7 +112,6 @@ function renderPanel() {
       title="Maple St."
       people={[{ name: 'Alex', slot: 1 }, riley]}
       membersById={new Map([[PARTNER, riley]])}
-      aiEnabled
     />,
   );
 }

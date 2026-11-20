@@ -25,7 +25,7 @@ type FakeChannel = {
 };
 
 type FakeClient = {
-  realtime: { setAuth: jest.MockedFunction<() => Promise<void>> };
+  setAuth: jest.MockedFunction<() => Promise<void>>;
   removeAllChannels: jest.MockedFunction<() => void>;
   removeChannel: jest.MockedFunction<(ch: FakeChannel) => void>;
   channel: jest.MockedFunction<(topic: string) => FakeChannel>;
@@ -86,9 +86,7 @@ function createFakeClient(): FakeClient {
     () => channelInstance,
   ) as jest.MockedFunction<(topic: string) => FakeChannel>;
   const client: FakeClient = {
-    realtime: {
-      setAuth: jest.fn().mockResolvedValue(undefined),
-    },
+    setAuth: jest.fn().mockResolvedValue(undefined),
     removeAllChannels: jest.fn(),
     removeChannel: jest.fn(),
     channel: channelMock,
@@ -104,8 +102,13 @@ const mockCreateClient = jest.fn<
 >();
 
 jest.mock('@supabase/supabase-js', () => ({
-  createClient: (...args: Parameters<typeof mockCreateClient>) =>
-    mockCreateClient(...args),
+  // Called with `new`; returning an object makes that the instance. A plain
+  // function (not jest.fn) so afterEach's resetAllMocks() keeps it.
+  RealtimeClient: function RealtimeClient(
+    ...args: Parameters<typeof mockCreateClient>
+  ) {
+    return mockCreateClient(...args);
+  },
 }));
 
 describe('useHouseholdRealtime', () => {

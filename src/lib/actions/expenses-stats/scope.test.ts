@@ -16,11 +16,9 @@ const fetchHouseholdMembershipMock = jest.mocked(fetchHouseholdMembership);
 function setUser(id: string | null) {
   createSupabaseServerClientMock.mockResolvedValue({
     auth: {
-      getUser: () =>
+      getClaims: () =>
         Promise.resolve({
-          data: {
-            user: id ? { id } : null,
-          },
+          data: id ? { claims: { sub: id } } : null,
         }),
     },
   } as never);

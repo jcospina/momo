@@ -7,10 +7,10 @@ import {
   CategoryRingPanel,
   RingChartsPanel,
 } from '@components/stats/ring-charts-panel';
+import { ScopeToggle, type StatsScope } from '@components/stats/scope-toggle';
 import type { MonthlyByCategoryUserRow } from '@lib-types/expense-stats';
 import { Flex } from '@ui/flex/flex';
 import { Panel } from '@ui/panel/panel';
-import { ToggleGroup } from '@ui/toggle-group/toggle-group';
 import { Typography } from '@ui/typography/typography';
 import { format, isValid, parse } from 'date-fns';
 import { useTranslations } from 'next-intl';
@@ -162,35 +162,15 @@ export function ExpenseScopePanels({
   currency,
   householdAvailable,
 }: ExpenseScopePanelsProps) {
-  const t = useTranslations('chat.tabs');
-  const [scope, setScope] = useState<'personal' | 'household'>(
+  const [scope, setScope] = useState<StatsScope>(
     householdAvailable ? 'household' : 'personal',
   );
 
-  const scopeOptions = [
-    { label: t('personal'), value: 'personal' },
-    { label: t('household'), value: 'household' },
-  ];
-
+  // <StatsSkeleton> mirrors this layout; keep the two in step.
   return (
     <Flex direction="column" gap={2} isFullWidth>
       {householdAvailable ? (
-        <Flex
-          alignItems="center"
-          justifyContent="center"
-          paddingBottom={1}
-          isFullWidth
-        >
-          <ToggleGroup
-            items={scopeOptions}
-            value={[scope]}
-            onValueChange={value => {
-              const next = value[0];
-              if (!next) return;
-              setScope(next as 'personal' | 'household');
-            }}
-          />
-        </Flex>
+        <ScopeToggle value={scope} onChange={setScope} />
       ) : null}
       <Flex direction="column" gap={5} isFullWidth>
         {scope === 'household' && householdAvailable ? (

@@ -5,7 +5,7 @@ import type {
   SendChatMessageResult,
   SendMomoMessageResult,
 } from '@lib-types/chat';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { RealtimeClient, SupabaseClient } from '@supabase/supabase-js';
 
 export type MessageQueryOptions = {
   supabase?: SupabaseClient;
@@ -64,10 +64,16 @@ export type MessageRealtimePayload = {
 
 export type MessageRealtimeHandler = (payload: MessageRealtimePayload) => void;
 
+/**
+ * Anything that opens realtime channels: the browser's realtime-js client,
+ * or a full supabase-js client.
+ */
+export type RealtimeChannelSource = Pick<RealtimeClient, 'channel'>;
+
 export type PersonalSubscribeInput = {
   scope: 'personal';
   userId: string;
-  client: SupabaseClient;
+  client: RealtimeChannelSource;
   onChange: MessageRealtimeHandler;
   onStatus?: (status: string) => void;
 };
@@ -75,7 +81,7 @@ export type PersonalSubscribeInput = {
 export type HouseholdSubscribeInput = {
   scope: 'household';
   householdId: string;
-  client: SupabaseClient;
+  client: RealtimeChannelSource;
   onChange: MessageRealtimeHandler;
   onStatus?: (status: string) => void;
 };
@@ -98,4 +104,4 @@ export type Remove = (input: RemoveInput) => Promise<DeleteChatMessageResult>;
 
 export type Subscribe = (
   input: SubscribeInput,
-) => ReturnType<SupabaseClient['channel']>;
+) => ReturnType<RealtimeClient['channel']>;

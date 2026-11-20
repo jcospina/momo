@@ -3,8 +3,6 @@
 import { Button } from '@ui/button/button';
 import { SendIcon } from '@ui/icons/send';
 import { Input } from '@ui/input/input';
-import { Typography } from '@ui/typography/typography';
-import { parseMomoMention } from '@utils/momo-mention';
 import { useTranslations } from 'next-intl';
 import type { ChangeEvent, FormEvent, KeyboardEvent } from 'react';
 import styles from './color-tickets.module.css';
@@ -16,8 +14,6 @@ type ChatComposerProps = {
     event: KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>,
   ) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  /** Whether @momo questions reach the assistant for this person. */
-  aiEnabled: boolean;
 };
 
 export function ChatComposer({
@@ -25,15 +21,9 @@ export function ChatComposer({
   onDraftChange,
   onKeyDown,
   onSubmit,
-  aiEnabled,
 }: ChatComposerProps) {
   const t = useTranslations('chat.composer');
   const canSend = draft.trim().length > 0;
-  const asksMomo = aiEnabled && parseMomoMention(draft).tagged;
-
-  let hint = aiEnabled ? t('hint') : t('hintNoAi');
-  if (asksMomo) hint = t('hintMomo');
-  else if (canSend) hint = '';
 
   return (
     <form className={styles.composer} onSubmit={onSubmit}>
@@ -64,16 +54,6 @@ export function ChatComposer({
           }
         />
       </div>
-      <Typography
-        as="p"
-        size="sm"
-        weight={asksMomo ? 'bold' : 'regular'}
-        className={styles.hint}
-        data-tone={asksMomo ? 'momo' : undefined}
-        aria-live="polite"
-      >
-        {hint}
-      </Typography>
     </form>
   );
 }

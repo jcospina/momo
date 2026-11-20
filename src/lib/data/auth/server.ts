@@ -7,12 +7,16 @@ import {
   signupWithPassword as signupWithPasswordAction,
 } from '@actions/login';
 import { logout as logoutAction } from '@actions/logout';
-import { getCurrentUser as getCurrentUserHelper } from '@helpers/user';
+import {
+  getCurrentUser as getCurrentUserHelper,
+  getCurrentUserId as getCurrentUserIdHelper,
+} from '@helpers/user';
 
 import type {
   AuthProvider,
   CurrentUser,
   GetCurrentUser,
+  GetCurrentUserId,
   LoginAsDemo,
   LoginWithPassword,
   LoginWithPasswordState,
@@ -24,6 +28,9 @@ import type {
 
 export const getCurrentUser: GetCurrentUser = async (): Promise<CurrentUser> =>
   getCurrentUserHelper();
+
+export const getCurrentUserId: GetCurrentUserId = async () =>
+  getCurrentUserIdHelper();
 
 export const loginWithProvider: LoginWithProvider = async (
   provider: AuthProvider,

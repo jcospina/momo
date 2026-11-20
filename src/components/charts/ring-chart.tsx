@@ -64,6 +64,16 @@ type TooltipDatum = {
 
 type PieArcDatum<Datum> = PieProvidedProps<Datum>['arcs'][number];
 
+type ArcAngles = { start: number; end: number };
+
+function anglesByName(arcs: PieArcDatum<ArcDatum>[]): Map<string, ArcAngles> {
+  const angles = new Map<string, ArcAngles>();
+  for (const arc of arcs) {
+    angles.set(arc.data.name, { start: arc.startAngle, end: arc.endAngle });
+  }
+  return angles;
+}
+
 type Layout = {
   centerX: number;
   centerY: number;
@@ -332,28 +342,26 @@ function AnimatedArcs({
   onPointerLeave,
   onClick,
 }: AnimatedArcsProps) {
-  const previousAnglesRef = useRef<Map<string, { start: number; end: number }>>(
-    new Map(),
+  // The angles on screen right now. A new tween starts from here, so one
+  // that gets interrupted carries on instead of jumping back.
+  const shownAnglesRef = useRef<Map<string, ArcAngles>>(new Map());
+  const [tweenedAngles, setTweenedAngles] = useState<Map<string, ArcAngles>>(
+    () => anglesByName(arcs),
   );
-  const [tweenedAngles, setTweenedAngles] = useState<
-    Map<string, { start: number; end: number }>
-  >(() => {
-    const initial = new Map<string, { start: number; end: number }>();
-    arcs.forEach(arc => {
-      initial.set(arc.data.name, {
-        start: arc.startAngle,
-        end: arc.endAngle,
-      });
-    });
-    return initial;
-  });
 
+  // `Pie` hands over a new `arcs` array on every render, hovers included,
+  // so the tween is keyed on the angles themselves. Keyed on the array, a
+  // pointer resting where an arc was growing in looped forever: the hover
+  // restarted the tween, the arc shrank away, the hover cleared, and that
+  // restarted it again.
+  const targetKey = arcs
+    .map(arc => `${arc.data.name}:${arc.startAngle}:${arc.endAngle}`)
+    .join('|');
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keyed on the arc angles, not the array that carries them.
   useEffect(() => {
-    const fromMap = new Map(previousAnglesRef.current);
-    const toMap = new Map<string, { start: number; end: number }>();
-    arcs.forEach(arc => {
-      toMap.set(arc.data.name, { start: arc.startAngle, end: arc.endAngle });
-    });
+    const fromMap = new Map(shownAnglesRef.current);
+    const toMap = anglesByName(arcs);
 
     // Seed any newly-introduced arcs at zero-width so they grow in.
     arcs.forEach(arc => {
@@ -384,7 +392,7 @@ function AnimatedArcs({
       // ease-in-out cubic
       const eased = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 
-      const next = new Map<string, { start: number; end: number }>();
+      const next = new Map<string, ArcAngles>();
       arcs.forEach(arc => {
         const from = fromMap.get(arc.data.name) ?? {
           start: arc.startAngle,
@@ -399,20 +407,17 @@ function AnimatedArcs({
           end: from.end + (to.end - from.end) * eased,
         });
       });
+      shownAnglesRef.current = next;
       setTweenedAngles(next);
 
       if (t < 1) {
         frame = requestAnimationFrame(tick);
-      } else {
-        previousAnglesRef.current = toMap;
       }
     };
     frame = requestAnimationFrame(tick);
 
     return () => cancelAnimationFrame(frame);
-    // We intentionally re-run only when the arc data identity changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [arcs]);
+  }, [targetKey]);
 
   return (
     <>

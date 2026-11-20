@@ -2,6 +2,7 @@
 
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import { useMediaQuery } from '@hooks/use-media-query';
+import type { Profile } from '@lib-types/profile';
 import { useNavigationProgress } from '@providers/navigation-progress-provider';
 import { useProfile } from '@providers/profile-provider';
 import { Avatar } from '@ui/avatar/avatar';
@@ -64,10 +65,29 @@ function pileStyle(index: number, placement: PilePlacement): CSSProperties {
   } as CSSProperties;
 }
 
+/** The app navbar for the signed-in user; suspends until the profile loads. */
 export function AppNavbar() {
+  const profile = useProfile();
+  return <AppNavbarView profile={profile} />;
+}
+
+/**
+ * The same navbar while the profile is still loading, for streamed page
+ * shells. Your own name is left blank rather than guessed.
+ */
+export function AppNavbarPlaceholder() {
+  return <AppNavbarView profile={undefined} />;
+}
+
+type AppNavbarViewProps = {
+  /** `undefined` while the profile is still loading. */
+  profile: Profile | null | undefined;
+};
+
+function AppNavbarView({ profile }: AppNavbarViewProps) {
   const t = useTranslations('nav');
   const pathname = usePathname();
-  const profile = useProfile();
+  const isProfileLoading = profile === undefined;
   const { navigate } = useNavigationProgress();
   const isDesktop = useMediaQuery('(min-width: 721px)');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -132,11 +152,24 @@ export function AppNavbar() {
           shape="pill"
           className={styles['momo-app-navbar__me']}
         >
-          <Avatar size="extra-small" displayName={fullName} />
+          <Avatar
+            size="extra-small"
+            displayName={fullName}
+            slot={isProfileLoading ? <span aria-hidden="true" /> : undefined}
+          />
           <span className={styles['momo-app-navbar__visually-hidden']}>
             {t('profile')}:{' '}
           </span>
-          {shortName}
+          {isProfileLoading ? (
+            <span
+              aria-hidden="true"
+              className={styles['momo-app-navbar__name-loading']}
+            >
+              {t('profile')}
+            </span>
+          ) : (
+            shortName
+          )}
         </Sticker>
       </div>
 

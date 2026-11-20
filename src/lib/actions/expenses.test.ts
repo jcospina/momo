@@ -60,6 +60,10 @@ function createSupabaseMock() {
         data: { user: { id: 'user-1' } },
         error: null,
       }),
+      getClaims: jest.fn().mockResolvedValue({
+        data: { claims: { sub: 'user-1' } },
+        error: null,
+      }),
     },
     from,
     expensesBuilder,
@@ -494,8 +498,8 @@ describe('getExpensesByMessageIds action', () => {
 
   it('requires a signed-in user', async () => {
     const supabase = createSupabaseMock();
-    supabase.auth.getUser.mockResolvedValue({
-      data: { user: null },
+    supabase.auth.getClaims.mockResolvedValue({
+      data: null,
       error: null,
     } as never);
     createSupabaseServerClientMock.mockResolvedValue(supabase as never);

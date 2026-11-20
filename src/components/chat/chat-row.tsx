@@ -156,7 +156,7 @@ function TextBubble({
       data-unsent={isUnsent || undefined}
       aria-busy={isPending || undefined}
     >
-      <Typography as="p" size="md">
+      <Typography as="p" size="md" className={styles['bubble__text']}>
         {parts.map((part, index) =>
           /@momo/i.test(part) ? (
             <Typography

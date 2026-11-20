@@ -1,5 +1,5 @@
 import type { ChatMessage } from '@lib-types/chat';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { RealtimeClient } from '@supabase/supabase-js';
 
 export type ChatRealtimeHandler = (payload: {
   type: 'INSERT' | 'UPDATE' | 'DELETE';
@@ -8,11 +8,11 @@ export type ChatRealtimeHandler = (payload: {
 
 /**
  * Create a realtime channel for personal chat messages, filtered by user_id.
- * Requires an authenticated supabase client (with user access token) to satisfy RLS.
+ * Requires a realtime client authenticated (with user access token) to satisfy RLS.
  */
 export function subscribeToPersonalChat(
   userId: string,
-  client: SupabaseClient,
+  client: Pick<RealtimeClient, 'channel'>,
   onChange: ChatRealtimeHandler,
   onStatus?: (status: string) => void,
 ) {
@@ -52,11 +52,11 @@ export function subscribeToPersonalChat(
 
 /**
  * Create a realtime channel for household chat messages, filtered by household_id.
- * Requires an authenticated supabase client (with user access token) to satisfy RLS.
+ * Requires a realtime client authenticated (with user access token) to satisfy RLS.
  */
 export function subscribeToHouseholdChat(
   householdId: string,
-  client: SupabaseClient,
+  client: Pick<RealtimeClient, 'channel'>,
   onChange: ChatRealtimeHandler,
   onStatus?: (status: string) => void,
 ) {

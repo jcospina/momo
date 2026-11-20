@@ -40,6 +40,15 @@ type ExpenseLearningSnapshot = {
   household_id: string | null;
 };
 
+// Reads only need to know someone is signed in (RLS scopes the rows), so
+// the token is verified locally instead of asking the Auth server each time.
+async function hasVerifiedSession(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+): Promise<boolean> {
+  const { data, error } = await supabase.auth.getClaims();
+  return !error && Boolean(data?.claims?.sub);
+}
+
 export async function getExpensesByMessageId({
   messageId,
 }: GetExpensesByMessageIdInput): Promise<GetExpensesByMessageIdResult> {
@@ -49,12 +58,7 @@ export async function getExpensesByMessageId({
   }
 
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  if (!(await hasVerifiedSession(supabase))) {
     return { expenses: [] };
   }
 
@@ -94,12 +98,7 @@ export async function getExpensesByMessageIds({
   }
 
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  if (!(await hasVerifiedSession(supabase))) {
     return { expensesByMessageId: {}, errorCode: 'auth_required' };
   }
 

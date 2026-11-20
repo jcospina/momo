@@ -23,8 +23,6 @@ interface ChatProps {
   initialExpenseLines?: Record<string, ExpenseRecord[]>;
   /** Household members with their fixed colour slots. */
   members?: HouseholdMemberProfile[];
-  /** Whether @momo questions reach the assistant for this person. */
-  aiEnabled?: boolean;
 }
 
 function toAuthor(member: HouseholdMemberProfile): RowAuthor {
@@ -42,7 +40,6 @@ export function Chat({
   initialHouseholdMessages,
   initialExpenseLines,
   members = [],
-  aiEnabled = false,
 }: ChatProps) {
   const t = useTranslations('chat.tabs');
   const profile = useProfile();
@@ -71,12 +68,14 @@ export function Chat({
   const personalTitle = profile?.display_name?.trim() || t('personal');
   const householdTitle = householdName?.trim() || t('household');
 
+  // The switch says "You" rather than your name: names can be long, and
+  // the household side already carries the household's own name.
   const scopeSwitch: ScopeSwitch | undefined = householdId
     ? {
         active: activeTab,
         onChange: setActiveTab,
         options: [
-          { value: 'personal', label: personalTitle },
+          { value: 'personal', label: t('you') },
           { value: 'household', label: householdTitle },
         ],
       }
@@ -95,7 +94,6 @@ export function Chat({
           title={householdTitle}
           people={people.household}
           membersById={people.membersById}
-          aiEnabled={aiEnabled}
           scopeSwitch={scopeSwitch}
         />
       ) : null}
@@ -108,7 +106,6 @@ export function Chat({
         title={personalTitle}
         people={[people.me]}
         membersById={people.membersById}
-        aiEnabled={aiEnabled}
         scopeSwitch={scopeSwitch}
       />
     </Panel>

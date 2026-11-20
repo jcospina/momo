@@ -1,7 +1,7 @@
 import type { MomoError } from '@lib-types/errors';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import styles from '@/app/invite/invite.module.css';
+import styles from '@/app/(site)/invite/invite.module.css';
 import { getInviteInfo, startAcceptFlow } from '@/lib/data/invites/server';
 import { Button } from '@/ui/button/button';
 import { Flex } from '@/ui/flex/flex';
