@@ -83,10 +83,7 @@
     "composer": {
       "placeholder": "What did you spend?",
       "ariaLabel": "Add an expense or ask @momo",
-      "send": "Send",
-      "hint": "Try “lunch 12.50”, or ask @momo anything.",
-      "hintNoAi": "Try “lunch 12.50” or “groceries 82.40, wine 18”.",
-      "hintMomo": "MoMo will answer this"
+      "send": "Send"
     },
     "empty": {
       "title": "Nothing here yet",
@@ -94,7 +91,8 @@
     },
     "tabs": {
       "personal": "Personal",
-      "household": "Household"
+      "household": "Household",
+      "you": "You"
     },
     "message": {
       "actionsAriaLabel": "Message actions",

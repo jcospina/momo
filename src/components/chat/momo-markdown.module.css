@@ -117,11 +117,16 @@
   width: 100%;
 }
 
+/* Cells wrap only between words. The reply around them may break anywhere,
+   and inherited here that let narrow tables split "Member" or "$3,408.34"
+   mid-word; now a table too wide for the bubble scrolls sideways instead. */
 .momo-markdown__table-wrap :is(th, td) {
   padding: calc(var(--spacing) * 0.5) var(--space-1);
   border: var(--border-width-thin) solid var(--color-dark);
   text-align: left;
   vertical-align: top;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .momo-markdown__table-wrap th {

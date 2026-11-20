@@ -2,6 +2,7 @@
 
 import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup as BaseToggleGroup } from '@base-ui/react/toggle-group';
+import { Typography } from '@ui/typography/typography';
 import { cn } from '@utils/cn';
 import styles from './toggle-group.module.css';
 import type { ToggleGroupProps } from './toggle-group.types';
@@ -71,7 +72,9 @@ export function ToggleGroup({
           disabled={disabled || item.disabled}
           onClick={item.onClick}
         >
-          {item.label}
+          <Typography as="span" size="md" weight="bold">
+            {item.label}
+          </Typography>
         </Toggle>
       ))}
     </BaseToggleGroup>

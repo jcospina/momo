@@ -21,6 +21,11 @@
   white-space: nowrap;
 }
 
+/* Holds the name's place while the profile streams in. */
+.momo-app-navbar__name-loading {
+  visibility: hidden;
+}
+
 .momo-app-navbar__logo-link {
   display: inline-flex;
   align-items: center;

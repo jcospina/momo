@@ -3,7 +3,7 @@ import type { MomoError } from '@lib-types/errors';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { HouseholdForm } from '@/components/household-form/household-form';
-import { getCurrentUser } from '@/lib/data/auth/server';
+import { getCurrentUserId } from '@/lib/data/auth/server';
 import { getMembership } from '@/lib/data/households/server';
 import { setOnboardingStatus } from '@/lib/data/prefs/server';
 import { Button } from '@/ui/button/button';
@@ -22,15 +22,15 @@ type OnboardingPageProps = {
 export default async function OnboardingPage({
   searchParams,
 }: OnboardingPageProps) {
-  const user = await getCurrentUser();
+  const userId = await getCurrentUserId();
 
-  if (!user) {
+  if (!userId) {
     redirect('/');
   }
 
   const { error } = await searchParams;
 
-  const membership = await getMembership(user.id);
+  const membership = await getMembership(userId);
 
   if (membership) {
     redirect('/home');

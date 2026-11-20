@@ -6,6 +6,8 @@ export type CurrentUser = User | null;
 export type LoginWithProvider = (provider: AuthProvider) => Promise<void>;
 export type Logout = () => Promise<void>;
 export type GetCurrentUser = () => Promise<CurrentUser>;
+/** Id of the signed-in user from the verified token, or null. */
+export type GetCurrentUserId = () => Promise<string | null>;
 
 export type LoginWithPasswordState = { error?: string };
 export type LoginWithPassword = (

@@ -163,7 +163,12 @@ function TicketShell({
 function SoloLine({ line }: { line: ExpenseLine }) {
   return (
     <div className={styles['ticket__solo']}>
-      <Typography as="span" size="lg" weight="bold">
+      <Typography
+        as="span"
+        size="lg"
+        weight="bold"
+        className={styles['ticket__figure']}
+      >
         {formatLineAmount(line)}
       </Typography>
       <Typography as="span" size="md" className={styles['ticket__desc']}>
@@ -416,7 +421,11 @@ export function ColorTicket({
               data-empty={(isBanded && !line.category) || undefined}
             >
               <span className={styles['ticket__row-text']}>
-                <Typography as="span" size="md">
+                <Typography
+                  as="span"
+                  size="md"
+                  className={styles['ticket__row-desc']}
+                >
                   {sentenceCase(line.descriptor)}
                 </Typography>
                 {isBanded ? (
@@ -444,7 +453,7 @@ export function ColorTicket({
             as="span"
             size="lg"
             weight="bold"
-            className={styles['ticket__amount']}
+            className={cn(styles['ticket__amount'], styles['ticket__figure'])}
           >
             {formatTotals(totals)}
           </Typography>

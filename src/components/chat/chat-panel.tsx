@@ -38,7 +38,6 @@ type ChatPanelProps = {
   people: RowAuthor[];
   /** Household members by user id, for faces and colours on their rows. */
   membersById: ReadonlyMap<string, RowAuthor>;
-  aiEnabled: boolean;
   scopeSwitch?: ScopeSwitch;
 };
 
@@ -133,7 +132,6 @@ export function ChatPanel({
   title,
   people,
   membersById,
-  aiEnabled,
   scopeSwitch,
 }: ChatPanelProps) {
   const t = useTranslations('chat.message');
@@ -226,7 +224,6 @@ export function ChatPanel({
         onDraftChange={panel.setDraft}
         onKeyDown={panel.handleKeyDown}
         onSubmit={panel.handleSubmit}
-        aiEnabled={aiEnabled}
       />
       <ExpenseDetailsDialog
         controller={panel.expenseDetailsDialog}

@@ -1,6 +1,6 @@
 'use client';
 
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { RealtimeClient } from '@supabase/supabase-js';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 type TokenResponse = {
@@ -20,7 +20,7 @@ class RealtimeTokenError extends Error {
 
 type UseRealtimeClientResult =
   | {
-      client: SupabaseClient;
+      client: RealtimeClient;
       loading: false;
       error: null;
       version: number;
@@ -33,6 +33,28 @@ type UseRealtimeClientResult =
       version: number;
       reset: () => void;
     };
+
+/**
+ * The browser only needs realtime: auth cookies are httpOnly and reads and
+ * writes go through server facades. So this builds realtime-js's client
+ * directly, configured the way supabase-js's createClient would, instead of
+ * shipping supabase-js's auth, storage, functions and REST clients too.
+ */
+function createRealtimeClient(accessToken: string): RealtimeClient {
+  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!.replace(/\/?$/, '/');
+  const url = new URL('realtime/v1', baseUrl);
+  url.protocol = url.protocol.replace('http', 'ws');
+
+  return new RealtimeClient(url.href, {
+    params: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! },
+    // realtime-js re-reads this callback after every channel join and
+    // heartbeat. Without it a rejoin (e.g. after a chat tab switch) would
+    // carry the anon key and the server would silently drop its
+    // postgres_changes subscription. Pin it to the user token; the client is
+    // rebuilt before that token expires.
+    accessToken: async () => accessToken,
+  });
+}
 
 async function fetchRealtimeToken(): Promise<TokenResponse> {
   const res = await fetch('/api/realtime-token', {
@@ -49,9 +71,9 @@ async function fetchRealtimeToken(): Promise<TokenResponse> {
 export function useRealtimeClient(): UseRealtimeClientResult {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [client, setClient] = useState<SupabaseClient | null>(null);
+  const [client, setClient] = useState<RealtimeClient | null>(null);
   const [version, setVersion] = useState(0);
-  const clientRef = useRef<SupabaseClient | null>(null);
+  const clientRef = useRef<RealtimeClient | null>(null);
   const refreshTimeout = useRef<NodeJS.Timeout | null>(null);
   const retryTimeout = useRef<NodeJS.Timeout | null>(null);
   const retryAttemptRef = useRef(0);
@@ -109,32 +131,9 @@ export function useRealtimeClient(): UseRealtimeClientResult {
         const token = await fetchRealtimeToken();
         if (cancelled || runId !== setupRunIdRef.current) return;
 
-        const instance = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          {
-            auth: {
-              persistSession: false,
-              autoRefreshToken: false,
-              detectSessionInUrl: false,
-            },
-            realtime: {
-              // Without this, supabase-js points realtime at its own auth
-              // session, which is empty on this client, so it falls back to the
-              // anon key. realtime-js re-reads that callback after every channel
-              // join and heartbeat, so every join after the first (e.g. after a
-              // chat tab switch) would carry the anon key and the server would
-              // silently drop its postgres_changes subscription. Pin it to the
-              // user token; the client is rebuilt before that token expires.
-              accessToken: async () => token.access_token,
-              // logger: (kind, msg, data) => {
-              //   console.log(`${kind}: ${msg}`, data);
-              // },
-            },
-          },
-        );
+        const instance = createRealtimeClient(token.access_token);
 
-        await instance.realtime.setAuth(token.access_token);
+        await instance.setAuth(token.access_token);
         if (cancelled || runId !== setupRunIdRef.current) {
           instance.removeAllChannels();
           return;
@@ -205,7 +204,7 @@ export function useRealtimeClient(): UseRealtimeClientResult {
   }
 
   return {
-    client: client as SupabaseClient,
+    client: client as RealtimeClient,
     loading: false,
     error: null,
     version,

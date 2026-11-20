@@ -4,7 +4,6 @@
   border: 2px solid var(--color-dark);
   border-radius: calc(var(--border-radius) - 2px);
   padding: calc(var(--spacing) * 0.5) calc(var(--spacing) * 1.5);
-  font-weight: 700;
   background: var(--color-light);
   color: var(--color-dark);
   cursor: pointer;

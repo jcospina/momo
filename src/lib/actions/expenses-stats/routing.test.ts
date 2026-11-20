@@ -46,7 +46,7 @@ const expenseStatsHelpers = jest.requireMock('@helpers/expenses-stats') as {
 describe('expense-stats routing for personal rollup', () => {
   const supabase = {
     auth: {
-      getUser: () => Promise.resolve({ data: { user: { id: 'user-1' } } }),
+      getClaims: () => Promise.resolve({ data: { claims: { sub: 'user-1' } } }),
     },
   };
 

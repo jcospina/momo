@@ -83,10 +83,7 @@
     "composer": {
       "placeholder": "¿Qué gastaste?",
       "ariaLabel": "Agrega un gasto o pregúntale a @momo",
-      "send": "Enviar",
-      "hint": "Prueba “almuerzo 12.50”, o pregúntale lo que sea a @momo.",
-      "hintNoAi": "Prueba “almuerzo 12.50” o “mercado 82.40, vino 18”.",
-      "hintMomo": "MoMo responderá esto"
+      "send": "Enviar"
     },
     "empty": {
       "title": "Nada por aquí todavía",
@@ -94,7 +91,8 @@
     },
     "tabs": {
       "personal": "Personal",
-      "household": "Hogar"
+      "household": "Hogar",
+      "you": "Tú"
     },
     "message": {
       "actionsAriaLabel": "Acciones del mensaje",

@@ -66,6 +66,20 @@
   text-overflow: ellipsis;
 }
 
+/* Household names can be long: keep each toggle on one line and cut the
+   name short rather than letting the switch grow tall. */
+.header__scope {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.header__scope > * {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .faces {
   display: flex;
   flex-shrink: 0;
@@ -302,7 +316,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 12px 14px 14px;
+  padding: 12px 14px 8px;
   border: 1px solid var(--color-dark);
   border-radius: var(--border-radius);
   box-shadow: -2px 2px 0 var(--color-dark);
@@ -321,7 +335,9 @@
   z-index: 1;
 }
 
+/* Keeps the old bottom room so the buttons clear the dashed outline. */
 .ticket[data-tone="ask"] .ticket__paper {
+  padding-bottom: 14px;
   background: var(--paper);
   outline: 2px dashed var(--warn-ink);
   outline-offset: -6px;
@@ -646,17 +662,6 @@
   transform: none;
 }
 
-.hint {
-  width: min(100%, 860px);
-  min-height: 20px;
-  margin: var(--space-1) auto 0;
-  color: var(--fg-subtle);
-}
-
-.hint[data-tone="momo"] {
-  color: color-mix(in oklab, var(--color-mauve-magic), var(--color-dark) 45%);
-}
-
 /* ── Motion ─────────────────────────────────────────────────────────── */
 
 .row[data-fresh] .ticket,
@@ -737,6 +742,47 @@
 }
 
 /* ── Small screens ──────────────────────────────────────────────────── */
+
+/* Phones: the chat one type step smaller so more of it fits. On tickets
+   the big figure (a lone amount, or a split's total) drops to md and the
+   words under it to sm; plain bubbles and MoMo's replies drop to sm.
+   Two classes beat Typography's own size class. */
+@media (max-width: 768px) {
+  .ticket .ticket__figure {
+    font-size: var(--type-md);
+  }
+
+  .ticket .ticket__desc,
+  .ticket .ticket__row-desc,
+  .ticket .ticket__quote {
+    font-size: var(--type-sm);
+  }
+
+  .bubble .bubble__text,
+  .bubble .mention,
+  .header__scope span {
+    font-size: var(--type-sm);
+  }
+
+  /* MoMo's markdown inherits this; its headings and the stream's error line
+     set their own size, so they follow explicitly. */
+  .bubble.bubble--momo,
+  .bubble.bubble--momo .error,
+  .bubble.bubble--momo :is(h1, h2, h3) {
+    font-size: var(--type-sm);
+  }
+
+  .bubble.bubble--momo :is(h4, h5, h6) {
+    font-size: var(--type-xs);
+  }
+
+  /* Tighter cells so a typical three-column table fits the bubble; wider
+     ones scroll sideways. */
+  .bubble.bubble--momo :global(th),
+  .bubble.bubble--momo :global(td) {
+    padding-inline: 8px;
+  }
+}
 
 @media (max-width: 640px) {
   .header {

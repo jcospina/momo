@@ -1,6 +1,40 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 
 import { RingChart } from './ring-chart';
+
+/**
+ * Swaps in an animation-frame queue the test advances by hand, each call to
+ * `runFrame` handing every waiting callback the given timestamp.
+ */
+function manualAnimationFrames() {
+  const original = {
+    request: window.requestAnimationFrame,
+    cancel: window.cancelAnimationFrame,
+  };
+  const pending = new Map<number, FrameRequestCallback>();
+  let nextId = 1;
+  window.requestAnimationFrame = callback => {
+    const id = nextId++;
+    pending.set(id, callback);
+    return id;
+  };
+  window.cancelAnimationFrame = id => {
+    pending.delete(id);
+  };
+  return {
+    runFrame(timestamp: number) {
+      const callbacks = [...pending.values()];
+      pending.clear();
+      act(() => {
+        for (const callback of callbacks) callback(timestamp);
+      });
+    },
+    restore() {
+      window.requestAnimationFrame = original.request;
+      window.cancelAnimationFrame = original.cancel;
+    },
+  };
+}
 
 beforeEach(() => {
   // ParentSize uses ResizeObserver + requestAnimationFrame + lodash.debounce.
@@ -124,6 +158,40 @@ describe('RingChart (Visx)', () => {
     });
 
     expect(screen.getByText(/\(50\.0%\)/)).toBeInTheDocument();
+  });
+
+  it('finishes growing in when an arc is hovered mid-animation', () => {
+    // The settled ring, with frames run synchronously (see beforeEach).
+    const settled = render(<RingChart items={sampleItems} currency="USD" />);
+    const settledPath = settled.container
+      .querySelector('svg path')
+      ?.getAttribute('d');
+    settled.unmount();
+
+    const frames = manualAnimationFrames();
+    try {
+      const { container } = render(
+        <RingChart items={sampleItems} currency="USD" />,
+      );
+      frames.runFrame(1); // ParentSize measures; the grow-in is scheduled
+      frames.runFrame(16); // the grow-in starts
+      frames.runFrame(216); // partway through the 450ms grow-in
+
+      const arc = container.querySelector('svg path');
+      expect(arc).not.toBeNull();
+      expect(arc?.getAttribute('d')).not.toBe(settledPath);
+      // Hovering re-renders the chart; that alone must not restart the
+      // grow-in, or a resting pointer keeps it looping forever.
+      fireEvent.pointerEnter(arc!, { clientX: 400, clientY: 200 });
+
+      frames.runFrame(232);
+      frames.runFrame(470); // past the end of the original grow-in
+      expect(container.querySelector('svg path')?.getAttribute('d')).toBe(
+        settledPath,
+      );
+    } finally {
+      frames.restore();
+    }
   });
 
   it('renders tooltip lines as text, never as HTML', () => {

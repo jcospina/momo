@@ -137,7 +137,6 @@ html {
 body {
   background-color: var(--bg-page);
   color: var(--color-dark);
-  min-height: 100vh;
   position: relative;
   scroll-behavior: smooth;
   scroll-padding-top: 120px;

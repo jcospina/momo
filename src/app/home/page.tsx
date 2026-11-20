@@ -1,70 +1,130 @@
 import { Chat } from '@components/chat/chat';
-import { AppNavbar } from '@components/navbar/app-navbar';
+import { ChatSkeleton } from '@components/chat/chat-skeleton';
+import { AppNavbar, AppNavbarPlaceholder } from '@components/navbar/app-navbar';
+import type { ChatMessage } from '@lib-types/chat';
 import { Flex } from '@ui/flex/flex';
 import { FlexItem } from '@ui/flex-item/flex-item';
-import { redirect } from 'next/navigation';
-import { getCurrentUser } from '@/lib/data/auth/server';
+import { type ReactNode, Suspense } from 'react';
 import { getExpensesByMessageIds } from '@/lib/data/expenses/server';
-import { getHouseholdForUser, getMembers } from '@/lib/data/households/server';
+import {
+  getHouseholdForUser,
+  getMembers,
+  getMembership,
+} from '@/lib/data/households/server';
 import { getList as getChatMessages } from '@/lib/data/messages/server';
-import { getUserPreferences } from '@/lib/data/prefs/server';
 import styles from './home.module.css';
+import { requireProfile, requireUserId } from './session';
 
-export default async function HomePage() {
-  const user = await getCurrentUser();
-  if (!user) {
-    redirect('/login');
-  }
+const CHAT_PAGE_SIZE = 30;
 
-  const householdPromise = getHouseholdForUser(user.id);
-  const personalPromise = getChatMessages({
-    householdId: null,
-    userId: user.id,
-    limit: 30,
-  });
+function HomeFrame({
+  navbar,
+  children,
+}: {
+  navbar: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <>
+      {navbar}
+      <FlexItem grow={1} shrink={1} className={styles['home__content']}>
+        {children}
+      </FlexItem>
+    </>
+  );
+}
 
-  const household = await householdPromise;
-  const householdMessagesPromise = household
-    ? getChatMessages({
-        householdId: household.id,
-        userId: user.id,
-        limit: 30,
-      })
-    : Promise.resolve([]);
-
-  const [personalMessages, householdMessages, members, prefs] =
-    await Promise.all([
-      personalPromise,
-      householdMessagesPromise,
-      household ? getMembers(household.id) : Promise.resolve([]),
-      getUserPreferences(user.id),
-    ]);
-
-  // Load every visible ticket's lines in one query so tickets render filled
-  // in, without a second pass on the client.
-  const idsWithExpenses = [...personalMessages, ...householdMessages]
-    .filter(m => m.author_kind === 'user' && m.expense_count > 0)
-    .map(m => m.id);
-  const { expensesByMessageId: initialExpenseLines } =
-    idsWithExpenses.length > 0
-      ? await getExpensesByMessageIds({ messageIds: idsWithExpenses })
-      : { expensesByMessageId: {} };
-
+// The first response chunk carries this shell, so the navbar and the chat
+// frame paint before any data is read. The chat streams into it in a single
+// reveal (one Suspense boundary, so React doesn't throttle a second one).
+export default function HomePage() {
   return (
     <Flex className={styles['home']} direction="column" padding={3} gap={2}>
-      <AppNavbar />
-      <FlexItem grow={1} shrink={1} className={styles['home__content']}>
-        <Chat
-          userId={user.id}
-          householdId={household?.id ?? null}
-          householdName={household?.name}
-          initialPersonalMessages={personalMessages.reverse()}
-          initialHouseholdMessages={householdMessages.reverse()}
-          initialExpenseLines={initialExpenseLines}
-          members={members}
-          aiEnabled={prefs?.ai_enabled === true}
-        />
-      </FlexItem>
+      <Suspense
+        fallback={
+          <HomeFrame navbar={<AppNavbarPlaceholder />}>
+            <ChatSkeleton />
+          </HomeFrame>
+        }
+      >
+        <HomeChat />
+      </Suspense>
     </Flex>
+  );
+}
+
+// Every visible ticket's lines in one read per scope, started as soon as
+// that scope's messages arrive, so tickets render filled in.
+async function loadExpenseLines(messages: Promise<ChatMessage[]>) {
+  const ids = (await messages)
+    .filter(m => m.author_kind === 'user' && m.expense_count > 0)
+    .map(m => m.id);
+  if (ids.length === 0) {
+    return {};
+  }
+  const { expensesByMessageId } = await getExpensesByMessageIds({
+    messageIds: ids,
+  });
+  return expensesByMessageId;
+}
+
+async function HomeChat() {
+  const userId = await requireUserId();
+
+  // Everything that only needs the user id starts now. The household's own
+  // reads need just its id, so they wait on the membership row alone, not
+  // on the household record.
+  const membershipPromise = getMembership(userId);
+  const householdPromise = getHouseholdForUser(userId);
+  const personalMessagesPromise = getChatMessages({
+    householdId: null,
+    userId,
+    limit: CHAT_PAGE_SIZE,
+  });
+  const householdMessagesPromise = membershipPromise.then(membership =>
+    membership
+      ? getChatMessages({
+          householdId: membership.household_id,
+          userId,
+          limit: CHAT_PAGE_SIZE,
+        })
+      : [],
+  );
+  const membersPromise = membershipPromise.then(membership =>
+    membership ? getMembers(membership.household_id) : [],
+  );
+
+  // The profile is awaited with the data so a missing one redirects before
+  // anything renders.
+  const [
+    _profile,
+    household,
+    personalMessages,
+    householdMessages,
+    members,
+    personalLines,
+    householdLines,
+  ] = await Promise.all([
+    requireProfile(userId),
+    householdPromise,
+    personalMessagesPromise,
+    householdMessagesPromise,
+    membersPromise,
+    loadExpenseLines(personalMessagesPromise),
+    loadExpenseLines(householdMessagesPromise),
+  ]);
+
+  return (
+    <HomeFrame navbar={<AppNavbar />}>
+      <Chat
+        userId={userId}
+        householdId={household?.id ?? null}
+        householdName={household?.name}
+        initialPersonalMessages={personalMessages.reverse()}
+        initialHouseholdMessages={householdMessages.reverse()}
+        initialExpenseLines={{ ...personalLines, ...householdLines }}
+        members={members}
+      />
+    </HomeFrame>
   );
 }
