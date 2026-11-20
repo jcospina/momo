@@ -6,10 +6,11 @@ import { buildCategoryKey } from '@helpers/expenses/expense-category';
 import { fetchExpensesByMessageId } from '@helpers/expenses/expense-fetch';
 import { updateExpenses as updateExpenseRows } from '@helpers/expenses/expense-update';
 import { createSupabaseServerClient } from '@lib-supabase/server';
-import type {
-  ExpenseRecord,
-  ExpenseUpdateInput,
-  UpdateExpensesResult,
+import {
+  EXPENSE_CATEGORIES,
+  type ExpenseRecord,
+  type ExpenseUpdateInput,
+  type UpdateExpensesResult,
 } from '@lib-types/expenses';
 
 type GetExpensesByMessageIdInput = {
@@ -75,7 +76,19 @@ type UpdateExpensesAuthResult =
 
 type ParsedUpdatesResult =
   | { updates: ParsedExpenseUpdate[] }
-  | { errorCode: 'expense_amount_invalid' };
+  | { errorCode: 'expense_amount_invalid' | 'expense_category_invalid' };
+
+const KNOWN_CATEGORIES = new Set<string>(EXPENSE_CATEGORIES);
+
+// Categories are shown to every household member, so only the app's own
+// vocabulary is accepted (null means "needs category").
+function isKnownCategory(category: unknown): boolean {
+  return (
+    category === null ||
+    category === undefined ||
+    (typeof category === 'string' && KNOWN_CATEGORIES.has(category))
+  );
+}
 
 function toMinorUnits(value: number, currency: string) {
   if (currency === 'COP') {
@@ -114,6 +127,10 @@ async function authenticate(): Promise<UpdateExpensesAuthResult> {
 function parseAndValidateUpdates(
   updates: ExpenseUpdateInput[],
 ): ParsedUpdatesResult {
+  if (!updates.every(update => isKnownCategory(update.category))) {
+    return { errorCode: 'expense_category_invalid' };
+  }
+
   const parsedUpdates = updates.map(update => {
     const amountCents = parseAmountInput(update.amount, update.currency);
     if (amountCents === null) {
