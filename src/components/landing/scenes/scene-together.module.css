@@ -70,17 +70,12 @@
 .momo-scene-together__thread {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-2);
   min-width: 0;
 }
 
-.momo-scene-together__thread [class*="momo-chat-bubble__content"] {
-  overflow-wrap: anywhere;
-}
-
-.momo-scene-together__thread [class*="momo-chat-bubble__avatar-placeholder"] {
-  display: none;
+/* The first row's top padding would double the panel's own spacing. */
+.momo-scene-together__thread > :first-child {
+  padding-top: 0;
 }
 
 .momo-scene-together__ring-row {

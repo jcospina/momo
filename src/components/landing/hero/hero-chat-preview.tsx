@@ -1,11 +1,18 @@
 'use client';
 
-import { ChatMessageBubble } from '@components/chat/chat-message-bubble';
+import {
+  ChatRowScope,
+  MemberAvatar,
+  type RowAuthor,
+} from '@components/chat/chat-row';
+import {
+  PREVIEW_ME_SLOT,
+  PREVIEW_PARTNER_SLOT,
+  PreviewChatRow,
+  type PreviewSample,
+} from '@components/landing/chat-preview';
 import { useGSAP } from '@gsap/react';
-import { Avatar } from '@ui/avatar/avatar';
-import { CircleCheckIcon } from '@ui/icons/circle-check';
-import { GroupIcon } from '@ui/icons/group';
-import { ThreeDotsIcon } from '@ui/icons/three-dots';
+import { Typography } from '@ui/typography/typography';
 import { cn } from '@utils/cn';
 import gsap from 'gsap';
 import { SplitText } from 'gsap/SplitText';
@@ -16,33 +23,22 @@ import styles from './hero-chat-preview.module.css';
 
 gsap.registerPlugin(SplitText, useGSAP);
 
-type ChatPreviewMessage = {
+type ChatPreviewMessage = PreviewSample & {
   id: string;
   sender: string;
-  initial: string;
-  avatarColor: 'mauve-magic' | 'sky-aqua' | 'amber-glow';
-  text: string;
   isOwn: boolean;
-  time: string;
 };
 
-type SequenceTemplate = Pick<
-  ChatPreviewMessage,
-  'id' | 'isOwn' | 'initial' | 'avatarColor'
->;
+type SequenceTemplate = Pick<ChatPreviewMessage, 'id' | 'isOwn'>;
 
-type DesktopMessageCopy = {
-  text: string;
-  sender: string;
-  time: string;
-};
+type DesktopMessageCopy = PreviewSample & { sender: string };
 
 const SEQUENCE_TEMPLATE: SequenceTemplate[] = [
-  { id: 'lunch', isOwn: true, initial: 'A', avatarColor: 'sky-aqua' },
-  { id: 'coffee', isOwn: false, initial: 'S', avatarColor: 'mauve-magic' },
-  { id: 'uber', isOwn: true, initial: 'A', avatarColor: 'sky-aqua' },
-  { id: 'groceries', isOwn: false, initial: 'S', avatarColor: 'mauve-magic' },
-  { id: 'movie', isOwn: false, initial: 'S', avatarColor: 'mauve-magic' },
+  { id: 'lunch', isOwn: true },
+  { id: 'coffee', isOwn: false },
+  { id: 'uber', isOwn: true },
+  { id: 'groceries', isOwn: false },
+  { id: 'movie', isOwn: false },
 ];
 
 const MAX_THREAD_ITEMS = 8;
@@ -56,7 +52,7 @@ const TIMINGS = {
   postSendPauseMs: 160,
   incomingGapMs: 800,
   samFromSamExtraMs: 900,
-  preCheckDelayMs: 600,
+  preCheckDelayMs: 900,
   postCheckPauseMs: 750,
   loopRestartDelayMs: 1500,
 };
@@ -72,18 +68,35 @@ type ChatPreviewProps = {
   className?: string;
 };
 
+function authorOf(msg: ChatPreviewMessage): RowAuthor | null {
+  return msg.isOwn ? null : { name: msg.sender, slot: PREVIEW_PARTNER_SLOT };
+}
+
+function isSameSender(
+  first: Appearance | undefined,
+  second: Appearance | undefined,
+): boolean {
+  return first?.msg.sender === second?.msg.sender;
+}
+
 export function HeroChatPreview({ ariaLabel, className }: ChatPreviewProps) {
   const t = useTranslations('landing.hero.chatPreview');
+  const tComposer = useTranslations('chat.composer');
   const sequence = useMemo<ChatPreviewMessage[]>(() => {
     const copy =
       (t.raw('desktop.messages') as DesktopMessageCopy[] | undefined) ?? [];
-    return SEQUENCE_TEMPLATE.map((tpl, i) => ({
-      ...tpl,
-      text: copy[i]?.text ?? '',
-      sender: copy[i]?.sender ?? '',
-      time: copy[i]?.time ?? '',
-    }));
+    return SEQUENCE_TEMPLATE.flatMap((tpl, i) =>
+      copy[i] ? [{ ...copy[i], ...tpl }] : [],
+    );
   }, [t]);
+  const people = useMemo<RowAuthor[]>(() => {
+    const me = sequence.find(msg => msg.isOwn);
+    const partner = sequence.find(msg => !msg.isOwn);
+    return [
+      { name: me?.sender ?? null, slot: PREVIEW_ME_SLOT },
+      { name: partner?.sender ?? null, slot: PREVIEW_PARTNER_SLOT },
+    ];
+  }, [sequence]);
   const [items, setItems] = useState<Appearance[]>([]);
   const [reducedMotion, setReducedMotion] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -129,7 +142,7 @@ export function HeroChatPreview({ ariaLabel, className }: ChatPreviewProps) {
         }
       };
 
-      const addBubble = (msg: ChatPreviewMessage): number => {
+      const addMessage = (msg: ChatPreviewMessage): number => {
         const id = counterRef.current++;
         setItems(prev => {
           const next = [...prev, { appearanceId: id, msg, processed: false }];
@@ -194,7 +207,7 @@ export function HeroChatPreview({ ariaLabel, className }: ChatPreviewProps) {
           });
           tl.to({}, { duration: TIMINGS.postSendPauseMs / 1000 });
           tl.call(() => {
-            pendingId = addBubble(message);
+            pendingId = addMessage(message);
             revertSplit();
             typedEl.textContent = '';
           });
@@ -208,7 +221,7 @@ export function HeroChatPreview({ ariaLabel, className }: ChatPreviewProps) {
             (prevWasIncoming ? TIMINGS.samFromSamExtraMs : 0);
           tl.to({}, { duration: leadInMs / 1000 });
           tl.call(() => {
-            pendingId = addBubble(message);
+            pendingId = addMessage(message);
           });
           tl.to({}, { duration: TIMINGS.preCheckDelayMs / 1000 });
           tl.call(() => markProcessed(pendingId));
@@ -242,50 +255,43 @@ export function HeroChatPreview({ ariaLabel, className }: ChatPreviewProps) {
       className={cn(styles['momo-hero-chat'], className)}
     >
       <div className={styles['momo-hero-chat__header']} aria-hidden="true">
-        <GroupIcon width={20} height={20} />
-        <span className={styles['momo-hero-chat__title']}>
-          {t('headerTitle')}
+        <span className={styles['momo-hero-chat__faces']}>
+          {people.map(person => (
+            <MemberAvatar key={person.slot} author={person} />
+          ))}
         </span>
+        <Typography as="span" size="lg" weight="bold">
+          {t('headerTitle')}
+        </Typography>
       </div>
-      <div
+      <ChatRowScope
         ref={threadRef}
         className={styles['momo-hero-chat__thread']}
         aria-hidden="true"
+        inert
         data-lenis-prevent
       >
-        {items.map(item => (
-          <div
+        {items.map((item, index) => (
+          <PreviewChatRow
             key={item.appearanceId}
-            className={styles['momo-hero-chat__slot']}
-          >
-            <ChatMessageBubble
-              text={item.msg.text}
-              isOwn={item.msg.isOwn}
-              timestamp={item.msg.time}
-              senderName={item.msg.isOwn ? null : item.msg.sender}
-              avatarSlot={
-                !item.msg.isOwn ? (
-                  <Avatar
-                    size="extra-small"
-                    displayName={item.msg.initial}
-                    color={item.msg.avatarColor}
-                  />
-                ) : null
-              }
-              statusSlot={
-                item.processed ? (
-                  <CircleCheckIcon width={18} height={18} />
-                ) : null
-              }
-              actionsSlot={
-                item.msg.isOwn ? <ThreeDotsIcon width={16} height={16} /> : null
-              }
-            />
-          </div>
+            id={`hero-${item.appearanceId}`}
+            sample={item.msg}
+            author={authorOf(item.msg)}
+            isProcessed={item.processed}
+            isGroupStart={!isSameSender(items[index - 1], item)}
+            isGroupEnd={!isSameSender(items[index + 1], item)}
+            isFresh={!reducedMotion}
+          />
         ))}
-      </div>
+      </ChatRowScope>
       <div className={styles['momo-hero-chat__composer']} aria-hidden="true">
-        <ChatComposerMock text="" typedRef={typedRef} sendRef={sendRef} ready />
+        <ChatComposerMock
+          text=""
+          placeholder={tComposer('placeholder')}
+          typedRef={typedRef}
+          sendRef={sendRef}
+          ready
+        />
       </div>
     </div>
   );

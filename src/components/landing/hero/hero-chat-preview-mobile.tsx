@@ -1,8 +1,11 @@
 'use client';
 
-import { ChatMessageBubble } from '@components/chat/chat-message-bubble';
+import { ChatRowScope } from '@components/chat/chat-row';
+import {
+  PreviewChatRow,
+  type PreviewSample,
+} from '@components/landing/chat-preview';
 import { useGSAP } from '@gsap/react';
-import { CircleCheckIcon } from '@ui/icons/circle-check';
 import { cn } from '@utils/cn';
 import gsap from 'gsap';
 import { SplitText } from 'gsap/SplitText';
@@ -35,7 +38,7 @@ const DEFAULT_TIMINGS: Required<HeroChatPreviewMobileTimings> = {
   postSendPauseMs: 180,
   inputFadeMs: 220,
   bubbleEnterDelayMs: 80,
-  preCheckDelayMs: 600,
+  preCheckDelayMs: 900,
   loopRestartDelayMs: 1500,
 };
 
@@ -49,7 +52,7 @@ type HeroChatPreviewMobileProps = {
 };
 
 type StageProps = {
-  message: string;
+  sample: PreviewSample;
   config: Required<HeroChatPreviewMobileTimings>;
   reducedMotion: boolean;
   isFirstCycle: boolean;
@@ -57,7 +60,7 @@ type StageProps = {
 };
 
 function MobileStage({
-  message,
+  sample,
   config,
   reducedMotion,
   isFirstCycle,
@@ -68,8 +71,8 @@ function MobileStage({
   const typedRef = useRef<HTMLSpanElement>(null);
   const sendRef = useRef<HTMLSpanElement>(null);
 
-  const [bubbleVisible, setBubbleVisible] = useState(reducedMotion);
-  const [showCheck, setShowCheck] = useState(reducedMotion);
+  const [isSent, setIsSent] = useState(reducedMotion);
+  const [isProcessed, setIsProcessed] = useState(reducedMotion);
   const [typedReady, setTypedReady] = useState(reducedMotion);
 
   useGSAP(
@@ -136,7 +139,7 @@ function MobileStage({
 
       tl.call(
         () => {
-          setBubbleVisible(true);
+          setIsSent(true);
         },
         undefined,
         `+=${config.bubbleEnterDelayMs / 1000}`,
@@ -144,7 +147,7 @@ function MobileStage({
 
       tl.call(
         () => {
-          setShowCheck(true);
+          setIsProcessed(true);
         },
         undefined,
         `+=${config.preCheckDelayMs / 1000}`,
@@ -165,16 +168,8 @@ function MobileStage({
     { scope: stageRef, dependencies: [reducedMotion] },
   );
 
-  const statusSlot = showCheck ? (
-    <CircleCheckIcon width={18} height={18} />
-  ) : null;
-
   return (
-    <div
-      ref={stageRef}
-      className={styles['momo-hero-chat-mobile__stage']}
-      aria-hidden="true"
-    >
+    <div ref={stageRef} className={styles['momo-hero-chat-mobile__cycle']}>
       <div
         ref={inputPhaseRef}
         className={cn(
@@ -183,20 +178,23 @@ function MobileStage({
         )}
       >
         <ChatComposerMock
-          text={message}
+          text={sample.text}
           typedRef={typedRef}
           sendRef={sendRef}
           ready={typedReady}
         />
       </div>
-      <div
-        className={cn(
-          styles['momo-hero-chat-mobile__phase'],
-          styles['momo-hero-chat-mobile__phase--bubble'],
-        )}
-      >
-        {bubbleVisible ? (
-          <ChatMessageBubble text={message} isOwn statusSlot={statusSlot} />
+      <div className={styles['momo-hero-chat-mobile__phase']}>
+        {isSent ? (
+          <PreviewChatRow
+            id="hero-mobile"
+            sample={sample}
+            author={null}
+            isProcessed={isProcessed}
+            isGroupStart={false}
+            isGroupEnd
+            isFresh={!reducedMotion}
+          />
         ) : null}
       </div>
     </div>
@@ -209,7 +207,7 @@ export function HeroChatPreviewMobile({
   timings,
 }: HeroChatPreviewMobileProps) {
   const t = useTranslations('landing.hero.chatPreview.mobile');
-  const samples = (t.raw('samples') as string[] | undefined) ?? [];
+  const samples = (t.raw('samples') as PreviewSample[] | undefined) ?? [];
   const config: Required<HeroChatPreviewMobileTimings> = {
     ...DEFAULT_TIMINGS,
     ...timings,
@@ -219,7 +217,7 @@ export function HeroChatPreviewMobile({
   const [reducedMotion, setReducedMotion] = useState(false);
   const [runToken, setRunToken] = useState(0);
   const [cycleId, setCycleId] = useState(0);
-  const [messageIdx, setMessageIdx] = useState(0);
+  const [sampleIdx, setSampleIdx] = useState(0);
   const wasMobileRef = useRef(false);
 
   useEffect(() => {
@@ -232,7 +230,7 @@ export function HeroChatPreviewMobile({
       if (matches && !wasMobileRef.current) {
         setRunToken(t => t + 1);
         setCycleId(0);
-        setMessageIdx(0);
+        setSampleIdx(0);
       }
       wasMobileRef.current = matches;
     };
@@ -253,11 +251,11 @@ export function HeroChatPreviewMobile({
 
   const handleCycleComplete = useCallback(() => {
     if (samples.length === 0) return;
-    setMessageIdx(idx => (idx + 1) % samples.length);
+    setSampleIdx(idx => (idx + 1) % samples.length);
     setCycleId(c => c + 1);
   }, [samples.length]);
 
-  const message = samples[messageIdx] ?? samples[0] ?? '';
+  const sample = samples[sampleIdx] ?? samples[0];
 
   return (
     <div
@@ -265,16 +263,37 @@ export function HeroChatPreviewMobile({
       aria-label={ariaLabel}
       className={cn(styles['momo-hero-chat-mobile'], className)}
     >
-      {isMobileViewport && message ? (
-        <MobileStage
-          key={`${runToken}-${cycleId}`}
-          message={message}
-          config={config}
-          reducedMotion={reducedMotion}
-          isFirstCycle={cycleId === 0}
-          onCycleComplete={handleCycleComplete}
-        />
-      ) : null}
+      <ChatRowScope
+        className={styles['momo-hero-chat-mobile__stage']}
+        aria-hidden="true"
+        inert
+      >
+        {sample ? (
+          // Reserves the finished ticket's height from the first paint, so
+          // the hero never shifts while the cycle swaps composer and ticket.
+          <div className={styles['momo-hero-chat-mobile__sizer']}>
+            <PreviewChatRow
+              id="hero-mobile-sizer"
+              sample={sample}
+              author={null}
+              isProcessed
+              isGroupStart={false}
+              isGroupEnd
+              isFresh={false}
+            />
+          </div>
+        ) : null}
+        {isMobileViewport && sample ? (
+          <MobileStage
+            key={`${runToken}-${cycleId}`}
+            sample={sample}
+            config={config}
+            reducedMotion={reducedMotion}
+            isFirstCycle={cycleId === 0}
+            onCycleComplete={handleCycleComplete}
+          />
+        ) : null}
+      </ChatRowScope>
     </div>
   );
 }

@@ -6,14 +6,24 @@
    Button, Input, ToggleGroup, Divider, Panel). This module only holds the
    ticket's paper and the chat's layout and colours. */
 
-.surface {
+/* `.scope` carries the same paper tokens for rows drawn outside a chat
+   panel (the landing previews, via <ChatRowScope>). */
+.surface,
+.scope {
   --paper: color-mix(in oklab, var(--color-light), white 55%);
   --rule: color-mix(in oklab, var(--color-dark), transparent 84%);
   --hairline: color-mix(in oklab, var(--color-dark), transparent 70%);
   --dye: 42%;
   --warn-ink: color-mix(in oklab, var(--tone-warning), var(--color-dark) 35%);
   --error-ink: color-mix(in oklab, var(--tone-error), var(--color-dark) 35%);
+}
 
+/* Rows read like the chat whatever the host page aligns its text to. */
+.scope {
+  text-align: start;
+}
+
+.surface {
   height: 100%;
   min-height: 0;
   display: flex;

@@ -1,10 +1,17 @@
 'use client';
 
+import { ChatRowScope } from '@components/chat/chat-row';
+import { ColorTicket } from '@components/chat/ticket';
+import {
+  type PreviewSample,
+  previewLines,
+  previewMessage,
+} from '@components/landing/chat-preview';
+import { ChatComposerMock } from '@components/landing/hero/chat-composer-mock';
 import { useGSAP } from '@gsap/react';
 import { useInView } from '@hooks/use-in-view';
 import { useMediaQuery } from '@hooks/use-media-query';
 import { Highlight } from '@ui/highlight/highlight';
-import { CircleCheckIcon } from '@ui/icons/circle-check';
 import { Typography } from '@ui/typography/typography';
 import gsap from 'gsap';
 import { useTranslations } from 'next-intl';
@@ -13,24 +20,26 @@ import styles from './scene-parse.module.css';
 import { SceneShell } from './scene-shell';
 
 const ARROW_PATH_LENGTH = 92;
+const TICKET_ID = 'landing-parse';
 
 export function SceneParse() {
   const t = useTranslations('landing.parse');
+  const sample = t.raw('chat') as PreviewSample;
   const artifactRef = useRef<HTMLDivElement>(null);
   const arrowRef = useRef<SVGPathElement>(null);
-  const chipRef = useRef<HTMLDivElement>(null);
+  const ticketRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const inView = useInView(artifactRef, { threshold: 0.4, once: true });
 
   useGSAP(
     () => {
       const arrowEl = arrowRef.current;
-      const chipEl = chipRef.current;
-      if (!arrowEl || !chipEl) return;
+      const ticketEl = ticketRef.current;
+      if (!arrowEl || !ticketEl) return;
 
       if (reducedMotion) {
         gsap.set(arrowEl, { strokeDashoffset: 0 });
-        gsap.set(chipEl, { opacity: 1, scale: 1 });
+        gsap.set(ticketEl, { opacity: 1, scale: 1 });
         return;
       }
 
@@ -39,7 +48,7 @@ export function SceneParse() {
           strokeDasharray: ARROW_PATH_LENGTH,
           strokeDashoffset: ARROW_PATH_LENGTH,
         });
-        gsap.set(chipEl, { opacity: 0, scale: 0.8 });
+        gsap.set(ticketEl, { opacity: 0, scale: 0.8 });
         return;
       }
 
@@ -50,7 +59,7 @@ export function SceneParse() {
         ease: 'power2.out',
       });
       tl.to(
-        chipEl,
+        ticketEl,
         {
           opacity: 1,
           scale: 1,
@@ -92,23 +101,11 @@ export function SceneParse() {
       artifact={
         <div ref={artifactRef} className={styles['momo-scene-parse']}>
           <div className={styles['momo-scene-parse__stack']}>
-            <article className={styles['momo-scene-parse__bubble']}>
-              <div className={styles['momo-scene-parse__bubble-row']}>
-                <span
-                  className={styles['momo-scene-parse__bubble-status']}
-                  aria-hidden="true"
-                >
-                  <CircleCheckIcon width={22} height={22} />
-                </span>
-                <Typography
-                  size="lg"
-                  weight="regular"
-                  className={styles['momo-scene-parse__bubble-text']}
-                >
-                  {t('chat.text')}
-                </Typography>
-              </div>
-            </article>
+            <ChatComposerMock
+              text={sample.text}
+              ready
+              className={styles['momo-scene-parse__composer']}
+            />
 
             <svg
               className={styles['momo-scene-parse__arrow']}
@@ -133,35 +130,16 @@ export function SceneParse() {
               />
             </svg>
 
-            <section
-              ref={chipRef}
-              className={styles['momo-scene-parse__chip-row']}
+            <ChatRowScope
+              ref={ticketRef}
+              className={styles['momo-scene-parse__ticket']}
             >
-              <Typography
-                as="span"
-                size="xs"
-                weight="bold"
-                transform="uppercase"
-                className={styles['momo-scene-parse__chip-label']}
-              >
-                {t('chip.label')}
-              </Typography>
-              <Highlight
-                as="span"
-                variant="feature"
-                rotation="none"
-                className={styles['momo-scene-parse__chip-badge']}
-              >
-                <Typography
-                  as="span"
-                  size="lg"
-                  weight="bold"
-                  className={styles['momo-scene-parse__chip-category']}
-                >
-                  {t('chip.category')}
-                </Typography>
-              </Highlight>
-            </section>
+              <ColorTicket
+                message={previewMessage(TICKET_ID, sample, true)}
+                lines={previewLines(TICKET_ID, sample) ?? []}
+                isOwn={false}
+              />
+            </ChatRowScope>
           </div>
         </div>
       }

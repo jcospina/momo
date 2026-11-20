@@ -18,7 +18,7 @@ import { isMomoMessage } from '@utils/chat-message';
 import { cn } from '@utils/cn';
 import { parseMomoMention } from '@utils/momo-mention';
 import { useLocale, useTranslations } from 'next-intl';
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 import { memberColorVar, memberInkVar } from '@/lib/theme/color-vars';
 import { formatDayLabel, formatTime, formatTotals } from './chat-format';
 import styles from './color-tickets.module.css';
@@ -69,6 +69,14 @@ export type RowAuthor = {
   /** The member's fixed colour slot; null when unknown. */
   slot: number | null;
 };
+
+/**
+ * Gives rows and tickets their paper tokens outside a chat panel, e.g. the
+ * landing previews. Inside the chat the panel's surface already does this.
+ */
+export function ChatRowScope({ className, ...props }: ComponentProps<'div'>) {
+  return <div className={cn(styles.scope, className)} {...props} />;
+}
 
 /** A member's face in their fixed colour. */
 export function MemberAvatar({ author }: { author: RowAuthor }) {
