@@ -1,0 +1,776 @@
+/* Chat surface — "Color Tickets". Expense messages are tickets dyed in
+   their category colour (var(--category-*), see src/lib/theme/color-vars.ts);
+   colour always means category, so everything else stays neutral.
+
+   Typography comes from <Typography> and controls from src/ui (Avatar,
+   Button, Input, ToggleGroup, Divider, Panel). This module only holds the
+   ticket's paper and the chat's layout and colours. */
+
+.surface {
+  --paper: color-mix(in oklab, var(--color-light), white 55%);
+  --rule: color-mix(in oklab, var(--color-dark), transparent 84%);
+  --hairline: color-mix(in oklab, var(--color-dark), transparent 70%);
+  --dye: 42%;
+  --warn-ink: color-mix(in oklab, var(--tone-warning), var(--color-dark) 35%);
+  --error-ink: color-mix(in oklab, var(--tone-error), var(--color-dark) 35%);
+
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Colour-only helpers for <Typography>. */
+.muted {
+  color: var(--fg-muted);
+}
+
+.error {
+  color: var(--error-ink);
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+
+.header {
+  padding: calc(var(--spacing) * 1.5) var(--space-2);
+  border-bottom: var(--border-width-thin) solid var(--color-dark);
+}
+
+.header__who {
+  min-width: 0;
+}
+
+.header__title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.faces {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.faces > * + * {
+  margin-left: -8px;
+}
+
+/* ── List ───────────────────────────────────────────────────────────── */
+
+.body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.inner.inner {
+  width: min(100%, 860px);
+  margin: 0 auto;
+  padding: var(--space-1) var(--space-2) var(--space-3);
+}
+
+.earlier {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+  color: var(--fg-subtle);
+}
+
+/* ── Day divider ────────────────────────────────────────────────────── */
+
+.day {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3) 0 var(--space-1);
+}
+
+.day__rule {
+  flex: 1;
+  min-width: var(--space-2);
+  opacity: 0.3;
+}
+
+.day__pill {
+  padding: 4px calc(var(--spacing) * 1.5);
+  border: 1.5px solid var(--color-dark);
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  white-space: nowrap;
+}
+
+/* ── Rows ───────────────────────────────────────────────────────────── */
+
+.row {
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--space-1);
+}
+
+.row[data-group-start] {
+  padding-top: var(--space-2);
+}
+
+.line {
+  /* Matches the extra-small Avatar (2 × font size) so the face stays round. */
+  --face-size: calc(var(--font-size) * 2);
+
+  display: grid;
+  grid-template-columns: var(--face-size) minmax(0, 1fr);
+  column-gap: calc(var(--spacing) * 1.25);
+  align-items: start;
+}
+
+.line[data-stream] {
+  margin-top: var(--space-2);
+}
+
+.row[data-side="own"] > .line:not([data-stream]) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* The name sits above the body: push the face down to line up with it. */
+.line__face {
+  display: flex;
+  padding-top: 20px;
+}
+
+.line__stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.row[data-side="own"] > .line:not([data-stream]) .line__stack {
+  align-items: flex-end;
+}
+
+.line__name {
+  padding-left: 2px;
+  color: var(--fg-muted);
+}
+
+.line__body {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* Wrapping chip rows inflate the intrinsic width; keep own tickets right. */
+.row[data-side="own"] > .line:not([data-stream]) .line__body {
+  justify-content: flex-end;
+}
+
+.line__time {
+  padding-inline: 4px;
+  color: var(--fg-subtle);
+}
+
+.line__unsent {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--error-ink);
+}
+
+/* The ⋯ menu beside plain bubbles shows on hover/focus (always on touch). */
+.menu--outer {
+  margin-top: 6px;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-pop);
+}
+
+.line__body:hover .menu--outer,
+.line__body:focus-within .menu--outer {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .menu--outer {
+    opacity: 1;
+  }
+}
+
+/* ── Labels (corner pill on a ticket) ───────────────────────────────── */
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 2px 10px 2px 6px;
+  border: 1.5px solid var(--hairline);
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--color-light), transparent 25%);
+  color: var(--color-dark);
+  white-space: nowrap;
+}
+
+.label__dot {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-dark);
+  background: var(--tint, var(--paper));
+}
+
+.label__stack {
+  display: inline-flex;
+}
+
+.label__stack .label__dot + .label__dot {
+  margin-left: -4px;
+}
+
+.label[data-tone="empty"] {
+  color: var(--fg-muted);
+}
+
+.label[data-tone="empty"] .label__dot {
+  border-style: dashed;
+  background: transparent;
+}
+
+.label[data-tone="ask"] {
+  border: 1.5px dashed var(--warn-ink);
+  background: color-mix(in oklab, var(--color-amber-glow) 28%, var(--paper));
+  color: var(--warn-ink);
+}
+
+.label[data-tone="ask"] .label__dot {
+  background: var(--color-amber-glow);
+}
+
+.label[data-tone="error"] {
+  color: var(--error-ink);
+}
+
+.label[data-tone="error"] .label__dot {
+  background: var(--tone-error);
+}
+
+.label[data-tone="pulse"] .label__dot {
+  background: var(--color-dark);
+  animation: chat-pulse 1s ease-in-out infinite alternate;
+}
+
+/* ── Ticket ─────────────────────────────────────────────────────────── */
+
+.ticket {
+  position: relative;
+  width: fit-content;
+  min-width: min(232px, 100%);
+  max-width: min(340px, 100%);
+}
+
+.ticket[data-tone="ask"] {
+  max-width: min(380px, 100%);
+}
+
+.ticket__paper {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px 14px;
+  border: 1px solid var(--color-dark);
+  border-radius: var(--border-radius);
+  box-shadow: -2px 2px 0 var(--color-dark);
+  background: color-mix(
+    in oklab,
+    var(--tint, var(--paper)) var(--dye),
+    var(--paper)
+  );
+  color: var(--color-dark);
+  overflow: hidden;
+  transition: background-color var(--duration-toggle) var(--ease-pop);
+}
+
+.ticket__paper > :not(.flood) {
+  position: relative;
+  z-index: 1;
+}
+
+.ticket[data-tone="ask"] .ticket__paper {
+  background: var(--paper);
+  outline: 2px dashed var(--warn-ink);
+  outline-offset: -6px;
+}
+
+.ticket[data-tone="adding"] .ticket__paper {
+  background: var(--paper);
+}
+
+/* Hatched, not flat: a flat coral wash would read as a Dining ticket. */
+.ticket[data-tone="oops"] .ticket__paper {
+  background: repeating-linear-gradient(
+    -45deg,
+    color-mix(in oklab, var(--tone-error) 16%, var(--paper)) 0 8px,
+    var(--paper) 8px 16px
+  );
+}
+
+.ticket[data-tone="unsent"] .ticket__paper {
+  background: color-mix(in oklab, var(--color-disabled) 30%, var(--paper));
+}
+
+.ticket__head {
+  margin-right: -6px;
+}
+
+.ticket__time {
+  color: var(--fg-muted);
+  white-space: nowrap;
+  padding-right: 4px;
+}
+
+.ticket__solo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ticket__desc {
+  color: color-mix(in oklab, var(--color-dark), transparent 15%);
+  overflow-wrap: anywhere;
+}
+
+.ticket__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ticket__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 6px 0;
+}
+
+.ticket__row + .ticket__row {
+  border-top: 1.5px dashed var(--hairline);
+}
+
+.ticket__list[data-banded] {
+  margin-inline: -14px;
+}
+
+.ticket__list[data-banded] .ticket__row {
+  padding: 8px 14px;
+  background: color-mix(
+    in oklab,
+    var(--tint, var(--paper)) var(--dye),
+    var(--paper)
+  );
+  transition: background-color var(--duration-toggle) var(--ease-pop);
+}
+
+.ticket__list[data-banded] .ticket__row + .ticket__row {
+  border-top: 1.5px solid var(--hairline);
+}
+
+.ticket__list[data-banded] .ticket__row[data-empty] {
+  background: var(--paper);
+}
+
+/* While asking, keep the dashed frame visible around the bands. */
+.ticket[data-tone="ask"] .ticket__list[data-banded] {
+  margin-inline: -4px;
+  border: 1.5px solid var(--hairline);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ticket[data-tone="ask"] .ticket__list[data-banded] .ticket__row {
+  padding-inline: 10px;
+}
+
+.ticket__row-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ticket__row-cat {
+  color: var(--fg-muted);
+}
+
+.ticket__row[data-empty] .ticket__row-cat {
+  color: var(--warn-ink);
+}
+
+.ticket__amount {
+  white-space: nowrap;
+}
+
+.ticket__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding-top: 8px;
+  border-top: 2px solid var(--color-dark);
+}
+
+.ticket__quote {
+  overflow-wrap: anywhere;
+}
+
+.ticket__faded {
+  opacity: 0.6;
+}
+
+.ticket__ghost {
+  opacity: 0.5;
+  animation: chat-breathe 1.2s ease-in-out infinite alternate;
+}
+
+/* The colour wash that floods out of the tapped dot. */
+.flood {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: color-mix(in oklab, var(--tint) var(--dye), var(--paper));
+  animation: chat-flood 520ms var(--ease-pop) forwards;
+}
+
+/* ── Category picker ────────────────────────────────────────────────── */
+
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  animation: chat-in var(--duration-slow) var(--ease-pop) both;
+}
+
+/* ── Plain bubbles ──────────────────────────────────────────────────── */
+
+.bubble {
+  max-width: min(440px, 100%);
+  padding: var(--space-1) calc(var(--spacing) * 1.75);
+  border: var(--border-width-thin) solid var(--color-dark);
+  border-radius: 18px;
+  background: var(--paper);
+  overflow-wrap: anywhere;
+}
+
+/* Colour means category here, so your own bubbles stay neutral. */
+.bubble[data-own] {
+  background: color-mix(in oklab, var(--color-dark) 7%, var(--paper));
+}
+
+.row[data-side="own"] .bubble {
+  border-bottom-right-radius: 6px;
+}
+
+.row[data-side="other"] .bubble,
+.bubble--momo {
+  border-bottom-left-radius: 6px;
+}
+
+.bubble[data-pending] {
+  opacity: 0.65;
+}
+
+.bubble[data-unsent] {
+  border-style: dashed;
+  opacity: 0.75;
+}
+
+.bubble--momo {
+  max-width: min(560px, 100%);
+  background: color-mix(in oklab, var(--color-mauve-magic) 16%, var(--paper));
+}
+
+.mention {
+  color: color-mix(in oklab, var(--color-mauve-magic), var(--color-dark) 45%);
+}
+
+/* MoMo's markdown, softened: no heavy table header. */
+.bubble.bubble--momo :global(table) {
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-block: 2px;
+  border: 1.5px solid var(--hairline);
+  border-radius: 12px;
+  overflow: hidden;
+  background: color-mix(in oklab, var(--paper), transparent 30%);
+}
+
+.bubble.bubble--momo :global(th),
+.bubble.bubble--momo :global(td) {
+  padding: 6px 12px;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+}
+
+.bubble.bubble--momo :global(tr:last-child td) {
+  border-bottom: none;
+}
+
+.bubble.bubble--momo :global(th) {
+  background: color-mix(in oklab, var(--color-mauve-magic) 18%, var(--paper));
+}
+
+.dots {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: chat-bounce 900ms var(--ease-pop) infinite;
+}
+
+.dots span:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.dots span:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+/* ── Empty state ────────────────────────────────────────────────────── */
+
+.empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-2);
+  pointer-events: none;
+}
+
+.empty__card {
+  max-width: 360px;
+  text-align: center;
+  pointer-events: auto;
+}
+
+.empty__swatches {
+  display: flex;
+}
+
+.empty__swatches span {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: var(--border-width-thin) solid var(--color-dark);
+  background: color-mix(in oklab, var(--tint) 80%, var(--paper));
+}
+
+.empty__swatches span + span {
+  margin-left: -6px;
+}
+
+/* ── Composer ───────────────────────────────────────────────────────── */
+
+.composer {
+  flex-shrink: 0;
+  padding: calc(var(--spacing) * 1.5) var(--space-2);
+  border-top: var(--border-width-thin) solid var(--color-dark);
+  background: var(--bg-panel);
+}
+
+.composer__row {
+  width: min(100%, 860px);
+  margin: 0 auto;
+}
+
+/* Send sits inset in the field, pinned to the last line as the draft grows.
+   `.composer` raises specificity over the Button's icon/disabled styles. */
+.composer .send {
+  align-self: flex-end;
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+  min-width: 0;
+  min-height: 0;
+  margin: calc(var(--spacing) * 0.5);
+  padding: 0;
+  border: var(--border-width-thin) solid var(--color-dark);
+  border-radius: 50%;
+  background-color: var(--color-spring-green);
+  color: var(--color-dark);
+  transition:
+    background-color var(--duration-fast) var(--ease-pop),
+    border-color var(--duration-fast) var(--ease-pop),
+    transform var(--duration-fast) var(--ease-pop);
+}
+
+/* Nothing to send: just a faded plane, no filled circle. */
+.composer .send:disabled,
+.composer .send:disabled:hover {
+  border-color: transparent;
+  background-color: transparent;
+  color: var(--fg-subtle);
+  box-shadow: none;
+  transform: none;
+}
+
+.hint {
+  width: min(100%, 860px);
+  min-height: 20px;
+  margin: var(--space-1) auto 0;
+  color: var(--fg-subtle);
+}
+
+.hint[data-tone="momo"] {
+  color: color-mix(in oklab, var(--color-mauve-magic), var(--color-dark) 45%);
+}
+
+/* ── Motion ─────────────────────────────────────────────────────────── */
+
+.row[data-fresh] .ticket,
+.row[data-fresh] .bubble {
+  animation: chat-in var(--duration-slow) var(--ease-pop) both;
+}
+
+@keyframes chat-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes chat-flood {
+  from {
+    clip-path: circle(0 at var(--x) var(--y));
+  }
+  to {
+    clip-path: circle(640px at var(--x) var(--y));
+  }
+}
+
+@keyframes chat-breathe {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 0.6;
+  }
+}
+
+@keyframes chat-pulse {
+  from {
+    opacity: 0.3;
+    scale: 0.85;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes chat-bounce {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row[data-fresh] .ticket,
+  .row[data-fresh] .bubble,
+  .picker,
+  .dots span,
+  .ticket__ghost,
+  .label[data-tone="pulse"] .label__dot,
+  .flood {
+    animation: none;
+  }
+
+  .menu--outer,
+  .composer .send,
+  .ticket__paper,
+  .ticket__list[data-banded] .ticket__row {
+    transition: none;
+  }
+}
+
+/* ── Small screens ──────────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .header {
+    padding: var(--space-1) calc(var(--spacing) * 1.5);
+  }
+
+  .header__scope {
+    flex: 1 1 100%;
+  }
+
+  .header__scope > * {
+    flex: 1;
+  }
+
+  .inner.inner {
+    padding-inline: calc(var(--spacing) * 1.25);
+  }
+
+  .line {
+    column-gap: var(--space-1);
+  }
+
+  .ticket {
+    max-width: min(300px, 100%);
+  }
+
+  .ticket[data-tone="ask"] {
+    max-width: 100%;
+  }
+
+  .bubble {
+    max-width: min(300px, 100%);
+  }
+
+  .bubble--momo {
+    max-width: 100%;
+  }
+
+  .ticket__head {
+    margin-right: -10px;
+    margin-block: -6px;
+  }
+
+  .composer {
+    padding-inline: calc(var(--spacing) * 1.25);
+  }
+}

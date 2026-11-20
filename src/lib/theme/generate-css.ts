@@ -1,5 +1,30 @@
+import {
+  buildCategoryTokens,
+  buildMemberTokens,
+  type ColorToken,
+} from './category-palette';
 import { resolvePalette } from './resolve-palette';
-import type { ThemeConfig } from './types';
+import type { ResolvedPalette, ThemeConfig } from './types';
+
+function tokenLines(name: string, token: ColorToken): string {
+  return `  --${name}: ${token.fill};\n  --${name}-ink: ${token.ink};`;
+}
+
+/** Fixed colour per category and per member slot (see color-vars.ts). */
+function identityColorLines(p: ResolvedPalette): string {
+  const categories = Object.entries(buildCategoryTokens(p)).map(
+    ([category, token]) => tokenLines(`category-${category}`, token),
+  );
+  const members = buildMemberTokens(p);
+  const memberLines = members.slots.map((token, index) =>
+    tokenLines(`member-${index + 1}`, token),
+  );
+  return [
+    ...categories,
+    ...memberLines,
+    tokenLines('member-none', members.none),
+  ].join('\n');
+}
 
 function buildBlock(theme: ThemeConfig): string {
   const p = resolvePalette(theme.palette);
@@ -41,6 +66,8 @@ function buildBlock(theme: ThemeConfig): string {
   --chart-tooltip-border: var(--chart-stroke);
   --chart-axis: var(--chart-stroke);
   --chart-grid: color-mix(in oklch, var(--chart-stroke), transparent 84%);
+
+${identityColorLines(p)}
 
   /* Legacy raw color aliases — kept so components referencing raw palette
      names repaint with the active theme. Will be removed in a follow-up. */

@@ -56,6 +56,42 @@
     "auth_demo_not_configured": "El modo demo no está configurado en este servidor. Hoy no hay tour rápido, perdona."
   },
   "chat": {
+    "days": {
+      "today": "Hoy",
+      "yesterday": "Ayer"
+    },
+    "tickets": {
+      "adding": "Anotando…",
+      "addingAria": "Anotando “{content}”",
+      "unsent": "No lo pude guardar",
+      "unsentHint": "Revisa tu conexión y",
+      "tryAgain": "Reintentar",
+      "oops": "No pude leer este",
+      "oopsHint": "¿Agregas el monto tú?",
+      "fixIt": "Arreglar",
+      "whichCategory": "¿Qué categoría?",
+      "whichCategoryFor": "¿Qué categoría es “{descriptor}”?",
+      "noCategoryYet": "Sin categoría aún",
+      "things": "{count, plural, one {# cosa} other {# cosas}}",
+      "together": "En total",
+      "more": "Más…",
+      "pickFailed": "No pude guardar esa categoría. ¿Reintentas?",
+      "askedMomo": "Pregunta a MoMo",
+      "loadingEarlier": "Cargando tickets anteriores",
+      "beginning": "Este es el comienzo"
+    },
+    "composer": {
+      "placeholder": "¿Qué gastaste?",
+      "ariaLabel": "Agrega un gasto o pregúntale a @momo",
+      "send": "Enviar",
+      "hint": "Prueba “almuerzo 12.50”, o pregúntale lo que sea a @momo.",
+      "hintNoAi": "Prueba “almuerzo 12.50” o “mercado 82.40, vino 18”.",
+      "hintMomo": "MoMo responderá esto"
+    },
+    "empty": {
+      "title": "Nada por aquí todavía",
+      "body": "Cuéntale a MoMo qué gastaste simplemente escribiendo una cantidad y una nota corta"
+    },
     "tabs": {
       "personal": "Personal",
       "household": "Hogar"
@@ -91,6 +127,32 @@
     }
   },
   "expenses": {
+    "categories": {
+      "housing": "Vivienda",
+      "utilities": "Servicios",
+      "groceries": "Mercado",
+      "dining": "Restaurantes",
+      "transportation": "Transporte",
+      "vehicle": "Vehículo",
+      "health": "Salud",
+      "self_care": "Cuidado personal",
+      "education": "Educación",
+      "kids": "Niños",
+      "shopping": "Compras",
+      "entertainment": "Entretenimiento",
+      "subscriptions": "Suscripciones",
+      "travel": "Viajes",
+      "gifts": "Regalos",
+      "fees": "Comisiones",
+      "income": "Ingresos",
+      "transfer": "Transferencias",
+      "pets": "Mascotas",
+      "debt": "Deudas",
+      "fun": "Diversión",
+      "treats": "Antojos",
+      "uncategorized": "Sin categoría",
+      "others": "Otros"
+    },
     "detail": {
       "title": "Detalles del gasto",
       "loading": "Cargando gastos...",

@@ -32,12 +32,22 @@ export function Avatar(props: PropsWithClassName<AvatarProps>) {
     className,
     onClick,
     color = 'sky-aqua',
+    fill,
+    ink,
     slot,
   } = props;
+  const style =
+    fill || ink
+      ? {
+          ...(fill ? { backgroundColor: fill } : {}),
+          ...(ink ? { color: ink } : {}),
+        }
+      : undefined;
   return (
     <Circle
       size={size}
       color={color}
+      style={style}
       className={cn(styles['momo-avatar'], className)}
       onClick={onClick}
     >

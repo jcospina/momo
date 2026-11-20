@@ -133,15 +133,16 @@ export function AppNavbar() {
       navigate(href);
     };
 
+  const brand = <Logo size="md" className={styles['momo-app-navbar__logo']} />;
   const logo = isHome ? (
-    <Logo size="md" />
+    brand
   ) : (
     <a
       href={HOME}
       onClick={handleNavItemClick(HOME, false)}
       className={styles['momo-app-navbar__logo-link']}
     >
-      <Logo size="md" />
+      {brand}
     </a>
   );
 

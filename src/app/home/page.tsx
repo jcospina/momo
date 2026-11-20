@@ -4,8 +4,10 @@ import { Flex } from '@ui/flex/flex';
 import { FlexItem } from '@ui/flex-item/flex-item';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/data/auth/server';
-import { getHouseholdForUser } from '@/lib/data/households/server';
+import { getExpensesByMessageIds } from '@/lib/data/expenses/server';
+import { getHouseholdForUser, getMembers } from '@/lib/data/households/server';
 import { getList as getChatMessages } from '@/lib/data/messages/server';
+import { getUserPreferences } from '@/lib/data/prefs/server';
 import styles from './home.module.css';
 
 export default async function HomePage() {
@@ -30,13 +32,26 @@ export default async function HomePage() {
       })
     : Promise.resolve([]);
 
-  const [personalMessages, householdMessages] = await Promise.all([
-    personalPromise,
-    householdMessagesPromise,
-  ]);
+  const [personalMessages, householdMessages, members, prefs] =
+    await Promise.all([
+      personalPromise,
+      householdMessagesPromise,
+      household ? getMembers(household.id) : Promise.resolve([]),
+      getUserPreferences(user.id),
+    ]);
+
+  // Load every visible ticket's lines in one query so tickets render filled
+  // in, without a second pass on the client.
+  const idsWithExpenses = [...personalMessages, ...householdMessages]
+    .filter(m => m.author_kind === 'user' && m.expense_count > 0)
+    .map(m => m.id);
+  const { expensesByMessageId: initialExpenseLines } =
+    idsWithExpenses.length > 0
+      ? await getExpensesByMessageIds({ messageIds: idsWithExpenses })
+      : { expensesByMessageId: {} };
 
   return (
-    <Flex className={styles['home']} direction="column" padding={3} gap={5}>
+    <Flex className={styles['home']} direction="column" padding={3} gap={2}>
       <AppNavbar />
       <FlexItem grow={1} shrink={1} className={styles['home__content']}>
         <Chat
@@ -45,6 +60,9 @@ export default async function HomePage() {
           householdName={household?.name}
           initialPersonalMessages={personalMessages.reverse()}
           initialHouseholdMessages={householdMessages.reverse()}
+          initialExpenseLines={initialExpenseLines}
+          members={members}
+          aiEnabled={prefs?.ai_enabled === true}
         />
       </FlexItem>
     </Flex>

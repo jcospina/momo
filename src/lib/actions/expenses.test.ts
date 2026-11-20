@@ -1,8 +1,11 @@
 import { upsertCategoryRule } from '@helpers/expenses/category-rules';
-import { fetchExpensesByMessageId } from '@helpers/expenses/expense-fetch';
+import {
+  fetchExpensesByMessageId,
+  fetchExpensesByMessageIds,
+} from '@helpers/expenses/expense-fetch';
 import { updateExpenses as updateExpenseRows } from '@helpers/expenses/expense-update';
 import { createSupabaseServerClient } from '@lib-supabase/server';
-import { updateExpenses } from './expenses';
+import { getExpensesByMessageIds, updateExpenses } from './expenses';
 
 jest.mock('@lib-supabase/server', () => ({
   createSupabaseServerClient: jest.fn(),
@@ -10,6 +13,7 @@ jest.mock('@lib-supabase/server', () => ({
 
 jest.mock('@helpers/expenses/expense-fetch', () => ({
   fetchExpensesByMessageId: jest.fn(),
+  fetchExpensesByMessageIds: jest.fn(),
 }));
 
 jest.mock('@helpers/expenses/expense-update', () => ({
@@ -401,5 +405,120 @@ describe('updateExpenses action', () => {
         category: 'transportation',
       }),
     );
+  });
+});
+
+describe('updateExpenses action — message status', () => {
+  const createSupabaseServerClientMock = jest.mocked(
+    createSupabaseServerClient,
+  );
+  const updateExpenseRowsMock = jest.mocked(updateExpenseRows);
+  const fetchExpensesByMessageIdMock = jest.mocked(fetchExpensesByMessageId);
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("keeps needs_category while another line still has the 'uncategorized' default", async () => {
+    const supabase = createSupabaseMock();
+    createSupabaseServerClientMock.mockResolvedValue(supabase as never);
+    updateExpenseRowsMock.mockResolvedValue({ updatedIds: ['expense-1'] });
+    const line = {
+      household_id: null,
+      user_id: 'user-1',
+      chat_message_id: 'message-1',
+      amount_cents: 1000,
+      currency: 'USD',
+      expense_date: '2026-03-20',
+      merchant: null,
+      note: null,
+      created_at: '2026-03-20T10:00:00.000Z',
+      tags: [],
+    };
+    fetchExpensesByMessageIdMock.mockResolvedValue([
+      { ...line, id: 'expense-1', category: 'gifts' },
+      { ...line, id: 'expense-2', category: 'uncategorized' },
+    ]);
+
+    await updateExpenses({
+      updates: [
+        {
+          id: 'expense-1',
+          amount: '10',
+          expense_date: '2026-03-20',
+          category: 'gifts',
+          merchant: null,
+          currency: 'USD',
+        },
+      ],
+      messageId: 'message-1',
+    });
+
+    expect(supabase.chatMessagesBuilder.update).toHaveBeenCalledWith({
+      status: 'needs_category',
+    });
+  });
+});
+
+describe('getExpensesByMessageIds action', () => {
+  const createSupabaseServerClientMock = jest.mocked(
+    createSupabaseServerClient,
+  );
+  const fetchExpensesByMessageIdsMock = jest.mocked(fetchExpensesByMessageIds);
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('dedupes ids, caps the batch at 100 and returns lines per message', async () => {
+    const supabase = createSupabaseMock();
+    createSupabaseServerClientMock.mockResolvedValue(supabase as never);
+    fetchExpensesByMessageIdsMock.mockResolvedValue({
+      expensesByMessageId: { 'm-0': [] },
+      failed: false,
+    });
+
+    const ids = [
+      'm-0',
+      'm-0',
+      ' ',
+      ...Array.from({ length: 120 }, (_, i) => `m-${i}`),
+    ];
+    const result = await getExpensesByMessageIds({ messageIds: ids });
+
+    const requested = fetchExpensesByMessageIdsMock.mock.calls[0][0].messageIds;
+    expect(requested).toHaveLength(100);
+    expect(new Set(requested).size).toBe(100);
+    expect(result).toEqual({ expensesByMessageId: { 'm-0': [] } });
+  });
+
+  it('requires a signed-in user', async () => {
+    const supabase = createSupabaseMock();
+    supabase.auth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: null,
+    } as never);
+    createSupabaseServerClientMock.mockResolvedValue(supabase as never);
+
+    await expect(
+      getExpensesByMessageIds({ messageIds: ['m-1'] }),
+    ).resolves.toEqual({ expensesByMessageId: {}, errorCode: 'auth_required' });
+    expect(fetchExpensesByMessageIdsMock).not.toHaveBeenCalled();
+  });
+
+  it('reports a failed lookup instead of empty lines', async () => {
+    const supabase = createSupabaseMock();
+    createSupabaseServerClientMock.mockResolvedValue(supabase as never);
+    fetchExpensesByMessageIdsMock.mockResolvedValue({
+      expensesByMessageId: {},
+      failed: true,
+    });
+
+    await expect(
+      getExpensesByMessageIds({ messageIds: ['m-1'] }),
+    ).resolves.toEqual({
+      expensesByMessageId: {},
+      errorCode: 'expenses_fetch_failed',
+    });
   });
 });

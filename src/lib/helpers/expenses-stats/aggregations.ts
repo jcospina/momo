@@ -1,3 +1,4 @@
+import { humanizeCategorySlug } from '@constants/expenses/categories';
 import type { MonthlyByCategoryUserRow } from '@lib-types/expense-stats';
 
 export type CategoryTotal = {
@@ -20,18 +21,27 @@ export type UserTooltipEntry = {
   totalCents: number;
 };
 
+export type UserTotalItem = {
+  /** Stable member key: the author's id, or their name for legacy rows. */
+  key: string;
+  user_label: string;
+  totalCents: number;
+  /** The member's fixed colour slot, when known. */
+  color_slot: number | null;
+};
+
 export type CategoryUserWindowData = {
   categoryItems: CategoryTotal[];
+  /** Keyed by category slug. */
   categoryTooltip: Record<string, CategoryTooltipEntry[]>;
-  userTotalsItems: Array<{ user_label: string; totalCents: number }>;
+  userTotalsItems: UserTotalItem[];
+  /** Keyed by `UserTotalItem.key`; entries carry category slugs. */
   userTooltip: Record<string, UserTooltipEntry[]>;
 };
 
+/** English title case for a slug. UI code should use `useCategoryLabel`. */
 export function formatCategoryLabel(category: string) {
-  return category
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  return humanizeCategorySlug(category);
 }
 
 export function toFirstName(label: string) {
@@ -80,38 +90,42 @@ export function buildCategoryUserWindowData(
   const filteredRows = rows.filter(row => monthSet.has(row.month));
 
   const categoryTotals = new Map<string, number>();
-  const userTotals = new Map<string, number>();
+  const userTotals = new Map<string, UserTotalItem>();
   const categoryTooltipMap = new Map<string, Map<string, number>>();
   const userTooltipMap = new Map<string, Map<string, number>>();
 
   filteredRows.forEach(row => {
     const category = row.category ?? 'uncategorized';
-    const categoryLabel = formatCategoryLabel(category);
     const userLabel = toFirstName(row.user_label ?? 'Unknown');
+    // Members are told apart by id so two people sharing a first name never
+    // merge; rows from before ids were exposed fall back to the name.
+    const userKey = row.user_id ?? userLabel;
 
     categoryTotals.set(
       category,
       (categoryTotals.get(category) ?? 0) + row.total_cents,
     );
-    userTotals.set(
-      userLabel,
-      (userTotals.get(userLabel) ?? 0) + row.total_cents,
-    );
+    const userTotal = userTotals.get(userKey) ?? {
+      key: userKey,
+      user_label: userLabel,
+      totalCents: 0,
+      color_slot: row.color_slot ?? null,
+    };
+    userTotal.totalCents += row.total_cents;
+    userTotal.color_slot ??= row.color_slot ?? null;
+    userTotals.set(userKey, userTotal);
 
     const categoryMap =
-      categoryTooltipMap.get(categoryLabel) ?? new Map<string, number>();
+      categoryTooltipMap.get(category) ?? new Map<string, number>();
     categoryMap.set(
       userLabel,
       (categoryMap.get(userLabel) ?? 0) + row.total_cents,
     );
-    categoryTooltipMap.set(categoryLabel, categoryMap);
+    categoryTooltipMap.set(category, categoryMap);
 
-    const userMap = userTooltipMap.get(userLabel) ?? new Map<string, number>();
-    userMap.set(
-      categoryLabel,
-      (userMap.get(categoryLabel) ?? 0) + row.total_cents,
-    );
-    userTooltipMap.set(userLabel, userMap);
+    const userMap = userTooltipMap.get(userKey) ?? new Map<string, number>();
+    userMap.set(category, (userMap.get(category) ?? 0) + row.total_cents);
+    userTooltipMap.set(userKey, userMap);
   });
 
   const categoryItems = Array.from(categoryTotals.entries()).map(
@@ -131,9 +145,9 @@ export function buildCategoryUserWindowData(
     ]),
   );
 
-  const userTotalsItems = Array.from(userTotals.entries())
-    .map(([user_label, totalCents]) => ({ user_label, totalCents }))
-    .filter(item => item.totalCents > 0);
+  const userTotalsItems = Array.from(userTotals.values()).filter(
+    item => item.totalCents > 0,
+  );
 
   const userTooltip = Object.fromEntries(
     Array.from(userTooltipMap.entries()).map(([label, categoryMap]) => [

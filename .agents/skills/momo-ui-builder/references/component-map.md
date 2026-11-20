@@ -23,6 +23,7 @@ Use this file to choose which component reference to load.
 - `select.md`: generic typed select powered by Base UI
 - `checkbox.md`: native checkbox with indeterminate support
 - `toggle-group.md`: single or multi toggle chips
+- `chip.md`: one-tap quick choice with an optional colour dot
 
 ## Actions and Overlays
 

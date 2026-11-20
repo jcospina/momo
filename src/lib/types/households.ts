@@ -14,6 +14,10 @@ export type HouseholdMemberProfile = {
   role: string;
   display_name: string | null;
   email: string | null;
+  /** Present once the member colour slots migration is applied. */
+  user_id?: string;
+  /** Fixed colour slot (1–5) the member keeps while in the household. */
+  color_slot?: number | null;
 };
 
 export type CreateHouseholdState = {

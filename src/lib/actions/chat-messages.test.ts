@@ -1,4 +1,5 @@
 import { processChatMessage } from '@helpers/chat/chat-processor';
+import { fetchExpensesByMessageId } from '@helpers/expenses/expense-fetch';
 import { isAiEnabled } from '@helpers/user-prefs';
 import { createSupabaseServerClient } from '@lib-supabase/server';
 import { sendChatMessage } from './chat-messages';
@@ -17,6 +18,10 @@ jest.mock('@helpers/chat/chat-processor', () => ({
 
 jest.mock('@helpers/user-prefs', () => ({
   isAiEnabled: jest.fn(),
+}));
+
+jest.mock('@helpers/expenses/expense-fetch', () => ({
+  fetchExpensesByMessageId: jest.fn().mockResolvedValue([]),
 }));
 
 type SendChatRow = Record<string, unknown>;
@@ -214,7 +219,7 @@ describe('sendChatMessage action', () => {
     ]);
     expect(processChatMessageMock).toHaveBeenCalledTimes(1);
     expect(processChatMessageMock).toHaveBeenCalledWith(inserted);
-    expect(result).toEqual({ message: updated });
+    expect(result).toEqual({ message: updated, expenses: [] });
   });
 
   it('runs the expense pipeline and re-fetches when content is untagged', async () => {
@@ -253,7 +258,12 @@ describe('sendChatMessage action', () => {
     expect(processChatMessageMock).toHaveBeenCalledWith(inserted);
     expect(supabase.selectFn).toHaveBeenCalled();
     expect(supabase.refetchEq).toHaveBeenCalledWith('id', 'msg-3');
-    expect(result).toEqual({ message: updated });
+    // The processed message's lines come back so the ticket renders at once.
+    expect(jest.mocked(fetchExpensesByMessageId)).toHaveBeenCalledWith({
+      supabase: supabase.client,
+      messageId: 'msg-3',
+    });
+    expect(result).toEqual({ message: updated, expenses: [] });
   });
 
   it('marks the row failed and returns the inserted row when processing throws on the untagged path', async () => {
@@ -282,6 +292,6 @@ describe('sendChatMessage action', () => {
     expect(supabase.updateCalls).toEqual([
       { payload: { status: 'failed' }, id: 'msg-4' },
     ]);
-    expect(result).toEqual({ message: inserted });
+    expect(result).toEqual({ message: inserted, expenses: [] });
   });
 });

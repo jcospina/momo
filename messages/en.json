@@ -56,6 +56,42 @@
     "auth_demo_not_configured": "Demo mode isn't set up on this server. No quick tour today, sorry."
   },
   "chat": {
+    "days": {
+      "today": "Today",
+      "yesterday": "Yesterday"
+    },
+    "tickets": {
+      "adding": "Adding it…",
+      "addingAria": "Adding “{content}”",
+      "unsent": "Didn’t send",
+      "unsentHint": "Check your connection and",
+      "tryAgain": "Try again",
+      "oops": "Couldn’t read that one",
+      "oopsHint": "Add the amount yourself?",
+      "fixIt": "Fix it",
+      "whichCategory": "Which category?",
+      "whichCategoryFor": "Which category is “{descriptor}”?",
+      "noCategoryYet": "No category yet",
+      "things": "{count, plural, one {# thing} other {# things}}",
+      "together": "Together",
+      "more": "More…",
+      "pickFailed": "Couldn’t save that category. Try again?",
+      "askedMomo": "Asked MoMo",
+      "loadingEarlier": "Loading earlier tickets",
+      "beginning": "That’s the very beginning"
+    },
+    "composer": {
+      "placeholder": "What did you spend?",
+      "ariaLabel": "Add an expense or ask @momo",
+      "send": "Send",
+      "hint": "Try “lunch 12.50”, or ask @momo anything.",
+      "hintNoAi": "Try “lunch 12.50” or “groceries 82.40, wine 18”.",
+      "hintMomo": "MoMo will answer this"
+    },
+    "empty": {
+      "title": "Nothing here yet",
+      "body": "Tell MoMo what you spent by simply tiping amount and short note"
+    },
     "tabs": {
       "personal": "Personal",
       "household": "Household"
@@ -91,6 +127,32 @@
     }
   },
   "expenses": {
+    "categories": {
+      "housing": "Housing",
+      "utilities": "Utilities",
+      "groceries": "Groceries",
+      "dining": "Dining",
+      "transportation": "Transport",
+      "vehicle": "Vehicle",
+      "health": "Health",
+      "self_care": "Self care",
+      "education": "Education",
+      "kids": "Kids",
+      "shopping": "Shopping",
+      "entertainment": "Entertainment",
+      "subscriptions": "Subscriptions",
+      "travel": "Travel",
+      "gifts": "Gifts",
+      "fees": "Fees",
+      "income": "Income",
+      "transfer": "Transfers",
+      "pets": "Pets",
+      "debt": "Debt",
+      "fun": "Fun",
+      "treats": "Treats",
+      "uncategorized": "Uncategorized",
+      "others": "Others"
+    },
     "detail": {
       "title": "Expense details",
       "loading": "Loading expenses...",

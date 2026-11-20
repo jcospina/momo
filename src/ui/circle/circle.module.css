@@ -6,6 +6,7 @@
   border-radius: 50%;
   color: var(--color-dark);
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   font-weight: 900;

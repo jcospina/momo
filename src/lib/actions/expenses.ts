@@ -1,9 +1,13 @@
 'use server';
 
 import { AMOUNT_REGEX, MULTIPLIERS } from '@constants/expenses/amounts';
+import { isExpenseCategory } from '@constants/expenses/categories';
 import { upsertCategoryRule } from '@helpers/expenses/category-rules';
 import { buildCategoryKey } from '@helpers/expenses/expense-category';
-import { fetchExpensesByMessageId } from '@helpers/expenses/expense-fetch';
+import {
+  fetchExpensesByMessageId,
+  fetchExpensesByMessageIds,
+} from '@helpers/expenses/expense-fetch';
 import { updateExpenses as updateExpenseRows } from '@helpers/expenses/expense-update';
 import { createSupabaseServerClient } from '@lib-supabase/server';
 import {
@@ -60,6 +64,52 @@ export async function getExpensesByMessageId({
   });
 
   return { expenses };
+}
+
+/** One request covers at most this many messages; callers chunk above it. */
+const MAX_EXPENSE_BATCH = 100;
+
+type GetExpensesByMessageIdsInput = {
+  messageIds: string[];
+};
+
+type GetExpensesByMessageIdsResult = {
+  /** Every requested id is present, with `[]` when it has no lines. */
+  expensesByMessageId: Record<string, ExpenseRecord[]>;
+  errorCode?: 'auth_required' | 'expenses_fetch_failed';
+};
+
+export async function getExpensesByMessageIds({
+  messageIds,
+}: GetExpensesByMessageIdsInput): Promise<GetExpensesByMessageIdsResult> {
+  const ids = [
+    ...new Set(
+      (messageIds ?? [])
+        .map(id => id?.trim())
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ].slice(0, MAX_EXPENSE_BATCH);
+  if (ids.length === 0) {
+    return { expensesByMessageId: {} };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { expensesByMessageId: {}, errorCode: 'auth_required' };
+  }
+
+  const { expensesByMessageId, failed } = await fetchExpensesByMessageIds({
+    supabase,
+    messageIds: ids,
+  });
+  return failed
+    ? { expensesByMessageId: {}, errorCode: 'expenses_fetch_failed' }
+    : { expensesByMessageId };
 }
 
 type UpdateExpensesInput = {
@@ -291,7 +341,11 @@ async function syncMessageStatusAfterExpenseUpdate({
     supabase,
     messageId: trimmedMessageId,
   });
-  const needsCategory = expenses.some(expense => !expense.category);
+  // The DB default 'uncategorized' (and any unknown slug) still needs a
+  // category; only a known category counts as filed.
+  const needsCategory = expenses.some(
+    expense => !isExpenseCategory(expense.category),
+  );
   const nextStatus = needsCategory ? 'needs_category' : 'processed';
   await supabase
     .from('chat_messages')

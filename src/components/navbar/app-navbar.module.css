@@ -231,6 +231,15 @@
 }
 
 @media (max-width: 720px) {
+  .momo-app-navbar {
+    --momo-navbar-padding-block: var(--space-1);
+  }
+
+  /* Two classes so this beats the Logo's own size class. */
+  .momo-app-navbar .momo-app-navbar__logo {
+    font-size: 2rem;
+  }
+
   .momo-app-navbar__link,
   .momo-app-navbar__link-active {
     font-size: var(--type-sm);

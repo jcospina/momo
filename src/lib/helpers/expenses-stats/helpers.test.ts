@@ -139,7 +139,7 @@ describe('expense-stats helpers', () => {
       expect(result[1].categories).toEqual([]);
     });
 
-    it('builds window data with formatted tooltips', () => {
+    it('keys tooltips by category slug and member', () => {
       const rows = [
         {
           household_id: 'household-1',
@@ -161,12 +161,45 @@ describe('expense-stats helpers', () => {
       expect(result.categoryItems).toEqual([
         { category: 'food_delivery', totalCents: 300 },
       ]);
-      expect(result.categoryTooltip['Food Delivery']).toEqual([
+      expect(result.categoryTooltip.food_delivery).toEqual([
         { label: 'bob', totalCents: 200 },
         { label: 'Ada', totalCents: 100 },
       ]);
-      expect(result.userTooltip['Ada']).toEqual([
-        { category: 'Food Delivery', totalCents: 100 },
+      // Legacy rows without ids fall back to the first name as the key.
+      expect(result.userTooltip.Ada).toEqual([
+        { category: 'food_delivery', totalCents: 100 },
+      ]);
+    });
+
+    it('keeps members apart by id and carries their colour slot', () => {
+      const rows = [
+        {
+          household_id: 'household-1',
+          month: '2024-01',
+          category: 'dining',
+          user_label: 'Sam Smith',
+          total_cents: 100,
+          user_id: 'u-1',
+          color_slot: 1,
+        },
+        {
+          household_id: 'household-1',
+          month: '2024-01',
+          category: 'dining',
+          user_label: 'Sam Jones',
+          total_cents: 300,
+          user_id: 'u-2',
+          color_slot: 2,
+        },
+      ];
+
+      const result = buildCategoryUserWindowData(rows, ['2024-01']);
+      expect(result.userTotalsItems).toEqual([
+        { key: 'u-1', user_label: 'Sam', totalCents: 100, color_slot: 1 },
+        { key: 'u-2', user_label: 'Sam', totalCents: 300, color_slot: 2 },
+      ]);
+      expect(result.userTooltip['u-2']).toEqual([
+        { category: 'dining', totalCents: 300 },
       ]);
     });
 

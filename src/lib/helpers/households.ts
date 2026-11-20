@@ -87,6 +87,8 @@ export async function fetchHouseholdMembers(
     role: row.role ?? '',
     display_name: row.display_name ?? null,
     email: row.email ?? null,
+    user_id: row.user_id ?? undefined,
+    color_slot: row.color_slot ?? null,
   }));
 }
 

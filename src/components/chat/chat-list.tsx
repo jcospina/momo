@@ -2,7 +2,7 @@
 
 import { useChatScroll } from '@features/chat/hooks/use-chat-scroll';
 import type { ChatMessage } from '@lib-types/chat';
-import { Flex } from '@ui/flex/flex';
+import { cn } from '@utils/cn';
 import type { ReactNode } from 'react';
 import styles from './chat-list.module.css';
 
@@ -23,6 +23,8 @@ type ChatListProps = {
    * true for stand-alone usage.
    */
   isActive?: boolean;
+  /** Extra class for the row container (width, padding). */
+  innerClassName?: string;
 };
 
 export function ChatList({
@@ -33,6 +35,7 @@ export function ChatList({
   isLoadingMore = false,
   currentUserId,
   isActive = true,
+  innerClassName,
 }: ChatListProps) {
   const { scrollerRef, onScroll } = useChatScroll({
     messages,
@@ -53,12 +56,10 @@ export function ChatList({
         onScroll={onScroll}
         aria-busy={isLoadingMore}
       >
-        <div className={styles['chat-list-inner']}>
+        <div className={cn(styles['chat-list-inner'], innerClassName)}>
           {messages.map((msg, i) => (
             <div key={msg.id} className={styles['chat-item-slot']}>
-              <Flex marginBottom={1} isFullWidth>
-                {renderMessage(msg, messages[i - 1])}
-              </Flex>
+              {renderMessage(msg, messages[i - 1])}
             </div>
           ))}
         </div>

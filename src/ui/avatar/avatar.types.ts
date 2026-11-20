@@ -12,6 +12,13 @@ export type AvatarProps = {
   displayName: string | null;
   /** Fill colour from the MoMo palette. @default 'sky-aqua' */
   color?: MomoColor;
+  /**
+   * Any CSS colour (e.g. `var(--member-2)`) — overrides `color`. Use for
+   * identity colours that live outside the six palette tokens.
+   */
+  fill?: string;
+  /** Text colour for the initial when `fill` is set (e.g. `var(--member-2-ink)`). */
+  ink?: string;
   /** When provided, the avatar becomes clickable. */
   onClick?: () => void;
   /** Optional content rendered inside the circle in place of the initial (e.g. brand logo, icon). */

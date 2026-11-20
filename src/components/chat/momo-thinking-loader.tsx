@@ -43,6 +43,11 @@ export function MomoThinkingLoader({ className }: MomoThinkingLoaderProps) {
       aria-label={tChat('momo.thinkingAriaLabel')}
       className={cn(styles['momo-thinking-loader'], className)}
     >
+      <span className={styles['momo-thinking-loader__dots']} aria-hidden>
+        <span />
+        <span />
+        <span />
+      </span>
       <span className={styles['momo-thinking-loader__copy-slot']}>
         <Typography
           as="span"
