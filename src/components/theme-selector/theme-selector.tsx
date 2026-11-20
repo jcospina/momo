@@ -4,25 +4,8 @@ import { useTheme } from '@providers/theme-provider';
 import { Menu } from '@ui/menu/menu';
 import { cn } from '@utils/cn';
 import { useTranslations } from 'next-intl';
-import type { ThemeDefinition } from '@/lib/theme/themes';
 import styles from './theme-selector.module.css';
-
-function Swatches({ swatches }: { swatches: ThemeDefinition['swatches'] }) {
-  return (
-    <span
-      className={styles['momo-theme-selector__swatches']}
-      aria-hidden="true"
-    >
-      {swatches.map((color, i) => (
-        <span
-          key={`${color}-${i}`}
-          className={styles['momo-theme-selector__swatch']}
-          style={{ background: color }}
-        />
-      ))}
-    </span>
-  );
-}
+import { ThemeSwatches } from './theme-swatches';
 
 export function ThemeSelector() {
   const { theme, setTheme, themes } = useTheme();
@@ -38,7 +21,7 @@ export function ThemeSelector() {
           item.name === theme && styles['momo-theme-selector__active'],
         )}
       >
-        <Swatches swatches={item.swatches} />
+        <ThemeSwatches swatches={item.swatches} />
         {item.label}
       </span>
     ),
@@ -52,7 +35,7 @@ export function ThemeSelector() {
         className={styles['momo-theme-selector__trigger']}
         aria-label={t('select_label')}
       >
-        <Swatches swatches={active.swatches} />
+        <ThemeSwatches swatches={active.swatches} />
         <span className={styles['momo-theme-selector__label']}>
           {active.label}
         </span>

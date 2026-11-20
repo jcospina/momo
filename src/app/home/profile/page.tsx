@@ -23,8 +23,8 @@ import { CurrencySelect } from './currency-select';
 import { InviteLink } from './invite-link';
 import { LanguageSelect } from './language-select';
 import { MemberList } from './member-list';
-
 import styles from './profile.module.css';
+import { ThemeSelect } from './theme-select';
 
 function buildShareUrl(token: string) {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? '';
@@ -127,6 +127,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           </Typography>
           <CurrencySelect value={prefs?.currency ?? null} />
           <LanguageSelect value={prefs?.language ?? null} />
+          <ThemeSelect />
         </Flex>
         <Divider />
         <Flex padding={3} direction="column" gap={2}>
