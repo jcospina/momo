@@ -4,7 +4,7 @@
     {
       "name": "momo-dev",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["dev:app", "--port", "3050"],
+      "runtimeArgs": ["exec", "next", "dev", "--port", "3050"],
       "port": 3050
     }
   ]

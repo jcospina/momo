@@ -67,7 +67,6 @@ export function ChatPanel({
           isLoadingMore={panel.isLoadingMore}
           onLoadMore={panel.loadOlder}
           currentUserId={userId}
-          pendingStreams={panel.pendingStreams}
           isActive={isActive}
           renderMessage={(msg, prevMsg) => {
             const msgDate = new Date(msg.created_at);

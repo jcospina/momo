@@ -1,10 +1,9 @@
 'use client';
 
-import { useChatVirtual } from '@features/chat/hooks/use-chat-virtual';
-import type { MomoStreamState } from '@hooks/use-momo-stream';
+import { useChatScroll } from '@features/chat/hooks/use-chat-scroll';
 import type { ChatMessage } from '@lib-types/chat';
 import { Flex } from '@ui/flex/flex';
-import { type ReactNode, useLayoutEffect, useRef } from 'react';
+import type { ReactNode } from 'react';
 import styles from './chat-list.module.css';
 
 type ChatListProps = {
@@ -18,41 +17,13 @@ type ChatListProps = {
   isLoadingMore?: boolean;
   currentUserId?: string;
   /**
-   * In-flight @momo streams. Passed through to `useChatVirtual` so the
-   * autoscroll can react when the loader mounts or the streaming bubble
-   * grows. Optional — falsy / empty map disables stream-driven scrolling.
-   */
-  pendingStreams?: ReadonlyMap<string, MomoStreamState>;
-  /**
    * Whether the enclosing panel is the active tab. Required when sibling
    * panels are mounted in parallel and toggled with `display: none`, so the
-   * hook can re-snap to the bottom on tab activation. Defaults to true for
-   * stand-alone usage.
+   * list can jump back to the latest message on tab activation. Defaults to
+   * true for stand-alone usage.
    */
   isActive?: boolean;
 };
-
-function ChatItemSlot({
-  messageId,
-  onMeasured,
-  children,
-}: {
-  messageId: string;
-  onMeasured: (id: string, height: number) => void;
-  children: ReactNode;
-}) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  useLayoutEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-    onMeasured(messageId, node.offsetHeight);
-  }, [messageId, onMeasured]);
-  return (
-    <div ref={ref} className={styles['chat-item-slot']}>
-      {children}
-    </div>
-  );
-}
 
 export function ChatList({
   messages,
@@ -61,37 +32,34 @@ export function ChatList({
   hasMore = false,
   isLoadingMore = false,
   currentUserId,
-  pendingStreams,
   isActive = true,
 }: ChatListProps) {
-  const { scrollerRef, recordHeight, onScroll } = useChatVirtual({
+  const { scrollerRef, onScroll } = useChatScroll({
     messages,
     currentUserId,
     hasMore,
     isLoadingMore,
     onLoadMore,
-    pendingStreams,
     isActive,
   });
 
+  // The rows must stay the only children of `.chat-list-inner`: the scroll
+  // helper treats that element's children as the rows it keeps in place.
   return (
     <div className={styles['chat-list-shell']}>
-      <div ref={scrollerRef} className={styles.scroller} onScroll={onScroll}>
+      <div
+        ref={scrollerRef}
+        className={styles.scroller}
+        onScroll={onScroll}
+        aria-busy={isLoadingMore}
+      >
         <div className={styles['chat-list-inner']}>
-          <div
-            className={styles['chat-history-loader']}
-            aria-hidden={!isLoadingMore}
-          />
           {messages.map((msg, i) => (
-            <ChatItemSlot
-              key={msg.id}
-              messageId={msg.id}
-              onMeasured={recordHeight}
-            >
+            <div key={msg.id} className={styles['chat-item-slot']}>
               <Flex marginBottom={1} isFullWidth>
                 {renderMessage(msg, messages[i - 1])}
               </Flex>
-            </ChatItemSlot>
+            </div>
           ))}
         </div>
       </div>
