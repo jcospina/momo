@@ -80,28 +80,28 @@ function makeFakeChannel(): FakeChannel {
   return channel;
 }
 
-const mockCreateClient = jest.fn(
-  (url?: string, key?: string, opts?: unknown) => {
-    void url;
-    void key;
-    void opts;
-    const channelInstance = makeFakeChannel();
-    const channelMock = jest.fn<FakeChannel, [string]>(
-      () => channelInstance,
-    ) as jest.MockedFunction<(topic: string) => FakeChannel>;
-    const client: FakeClient = {
-      realtime: {
-        setAuth: jest.fn().mockResolvedValue(undefined),
-      },
-      removeAllChannels: jest.fn(),
-      removeChannel: jest.fn(),
-      channel: channelMock,
-      channelInstance,
-    };
-    createdClients.push(client);
-    return client;
-  },
-);
+function createFakeClient(): FakeClient {
+  const channelInstance = makeFakeChannel();
+  const channelMock = jest.fn<FakeChannel, [string]>(
+    () => channelInstance,
+  ) as jest.MockedFunction<(topic: string) => FakeChannel>;
+  const client: FakeClient = {
+    realtime: {
+      setAuth: jest.fn().mockResolvedValue(undefined),
+    },
+    removeAllChannels: jest.fn(),
+    removeChannel: jest.fn(),
+    channel: channelMock,
+    channelInstance,
+  };
+  createdClients.push(client);
+  return client;
+}
+
+const mockCreateClient = jest.fn<
+  FakeClient,
+  [url?: string, key?: string, opts?: unknown]
+>();
 
 jest.mock('@supabase/supabase-js', () => ({
   createClient: (...args: Parameters<typeof mockCreateClient>) =>
@@ -113,6 +113,8 @@ describe('useHouseholdRealtime', () => {
     jest.useFakeTimers();
     createdClients.length = 0;
     mockCreateClient.mockClear();
+    // afterEach's resetAllMocks() drops implementations, so reinstall it.
+    mockCreateClient.mockImplementation(createFakeClient);
     const fakeResponse: Response = {
       ok: true,
       json: async () => ({ access_token: 'token', expires_in: 3600 }),
@@ -213,5 +215,68 @@ describe('useHouseholdRealtime', () => {
     );
     expect(onStatus).toHaveBeenCalledWith('SUBSCRIBED');
     expect(createdClients[0].removeAllChannels).toHaveBeenCalled();
+  });
+
+  it('resubscribes on the shared client every time the panel is reactivated', async () => {
+    const onMessage = jest.fn();
+
+    const { rerender } = renderHook(
+      ({ isHousehold }: { isHousehold: boolean }) =>
+        useHouseholdRealtime({
+          householdId: 'hid',
+          isHousehold,
+          onMessage,
+        }),
+      {
+        initialProps: { isHousehold: true },
+        wrapper({ children }) {
+          return <RealtimeClientProvider>{children}</RealtimeClientProvider>;
+        },
+      },
+    );
+
+    await waitFor(() => expect(createdClients.length).toBe(1));
+    const client = createdClients[0];
+    const channel = client.channelInstance;
+    expect(channel.subscribe).toHaveBeenCalledTimes(1);
+
+    // Household -> personal -> household, several times (ChatToggle).
+    for (let toggle = 1; toggle <= 3; toggle += 1) {
+      rerender({ isHousehold: false });
+      expect(client.removeChannel).toHaveBeenCalledTimes(toggle);
+
+      rerender({ isHousehold: true });
+      expect(client.channel).toHaveBeenLastCalledWith('chat:household:hid');
+      expect(channel.subscribe).toHaveBeenCalledTimes(toggle + 1);
+    }
+
+    // Same shared client throughout: deactivation only drops the channel.
+    expect(createdClients).toHaveLength(1);
+    expect(client.removeAllChannels).not.toHaveBeenCalled();
+
+    act(() => {
+      channel.triggerStatus('SUBSCRIBED');
+    });
+    act(() => {
+      channel.triggerInsert({
+        id: 'm-after-toggles',
+        household_id: 'hid',
+        user_id: 'u2',
+        content: 'after toggles',
+        status: 'pending',
+        expense_count: 0,
+        created_at: new Date().toISOString(),
+        sender_name: null,
+        author_kind: 'user',
+        momo_source: null,
+        momo_invocation_tagged: false,
+        idempotency_key: null,
+      });
+    });
+
+    expect(onMessage).toHaveBeenCalledTimes(1);
+    expect(onMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'm-after-toggles' }),
+    );
   });
 });
