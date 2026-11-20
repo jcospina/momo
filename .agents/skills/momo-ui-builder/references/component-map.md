@@ -24,6 +24,7 @@ Use this file to choose which component reference to load.
 - `checkbox.md`: native checkbox with indeterminate support
 - `toggle-group.md`: single or multi toggle chips
 - `chip.md`: one-tap quick choice with an optional colour dot
+- `sticker.md`: tactile label for nav words and short calls to action
 
 ## Actions and Overlays
 

@@ -78,6 +78,14 @@
   --duration-slow: 200ms;
   --duration-toggle: 300ms;
 
+  /* Sticker motion: things peel up on hover and spring back when placed.
+     The spring curve overshoots, so a pressed sticker lands with a bounce. */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-spring: 240ms;
+  --duration-place: 420ms;
+  --tilt-peel: -3deg;
+  --tilt-placed: -1.5deg;
+
   /* ─── Semantic surface roles ────────────────────────────────────── */
   --bg-page: var(--color-sunbeam-yellow);
   --bg-panel: var(--color-light);

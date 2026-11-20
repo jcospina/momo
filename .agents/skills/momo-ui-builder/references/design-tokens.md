@@ -44,4 +44,7 @@ Use token variables only:
 ## Motion
 
 - Most controls use short translate/shadow transitions.
+- Sticker motion (`Sticker`, `ToggleGroup`, navbar menu): `--ease-spring`
+  with `--duration-spring`; hover peels to `--tilt-peel`, the selected one
+  rests at `--tilt-placed`.
 - Keep `prefers-reduced-motion` behavior when adding animations.

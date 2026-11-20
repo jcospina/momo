@@ -3,319 +3,229 @@
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import { useMediaQuery } from '@hooks/use-media-query';
 import { useNavigationProgress } from '@providers/navigation-progress-provider';
-import { Highlight } from '@ui/highlight/highlight';
+import { useProfile } from '@providers/profile-provider';
+import { Avatar } from '@ui/avatar/avatar';
 import { ChartIcon } from '@ui/icons/chart';
+import { CloseIcon } from '@ui/icons/close';
+import { MenuIcon } from '@ui/icons/menu';
 import { MessageIcon } from '@ui/icons/message';
 import { PersonIcon } from '@ui/icons/person';
 import { Logo } from '@ui/logo/logo';
 import { Navbar } from '@ui/navbar/navbar';
+import { Sticker } from '@ui/sticker/sticker';
+import { firstName } from '@utils/user';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { ComponentType, CSSProperties, MouseEvent, SVGProps } from 'react';
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useEffect, useState } from 'react';
 import styles from './app-navbar.module.css';
-import { MobileNavToggleIcon } from './mobile-nav-toggle-icon';
 
 const HOME = '/home';
 const STATS = '/home/stats';
 const PROFILE = '/home/profile';
 
-type NavLabelKey = 'home' | 'stats' | 'profile';
-
 type NavItem = {
   href: string;
-  labelKey: NavLabelKey;
+  labelKey: 'home' | 'stats' | 'profile';
+  blurbKey: 'homeBlurb' | 'statsBlurb' | 'profileBlurb';
   Icon: ComponentType<SVGProps<SVGSVGElement>>;
-  isActive: (pathname: string) => boolean;
 };
 
 const NAV_ITEMS: NavItem[] = [
-  {
-    href: HOME,
-    labelKey: 'home',
-    Icon: MessageIcon,
-    isActive: pathname => pathname === HOME,
-  },
-  {
-    href: STATS,
-    labelKey: 'stats',
-    Icon: ChartIcon,
-    isActive: pathname => pathname === STATS,
-  },
+  { href: HOME, labelKey: 'home', blurbKey: 'homeBlurb', Icon: MessageIcon },
+  { href: STATS, labelKey: 'stats', blurbKey: 'statsBlurb', Icon: ChartIcon },
   {
     href: PROFILE,
     labelKey: 'profile',
+    blurbKey: 'profileBlurb',
     Icon: PersonIcon,
-    isActive: pathname => pathname === PROFILE,
   },
 ];
+
+type PilePlacement = { tilt: string; shift: string };
+
+/* Hand-placed tilt and nudge per card, so the menu reads as a loose pile
+   of stickers rather than a list. Kept subtle so the labels stay easy to
+   read. */
+const CARD_PLACEMENTS: PilePlacement[] = [
+  { tilt: '-1deg', shift: '0px' },
+  { tilt: '0.8deg', shift: '14px' },
+  { tilt: '-0.5deg', shift: '6px' },
+];
+
+/* Your own badge sits straight under the pile. */
+const OWNER_PLACEMENT: PilePlacement = { tilt: '0deg', shift: '0px' };
+
+function pileStyle(index: number, placement: PilePlacement): CSSProperties {
+  return {
+    '--pile-index': index,
+    '--pile-tilt': placement.tilt,
+    '--pile-shift': placement.shift,
+  } as CSSProperties;
+}
 
 export function AppNavbar() {
   const t = useTranslations('nav');
   const pathname = usePathname();
-  const isMobile = useMediaQuery('(max-width: 720px)');
-  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  const profile = useProfile();
   const { navigate } = useNavigationProgress();
-  const navRef = useRef<HTMLElement | null>(null);
-  const previousPathnameRef = useRef(pathname);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [drawerTop, setDrawerTop] = useState(0);
-  const popupId = useId();
-  const triggerId = `${popupId}-trigger`;
+  const isDesktop = useMediaQuery('(min-width: 721px)');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const isHome = pathname === HOME;
-
-  const measureDrawerTop = useCallback(() => {
-    const nav = navRef.current;
-    if (!nav) return;
-    setDrawerTop(Math.max(nav.getBoundingClientRect().bottom, 0));
-  }, []);
-
-  useLayoutEffect(() => {
-    if (!isMobile || !isDrawerOpen) return;
-
-    const updateDrawerTop = () => {
-      measureDrawerTop();
-    };
-
-    updateDrawerTop();
-    window.addEventListener('resize', updateDrawerTop);
-
-    return () => {
-      window.removeEventListener('resize', updateDrawerTop);
-    };
-  }, [isDrawerOpen, isMobile, measureDrawerTop]);
-
+  // The menu only exists on phones; don't leave it open on a wide window.
   useEffect(() => {
-    if (!isMobile) {
-      setIsDrawerOpen(false);
-    }
-  }, [isMobile]);
+    if (isDesktop) setIsMenuOpen(false);
+  }, [isDesktop]);
 
-  useEffect(() => {
-    if (!isMobile || !isDrawerOpen) return;
-
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousDocumentOverflow = document.documentElement.style.overflow;
-
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-
-    return () => {
-      document.body.style.overflow = previousBodyOverflow;
-      document.documentElement.style.overflow = previousDocumentOverflow;
-    };
-  }, [isDrawerOpen, isMobile]);
-
-  useEffect(() => {
-    if (pathname !== previousPathnameRef.current) {
-      previousPathnameRef.current = pathname;
-      setIsDrawerOpen(false);
-    }
-  }, [pathname]);
-
-  const handleNavItemClick =
-    (href: string, active: boolean) => (event: MouseEvent) => {
-      event.preventDefault();
-
-      if (active) return;
-
-      if (isMobile) {
-        setIsDrawerOpen(false);
-      }
-      navigate(href);
-    };
-
-  const brand = <Logo size="md" className={styles['momo-app-navbar__logo']} />;
-  const logo = isHome ? (
-    brand
-  ) : (
-    <a
-      href={HOME}
-      onClick={handleNavItemClick(HOME, false)}
-      className={styles['momo-app-navbar__logo-link']}
-    >
-      {brand}
-    </a>
+  const fullName = profile?.display_name?.trim() || t('profile');
+  const shortName = firstName(
+    profile?.display_name ?? null,
+    profile?.email ?? null,
   );
+  const [chat, stats, profileItem] = NAV_ITEMS;
+  const currentItem = NAV_ITEMS.find(item => item.href === pathname) ?? chat;
 
-  const desktopLinks = (
+  const goTo = (href: string) => (event: MouseEvent) => {
+    event.preventDefault();
+    setIsMenuOpen(false);
+    if (href !== pathname) navigate(href);
+  };
+
+  const ariaCurrent = (href: string) =>
+    href === pathname ? ('page' as const) : undefined;
+
+  const brand = <Logo size="sm" className={styles['momo-app-navbar__logo']} />;
+  const logo =
+    pathname === HOME ? (
+      brand
+    ) : (
+      <a
+        href={HOME}
+        onClick={goTo(HOME)}
+        className={styles['momo-app-navbar__logo-link']}
+      >
+        {brand}
+      </a>
+    );
+
+  const links = (
     <>
-      {NAV_ITEMS.map(item => {
-        const label = t(item.labelKey);
-        const active = item.isActive(pathname);
-
-        if (active) {
-          return (
-            <Highlight
-              key={item.href}
-              as="a"
-              href={item.href}
-              onClick={handleNavItemClick(item.href, active)}
-              aria-current="page"
-              variant="feature"
-              rotation="none"
-              className={styles['momo-app-navbar__link-active']}
-            >
-              {label}
-            </Highlight>
-          );
-        }
-
-        return (
-          <a
+      <div className={styles['momo-app-navbar__stickers']}>
+        {[chat, stats].map(item => (
+          <Sticker
             key={item.href}
+            as="a"
             href={item.href}
-            onClick={handleNavItemClick(item.href, active)}
-            className={styles['momo-app-navbar__link']}
+            onClick={goTo(item.href)}
+            active={item.href === pathname}
+            aria-current={ariaCurrent(item.href)}
           >
-            {label}
-          </a>
-        );
-      })}
+            {t(item.labelKey)}
+          </Sticker>
+        ))}
+        <Sticker
+          as="a"
+          href={PROFILE}
+          onClick={goTo(PROFILE)}
+          active={pathname === PROFILE}
+          aria-current={ariaCurrent(PROFILE)}
+          shape="pill"
+          className={styles['momo-app-navbar__me']}
+        >
+          <Avatar size="extra-small" displayName={fullName} />
+          <span className={styles['momo-app-navbar__visually-hidden']}>
+            {t('profile')}:{' '}
+          </span>
+          {shortName}
+        </Sticker>
+      </div>
+
+      <BaseDialog.Trigger className={styles['momo-app-navbar__menu-trigger']}>
+        <span className={styles['momo-app-navbar__menu-here']}>
+          {t(currentItem.labelKey)}
+        </span>
+        <span className={styles['momo-app-navbar__menu-glyph']}>
+          <MenuIcon width={18} height={18} aria-hidden="true" />
+          <span className={styles['momo-app-navbar__visually-hidden']}>
+            {t('openMenu')}
+          </span>
+        </span>
+      </BaseDialog.Trigger>
     </>
   );
 
-  const drawerOffsetStyle = {
-    '--momo-app-navbar-drawer-top': `${drawerTop}px`,
-  } as CSSProperties;
-
-  const isStats = pathname === STATS;
-  const mobileShortcutHref = isStats ? HOME : STATS;
-  const MobileShortcutIcon = isStats ? MessageIcon : ChartIcon;
-
-  const mobileShortcut = (
-    <a
-      href={mobileShortcutHref}
-      onClick={handleNavItemClick(mobileShortcutHref, false)}
-      aria-label={isStats ? t('home') : t('stats')}
-      className={styles['momo-app-navbar__icon-link']}
-    >
-      <MobileShortcutIcon width={24} height={24} aria-hidden="true" />
-    </a>
-  );
-
-  const mobileMenuButton = (
-    <BaseDialog.Trigger
-      id={triggerId}
-      className={styles['momo-app-navbar__drawer-toggle']}
-      aria-label={isDrawerOpen ? t('closeMenu') : t('openMenu')}
-      render={props => (
-        <button {...props} type="button">
-          <MobileNavToggleIcon
-            open={isDrawerOpen}
-            reducedMotion={reducedMotion}
-          />
-        </button>
-      )}
-    />
-  );
-
-  if (!isMobile) {
-    return (
-      <Navbar
-        navRef={navRef}
-        className={styles['momo-app-navbar']}
-        logo={logo}
-        links={desktopLinks}
-      />
-    );
-  }
-
   return (
-    <BaseDialog.Root
-      open={isDrawerOpen}
-      onOpenChange={setIsDrawerOpen}
-      triggerId={triggerId}
-      modal={false}
-    >
-      <Navbar
-        navRef={navRef}
-        className={styles['momo-app-navbar']}
-        logo={logo}
-        links={
-          <>
-            {mobileShortcut}
-            {mobileMenuButton}
-          </>
-        }
-      />
-      <BaseDialog.Portal>
-        <BaseDialog.Backdrop
-          data-testid="app-navbar-drawer-backdrop"
-          className={styles['momo-app-navbar__drawer-backdrop']}
-          style={drawerOffsetStyle}
-          data-reduced-motion={reducedMotion ? '' : undefined}
-        />
-        <BaseDialog.Viewport
-          className={styles['momo-app-navbar__drawer-viewport']}
-          style={drawerOffsetStyle}
-        >
-          <BaseDialog.Popup
-            id={popupId}
-            aria-label={t('navigation')}
-            className={styles['momo-app-navbar__drawer']}
-            data-reduced-motion={reducedMotion ? '' : undefined}
-          >
-            <BaseDialog.Title
-              className={styles['momo-app-navbar__drawer-title']}
-            >
-              {t('navigation')}
-            </BaseDialog.Title>
-            <ul className={styles['momo-app-navbar__drawer-list']}>
-              {NAV_ITEMS.map(item => {
-                const label = t(item.labelKey);
-                const active = item.isActive(pathname);
-                const icon = (
-                  <item.Icon
-                    width={20}
-                    height={20}
-                    aria-hidden="true"
-                    className={styles['momo-app-navbar__drawer-icon']}
-                  />
-                );
+    <BaseDialog.Root open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+      <Navbar className={styles['momo-app-navbar']} logo={logo} links={links} />
 
-                return (
-                  <li
-                    key={item.href}
-                    className={styles['momo-app-navbar__drawer-item']}
-                  >
-                    {active ? (
-                      <Highlight
-                        as="span"
-                        variant="feature"
-                        rotation="none"
-                        className={
-                          styles['momo-app-navbar__drawer-link-active']
-                        }
-                        aria-current="page"
-                      >
-                        {icon}
-                        <span>{label}</span>
-                      </Highlight>
-                    ) : (
-                      <a
-                        href={item.href}
-                        onClick={handleNavItemClick(item.href, active)}
-                        className={styles['momo-app-navbar__drawer-link']}
-                      >
-                        {icon}
-                        <span>{label}</span>
-                      </a>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </BaseDialog.Popup>
-        </BaseDialog.Viewport>
+      <BaseDialog.Portal>
+        <BaseDialog.Popup className={styles['momo-app-navbar__menu']}>
+          <BaseDialog.Title
+            className={styles['momo-app-navbar__visually-hidden']}
+          >
+            {t('navigation')}
+          </BaseDialog.Title>
+
+          <header className={styles['momo-app-navbar__menu-head']}>
+            <Logo size="sm" className={styles['momo-app-navbar__logo']} />
+            <BaseDialog.Close
+              className={styles['momo-app-navbar__menu-close']}
+              aria-label={t('closeMenu')}
+            >
+              <CloseIcon width={22} height={22} aria-hidden="true" />
+            </BaseDialog.Close>
+          </header>
+
+          <ul className={styles['momo-app-navbar__pile']}>
+            {NAV_ITEMS.map((item, index) => (
+              <li
+                key={item.href}
+                style={pileStyle(index, CARD_PLACEMENTS[index])}
+                className={styles['momo-app-navbar__pile-item']}
+              >
+                <a
+                  href={item.href}
+                  onClick={goTo(item.href)}
+                  aria-current={ariaCurrent(item.href)}
+                  data-active={item.href === pathname ? '' : undefined}
+                  className={styles['momo-app-navbar__card']}
+                >
+                  <span className={styles['momo-app-navbar__card-icon']}>
+                    <item.Icon width={26} height={26} aria-hidden="true" />
+                  </span>
+                  <span className={styles['momo-app-navbar__card-text']}>
+                    <span className={styles['momo-app-navbar__card-label']}>
+                      {t(item.labelKey)}
+                    </span>
+                    <span className={styles['momo-app-navbar__card-blurb']}>
+                      {t(item.blurbKey)}
+                    </span>
+                  </span>
+                </a>
+              </li>
+            ))}
+            <li
+              style={pileStyle(NAV_ITEMS.length, OWNER_PLACEMENT)}
+              className={styles['momo-app-navbar__pile-item']}
+            >
+              <a
+                href={profileItem.href}
+                onClick={goTo(profileItem.href)}
+                className={styles['momo-app-navbar__badge']}
+              >
+                <Avatar size="small" displayName={fullName} />
+                <span className={styles['momo-app-navbar__badge-text']}>
+                  <span className={styles['momo-app-navbar__badge-greeting']}>
+                    {t('greeting')}
+                  </span>
+                  <span className={styles['momo-app-navbar__badge-name']}>
+                    {fullName}
+                  </span>
+                </span>
+              </a>
+            </li>
+          </ul>
+        </BaseDialog.Popup>
       </BaseDialog.Portal>
     </BaseDialog.Root>
   );
