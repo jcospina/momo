@@ -18,7 +18,7 @@ MoMo currently uses one hosted Supabase project for all branches. Branch names d
 
 ### Setup (One-Time)
 
-1. Install Docker Desktop and Supabase CLI.
+1. Install Docker Desktop. The Supabase CLI is pinned to 3.2.0 as a devDependency (`pnpm supabase …`, used by every `pnpm db:*` script) and in CI. CLI v3 commands target the local stack unless you pass `--remote` (the linked project).
 2. Authenticate and link the repository to your project:
    - `pnpm supabase login`
    - `pnpm supabase link --project-ref <your-project-ref>`
@@ -47,7 +47,7 @@ MoMo currently uses one hosted Supabase project for all branches. Branch names d
 
 Migrations land in production via the **Supabase native GitHub integration**, not a custom GitHub Actions workflow. The flow:
 
-1. PR is opened. `.github/workflows/db-migrations-check.yml` runs `pnpm lint` → `supabase db reset --local` → `supabase db lint --local`. This is a required status check on `main`; failures block merge.
+1. PR is opened. `.github/workflows/db-migrations-check.yml` runs `pnpm lint` → `supabase db reset` → `supabase db lint` on a local stack, using the CLI version pinned in the workflow. This is a required status check on `main`; failures block merge.
 2. PR is merged to `main`. The Supabase GitHub integration applies any new files under `supabase/migrations/` to the hosted Supabase project automatically. Edge Functions and storage buckets declared in `config.toml` are also deployed; API/Auth config and `seed.sql` are ignored. See the [Supabase docs](https://supabase.com/docs/guides/deployment/branching/github-integration) for the integration's full scope.
 
 The integration is configured in the Supabase dashboard (Project Settings → Integrations → GitHub Integration). Working directory is `.`, production branch is `main`, "Deploy to production" is enabled. No GitHub secrets are required — auth runs through the Supabase GitHub App.
@@ -67,10 +67,11 @@ The integration is configured in the Supabase dashboard (Project Settings → In
 ### Rollback / Recovery Runbook
 
 1. Take a hosted backup before risky changes:
-   - `pnpm supabase db dump --linked --schema public -f backups/db/pre_migration_$(date +%Y%m%d%H%M%S).sql`
+   - `pnpm supabase db dump --remote --schema public -f backups/db/pre_migration_$(date +%Y%m%d%H%M%S).sql`
 2. If a migration fails and migration history state is incorrect:
-   - Inspect migration state with `pnpm supabase migration list --linked`.
-   - Repair history with `pnpm supabase migration repair --status reverted <migration_version>`.
+   - Inspect migration state with `pnpm supabase migration list --remote`.
+   - Repair history with `pnpm supabase migration repair <migration_version> --status reverted --remote`.
+   - Without `--remote`, CLI v3 runs these against the **local** database.
 3. Prefer forward-fix migrations over editing already-applied migration files.
 
 ## Tables
