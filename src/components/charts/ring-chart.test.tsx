@@ -125,4 +125,32 @@ describe('RingChart (Visx)', () => {
 
     expect(screen.getByText(/\(50\.0%\)/)).toBeInTheDocument();
   });
+
+  it('renders tooltip lines as text, never as HTML', () => {
+    const payload = '<img src=x onerror="window.__ringChartXss=true">';
+    const { container } = render(
+      <RingChart
+        items={sampleItems}
+        currency="USD"
+        getTooltipLines={() => [
+          { label: payload, value: '$1.00', emphasizeLabel: true },
+          { label: '<svg/onload=alert(1)>', value: '$2.00' },
+        ]}
+      />,
+    );
+    const firstPath = container.querySelector('svg path');
+    expect(firstPath).not.toBeNull();
+
+    fireEvent.touchStart(firstPath!, {
+      changedTouches: [{ clientX: 400, clientY: 200 }],
+    });
+
+    const emphasized = screen.getByText(payload);
+    expect(emphasized.tagName).toBe('STRONG');
+    expect(
+      screen.getByText(/<svg\/onload=alert\(1\)>: \$2\.00/),
+    ).toBeInTheDocument();
+    expect(document.querySelector('img')).toBeNull();
+    expect(document.querySelector('svg[onload]')).toBeNull();
+  });
 });

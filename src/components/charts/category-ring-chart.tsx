@@ -107,9 +107,11 @@ export function CategoryRingChart({
           });
           return othersBreakdown.map(entry => {
             const value = entry.totalCents / (currency === 'COP' ? 1 : 100);
-            return `<strong>${formatCategoryLabel(
-              entry.category,
-            )}</strong>: ${formatter.format(value)}`;
+            return {
+              label: formatCategoryLabel(entry.category),
+              value: formatter.format(value),
+              emphasizeLabel: true,
+            };
           });
         }
         const breakdown = tooltipByCategory?.[payload.name] ?? [];
@@ -122,7 +124,11 @@ export function CategoryRingChart({
         });
         return breakdown.map(entry => {
           const value = entry.totalCents / (currency === 'COP' ? 1 : 100);
-          return `<strong>${entry.label}</strong>: ${formatter.format(value)}`;
+          return {
+            label: entry.label,
+            value: formatter.format(value),
+            emphasizeLabel: true,
+          };
         });
       }}
       onItemClick={handleItemClick}
