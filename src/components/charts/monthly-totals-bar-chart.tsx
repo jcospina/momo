@@ -104,6 +104,16 @@ function buildMonthSeries(entries: MonthEntry[]): SeriesAggregate {
   });
 
   const sortedKeys = Array.from(totalsByMonth.keys()).sort();
+  // A window can contain months with no spending at all (e.g. the latest
+  // months when the newest expense is older); there is nothing to draw.
+  if (!sortedKeys.length) {
+    return {
+      monthKeys: [],
+      series: [],
+      totals: [],
+    };
+  }
+
   const first = parseMonthKey(sortedKeys[0]);
   const last = parseMonthKey(sortedKeys[sortedKeys.length - 1]);
   if (!first || !last) {
