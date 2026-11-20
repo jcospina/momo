@@ -72,31 +72,6 @@ export async function setCurrency(
   return {};
 }
 
-export async function setAiEnabled(
-  next: boolean,
-): Promise<UpdatePrefResult | void> {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return redirectWithError('/login', 'auth_required');
-  }
-
-  const { error } = await supabase
-    .from('user_prefs')
-    .upsert({ user_id: user.id, ai_enabled: next }, { onConflict: 'user_id' });
-
-  if (error) {
-    return {
-      errorCode: 'user_pref_update_failed',
-    };
-  }
-
-  return {};
-}
-
 export async function setLanguage(
   language: SupportedLanguage,
 ): Promise<UpdatePrefResult | void> {

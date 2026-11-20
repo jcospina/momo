@@ -2,18 +2,18 @@
  * @jest-environment node
  */
 
-import { sendMomoMessage } from '@actions/chat-messages';
 import { getUserPreferences } from '@helpers/user-prefs';
 import { createSupabaseServerClient } from '@lib-supabase/server';
 import { streamAgent } from '@/agent/agent-core';
+import { sendMomo } from '@/lib/data/messages/server';
 import { POST } from './route';
 
 jest.mock('@lib-supabase/server', () => ({
   createSupabaseServerClient: jest.fn(),
 }));
 
-jest.mock('@actions/chat-messages', () => ({
-  sendMomoMessage: jest.fn(),
+jest.mock('@/lib/data/messages/server', () => ({
+  sendMomo: jest.fn(),
 }));
 
 jest.mock('@/agent/agent-core', () => ({
@@ -58,7 +58,7 @@ describe('POST /api/momo-stream', () => {
   const createSupabaseServerClientMock = jest.mocked(
     createSupabaseServerClient,
   );
-  const sendMomoMessageMock = jest.mocked(sendMomoMessage);
+  const sendMomoMessageMock = jest.mocked(sendMomo);
   const streamAgentMock = jest.mocked(streamAgent);
   const getUserPreferencesMock = jest.mocked(getUserPreferences);
 
@@ -137,7 +137,7 @@ describe('POST /api/momo-stream', () => {
     expect(sendMomoMessageMock).not.toHaveBeenCalled();
   });
 
-  it('streams the agent response and persists it via sendMomoMessage onFinish', async () => {
+  it('streams the agent response and persists it via sendMomo onFinish', async () => {
     const supabase = mockSupabase({
       user: { id: 'user-1' },
       session: { access_token: 'access-token-123' },
@@ -217,7 +217,7 @@ describe('POST /api/momo-stream', () => {
     });
   });
 
-  it('logs but does not throw when sendMomoMessage returns an errorCode', async () => {
+  it('logs but does not throw when sendMomo returns an errorCode', async () => {
     const supabase = mockSupabase({
       user: { id: 'user-1' },
       session: { access_token: 'access-token-123' },

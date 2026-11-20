@@ -1,7 +1,6 @@
 import 'server-only';
 
 import {
-  setAiEnabled as setAiEnabledAction,
   setCurrency as setCurrencyAction,
   setLanguage as setLanguageAction,
   setOnboardingStatus as setOnboardingStatusAction,
@@ -16,7 +15,6 @@ import type {
 
 import type {
   GetUserPreferences,
-  SetAiEnabled,
   SetCurrency,
   SetLanguage,
   SetOnboardingStatus,
@@ -42,7 +40,3 @@ export const setCurrency: SetCurrency = async (
 export const setLanguage: SetLanguage = async (
   language: SupportedLanguage,
 ): Promise<UpdatePrefResult | void> => setLanguageAction(language);
-
-export const setAiEnabled: SetAiEnabled = async (
-  next: boolean,
-): Promise<UpdatePrefResult | void> => setAiEnabledAction(next);

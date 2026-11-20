@@ -10,6 +10,7 @@ import {
   fetchHouseholdMembership,
   getHouseholdForUser as getHouseholdForUserHelper,
   getHouseholdMembershipForUser as getHouseholdMembershipForUserHelper,
+  joinHouseholdWithInvite,
 } from '@helpers/households';
 import { createSupabaseServerClient } from '@lib-supabase/server';
 
@@ -19,6 +20,7 @@ import type {
   GetHouseholdForUser,
   GetMembers,
   GetMembership,
+  JoinWithInvite,
 } from './types';
 
 export const getMembership: GetMembership = async (userId, options) => {
@@ -44,6 +46,12 @@ export const getMembers: GetMembers = async (householdId, options) => {
   const supabase = options?.supabase ?? (await createSupabaseServerClient());
 
   return fetchHouseholdMembers(supabase, householdId);
+};
+
+export const joinWithInvite: JoinWithInvite = async (inviteToken, options) => {
+  const supabase = options?.supabase ?? (await createSupabaseServerClient());
+
+  return joinHouseholdWithInvite(supabase, inviteToken);
 };
 
 export const create: Create = async (prevState, formData) => {

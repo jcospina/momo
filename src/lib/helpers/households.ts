@@ -1,8 +1,10 @@
 import { createSupabaseServerClient } from '@lib-supabase/server';
+import type { HouseholdError } from '@lib-types/errors';
 import type {
   Household,
   HouseholdMemberProfile,
   HouseholdMembership,
+  JoinHouseholdResult,
 } from '@lib-types/households';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -86,4 +88,34 @@ export async function fetchHouseholdMembers(
     display_name: row.display_name ?? null,
     email: row.email ?? null,
   }));
+}
+
+const JOIN_ERROR_CODES: Record<string, HouseholdError> = {
+  household_full: 'household_full',
+  user_has_a_household: 'user_has_a_household',
+  invite_invalid: 'household_invalid',
+};
+
+/**
+ * Joins the caller to the household of the user who owns `inviteToken`.
+ * The database checks the token, the member limit and the one-household rule.
+ */
+export async function joinHouseholdWithInvite(
+  supabase: SupabaseClient,
+  inviteToken: string,
+): Promise<JoinHouseholdResult> {
+  const { error } = await supabase.rpc('join_household_with_invite', {
+    p_token: inviteToken,
+  });
+
+  // A unique violation means a concurrent request already added this user.
+  if (!error || error.code === '23505') {
+    return { joined: true };
+  }
+
+  return {
+    joined: false,
+    errorCode:
+      JOIN_ERROR_CODES[error.message] ?? 'household_membership_create_failed',
+  };
 }

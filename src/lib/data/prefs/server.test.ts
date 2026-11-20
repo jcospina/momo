@@ -1,5 +1,4 @@
 import {
-  setAiEnabled as setAiEnabledAction,
   setCurrency as setCurrencyAction,
   setLanguage as setLanguageAction,
   setOnboardingStatus as setOnboardingStatusAction,
@@ -8,7 +7,6 @@ import { getUserPreferences as getUserPreferencesHelper } from '@helpers/user-pr
 
 import {
   getUserPreferences,
-  setAiEnabled,
   setCurrency,
   setLanguage,
   setOnboardingStatus,
@@ -18,7 +16,6 @@ jest.mock('@actions/user-prefs', () => ({
   setOnboardingStatus: jest.fn(),
   setCurrency: jest.fn(),
   setLanguage: jest.fn(),
-  setAiEnabled: jest.fn(),
 }));
 
 jest.mock('@helpers/user-prefs', () => ({
@@ -29,7 +26,6 @@ describe('data/prefs/server facade', () => {
   const setOnboardingStatusMock = jest.mocked(setOnboardingStatusAction);
   const setCurrencyMock = jest.mocked(setCurrencyAction);
   const setLanguageMock = jest.mocked(setLanguageAction);
-  const setAiEnabledMock = jest.mocked(setAiEnabledAction);
   const getUserPreferencesMock = jest.mocked(getUserPreferencesHelper);
 
   beforeEach(() => {
@@ -70,13 +66,5 @@ describe('data/prefs/server facade', () => {
     await setLanguage('es');
 
     expect(setLanguageMock).toHaveBeenCalledWith('es');
-  });
-
-  it('delegates AI toggle updates', async () => {
-    setAiEnabledMock.mockResolvedValue({});
-
-    await setAiEnabled(false);
-
-    expect(setAiEnabledMock).toHaveBeenCalledWith(false);
   });
 });

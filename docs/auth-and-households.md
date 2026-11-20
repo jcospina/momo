@@ -1,6 +1,6 @@
 ---
 version: 1.0
-last_updated: 2026-02-17
+last_updated: 2026-11-19
 ---
 
 # Auth and Households
@@ -45,7 +45,7 @@ Household owners can invite others via a share link:
    - `household_full` — Household has 5 members
    - `no_household` — Inviter has no household
 
-3. **Auth + join** — If valid, the invitee authenticates via Google. The auth callback reads the invite token from a cookie and inserts the new member into `household_members`.
+3. **Auth + join** — If valid, the invitee authenticates via Google. The auth callback reads the invite token from a cookie and calls the `join_household_with_invite(token)` RPC, which checks the token in the database and inserts the caller as `member`. Users cannot insert themselves into another household directly ([ADR-009](adr/009-database-enforced-access-rules.md)).
 
 4. **Constraint enforcement** — The `trg_one_household` trigger prevents users who already belong to a household from joining another. The `trg_household_capacity` trigger prevents the household from exceeding 5 members.
 

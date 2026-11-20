@@ -1,6 +1,6 @@
 ---
 version: 1.0
-last_updated: 2026-05-08
+last_updated: 2026-11-19
 ---
 
 # Database
@@ -81,19 +81,19 @@ Represents a group (family, roommates, etc.) that shares expenses. Each househol
 
 ### `household_members`
 
-Join table linking users to households. Composite primary key `(household_id, user_id)`. The `one_household_per_user` unique index on `user_id` enforces that each user belongs to at most one household. The `role` field distinguishes owners from members.
+Join table linking users to households. Composite primary key `(household_id, user_id)`. The `one_household_per_user` unique index on `user_id` enforces that each user belongs to at most one household. The `role` field distinguishes owners from members and is limited to `owner` or `member`. Users can only insert a row directly to add themselves as owner of a household they own; joining another household goes through `join_household_with_invite(token)`.
 
 ### `user_profiles`
 
-Stores display name, username, email, and an `invite_token` used for the household invite flow. The invite token is auto-generated on insert via the `ensure_invite_token` trigger and is immutable after creation.
+Stores display name, username, email, and an `invite_token` used for the household invite flow. The invite token is auto-generated on insert via the `ensure_invite_token` trigger and is immutable after creation. `email` is copied from `auth.users` on every insert and update (`trg_user_profiles_email`), so users cannot set it.
 
 ### `user_prefs`
 
-User preferences: onboarding status, currency, language, and AI toggle. The `onboarding_status` field uses a check constraint (`unknown`, `completed`, `skipped`) rather than an enum to keep it simple.
+User preferences: onboarding status, currency, language, and AI toggle. `ai_enabled` is admin-managed: `trg_user_prefs_guard_ai_enabled` forces it to `false` on inserts from API roles and rejects changes from them, so only the service role or the dashboard can turn it on. The `onboarding_status` field uses a check constraint (`unknown`, `completed`, `skipped`) rather than an enum to keep it simple.
 
 ### `chat_messages`
 
-Messages sent in the chat interface. Each message can be personal (`household_id = NULL`) or household-scoped. The `status` enum tracks processing state: `pending` → `processed` / `needs_category` / `no_expense` / `failed`. The `sender_name` field is denormalized for display efficiency in realtime broadcasts.
+Messages sent in the chat interface. Each message can be personal (`household_id = NULL`) or household-scoped. The `status` enum tracks processing state: `pending` → `processed` / `needs_category` / `no_expense` / `failed`. The `sender_name` field is denormalized for display efficiency in realtime broadcasts. MoMo replies (`author_kind = 'momo'`) are written by the server with the service role; RLS rejects user writes that set `author_kind = 'momo'`, `momo_source` or `idempotency_key`, and users cannot update MoMo rows.
 
 ### `expenses`
 
@@ -109,7 +109,7 @@ All tables have Row Level Security enabled. The strategy uses two membership che
 
 - **`is_member(h)` / `is_member_uid(h, u)`** — `SECURITY INVOKER` functions. Used in RLS policies where the calling context already has access to `household_members`. These run as the calling user and respect RLS on the tables they query.
 
-- **`is_member_definer(h)` / `is_member_definer_uid(h, u)`** — `SECURITY DEFINER` functions. Used in RLS policies on tables like `chat_messages` where the SELECT policy on `household_members` would create circular RLS checks. These bypass RLS to perform the membership lookup. See [ADR-005](adr/005-security-definer-membership-functions.md) for the rationale.
+- **`is_member_definer(h)` / `is_member_definer_uid(h, u)`** — `SECURITY DEFINER` functions. Used in RLS policies on tables like `chat_messages` where the SELECT policy on `household_members` would create circular RLS checks. These bypass RLS to perform the membership lookup. `is_member_definer_uid` returns `false` unless `u = auth.uid()`, so it cannot be used to probe other users. See [ADR-005](adr/005-security-definer-membership-functions.md) for the rationale.
 
 **Policy patterns:**
 
@@ -117,6 +117,15 @@ All tables have Row Level Security enabled. The strategy uses two membership che
 - Household data (expenses, messages): `is_member_uid(household_id, auth.uid())` OR personal fallback `(household_id IS NULL AND user_id = auth.uid())`
 - Learned category rules: personal rules by `user_id` and null `household_id`, household rules by `is_member_definer_uid(household_id, auth.uid())`
 - Cross-table lookups (chat select): `is_member_definer_uid(household_id, auth.uid())`
+- Writes: rows are always attributed to `auth.uid()`, household writes require membership, and expenses can only link to the caller's own chat messages. Household learned rules can be updated by any member of that household.
+
+See [ADR-009](adr/009-database-enforced-access-rules.md) for the write rules that are enforced in the database rather than app code.
+
+## Grants
+
+- `anon` has no privileges on tables, views, sequences or functions in `public`. The app never queries `public` without a session; invite lookups use the service role.
+- Function `EXECUTE` is granted to `authenticated` and `service_role` only. `get_share_link_info` is service-role only.
+- Postgres grants `EXECUTE` on new functions to `PUBLIC` by default. Every migration that adds a function must `REVOKE ALL ON FUNCTION ... FROM PUBLIC` and grant only the roles that need it.
 
 ## Triggers
 
@@ -125,11 +134,15 @@ All tables have Row Level Security enabled. The strategy uses two membership che
 - **`trg_one_household`** — `BEFORE INSERT` on `household_members`. Calls `prevent_multiple_households()` to raise an exception if the user already belongs to a household. Works alongside the `one_household_per_user` unique index for defense-in-depth.
 - **`trg_household_capacity`** — `BEFORE INSERT` on `household_members`. Calls `enforce_household_capacity()` with a `FOR UPDATE` lock on the household row to prevent race conditions. Raises `household_full` if count >= 5.
 
+Both trigger functions are `SECURITY DEFINER`: run as the joining user, RLS would hide the existing members and the count would always be 0.
+
 See [ADR-004](adr/004-db-enforced-household-constraints.md) for why these are DB-level rather than app-level.
 
 ### Data Integrity
 
 - **`trg_user_profiles_token`** — Auto-generates `invite_token` on insert, prevents modification on update.
+- **`trg_user_profiles_email`** — Copies `email` from `auth.users` on insert/update (`SECURITY DEFINER` to read `auth.users`).
+- **`trg_user_prefs_guard_ai_enabled`** — Keeps `ai_enabled` admin-managed (see `user_prefs`).
 - **`trg_expenses_clean_tags`** — Normalizes tags on insert/update: lowercases, trims, deduplicates, validates format (`^[a-z0-9_]{1,32}$`), removes empties.
 
 ## Views
@@ -151,8 +164,9 @@ The household-only views use `is_member_definer_uid` to perform membership check
 
 ## Helper Functions
 
-- **`get_user_label(user_id)`** — Returns `display_name` or falls back to `email`. `SECURITY DEFINER` so it can read `user_profiles` regardless of calling context.
-- **`get_share_link_info(token)`** — Used by the invite flow. Looks up the inviter by token, returns household info and status (`no_household`, `household_full`, `household_valid`). `SECURITY DEFINER` to allow unauthenticated invite page lookups.
+- **`get_user_label(user_id)`** — Returns `display_name` or falls back to `email`. `SECURITY DEFINER` so it can read `user_profiles` regardless of calling context, but it returns `null` unless the user is the caller or in the caller's household.
+- **`join_household_with_invite(token)`** — `SECURITY DEFINER`. Resolves the household from the inviter's token and inserts the caller as `member`. Raises `invite_invalid`, `household_full` or `user_has_a_household`.
+- **`get_share_link_info(token)`** — Used by the invite flow. Looks up the inviter by token, returns household info and status (`no_household`, `household_full`, `household_valid`). `SECURITY DEFINER`, callable only with the service role (the invite page looks it up server-side).
 - **`get_household_member_profiles(household_id)`** — Returns member roles and display info. Uses `is_member_definer_uid` to verify the caller is a member.
 - **`upsert_category_rule(user_id, household_id, normalized_text, category)`** — Upserts personal or household learned category rules. Runs as `SECURITY INVOKER` and is constrained by `category_rules` RLS.
 

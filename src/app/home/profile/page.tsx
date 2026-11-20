@@ -127,7 +127,6 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           </Typography>
           <CurrencySelect value={prefs?.currency ?? null} />
           <LanguageSelect value={prefs?.language ?? null} />
-          {/* <AIEnabled value={prefs?.ai_enabled || false} /> */}
         </Flex>
         <Divider />
         <Flex padding={3} direction="column" gap={2}>

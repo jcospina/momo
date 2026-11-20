@@ -1,13 +1,17 @@
 import {
   deleteChatMessage as deleteChatMessageAction,
   sendChatMessage as sendChatMessageAction,
-  sendMomoMessage as sendMomoMessageAction,
 } from '@actions/chat-messages';
 import {
   fetchChatHistory as fetchChatHistoryHelper,
   fetchChatMessages as fetchChatMessagesHelper,
   fetchChatMessagesSince as fetchChatMessagesSinceHelper,
 } from '@helpers/chat/chat-messages';
+import { persistMomoReply } from '@helpers/chat/momo-replies';
+import {
+  createSupabaseServerClient,
+  createSupabaseServiceRoleClient,
+} from '@lib-supabase/server';
 
 import {
   getHistory,
@@ -20,8 +24,16 @@ import {
 
 jest.mock('@actions/chat-messages', () => ({
   sendChatMessage: jest.fn(),
-  sendMomoMessage: jest.fn(),
   deleteChatMessage: jest.fn(),
+}));
+
+jest.mock('@helpers/chat/momo-replies', () => ({
+  persistMomoReply: jest.fn(),
+}));
+
+jest.mock('@lib-supabase/server', () => ({
+  createSupabaseServerClient: jest.fn(),
+  createSupabaseServiceRoleClient: jest.fn(),
 }));
 
 jest.mock('@helpers/chat/chat-messages', () => ({
@@ -35,7 +47,13 @@ describe('data/messages/server facade', () => {
   const fetchChatHistoryMock = jest.mocked(fetchChatHistoryHelper);
   const fetchChatMessagesSinceMock = jest.mocked(fetchChatMessagesSinceHelper);
   const sendChatMessageMock = jest.mocked(sendChatMessageAction);
-  const sendMomoMessageMock = jest.mocked(sendMomoMessageAction);
+  const persistMomoReplyMock = jest.mocked(persistMomoReply);
+  const createSupabaseServerClientMock = jest.mocked(
+    createSupabaseServerClient,
+  );
+  const createSupabaseServiceRoleClientMock = jest.mocked(
+    createSupabaseServiceRoleClient,
+  );
   const deleteChatMessageMock = jest.mocked(deleteChatMessageAction);
 
   const sample = [
@@ -148,7 +166,7 @@ describe('data/messages/server facade', () => {
     expect(result).toEqual(actionResult);
   });
 
-  it('delegates momo message send', async () => {
+  it('persists momo replies with the session and service-role clients', async () => {
     const momoMessage = {
       ...sample[0],
       id: 'momo-1',
@@ -157,7 +175,11 @@ describe('data/messages/server facade', () => {
       momo_source: 'momo_agent',
     };
     const actionResult = { message: momoMessage, reused: false };
-    sendMomoMessageMock.mockResolvedValue(actionResult);
+    persistMomoReplyMock.mockResolvedValue(actionResult);
+    const sessionClient = { name: 'session' };
+    const serviceClient = { name: 'service' };
+    createSupabaseServerClientMock.mockResolvedValue(sessionClient as never);
+    createSupabaseServiceRoleClientMock.mockReturnValue(serviceClient as never);
 
     const input = {
       content: 'Sure, here is your total.',
@@ -167,7 +189,11 @@ describe('data/messages/server facade', () => {
     };
     const result = await sendMomo(input);
 
-    expect(sendMomoMessageMock).toHaveBeenCalledWith(input);
+    expect(persistMomoReplyMock).toHaveBeenCalledWith({
+      ...input,
+      sessionClient,
+      serviceClient,
+    });
     expect(result).toEqual(actionResult);
   });
 });

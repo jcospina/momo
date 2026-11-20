@@ -3,6 +3,7 @@ import type {
   Household,
   HouseholdMemberProfile,
   HouseholdMembership,
+  JoinHouseholdResult,
 } from '@lib-types/households';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -34,3 +35,8 @@ export type CreateInline = (
   _prevState: CreateHouseholdState,
   formData: FormData,
 ) => Promise<CreateHouseholdState>;
+
+export type JoinWithInvite = (
+  inviteToken: string,
+  options?: HouseholdQueryOptions,
+) => Promise<JoinHouseholdResult>;

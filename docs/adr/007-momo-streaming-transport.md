@@ -5,6 +5,8 @@ last_updated: 2026-05-14
 
 # ADR-007: MoMo Streaming Transport
 
+> **Update (ADR-009):** `sendMomoMessage` was replaced by `persistMomoReply`, called through the `sendMomo` facade. It writes the reply with the service role after verifying the triggering message; the idempotency behavior below is unchanged.
+
 ## Context
 
 Users address the `@momo` agent inside the chat UI and expect to see its reply appear token-by-token, the way modern AI chat experiences behave. The transport that carries those tokens from the agent route handler to the browser has to fit MoMo's existing stack: a Next.js route handler on a serverless runtime, a client-side chat hook that already owns message state, and a persistence layer that records the final assistant message through `sendMomoMessage` with a DB-enforced unique `idempotency_key`.

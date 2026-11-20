@@ -146,7 +146,6 @@
     "noHousehold": "Parece que aún no tienes un hogar. Si decidiste compartir con tu familia, crea uno abajo",
     "createHousehold": "Crear un hogar",
     "memberEmpty": "¿De qué sirve un hogar si no invitas a tu familia?",
-    "aiEnabled": "IA activada",
     "currency": {
       "label": "Moneda",
       "placeholder": "Selecciona tu moneda",

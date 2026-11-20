@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from '@lib-supabase/server';
 import { redirectWithError } from '@utils/redirect-with-error';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { getMembership } from '@/lib/data/households/server';
+import { getMembership, joinWithInvite } from '@/lib/data/households/server';
 import { getInviteInfo } from '@/lib/data/invites/server';
 import { setOnboardingStatus } from '@/lib/data/prefs/server';
 import { createProfile } from '@/lib/data/profile/server';
@@ -52,16 +52,10 @@ export async function GET(request: NextRequest) {
       shareInfo.status === 'household_valid' &&
       shareInfo.household_id
     ) {
-      const { error: joinError } = await supabase
-        .from('household_members')
-        .insert({
-          household_id: shareInfo.household_id,
-          user_id: user.id,
-          role: 'member',
-        });
+      const joinResult = await joinWithInvite(inviteToken, { supabase });
 
-      if (joinError && joinError.code !== '23505') {
-        console.error('join household failed', joinError);
+      if (!joinResult.joined) {
+        console.error('join household failed', joinResult.errorCode);
       } else {
         membership = { household_id: shareInfo.household_id };
         await setOnboardingStatus('completed');

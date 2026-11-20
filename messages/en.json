@@ -146,7 +146,6 @@
     "noHousehold": "It seems you don't have a household yet. If you decided sharing with family is good, then create one below",
     "createHousehold": "Create a household",
     "memberEmpty": "What is the point of a household if you don't bring in your family?",
-    "aiEnabled": "AI Enabled",
     "currency": {
       "label": "Currency",
       "placeholder": "Select your currency",

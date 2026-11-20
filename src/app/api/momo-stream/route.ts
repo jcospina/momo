@@ -1,4 +1,3 @@
-import { sendMomoMessage } from '@actions/chat-messages';
 import { createOpenAI } from '@ai-sdk/openai';
 import { getUserPreferences } from '@helpers/user-prefs';
 import { createSupabaseServerClient } from '@lib-supabase/server';
@@ -8,6 +7,7 @@ import { streamAgent } from '@/agent/agent-core';
 import { DEFAULT_AGENT_MODEL } from '@/agent/constants';
 import type { AgentContext } from '@/agent/context';
 import { productionToolExecutors } from '@/agent/tools/tools';
+import { sendMomo } from '@/lib/data/messages/server';
 
 type MomoStreamRequest = {
   content?: string;
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
     model: openai(modelId),
     toolExecutors: productionToolExecutors,
     onFinish: async ({ text }) => {
-      const persisted = await sendMomoMessage({
+      const persisted = await sendMomo({
         content: text,
         householdId,
         userId: user.id,

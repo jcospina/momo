@@ -1,0 +1,384 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-04T19:47:18Z",
+  "title": "Design System: MoMo",
+  "extensions": {
+    "colorMeta": {
+      "background": {
+        "role": "primary",
+        "displayName": "Background",
+        "canonical": "oklch(0.9224 0.198 107.23)",
+        "tonalRamp": [
+          "oklch(15% 0.08 107.23)",
+          "oklch(28% 0.11 107.23)",
+          "oklch(42% 0.14 107.23)",
+          "oklch(56% 0.17 107.23)",
+          "oklch(70% 0.19 107.23)",
+          "oklch(82% 0.18 107.23)",
+          "oklch(92% 0.12 107.23)",
+          "oklch(96% 0.05 107.23)"
+        ]
+      },
+      "accent-primary": {
+        "role": "primary",
+        "displayName": "Primary Accent",
+        "canonical": "oklch(0.8736 0.2433 149.53)",
+        "tonalRamp": [
+          "oklch(15% 0.08 149.53)",
+          "oklch(28% 0.12 149.53)",
+          "oklch(42% 0.16 149.53)",
+          "oklch(56% 0.2 149.53)",
+          "oklch(70% 0.23 149.53)",
+          "oklch(84% 0.22 149.53)",
+          "oklch(92% 0.14 149.53)",
+          "oklch(96% 0.06 149.53)"
+        ]
+      },
+      "accent-feature": {
+        "role": "tertiary",
+        "displayName": "Feature Accent",
+        "canonical": "oklch(0.7049 0.1837 317.15)",
+        "tonalRamp": [
+          "oklch(15% 0.06 317.15)",
+          "oklch(28% 0.09 317.15)",
+          "oklch(42% 0.12 317.15)",
+          "oklch(56% 0.15 317.15)",
+          "oklch(70% 0.18 317.15)",
+          "oklch(82% 0.14 317.15)",
+          "oklch(92% 0.08 317.15)",
+          "oklch(96% 0.04 317.15)"
+        ]
+      },
+      "accent-warm": {
+        "role": "tertiary",
+        "displayName": "Warm Accent",
+        "canonical": "oklch(0.7934 0.1661 69.16)",
+        "tonalRamp": [
+          "oklch(15% 0.06 69.16)",
+          "oklch(28% 0.09 69.16)",
+          "oklch(42% 0.12 69.16)",
+          "oklch(56% 0.15 69.16)",
+          "oklch(70% 0.16 69.16)",
+          "oklch(82% 0.14 69.16)",
+          "oklch(92% 0.08 69.16)",
+          "oklch(96% 0.04 69.16)"
+        ]
+      },
+      "accent-secondary": {
+        "role": "secondary",
+        "displayName": "Secondary Accent",
+        "canonical": "oklch(0.719 0.1751 22.5)",
+        "tonalRamp": [
+          "oklch(15% 0.06 22.5)",
+          "oklch(28% 0.09 22.5)",
+          "oklch(42% 0.12 22.5)",
+          "oklch(56% 0.15 22.5)",
+          "oklch(70% 0.17 22.5)",
+          "oklch(82% 0.13 22.5)",
+          "oklch(92% 0.08 22.5)",
+          "oklch(96% 0.04 22.5)"
+        ]
+      },
+      "accent-info": {
+        "role": "secondary",
+        "displayName": "Info Accent",
+        "canonical": "oklch(0.8259 0.1358 216.9)",
+        "tonalRamp": [
+          "oklch(15% 0.05 216.9)",
+          "oklch(28% 0.07 216.9)",
+          "oklch(42% 0.09 216.9)",
+          "oklch(56% 0.11 216.9)",
+          "oklch(70% 0.13 216.9)",
+          "oklch(82% 0.12 216.9)",
+          "oklch(92% 0.07 216.9)",
+          "oklch(96% 0.04 216.9)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface",
+        "canonical": "oklch(96.868% 0.01862 96.902)",
+        "tonalRamp": [
+          "oklch(15% 0.01 96.902)",
+          "oklch(28% 0.012 96.902)",
+          "oklch(42% 0.014 96.902)",
+          "oklch(56% 0.016 96.902)",
+          "oklch(70% 0.018 96.902)",
+          "oklch(84% 0.018 96.902)",
+          "oklch(92% 0.016 96.902)",
+          "oklch(97% 0.012 96.902)"
+        ]
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "Text / Ink",
+        "canonical": "oklch(11.449% 0.0736 272.286)",
+        "tonalRamp": [
+          "oklch(11.449% 0.0736 272.286)",
+          "oklch(20% 0.06 272.286)",
+          "oklch(32% 0.05 272.286)",
+          "oklch(46% 0.04 272.286)",
+          "oklch(60% 0.03 272.286)",
+          "oklch(74% 0.02 272.286)",
+          "oklch(88% 0.012 272.286)",
+          "oklch(95% 0.006 272.286)"
+        ]
+      },
+      "disabled": {
+        "role": "neutral",
+        "displayName": "Disabled",
+        "canonical": "oklch(0.7522 0.0193 261.19)",
+        "tonalRamp": [
+          "oklch(15% 0.012 261.19)",
+          "oklch(28% 0.014 261.19)",
+          "oklch(42% 0.016 261.19)",
+          "oklch(56% 0.018 261.19)",
+          "oklch(70% 0.019 261.19)",
+          "oklch(82% 0.016 261.19)",
+          "oklch(92% 0.01 261.19)",
+          "oklch(96% 0.006 261.19)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "First-screen landing statements and rare oversized moments."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page-level headings, stats section titles, and empty-state leads."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Panel titles, card titles, and chart headers."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Messages, settings copy, form text, and normal UI explanation."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Controls, chips, nav links, metadata, and compact chart legends."
+      },
+      "logo": {
+        "displayName": "Logo",
+        "purpose": "MoMo mark and loader only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "small-press",
+        "value": "-2px 2px 0 var(--color-dark)",
+        "purpose": "Hovered buttons, menus, chat bubbles, badges, chart legends, and compact overlays."
+      },
+      {
+        "name": "medium-block",
+        "value": "-6px 6px 0 var(--color-dark)",
+        "purpose": "Default buttons, inputs on focus, toasts, tooltips, and feature cards."
+      },
+      {
+        "name": "large-block",
+        "value": "-12px 12px 0 var(--color-dark)",
+        "purpose": "Panels and strong framed surfaces."
+      },
+      {
+        "name": "extra-block",
+        "value": "-16px 16px 0 var(--color-dark)",
+        "purpose": "Large desktop panels and hero previews."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-pop",
+        "value": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+        "purpose": "Default easing for tactile state movement."
+      },
+      {
+        "name": "ease-pop-fast",
+        "value": "cubic-bezier(0.2, 0.9, 0.2, 1)",
+        "purpose": "Fast input and select feedback."
+      },
+      {
+        "name": "duration-fast",
+        "value": "120ms",
+        "purpose": "Small hover and nav feedback."
+      },
+      {
+        "name": "duration-base",
+        "value": "160ms",
+        "purpose": "Default control feedback."
+      },
+      {
+        "name": "duration-toggle",
+        "value": "300ms",
+        "purpose": "Theme and surface color transitions."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile-nav-collapse",
+        "value": "720px"
+      },
+      {
+        "name": "tablet-panel",
+        "value": "768px"
+      }
+    ],
+    "themeSystem": [
+      {
+        "name": "source",
+        "value": "src/lib/theme/themes.config.ts",
+        "purpose": "Defines theme palettes. New themes are added here."
+      },
+      {
+        "name": "resolver",
+        "value": "src/lib/theme/resolve-palette.ts",
+        "purpose": "Fills optional theme roles such as disabled, toggle, error, warning, success, chart colors, and tooltip colors."
+      },
+      {
+        "name": "runtime-css",
+        "value": "src/lib/theme/generate-css.ts",
+        "purpose": "Generates :root[data-schema] CSS variables for each theme, including semantic roles and legacy raw aliases."
+      },
+      {
+        "name": "new-ui-rule",
+        "value": "semantic roles first",
+        "purpose": "New UI should target --bg-page, --bg-panel, --fg-primary, --accent-primary, --accent-secondary, --accent-info, --accent-feature, --accent-warm, tone roles, and chart roles before raw aliases."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main forward action with a pressed block feel. Uses the active theme primary accent.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Save expense</button>",
+      "css": ".ds-btn { border: 2px solid var(--color-dark); border-radius: var(--border-radius); padding: calc(var(--spacing) * 1) calc(var(--spacing) * 4); font: var(--body); font-weight: var(--weight-bold); color: var(--fg-primary); box-shadow: var(--shadow-md); transform: translateX(0); transition: transform var(--duration-slow) var(--ease-pop), box-shadow var(--duration-slow) var(--ease-pop), background-color 150ms ease, color 150ms ease; } .ds-btn:hover, .ds-btn:focus-visible { transform: translate(-3px); box-shadow: var(--shadow-sm); outline: none; } .ds-btn-primary { background: var(--accent-primary); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Secondary action for destructive, failure, or high-attention alternatives. The exact color comes from the active theme.",
+      "html": "<button class=\"ds-btn ds-btn-secondary\">Delete</button>",
+      "css": ".ds-btn { border: 2px solid var(--color-dark); border-radius: var(--border-radius); padding: calc(var(--spacing) * 1) calc(var(--spacing) * 4); font: var(--body); font-weight: var(--weight-bold); color: var(--fg-on-secondary, var(--fg-primary)); box-shadow: var(--shadow-md); transition: transform var(--duration-slow) var(--ease-pop), box-shadow var(--duration-slow) var(--ease-pop); } .ds-btn:hover, .ds-btn:focus-visible { transform: translate(-3px); box-shadow: var(--shadow-sm); outline: none; } .ds-btn-secondary { background: var(--accent-secondary); }"
+    },
+    {
+      "name": "Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Chat and form input that becomes physically raised on focus.",
+      "html": "<label class=\"ds-input-wrap\"><input class=\"ds-input\" placeholder=\"Lunch 18k\" /></label>",
+      "css": ".ds-input-wrap { display: inline-flex; align-items: stretch; width: 100%; border: 2px solid var(--color-dark); border-radius: var(--border-radius); background: var(--bg-panel); transform: translate(0, 0); box-shadow: none; transition: transform var(--duration-base) var(--ease-pop-fast), box-shadow var(--duration-base) var(--ease-pop-fast), background-color var(--duration-fast) ease; overflow: hidden; } .ds-input-wrap:hover { transform: translate(2px, -2px); box-shadow: var(--shadow-sm); } .ds-input-wrap:focus-within { transform: translate(6px, -6px); box-shadow: var(--shadow-md); } .ds-input { border: 0; outline: 0; background: transparent; color: var(--fg-primary); width: 100%; font: var(--body); padding: var(--spacing); } .ds-input::placeholder { color: var(--fg-subtle); }"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel-default",
+      "description": "Major framed surface with the strongest app-shell block treatment.",
+      "html": "<section class=\"ds-panel\"><strong>May spending</strong><p>Household and personal totals stay visually anchored.</p></section>",
+      "css": ".ds-panel { background: var(--bg-panel); color: var(--fg-primary); border: 4px solid var(--color-dark); border-radius: var(--border-radius); box-shadow: var(--shadow-xl); transform: translateX(3px); padding: calc(var(--spacing) * 3); overflow: hidden; } .ds-panel p { margin: var(--spacing) 0 0; max-width: 65ch; }"
+    },
+    {
+      "name": "Toggle Chip",
+      "kind": "chip",
+      "refersTo": "toggle-selected",
+      "description": "Small scope or range toggle that reads as pressed when selected.",
+      "html": "<button class=\"ds-toggle\" data-pressed>Household</button>",
+      "css": ".ds-toggle { border: 2px solid var(--color-dark); border-radius: calc(var(--border-radius) - 2px); padding: calc(var(--spacing) * 0.5) calc(var(--spacing) * 1.5); font: var(--meta); font-weight: var(--weight-bold); background: var(--bg-panel); color: var(--fg-primary); cursor: pointer; transition: box-shadow 150ms ease, background-color 150ms ease; } .ds-toggle:hover { box-shadow: -1px 1px 0 var(--color-dark); } .ds-toggle[data-pressed] { background: var(--accent-info); box-shadow: var(--shadow-sm); } .ds-toggle:focus-visible { outline: 2px solid var(--color-dark); outline-offset: 2px; }"
+    },
+    {
+      "name": "Menu",
+      "kind": "custom",
+      "refersTo": "menu-default",
+      "description": "Compact action menu with ink-highlighted rows.",
+      "html": "<div class=\"ds-menu\"><div class=\"ds-menu-item\">Edit</div><div class=\"ds-menu-item ds-menu-item-danger\">Delete</div></div>",
+      "css": ".ds-menu { padding: calc(var(--spacing) * 0.75); min-width: 120px; border-radius: var(--border-radius); background: var(--bg-panel); color: var(--fg-primary); border: 2px solid var(--color-dark); box-shadow: var(--shadow-sm); } .ds-menu-item { display: flex; align-items: center; gap: var(--spacing); padding: var(--spacing) calc(var(--spacing) * 1.5); font: var(--body); border-radius: calc(var(--border-radius) - 4px); } .ds-menu-item:hover { background: var(--color-dark); color: var(--color-light); } .ds-menu-item-danger { color: var(--tone-error); } .ds-menu-item-danger:hover { background: var(--tone-error); color: var(--fg-on-secondary, var(--fg-primary)); }"
+    },
+    {
+      "name": "Navigation Rail",
+      "kind": "nav",
+      "refersTo": "nav-landing",
+      "description": "Fixed landing rail with a flat ink divider and bold links.",
+      "html": "<nav class=\"ds-nav\"><span class=\"ds-logo\">MoMo</span><a class=\"ds-nav-link\" href=\"#features\">Features</a><a class=\"ds-nav-link\" href=\"/login\">Login</a></nav>",
+      "css": ".ds-nav { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) var(--space-3); background: var(--bg-page); border-bottom: var(--border-width-thin) solid var(--color-dark); color: var(--fg-primary); } .ds-logo { font-family: var(--font-logo); font-size: 2rem; line-height: 1; } .ds-nav-link { color: var(--fg-primary); text-decoration: none; font: var(--body); font-weight: var(--weight-bold); padding: var(--space-1) 0; } .ds-nav-link:hover, .ds-nav-link:focus-visible { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; outline: none; }"
+    },
+    {
+      "name": "Chat Bubble",
+      "kind": "custom",
+      "refersTo": "chat-bubble-own",
+      "description": "Signature chat surface for expense capture and parser feedback.",
+      "html": "<div class=\"ds-chat-bubble ds-chat-bubble-own\"><span>Arepa 12k</span><small>Processed</small></div>",
+      "css": ".ds-chat-bubble { display: inline-flex; flex-direction: column; gap: calc(var(--spacing) * 0.5); max-width: 720px; border-radius: var(--border-radius); border: 2px solid var(--color-dark); box-shadow: var(--shadow-sm); background: var(--accent-feature); color: var(--fg-primary); padding: var(--spacing); } .ds-chat-bubble-own { background: var(--accent-info); } .ds-chat-bubble small { color: var(--fg-subtle); font: var(--micro); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Tactile Chat Ledger",
+    "overview": "MoMo should feel like a personal spending chat made physical: theme-colored paper, inked edges, chunky controls, and fast tactile feedback. The interface serves the product, so the visual system must keep capture, correction, and household context easy to scan while still making money feel less boring.\n\nThe atmosphere is playful, direct, and tactile: finance without spreadsheets. Use semantic theme roles, thick ink borders, and hard offset shadows to make actions feel tappable and concrete. The default Sunbeam palette is the reference mood, but the system must remain compatible with any current or future theme generated from `src/lib/theme/themes.config.ts`.",
+    "keyCharacteristics": [
+      "Themeable OKLCH color with ink outlines.",
+      "Hard-shadow neobrutalism, structural not decorative.",
+      "Rounded but blocky 10px controls.",
+      "Chat-first density with visible states for parsing, sync, and errors.",
+      "Motion is quick state feedback, not choreography."
+    ],
+    "rules": [
+      {
+        "name": "The Theme Role Rule",
+        "body": "New UI should target semantic roles first: `--bg-page`, `--bg-panel`, `--fg-primary`, `--accent-primary`, `--accent-secondary`, `--accent-info`, `--accent-feature`, `--accent-warm`, and tone/chart roles. Raw color aliases are legacy compatibility paths that repaint with the active theme.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink Holds Everything Rule",
+        "body": "Every interactive surface needs a visible ink edge or clear ink text. Theme color without ink feels decorative and loses the MoMo signature.",
+        "section": "colors"
+      },
+      {
+        "name": "The Color Has a Job Rule",
+        "body": "Primary moves forward, secondary warns or removes, info informs or selects, feature speaks as the product, warm supports chat and warning-adjacent surfaces. Do not bind behavior to Sunbeam color names.",
+        "section": "colors"
+      },
+      {
+        "name": "The Logo Stays Logo Rule",
+        "body": "Bungee Shade belongs to the MoMo mark and loader only. Do not use it for headings, buttons, or marketing copy.",
+        "section": "typography"
+      },
+      {
+        "name": "The No Finance Formality Rule",
+        "body": "Avoid thin, spaced-out, executive-dashboard typography. MoMo type should be clear, chunky, and direct.",
+        "section": "typography"
+      },
+      {
+        "name": "The Hard Shadow Only Rule",
+        "body": "Soft blur shadows, glass effects, and glow elevation are prohibited. If a surface needs depth, use an offset ink shadow from the vocabulary.",
+        "section": "elevation"
+      },
+      {
+        "name": "The State Press Rule",
+        "body": "Interactive elements should reduce their hard shadow on hover or focus to feel pressed, not float upward.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use semantic theme variables generated by `src/lib/theme/generate-css.ts`. The color system is active and themeable.",
+      "Do document Sunbeam as the default palette, not as the only design contract.",
+      "Do keep thick ink borders on controls, cards, panels, menus, and chat bubbles.",
+      "Do use the hard-shadow vocabulary exactly: `-2px`, `-6px`, `-12px`, and `-16px` offsets.",
+      "Do make chat, parsing state, sync state, and recovery actions visible in place.",
+      "Do preserve accessible contrast and avoid relying on color alone for financial status, message processing state, or chart interpretation."
+    ],
+    "donts": [
+      "Don't make MoMo feel like corporate fintech.",
+      "Don't make MoMo feel like spreadsheet-first budgeting software.",
+      "Don't make MoMo feel like sterile SaaS dashboards.",
+      "Don't make MoMo feel like gamified savings guilt.",
+      "Don't make MoMo feel like an overly polished AI finance coach.",
+      "Don't hard-code Sunbeam raw aliases for new UI when a semantic role exists.",
+      "Don't use pure black or pure white. Use the active theme's text and surface roles.",
+      "Don't add soft blur shadows, glassmorphism, gradient text, or side-stripe borders.",
+      "Don't turn chat capture into a form-heavy workflow unless the user explicitly asks for that behavior."
+    ]
+  }
+}

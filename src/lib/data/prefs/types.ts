@@ -20,4 +20,3 @@ export type SetCurrency = (
 export type SetLanguage = (
   language: SupportedLanguage,
 ) => Promise<UpdatePrefResult | void>;
-export type SetAiEnabled = (next: boolean) => Promise<UpdatePrefResult | void>;

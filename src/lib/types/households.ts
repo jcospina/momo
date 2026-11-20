@@ -1,3 +1,5 @@
+import type { HouseholdError } from '@lib-types/errors';
+
 export type HouseholdMembership = {
   household_id: string;
 };
@@ -17,4 +19,9 @@ export type HouseholdMemberProfile = {
 export type CreateHouseholdState = {
   errorCode?: string;
   error?: string;
+};
+
+export type JoinHouseholdResult = {
+  joined: boolean;
+  errorCode?: HouseholdError;
 };

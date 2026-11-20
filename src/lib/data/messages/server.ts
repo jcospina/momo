@@ -3,14 +3,17 @@ import 'server-only';
 import {
   deleteChatMessage as deleteChatMessageAction,
   sendChatMessage as sendChatMessageAction,
-  sendMomoMessage as sendMomoMessageAction,
 } from '@actions/chat-messages';
 import {
   fetchChatHistory as fetchChatHistoryHelper,
   fetchChatMessages as fetchChatMessagesHelper,
   fetchChatMessagesSince as fetchChatMessagesSinceHelper,
 } from '@helpers/chat/chat-messages';
-import { createSupabaseServerClient } from '@lib-supabase/server';
+import { persistMomoReply } from '@helpers/chat/momo-replies';
+import {
+  createSupabaseServerClient,
+  createSupabaseServiceRoleClient,
+} from '@lib-supabase/server';
 
 import type {
   GetHistory,
@@ -94,10 +97,13 @@ export const send: Send = async input => {
   return sendChatMessageAction(input);
 };
 
+// Not a server action on purpose: it writes with the service role, so only
+// server code (the MoMo stream route) may call it, with agent-generated content.
 export const sendMomo: SendMomo = async input => {
-  'use server';
+  const sessionClient = await createSupabaseServerClient();
+  const serviceClient = createSupabaseServiceRoleClient();
 
-  return sendMomoMessageAction(input);
+  return persistMomoReply({ ...input, sessionClient, serviceClient });
 };
 
 export const remove: Remove = async input => {
