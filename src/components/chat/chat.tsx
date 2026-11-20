@@ -1,13 +1,17 @@
 'use client';
 
 import { ChatPanel } from '@components/chat/chat-panel';
-import { ChatToggle } from '@components/chat/toggle/chat-toggle';
 import type { ChatMessage } from '@lib-types/chat';
-import { Flex } from '@ui/flex/flex';
-import { FlexItem } from '@ui/flex-item/flex-item';
+import type { ExpenseRecord } from '@lib-types/expenses';
+import type { HouseholdMemberProfile } from '@lib-types/households';
+import { useProfile } from '@providers/profile-provider';
 import { Panel } from '@ui/panel/panel';
-import { useState } from 'react';
+import { firstName } from '@utils/user';
+import { useTranslations } from 'next-intl';
+import { useMemo, useState } from 'react';
 import styles from './chat.module.css';
+import type { ChatScope, ScopeSwitch } from './chat-header';
+import type { RowAuthor } from './chat-row';
 
 interface ChatProps {
   householdName?: string;
@@ -15,6 +19,19 @@ interface ChatProps {
   userId: string;
   initialPersonalMessages: ChatMessage[];
   initialHouseholdMessages: ChatMessage[];
+  /** Expense lines for the initial messages, keyed by message id. */
+  initialExpenseLines?: Record<string, ExpenseRecord[]>;
+  /** Household members with their fixed colour slots. */
+  members?: HouseholdMemberProfile[];
+  /** Whether @momo questions reach the assistant for this person. */
+  aiEnabled?: boolean;
+}
+
+function toAuthor(member: HouseholdMemberProfile): RowAuthor {
+  return {
+    name: firstName(member.display_name, member.email),
+    slot: member.color_slot ?? null,
+  };
 }
 
 export function Chat({
@@ -23,59 +40,77 @@ export function Chat({
   userId,
   initialPersonalMessages,
   initialHouseholdMessages,
+  initialExpenseLines,
+  members = [],
+  aiEnabled = false,
 }: ChatProps) {
-  const [activeTab, setActiveTab] = useState<'personal' | 'household'>(
+  const t = useTranslations('chat.tabs');
+  const profile = useProfile();
+  const [activeTab, setActiveTab] = useState<ChatScope>(
     householdId ? 'household' : 'personal',
   );
 
+  const people = useMemo(() => {
+    const membersById = new Map<string, RowAuthor>();
+    for (const member of members) {
+      if (member.user_id) membersById.set(member.user_id, toAuthor(member));
+    }
+    // Without a household you'd be its first member, so slot 1.
+    const me: RowAuthor = {
+      name: firstName(profile?.display_name ?? null, profile?.email ?? null),
+      slot: membersById.get(userId)?.slot ?? 1,
+    };
+    const household = members.length
+      ? [...members]
+          .sort((a, b) => (a.color_slot ?? 99) - (b.color_slot ?? 99))
+          .map(toAuthor)
+      : [me];
+    return { membersById, me, household };
+  }, [members, profile?.display_name, profile?.email, userId]);
+
+  const personalTitle = profile?.display_name?.trim() || t('personal');
+  const householdTitle = householdName?.trim() || t('household');
+
+  const scopeSwitch: ScopeSwitch | undefined = householdId
+    ? {
+        active: activeTab,
+        onChange: setActiveTab,
+        options: [
+          { value: 'personal', label: personalTitle },
+          { value: 'household', label: householdTitle },
+        ],
+      }
+    : undefined;
+
   return (
-    <Flex
-      direction="column"
-      alignItems="stretch"
-      isFullHeight
-      isFullWidth
-      gap={2}
-      style={{ minHeight: 0 }}
-    >
+    <Panel marginBottom={2} className={styles['momo-chat']}>
       {householdId ? (
-        <Flex
-          paddingBottom={1}
-          alignItems="center"
-          justifyContent="center"
-          isFullWidth
-        >
-          <ChatToggle
-            active={activeTab}
-            onChange={setActiveTab}
-            householdName={householdName}
-          />
-        </Flex>
+        <ChatPanel
+          scope="household"
+          userId={userId}
+          householdId={householdId}
+          isActive={activeTab === 'household'}
+          initialMessages={initialHouseholdMessages}
+          initialLines={initialExpenseLines}
+          title={householdTitle}
+          people={people.household}
+          membersById={people.membersById}
+          aiEnabled={aiEnabled}
+          scopeSwitch={scopeSwitch}
+        />
       ) : null}
-      <FlexItem grow={1} shrink={1} style={{ minWidth: 0, minHeight: 0 }}>
-        <Panel marginBottom={2} className={styles['momo-chat']}>
-          <Flex
-            isFullHeight
-            isFullWidth
-            direction="column"
-            justifyContent="space-between"
-            style={{ minHeight: 0 }}
-          >
-            <ChatPanel
-              scope="household"
-              userId={userId}
-              householdId={householdId}
-              isActive={activeTab === 'household'}
-              initialMessages={initialHouseholdMessages}
-            />
-            <ChatPanel
-              scope="personal"
-              userId={userId}
-              isActive={activeTab === 'personal'}
-              initialMessages={initialPersonalMessages}
-            />
-          </Flex>
-        </Panel>
-      </FlexItem>
-    </Flex>
+      <ChatPanel
+        scope="personal"
+        userId={userId}
+        isActive={activeTab === 'personal'}
+        initialMessages={initialPersonalMessages}
+        initialLines={initialExpenseLines}
+        title={personalTitle}
+        people={[people.me]}
+        membersById={people.membersById}
+        aiEnabled={aiEnabled}
+        scopeSwitch={scopeSwitch}
+      />
+    </Panel>
   );
 }

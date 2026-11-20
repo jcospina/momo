@@ -9,28 +9,35 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: var(--space-3);
+  padding: var(--space-2) var(--space-3) var(--space-3);
 }
 
+/* Sizer and cycle share one grid cell, so the stage is always as tall as
+   the finished ticket. */
 .momo-hero-chat-mobile__stage {
-  position: relative;
+  display: grid;
   width: 100%;
-  min-height: calc(var(--spacing) * 6);
-  display: flex;
-  align-items: center;
+}
+
+.momo-hero-chat-mobile__stage > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+.momo-hero-chat-mobile__sizer {
+  visibility: hidden;
+}
+
+.momo-hero-chat-mobile__cycle {
+  display: grid;
 }
 
 .momo-hero-chat-mobile__phase {
-  position: absolute;
-  inset: 0;
+  grid-area: 1 / 1;
   display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.momo-hero-chat-mobile__phase--bubble {
-  justify-content: flex-end;
-  padding-right: 2px;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

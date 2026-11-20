@@ -1,0 +1,68 @@
+.momo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 0.75);
+  min-height: calc(var(--spacing) * 4);
+  padding: 0 calc(var(--spacing) * 1.5);
+  border: var(--border-width-thin) solid var(--color-dark);
+  border-radius: var(--radius-pill);
+  background: var(--color-light);
+  color: var(--color-dark);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-pop),
+    transform var(--duration-fast) var(--ease-pop),
+    box-shadow var(--duration-fast) var(--ease-pop);
+}
+
+/* The dot sits in the leading padding, so tighten that side. */
+.momo-chip--dot {
+  padding-left: var(--spacing);
+}
+
+.momo-chip:not(:disabled):hover {
+  background: color-mix(
+    in oklab,
+    var(--chip-dot, var(--color-light)) 30%,
+    var(--color-light)
+  );
+  box-shadow: var(--shadow-sm);
+  transform: translate(1px, -1px);
+}
+
+.momo-chip:not(:disabled):active {
+  transform: none;
+  box-shadow: none;
+}
+
+.momo-chip:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+
+.momo-chip:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.momo-chip__dot {
+  flex: none;
+  width: calc(var(--spacing) * 1.75);
+  height: calc(var(--spacing) * 1.75);
+  border: var(--border-width-thin) solid var(--color-dark);
+  border-radius: 50%;
+  background: var(--chip-dot);
+}
+
+/* Bigger touch target on phones. */
+@media (max-width: 640px) {
+  .momo-chip {
+    min-height: calc(var(--spacing) * 5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-chip {
+    transition: none;
+  }
+}

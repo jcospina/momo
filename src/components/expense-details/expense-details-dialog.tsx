@@ -1,8 +1,12 @@
 'use client';
 
+import {
+  isExpenseCategory,
+  UNIQUE_EXPENSE_CATEGORIES,
+} from '@constants/expenses/categories';
+import { useCategoryLabel } from '@hooks/use-category-label';
 import type { ChatMessageStatus } from '@lib-types/chat';
 import type { ExpenseCategory } from '@lib-types/expenses';
-import { EXPENSE_CATEGORIES } from '@lib-types/expenses';
 import { Button } from '@ui/button/button';
 import { Dialog } from '@ui/dialog/dialog';
 import type { DialogController } from '@ui/dialog/dialog.types';
@@ -18,17 +22,6 @@ import {
   updateExpenses,
 } from '@/lib/data/expenses/client';
 import styles from './expense-details-dialog.module.css';
-
-const uniqueCategories = (() => {
-  const seen = new Set<ExpenseCategory>();
-  return EXPENSE_CATEGORIES.filter(category => {
-    if (seen.has(category)) return false;
-    seen.add(category);
-    return true;
-  });
-})();
-
-const categorySet = new Set(uniqueCategories);
 
 type CategoryOption = {
   value: ExpenseCategory;
@@ -53,13 +46,6 @@ type ExpenseDraft = {
   currency: string;
   note: string;
 };
-
-function formatCategoryLabel(category: ExpenseCategory) {
-  return category
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
 
 function formatAmount(amountCents: number, currency: string) {
   if (!Number.isFinite(amountCents)) return '';
@@ -87,13 +73,14 @@ export function ExpenseDetailsDialog({
   const [loadedMessageId, setLoadedMessageId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  const labelFor = useCategoryLabel();
   const categoryOptions = useMemo<CategoryOption[]>(
     () =>
-      uniqueCategories.map(category => ({
+      UNIQUE_EXPENSE_CATEGORIES.map(category => ({
         value: category,
-        label: formatCategoryLabel(category),
+        label: labelFor(category),
       })),
-    [],
+    [labelFor],
   );
 
   useEffect(() => {
@@ -107,11 +94,9 @@ export function ExpenseDetailsDialog({
     getExpensesByMessageId({ messageId }).then(result => {
       if (!isActive) return;
       const drafts = (result.expenses ?? []).map(expense => {
-        const category =
-          expense.category &&
-          categorySet.has(expense.category as ExpenseCategory)
-            ? (expense.category as ExpenseCategory)
-            : null;
+        const category = isExpenseCategory(expense.category)
+          ? expense.category
+          : null;
         const currency = expense.currency ?? 'USD';
         return {
           id: expense.id,

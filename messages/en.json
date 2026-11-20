@@ -56,6 +56,42 @@
     "auth_demo_not_configured": "Demo mode isn't set up on this server. No quick tour today, sorry."
   },
   "chat": {
+    "days": {
+      "today": "Today",
+      "yesterday": "Yesterday"
+    },
+    "tickets": {
+      "adding": "Adding it…",
+      "addingAria": "Adding “{content}”",
+      "unsent": "Didn’t send",
+      "unsentHint": "Check your connection and",
+      "tryAgain": "Try again",
+      "oops": "Couldn’t read that one",
+      "oopsHint": "Add the amount yourself?",
+      "fixIt": "Fix it",
+      "whichCategory": "Which category?",
+      "whichCategoryFor": "Which category is “{descriptor}”?",
+      "noCategoryYet": "No category yet",
+      "things": "{count, plural, one {# thing} other {# things}}",
+      "together": "Together",
+      "more": "More…",
+      "pickFailed": "Couldn’t save that category. Try again?",
+      "askedMomo": "Asked MoMo",
+      "loadingEarlier": "Loading earlier tickets",
+      "beginning": "That’s the very beginning"
+    },
+    "composer": {
+      "placeholder": "What did you spend?",
+      "ariaLabel": "Add an expense or ask @momo",
+      "send": "Send",
+      "hint": "Try “lunch 12.50”, or ask @momo anything.",
+      "hintNoAi": "Try “lunch 12.50” or “groceries 82.40, wine 18”.",
+      "hintMomo": "MoMo will answer this"
+    },
+    "empty": {
+      "title": "Nothing here yet",
+      "body": "Tell MoMo what you spent by simply tiping amount and short note"
+    },
     "tabs": {
       "personal": "Personal",
       "household": "Household"
@@ -91,6 +127,32 @@
     }
   },
   "expenses": {
+    "categories": {
+      "housing": "Housing",
+      "utilities": "Utilities",
+      "groceries": "Groceries",
+      "dining": "Dining",
+      "transportation": "Transport",
+      "vehicle": "Vehicle",
+      "health": "Health",
+      "self_care": "Self care",
+      "education": "Education",
+      "kids": "Kids",
+      "shopping": "Shopping",
+      "entertainment": "Entertainment",
+      "subscriptions": "Subscriptions",
+      "travel": "Travel",
+      "gifts": "Gifts",
+      "fees": "Fees",
+      "income": "Income",
+      "transfer": "Transfers",
+      "pets": "Pets",
+      "debt": "Debt",
+      "fun": "Fun",
+      "treats": "Treats",
+      "uncategorized": "Uncategorized",
+      "others": "Others"
+    },
     "detail": {
       "title": "Expense details",
       "loading": "Loading expenses...",
@@ -217,10 +279,46 @@
         "headerTitle": "Family",
         "mobile": {
           "samples": [
-            "Coffee 4.50",
-            "22 Uber to airport",
-            "Groceries 54",
-            "Lunch with wife 18"
+            {
+              "text": "Coffee 4.50",
+              "time": "08:15",
+              "expense": {
+                "descriptor": "Coffee",
+                "amountMinor": 450,
+                "currency": "USD",
+                "category": "treats"
+              }
+            },
+            {
+              "text": "22 Uber to airport",
+              "time": "09:40",
+              "expense": {
+                "descriptor": "Uber to airport",
+                "amountMinor": 2200,
+                "currency": "USD",
+                "category": "transportation"
+              }
+            },
+            {
+              "text": "Groceries 54",
+              "time": "17:12",
+              "expense": {
+                "descriptor": "Groceries",
+                "amountMinor": 5400,
+                "currency": "USD",
+                "category": "groceries"
+              }
+            },
+            {
+              "text": "Lunch with wife 18",
+              "time": "12:31",
+              "expense": {
+                "descriptor": "Lunch with wife",
+                "amountMinor": 1800,
+                "currency": "USD",
+                "category": "dining"
+              }
+            }
           ],
           "ariaSendLabel": "Send",
           "ariaPreviewLabel": "Preview of typing a message and creating an expense"
@@ -230,20 +328,58 @@
             {
               "text": "25.50 lunch with wife",
               "sender": "Juan",
-              "time": "12:31 PM"
+              "time": "12:31",
+              "expense": {
+                "descriptor": "Lunch with wife",
+                "amountMinor": 2550,
+                "currency": "USD",
+                "category": "dining"
+              }
             },
-            { "text": "4 coffee", "sender": "Martín", "time": "12:34 PM" },
+            {
+              "text": "4 coffee",
+              "sender": "Martín",
+              "time": "12:34",
+              "expense": {
+                "descriptor": "Coffee",
+                "amountMinor": 400,
+                "currency": "USD",
+                "category": "treats"
+              }
+            },
             {
               "text": "22 taxi to airport",
               "sender": "Juan",
-              "time": "12:48 PM"
+              "time": "12:48",
+              "expense": {
+                "descriptor": "Taxi to airport",
+                "amountMinor": 2200,
+                "currency": "USD",
+                "category": "transportation"
+              }
             },
             {
               "text": "54 groceries trader joes",
               "sender": "Martín",
-              "time": "5:12 PM"
+              "time": "17:12",
+              "expense": {
+                "descriptor": "Trader Joe's groceries",
+                "amountMinor": 5400,
+                "currency": "USD",
+                "category": "groceries"
+              }
             },
-            { "text": "9 movie ticket", "sender": "Martín", "time": "8:02 PM" }
+            {
+              "text": "9 movie ticket",
+              "sender": "Martín",
+              "time": "20:02",
+              "expense": {
+                "descriptor": "Movie ticket",
+                "amountMinor": 900,
+                "currency": "USD",
+                "category": "entertainment"
+              }
+            }
           ]
         }
       }
@@ -258,11 +394,13 @@
       },
       "chat": {
         "text": "25 lunch with Martín",
-        "time": "12:31 PM"
-      },
-      "chip": {
-        "label": "Categorized as",
-        "category": "Dining"
+        "time": "12:31",
+        "expense": {
+          "descriptor": "Lunch with Martín",
+          "amountMinor": 2500,
+          "currency": "USD",
+          "category": "dining"
+        }
       }
     },
     "together": {
@@ -275,9 +413,24 @@
         "statsAria": "Separate Stats tab — not part of the chat"
       },
       "thread": [
-        { "text": "got groceries 54", "time": "5:12 PM" },
-        { "text": "Cool, did you buy the milk too?", "time": "5:13 PM" },
-        { "text": "yeah, all in", "time": "5:14 PM" }
+        {
+          "text": "got groceries 54",
+          "time": "17:12",
+          "expense": {
+            "descriptor": "Groceries",
+            "amountMinor": 5400,
+            "currency": "USD",
+            "category": "groceries"
+          }
+        },
+        {
+          "text": "Cool, did you buy the milk too?",
+          "time": "17:13"
+        },
+        {
+          "text": "yeah, all in",
+          "time": "17:14"
+        }
       ],
       "ring": {
         "left": "Juan",

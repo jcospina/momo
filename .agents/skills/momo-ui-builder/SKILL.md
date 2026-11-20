@@ -23,6 +23,7 @@ Read `references/component-map.md` first, then load only specific files:
 - `references/avatar.md`
 - `references/button.md`
 - `references/checkbox.md`
+- `references/chip.md`
 - `references/circle.md`
 - `references/dialog.md`
 - `references/divider.md`

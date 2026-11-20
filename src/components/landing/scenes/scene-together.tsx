@@ -1,10 +1,12 @@
 'use client';
 
-import { ChatMessageBubble } from '@components/chat/chat-message-bubble';
-import { Avatar } from '@ui/avatar/avatar';
+import { ChatRowScope, type RowAuthor } from '@components/chat/chat-row';
+import {
+  PREVIEW_PARTNER_SLOT,
+  PreviewChatRow,
+  type PreviewSample,
+} from '@components/landing/chat-preview';
 import { Highlight } from '@ui/highlight/highlight';
-import { CircleCheckIcon } from '@ui/icons/circle-check';
-import { ThreeDotsIcon } from '@ui/icons/three-dots';
 import { Typography } from '@ui/typography/typography';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
@@ -20,18 +22,20 @@ const LandingMiniRing = dynamic(
   { ssr: false },
 );
 
-type ThreadMessage = {
-  text: string;
-  time?: string;
-};
+/** The reader writes the second message; the partner the others. */
+const OWN_MESSAGE_INDEX = 1;
 
 export function SceneTogether() {
   const t = useTranslations('landing.together');
 
-  const thread = useMemo<ThreadMessage[]>(() => {
-    const raw = t.raw('thread') as ThreadMessage[] | undefined;
+  const thread = useMemo<PreviewSample[]>(() => {
+    const raw = t.raw('thread') as PreviewSample[] | undefined;
     return raw ?? [];
   }, [t]);
+  const partner: RowAuthor = {
+    name: t('ring.right'),
+    slot: PREVIEW_PARTNER_SLOT,
+  };
 
   const ringData = [
     { name: t('ring.left'), value: 62 },
@@ -83,39 +87,23 @@ export function SceneTogether() {
 
           <div className={styles['momo-scene-together__content']}>
             <section className={styles['momo-scene-together__column']}>
-              <div className={styles['momo-scene-together__thread']}>
-                {thread.map((msg, index) => {
-                  const isOwn = index === 1;
-                  const isExpense = index === 0;
-                  return (
-                    <ChatMessageBubble
-                      key={`together-msg-${index}`}
-                      text={msg.text}
-                      isOwn={isOwn}
-                      timestamp={msg.time}
-                      senderName={isOwn ? null : 'Martín'}
-                      avatarSlot={
-                        isOwn ? null : (
-                          <Avatar
-                            size="extra-small"
-                            displayName="M"
-                            color="mauve-magic"
-                          />
-                        )
-                      }
-                      statusSlot={
-                        isExpense ? (
-                          <CircleCheckIcon width={18} height={18} />
-                        ) : null
-                      }
-                      actionsSlot={
-                        isOwn ? <ThreeDotsIcon width={16} height={16} /> : null
-                      }
-                      skipMountAnimation
-                    />
-                  );
-                })}
-              </div>
+              <ChatRowScope
+                className={styles['momo-scene-together__thread']}
+                inert
+              >
+                {thread.map((sample, index) => (
+                  <PreviewChatRow
+                    key={`together-msg-${index}`}
+                    id={`together-${index}`}
+                    sample={sample}
+                    author={index === OWN_MESSAGE_INDEX ? null : partner}
+                    isProcessed
+                    isGroupStart
+                    isGroupEnd
+                    isFresh={false}
+                  />
+                ))}
+              </ChatRowScope>
             </section>
 
             <div

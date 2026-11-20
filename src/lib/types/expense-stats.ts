@@ -17,6 +17,10 @@ export type MonthlyByCategoryUserRow = {
   category: string;
   user_label: string;
   total_cents: number;
+  /** Author id; lets charts tell members apart without relying on names. */
+  user_id?: string | null;
+  /** Author's fixed colour slot (null when they left the household). */
+  color_slot?: number | null;
 };
 
 export type MonthlyTotalsByUserRow = {

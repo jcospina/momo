@@ -1,11 +1,14 @@
 'use client';
 
+import { expectsLines, toUpdateInput } from '@features/chat/lib/expense-lines';
 import type { MomoStreamState } from '@hooks/use-momo-stream';
 import { useMomoStream } from '@hooks/use-momo-stream';
 import type { ChatMessage, SyncReason } from '@lib-types/chat';
+import type { ExpenseCategory, ExpenseRecord } from '@lib-types/expenses';
 import { useDialogController } from '@ui/dialog/dialog';
 import { momoIdempotencyKey } from '@utils/momo-mention';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { updateExpenses } from '@/lib/data/expenses/client';
 import {
   getList as getChatHistory,
   remove as removeChatMessage,
@@ -13,6 +16,7 @@ import {
 } from '@/lib/data/messages/client';
 import { useChatState } from './use-chat-state';
 import { useComposer } from './use-composer';
+import { useExpenseLines } from './use-expense-lines';
 import { useHouseholdRealtime } from './use-household-realtime';
 import { useHouseholdSync } from './use-household-sync';
 import { usePersonalRealtime } from './use-personal-realtime';
@@ -33,6 +37,8 @@ type UseChatPanelArgs = {
   householdId: string | null;
   initialMessages: ChatMessage[];
   isActive: boolean;
+  /** Expense lines loaded with the page, keyed by message id. */
+  initialLines?: Record<string, ExpenseRecord[]>;
 };
 
 type ExpenseDetailsSaved = {
@@ -65,6 +71,7 @@ export function useChatPanel({
   householdId,
   initialMessages,
   isActive,
+  initialLines,
 }: UseChatPanelArgs) {
   const isHousehold = scope === 'household';
   // The household id only applies to the household scope; personal panels
@@ -105,6 +112,14 @@ export function useChatPanel({
     : removePersonalMessage;
   const scopedMessages = isHousehold ? householdMessages : personalMessages;
 
+  const expenseLines = useExpenseLines({
+    messages: scopedMessages,
+    initialRecords: initialLines,
+    enabled: isActive,
+  });
+  const { invalidate: invalidateLines, seed: seedLines } = expenseLines;
+  const [pickErrors, setPickErrors] = useState<Record<string, boolean>>({});
+
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [expenseDetailsMessageId, setExpenseDetailsMessageId] = useState<
     string | null
@@ -144,8 +159,17 @@ export function useChatPanel({
   const handlePersonalRealtimeMessage = useCallback(
     (message: ChatMessage) => {
       mergePersonalBatch([message]);
+      // Edits keep the same status/count, so refresh lines on every event.
+      if (expectsLines(message)) invalidateLines([message.id]);
     },
-    [mergePersonalBatch],
+    [invalidateLines, mergePersonalBatch],
+  );
+  const handleHouseholdRealtimeMessage = useCallback(
+    (message: ChatMessage) => {
+      mergeRealtime(message);
+      if (expectsLines(message)) invalidateLines([message.id]);
+    },
+    [invalidateLines, mergeRealtime],
   );
   const handlePersonalRealtimeDelete = useCallback(
     (message: ChatMessage) => {
@@ -170,7 +194,7 @@ export function useChatPanel({
   useHouseholdRealtime({
     householdId: effectiveHouseholdId,
     isHousehold: isActive && isHousehold && Boolean(householdId),
-    onMessage: mergeRealtime,
+    onMessage: handleHouseholdRealtimeMessage,
     onDelete: handleHouseholdRealtimeDelete,
     onStatus: handleRealtimeStatus,
   });
@@ -229,6 +253,7 @@ export function useChatPanel({
         return;
       }
       reconcile(tempId, result.message);
+      if (result.expenses) seedLines(result.message, result.expenses);
       maybeStartMomoStream(result.message);
     },
     [
@@ -237,6 +262,7 @@ export function useChatPanel({
       markFailed,
       maybeStartMomoStream,
       reconcile,
+      seedLines,
     ],
   );
 
@@ -253,6 +279,7 @@ export function useChatPanel({
         return;
       }
       reconcile(message.id, result.message);
+      if (result.expenses) seedLines(result.message, result.expenses);
       maybeStartMomoStream(result.message);
     },
     [
@@ -261,6 +288,7 @@ export function useChatPanel({
       markPending,
       maybeStartMomoStream,
       reconcile,
+      seedLines,
     ],
   );
 
@@ -297,9 +325,70 @@ export function useChatPanel({
   const handleExpenseDetailsSaved = useCallback(
     ({ messageId, status }: ExpenseDetailsSaved) => {
       setMessageStatus(messageId, status);
+      invalidateLines([messageId]);
       scheduleSync('pending');
     },
-    [scheduleSync, setMessageStatus],
+    [invalidateLines, scheduleSync, setMessageStatus],
+  );
+
+  const { linesByMessageId, overlayCategory, clearOverlay } = expenseLines;
+
+  // Inline category pick on a ticket: show it at once, save one line, and
+  // undo both the colour and the status if the save fails.
+  const handlePickCategory = useCallback(
+    async (message: ChatMessage, lineId: string, category: ExpenseCategory) => {
+      const lines = linesByMessageId.get(message.id) ?? [];
+      const line = lines.find(candidate => candidate.id === lineId);
+      if (!line) return;
+      const othersMissing = lines.some(
+        candidate => candidate.id !== lineId && !candidate.category,
+      );
+      const previousStatus = message.status;
+
+      overlayCategory(lineId, category);
+      setMessageStatus(
+        message.id,
+        othersMissing ? 'needs_category' : 'processed',
+      );
+      setPickErrors(prev => {
+        if (!prev[message.id]) return prev;
+        const next = { ...prev };
+        delete next[message.id];
+        return next;
+      });
+
+      const result = await updateExpenses({
+        updates: [toUpdateInput(line, category)],
+        messageId: message.id,
+      });
+
+      if (result?.errorCode) {
+        console.warn('[chat] category pick failed', {
+          id: message.id,
+          error: result.errorCode,
+        });
+        clearOverlay(lineId);
+        if (
+          previousStatus === 'processed' ||
+          previousStatus === 'needs_category'
+        ) {
+          setMessageStatus(message.id, previousStatus);
+        }
+        setPickErrors(prev => ({ ...prev, [message.id]: true }));
+        return;
+      }
+
+      invalidateLines([message.id]);
+      scheduleSync('pending');
+    },
+    [
+      clearOverlay,
+      invalidateLines,
+      linesByMessageId,
+      overlayCategory,
+      scheduleSync,
+      setMessageStatus,
+    ],
   );
 
   const loadOlder = useCallback(async () => {
@@ -376,6 +465,11 @@ export function useChatPanel({
     expenseDetailsMessageId,
     onExpenseDetailsSaved: handleExpenseDetailsSaved,
     pendingStreams,
+    /** Parsed expense lines per message id (with pending picks applied). */
+    linesByMessageId,
+    onPickCategory: handlePickCategory,
+    /** Message ids whose last inline category pick failed to save. */
+    pickErrors,
   };
 }
 

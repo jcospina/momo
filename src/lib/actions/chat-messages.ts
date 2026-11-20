@@ -2,6 +2,7 @@
 
 import { deleteChatMessage as deleteChatMessageRow } from '@helpers/chat/chat-messages';
 import { processChatMessage } from '@helpers/chat/chat-processor';
+import { fetchExpensesByMessageId } from '@helpers/expenses/expense-fetch';
 import { isAiEnabled } from '@helpers/user-prefs';
 import { createSupabaseServerClient } from '@lib-supabase/server';
 import type {
@@ -96,7 +97,12 @@ export async function sendChatMessage({
     return { message: data };
   }
 
-  return { message: updatedRaw as unknown as ChatMessage };
+  const message = updatedRaw as unknown as ChatMessage;
+  const expenses =
+    message.expense_count > 0
+      ? await fetchExpensesByMessageId({ supabase, messageId: message.id })
+      : [];
+  return { message, expenses };
 }
 
 type DeleteChatMessageInput = {

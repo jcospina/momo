@@ -37,11 +37,11 @@ jest.mock('remark-gfm', () => ({
   default: () => undefined,
 }));
 
-import { MomoStreamingBubble } from './momo-streaming-bubble';
+import { MomoMarkdown } from './momo-markdown';
 
-describe('MomoStreamingBubble components map', () => {
+describe('MomoMarkdown components map', () => {
   it('maps h1, h2, and h3 to <h3> tags so headings stay bubble-sized', () => {
-    render(<MomoStreamingBubble text="ignored" isComplete />);
+    render(<MomoMarkdown text="ignored" />);
 
     for (const label of ['alpha', 'beta', 'gamma']) {
       expect(screen.getByText(label).tagName).toBe('H3');
@@ -49,7 +49,7 @@ describe('MomoStreamingBubble components map', () => {
   });
 
   it('renders links with target="_blank" and rel="noopener noreferrer"', () => {
-    render(<MomoStreamingBubble text="ignored" isComplete />);
+    render(<MomoMarkdown text="ignored" />);
 
     const link = screen.getByRole('link', { name: 'click' });
     expect(link).toHaveAttribute('href', 'https://example.com');
@@ -58,9 +58,7 @@ describe('MomoStreamingBubble components map', () => {
   });
 
   it('wraps tables so they can scroll horizontally inside the bubble', () => {
-    const { container } = render(
-      <MomoStreamingBubble text="ignored" isComplete />,
-    );
+    const { container } = render(<MomoMarkdown text="ignored" />);
 
     const wrap = container.querySelector('[class*="table-wrap"]');
     expect(wrap).not.toBeNull();

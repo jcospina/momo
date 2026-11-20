@@ -1,3 +1,5 @@
+import type { ExpenseRecord } from '@lib-types/expenses';
+
 export type ChatMessageStatus =
   | 'pending'
   | 'processed'
@@ -25,6 +27,8 @@ export type ChatMessage = {
 export type SendChatMessageResult = {
   errorCode?: 'message_empty' | 'auth_required' | 'chat_message_send_failed';
   message?: ChatMessage;
+  /** The message's parsed lines, so the sender's ticket renders at once. */
+  expenses?: ExpenseRecord[];
 };
 
 export type SendMomoMessageResult = {

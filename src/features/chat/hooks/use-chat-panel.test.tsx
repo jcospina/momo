@@ -41,6 +41,16 @@ jest.mock('@/lib/data/messages/client', () => ({
   send: (...args: unknown[]) => sendChatMessageMock(...args),
 }));
 
+const getExpensesByMessageIdsMock = jest.fn();
+const updateExpensesMock = jest.fn();
+jest.mock('@/lib/data/expenses/client', () => ({
+  __esModule: true,
+  getExpensesByMessageIds: (...args: unknown[]) =>
+    getExpensesByMessageIdsMock(...args),
+  updateExpenses: (...args: unknown[]) => updateExpensesMock(...args),
+}));
+
+import type { ExpenseRecord } from '@lib-types/expenses';
 import { useChatPanel } from './use-chat-panel';
 
 type PanelReturn = ReturnType<typeof useChatPanel>;
@@ -221,5 +231,127 @@ describe('useChatPanel — @momo send wiring', () => {
     expect(result.current.pendingStreams.get('trigger-y')).toMatchObject({
       status: 'streaming',
     });
+  });
+});
+
+function buildRecord(overrides: Partial<ExpenseRecord> = {}): ExpenseRecord {
+  return {
+    id: 'line-1',
+    household_id: null,
+    user_id: 'user-1',
+    chat_message_id: 'srv-1',
+    amount_cents: 4500,
+    currency: 'USD',
+    expense_date: '2026-05-14',
+    merchant: null,
+    category: 'uncategorized',
+    note: 'thing for mom 45',
+    created_at: '2026-05-14T00:00:00.000Z',
+    tags: [],
+    ...overrides,
+  };
+}
+
+describe('useChatPanel — expense lines', () => {
+  const needsCategory = buildMessage({
+    id: 'srv-1',
+    content: 'thing for mom 45',
+    status: 'needs_category',
+    expense_count: 1,
+  });
+
+  function renderWithLines() {
+    return renderHook(() =>
+      useChatPanel({
+        scope: 'personal',
+        userId: 'user-1',
+        householdId: null,
+        initialMessages: [needsCategory],
+        isActive: true,
+        initialLines: { 'srv-1': [buildRecord()] },
+      }),
+    );
+  }
+
+  beforeEach(() => {
+    sendChatMessageMock.mockReset();
+    getExpensesByMessageIdsMock.mockReset();
+    getExpensesByMessageIdsMock.mockResolvedValue({ expensesByMessageId: {} });
+    updateExpensesMock.mockReset();
+  });
+
+  it('shows the lines that come back with your own send', async () => {
+    sendChatMessageMock.mockResolvedValue({
+      message: buildMessage({ id: 'srv-2', expense_count: 1 }),
+      expenses: [
+        buildRecord({
+          id: 'line-2',
+          chat_message_id: 'srv-2',
+          category: 'groceries',
+          note: 'groceries 20',
+          amount_cents: 2000,
+        }),
+      ],
+    });
+
+    const { result } = renderPanel();
+    await submitDraft(result, 'groceries 20');
+
+    const [line] = result.current.linesByMessageId.get('srv-2') ?? [];
+    expect(line).toMatchObject({
+      descriptor: 'Groceries',
+      category: 'groceries',
+    });
+  });
+
+  it('files a picked category at once and saves just that line', async () => {
+    updateExpensesMock.mockResolvedValue({ updatedIds: ['line-1'] });
+    // After saving, the panel reloads the line; the server now has the pick.
+    getExpensesByMessageIdsMock.mockResolvedValue({
+      expensesByMessageId: { 'srv-1': [buildRecord({ category: 'gifts' })] },
+    });
+    const { result } = renderWithLines();
+
+    await act(async () => {
+      await result.current.onPickCategory(needsCategory, 'line-1', 'gifts');
+    });
+
+    expect(updateExpensesMock).toHaveBeenCalledWith({
+      updates: [
+        {
+          id: 'line-1',
+          amount: '45',
+          expense_date: '2026-05-14',
+          category: 'gifts',
+          merchant: null,
+          currency: 'USD',
+        },
+      ],
+      messageId: 'srv-1',
+    });
+    expect(result.current.linesByMessageId.get('srv-1')?.[0].category).toBe(
+      'gifts',
+    );
+    expect(result.current.messages[0].status).toBe('processed');
+    expect(result.current.pickErrors['srv-1']).toBeUndefined();
+  });
+
+  it('undoes the pick when saving fails', async () => {
+    updateExpensesMock.mockResolvedValue({
+      errorCode: 'expense_update_failed',
+    });
+    const warn = jest.spyOn(console, 'warn').mockImplementation();
+    const { result } = renderWithLines();
+
+    await act(async () => {
+      await result.current.onPickCategory(needsCategory, 'line-1', 'gifts');
+    });
+
+    expect(
+      result.current.linesByMessageId.get('srv-1')?.[0].category,
+    ).toBeNull();
+    expect(result.current.messages[0].status).toBe('needs_category');
+    expect(result.current.pickErrors['srv-1']).toBe(true);
+    warn.mockRestore();
   });
 });

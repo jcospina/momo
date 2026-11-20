@@ -11,6 +11,8 @@ Source: `src/ui/avatar/avatar.tsx`, `src/ui/avatar/avatar.types.ts`
 - `displayName: string | null` (required)
 - `size?: 'extra-small' | 'small' | 'medium' | 'large'` (default `medium`)
 - `color?: MomoColor` (default `sky-aqua`)
+- `fill?: string` / `ink?: string`: identity colours that override `color`
+  (for example `memberColorVar(slot)` / `memberInkVar(slot)`)
 - `onClick?: () => void`
 - `className?: string`
 

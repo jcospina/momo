@@ -109,7 +109,9 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    // `outfit.variable` defines `--font-outfit` on <html>, where `:root`
+    // resolves `--font-sans` and the `--h*` / `--body` / `--meta` tokens.
+    <html lang="en" className={outfit.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeAntiFlashScript }} />
         <style

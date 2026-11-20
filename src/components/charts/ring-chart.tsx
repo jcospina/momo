@@ -23,6 +23,13 @@ import {
 export type RingChartItem = {
   name: string;
   value: number;
+  /** Stable identity (category slug, member id). Defaults to `name`. */
+  key?: string;
+  /**
+   * Fixed colour for this item (e.g. `var(--category-dining)`). Without it the
+   * item takes a palette colour by position.
+   */
+  color?: string;
 };
 
 // Tooltip lines are plain data rendered as React text, never as HTML: labels
@@ -44,7 +51,8 @@ export type RingChartProps = {
 type ArcDatum = {
   name: string;
   value: number;
-  paletteIndex: number;
+  key?: string;
+  color: string;
 };
 
 type TooltipDatum = {
@@ -149,7 +157,11 @@ function RingChartCanvas({
       const percent =
         visibleTotalCents > 0 ? (datum.value / visibleTotalCents) * 100 : 0;
       const extra =
-        getTooltipLines?.({ name: datum.name, value: datum.value }) ?? [];
+        getTooltipLines?.({
+          name: datum.name,
+          value: datum.value,
+          key: datum.key,
+        }) ?? [];
       showTooltip({
         tooltipLeft: clientX - rect.left,
         tooltipTop: clientY - rect.top,
@@ -222,7 +234,11 @@ function RingChartCanvas({
                 }}
                 onClick={datum => {
                   if (!onItemClick) return;
-                  onItemClick({ name: datum.name, value: datum.value });
+                  onItemClick({
+                    name: datum.name,
+                    value: datum.value,
+                    key: datum.key,
+                  });
                 }}
               />
             )}
@@ -416,7 +432,7 @@ function AnimatedArcs({
           <path
             key={`arc-${arc.data.name}`}
             d={d}
-            fill={paletteColor(arc.data.paletteIndex)}
+            fill={arc.data.color}
             stroke={CHART_STROKE}
             strokeWidth={STROKE_WIDTH}
             className={styles.arc}
@@ -449,7 +465,8 @@ export function RingChart({
       items.map((item, index) => ({
         name: item.name,
         value: item.value,
-        paletteIndex: index,
+        key: item.key,
+        color: item.color ?? paletteColor(index),
       })),
     [items],
   );
@@ -557,9 +574,7 @@ function RingChartLegend({
               <span
                 className={legendStyles.legendDot}
                 style={{
-                  background: hidden
-                    ? 'transparent'
-                    : paletteColor(item.paletteIndex),
+                  background: hidden ? 'transparent' : item.color,
                 }}
               />
               <span className={legendStyles.legendLabel}>{item.name}</span>

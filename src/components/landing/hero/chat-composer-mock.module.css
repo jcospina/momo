@@ -1,10 +1,10 @@
-.momo-chat-composer-mock {
-  --momo-chat-composer-mock-height: calc(var(--spacing) * 5);
+/* Mirrors the chat composer (src/components/chat/chat-composer.tsx): an
+   Input field with the round send button inset on the right. */
 
-  display: inline-flex;
-  align-items: stretch;
+.momo-chat-composer-mock {
+  display: flex;
+  align-items: center;
   width: 100%;
-  height: var(--momo-chat-composer-mock-height);
   border: 2px solid var(--color-dark);
   border-radius: var(--border-radius);
   background-color: var(--color-light);
@@ -14,11 +14,10 @@
 .momo-chat-composer-mock__typed {
   flex: 1 1 auto;
   display: block;
-  height: 100%;
   min-width: 0;
   padding: 0 calc(var(--spacing) * 1);
   font-size: var(--font-size);
-  line-height: calc(var(--momo-chat-composer-mock-height) - 4px);
+  line-height: 1.4;
   color: var(--color-dark);
   text-align: left;
   white-space: nowrap;
@@ -30,14 +29,42 @@
   visibility: visible;
 }
 
+.momo-chat-composer-mock__typed:empty::before {
+  content: attr(data-placeholder);
+  color: color-mix(in oklch, var(--color-dark), white 35%);
+}
+
 .momo-chat-composer-mock__send {
-  display: inline-flex;
-  align-items: stretch;
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+  margin: calc(var(--spacing) * 0.5);
+  border: var(--border-width-thin) solid var(--color-dark);
+  border-radius: 50%;
+  background-color: var(--color-spring-green);
+  color: var(--color-dark);
+  transition:
+    background-color var(--duration-fast) var(--ease-pop),
+    border-color var(--duration-fast) var(--ease-pop),
+    color var(--duration-fast) var(--ease-pop);
+}
+
+/* Nothing typed: just a faded plane, like the chat's disabled send. */
+.momo-chat-composer-mock:has(.momo-chat-composer-mock__typed:empty)
+.momo-chat-composer-mock__send {
+  border-color: transparent;
+  background-color: transparent;
+  color: var(--fg-subtle);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .momo-chat-composer-mock__typed {
     visibility: visible;
+  }
+
+  .momo-chat-composer-mock__send {
+    transition: none;
   }
 }

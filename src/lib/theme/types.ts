@@ -1,3 +1,6 @@
+import type { CategoryFamilyId } from '@constants/expenses/categories';
+import type { ExpenseCategory } from '@lib-types/expenses';
+
 /**
  * Palette schema for a theme. Required fields cover the eight semantic roles
  * the UI needs. Optional fields fall back to derivations defined in
@@ -45,10 +48,32 @@ export type ThemePalette = {
   chartStroke?: string;
   /** Chart tooltip background. Default: `{surface}`. */
   chartTooltipBg?: string;
+
+  /**
+   * Base colour per category family (see `CATEGORY_FAMILIES`). Every category
+   * in a family gets a distinct shade of it, so the same category is always
+   * the same colour in chat and charts. Must be `oklch(...)`: shades and text
+   * contrast are computed from it at build time. Default: the family's brand
+   * role (food → secondary, home → warm, transport → info, wellbeing →
+   * primary, fun → feature) plus derived people/money colours.
+   */
+  categoryFamilies?: Partial<Record<CategoryFamilyId, string>>;
+  /** Exact `oklch(...)` colour for one category, bypassing its family shade. */
+  categoryOverrides?: Partial<Record<ExpenseCategory, string>>;
+  /**
+   * Household member colours by slot 1–5 (`oklch(...)`). A member keeps their
+   * slot for as long as they stay in the household. Default: the accent roles.
+   */
+  members?: [string, string, string, string, string];
 };
 
 /** Palette with all optional fields filled in. */
-export type ResolvedPalette = Required<ThemePalette>;
+export type ResolvedPalette = Required<
+  Omit<ThemePalette, 'categoryFamilies' | 'categoryOverrides'>
+> & {
+  categoryFamilies: Record<CategoryFamilyId, string>;
+  categoryOverrides: Partial<Record<ExpenseCategory, string>>;
+};
 
 export type ThemeConfig = {
   /** Stable identifier — used in localStorage and the `data-schema` attribute. */

@@ -56,6 +56,42 @@
     "auth_demo_not_configured": "El modo demo no está configurado en este servidor. Hoy no hay tour rápido, perdona."
   },
   "chat": {
+    "days": {
+      "today": "Hoy",
+      "yesterday": "Ayer"
+    },
+    "tickets": {
+      "adding": "Anotando…",
+      "addingAria": "Anotando “{content}”",
+      "unsent": "No lo pude guardar",
+      "unsentHint": "Revisa tu conexión y",
+      "tryAgain": "Reintentar",
+      "oops": "No pude leer este",
+      "oopsHint": "¿Agregas el monto tú?",
+      "fixIt": "Arreglar",
+      "whichCategory": "¿Qué categoría?",
+      "whichCategoryFor": "¿Qué categoría es “{descriptor}”?",
+      "noCategoryYet": "Sin categoría aún",
+      "things": "{count, plural, one {# cosa} other {# cosas}}",
+      "together": "En total",
+      "more": "Más…",
+      "pickFailed": "No pude guardar esa categoría. ¿Reintentas?",
+      "askedMomo": "Pregunta a MoMo",
+      "loadingEarlier": "Cargando tickets anteriores",
+      "beginning": "Este es el comienzo"
+    },
+    "composer": {
+      "placeholder": "¿Qué gastaste?",
+      "ariaLabel": "Agrega un gasto o pregúntale a @momo",
+      "send": "Enviar",
+      "hint": "Prueba “almuerzo 12.50”, o pregúntale lo que sea a @momo.",
+      "hintNoAi": "Prueba “almuerzo 12.50” o “mercado 82.40, vino 18”.",
+      "hintMomo": "MoMo responderá esto"
+    },
+    "empty": {
+      "title": "Nada por aquí todavía",
+      "body": "Cuéntale a MoMo qué gastaste simplemente escribiendo una cantidad y una nota corta"
+    },
     "tabs": {
       "personal": "Personal",
       "household": "Hogar"
@@ -91,6 +127,32 @@
     }
   },
   "expenses": {
+    "categories": {
+      "housing": "Vivienda",
+      "utilities": "Servicios",
+      "groceries": "Mercado",
+      "dining": "Restaurantes",
+      "transportation": "Transporte",
+      "vehicle": "Vehículo",
+      "health": "Salud",
+      "self_care": "Cuidado personal",
+      "education": "Educación",
+      "kids": "Niños",
+      "shopping": "Compras",
+      "entertainment": "Entretenimiento",
+      "subscriptions": "Suscripciones",
+      "travel": "Viajes",
+      "gifts": "Regalos",
+      "fees": "Comisiones",
+      "income": "Ingresos",
+      "transfer": "Transferencias",
+      "pets": "Mascotas",
+      "debt": "Deudas",
+      "fun": "Diversión",
+      "treats": "Antojos",
+      "uncategorized": "Sin categoría",
+      "others": "Otros"
+    },
     "detail": {
       "title": "Detalles del gasto",
       "loading": "Cargando gastos...",
@@ -217,10 +279,46 @@
         "headerTitle": "Familia",
         "mobile": {
           "samples": [
-            "Café 8000",
-            "220000 Taxi al aeropuerto",
-            "Mercado 154000",
-            "Almuerzo con la esposa 60k"
+            {
+              "text": "Café 8000",
+              "time": "08:15",
+              "expense": {
+                "descriptor": "Café",
+                "amountMinor": 8000,
+                "currency": "COP",
+                "category": "treats"
+              }
+            },
+            {
+              "text": "220000 Taxi al aeropuerto",
+              "time": "09:40",
+              "expense": {
+                "descriptor": "Taxi al aeropuerto",
+                "amountMinor": 220000,
+                "currency": "COP",
+                "category": "transportation"
+              }
+            },
+            {
+              "text": "Mercado 154000",
+              "time": "17:12",
+              "expense": {
+                "descriptor": "Mercado",
+                "amountMinor": 154000,
+                "currency": "COP",
+                "category": "groceries"
+              }
+            },
+            {
+              "text": "Almuerzo con la esposa 60k",
+              "time": "12:31",
+              "expense": {
+                "descriptor": "Almuerzo con la esposa",
+                "amountMinor": 60000,
+                "currency": "COP",
+                "category": "dining"
+              }
+            }
           ],
           "ariaSendLabel": "Enviar",
           "ariaPreviewLabel": "Vista previa de cómo escribir un mensaje y crear un gasto"
@@ -230,23 +328,57 @@
             {
               "text": "60k almuerzo con la esposa",
               "sender": "Juan",
-              "time": "12:31 PM"
+              "time": "12:31",
+              "expense": {
+                "descriptor": "Almuerzo con la esposa",
+                "amountMinor": 60000,
+                "currency": "COP",
+                "category": "dining"
+              }
             },
-            { "text": "8000 café", "sender": "Martín", "time": "12:34 PM" },
+            {
+              "text": "8000 café",
+              "sender": "Martín",
+              "time": "12:34",
+              "expense": {
+                "descriptor": "Café",
+                "amountMinor": 8000,
+                "currency": "COP",
+                "category": "treats"
+              }
+            },
             {
               "text": "22000 taxi al aeropuerto",
               "sender": "Juan",
-              "time": "12:48 PM"
+              "time": "12:48",
+              "expense": {
+                "descriptor": "Taxi al aeropuerto",
+                "amountMinor": 22000,
+                "currency": "COP",
+                "category": "transportation"
+              }
             },
             {
               "text": "154000 mercado D1",
               "sender": "Martín",
-              "time": "5:12 PM"
+              "time": "17:12",
+              "expense": {
+                "descriptor": "Mercado D1",
+                "amountMinor": 154000,
+                "currency": "COP",
+                "category": "groceries"
+              }
             },
             {
               "text": "18000 entrada al cine",
               "sender": "Martín",
-              "time": "8:02 PM"
+              "time": "20:02",
+              "expense": {
+                "descriptor": "Entrada al cine",
+                "amountMinor": 18000,
+                "currency": "COP",
+                "category": "entertainment"
+              }
             }
           ]
         }
@@ -262,11 +394,13 @@
       },
       "chat": {
         "text": "25 almuerzo con martín",
-        "time": "12:31 PM"
-      },
-      "chip": {
-        "label": "Registrado como",
-        "category": "Dining"
+        "time": "12:31",
+        "expense": {
+          "descriptor": "Almuerzo con Martín",
+          "amountMinor": 2500,
+          "currency": "USD",
+          "category": "dining"
+        }
       }
     },
     "together": {
@@ -279,9 +413,24 @@
         "statsAria": "Pestaña de Estadísticas aparte — no es parte del chat"
       },
       "thread": [
-        { "text": "compré mercado 54", "time": "5:12 PM" },
-        { "text": "ya está. ¿incluyó la leche?", "time": "5:13 PM" },
-        { "text": "sí, todo dentro", "time": "5:14 PM" }
+        {
+          "text": "compré mercado 54",
+          "time": "17:12",
+          "expense": {
+            "descriptor": "Mercado",
+            "amountMinor": 5400,
+            "currency": "USD",
+            "category": "groceries"
+          }
+        },
+        {
+          "text": "ya está. ¿incluyó la leche?",
+          "time": "17:13"
+        },
+        {
+          "text": "sí, todo dentro",
+          "time": "17:14"
+        }
       ],
       "ring": {
         "left": "Juan",

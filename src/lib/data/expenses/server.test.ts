@@ -7,6 +7,7 @@ import { getExpensesByMessageId, updateExpenses } from './server';
 
 jest.mock('@actions/expenses', () => ({
   getExpensesByMessageId: jest.fn(),
+  getExpensesByMessageIds: jest.fn(),
   updateExpenses: jest.fn(),
 }));
 

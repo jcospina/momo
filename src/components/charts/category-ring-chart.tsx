@@ -1,11 +1,12 @@
 'use client';
 
-import { formatCategoryLabel } from '@helpers/expenses-stats/aggregations';
+import { OTHERS_CATEGORY_KEY } from '@constants/expenses/categories';
+import { useCategoryLabel } from '@hooks/use-category-label';
 import { useCallback, useMemo } from 'react';
+import { categoryColorVar, OTHERS_COLOR_VAR } from '@/lib/theme/color-vars';
 
 import { RingChart, type RingChartItem } from './ring-chart';
 
-const OTHERS_LABEL = 'Others';
 const TOP_COUNT = 5;
 
 type RingItem = {
@@ -33,7 +34,10 @@ type CategoryRingChartProps = {
   }) => void;
 };
 
-function prepareData(items: RingItem[]) {
+function prepareData(
+  items: RingItem[],
+  labelFor: (category: string) => string,
+) {
   const sorted = [...items].sort(
     (left, right) => right.totalCents - left.totalCents,
   );
@@ -41,13 +45,21 @@ function prepareData(items: RingItem[]) {
   const rest = sorted.slice(TOP_COUNT);
   const othersTotal = rest.reduce((sum, item) => sum + item.totalCents, 0);
 
+  // Each slice keeps its category's fixed colour, whatever its rank.
   const data: RingChartItem[] = top.map(item => ({
-    name: formatCategoryLabel(item.category),
+    key: item.category,
+    name: labelFor(item.category),
     value: item.totalCents,
+    color: categoryColorVar(item.category),
   }));
 
   if (rest.length > 0) {
-    data.push({ name: OTHERS_LABEL, value: othersTotal });
+    data.push({
+      key: OTHERS_CATEGORY_KEY,
+      name: labelFor(OTHERS_CATEGORY_KEY),
+      value: othersTotal,
+      color: OTHERS_COLOR_VAR,
+    });
   }
 
   return {
@@ -68,14 +80,15 @@ export function CategoryRingChart({
   onCategoryClick,
   onOthersClick,
 }: CategoryRingChartProps) {
+  const labelFor = useCategoryLabel();
   const { seriesData, othersCategories, othersBreakdown } = useMemo(
-    () => prepareData(items),
-    [items],
+    () => prepareData(items, labelFor),
+    [items, labelFor],
   );
 
   const handleItemClick = useCallback(
     (payload: RingChartItem) => {
-      if (payload.name === OTHERS_LABEL) {
+      if (payload.key === OTHERS_CATEGORY_KEY) {
         onOthersClick?.({
           monthLabel,
           categories: othersCategories,
@@ -97,7 +110,7 @@ export function CategoryRingChart({
       items={seriesData}
       currency={currency}
       getTooltipLines={payload => {
-        if (payload.name === OTHERS_LABEL) {
+        if (payload.key === OTHERS_CATEGORY_KEY) {
           if (!othersBreakdown.length) return [];
           const formatter = new Intl.NumberFormat(undefined, {
             style: 'currency',
@@ -108,13 +121,13 @@ export function CategoryRingChart({
           return othersBreakdown.map(entry => {
             const value = entry.totalCents / (currency === 'COP' ? 1 : 100);
             return {
-              label: formatCategoryLabel(entry.category),
+              label: labelFor(entry.category),
               value: formatter.format(value),
               emphasizeLabel: true,
             };
           });
         }
-        const breakdown = tooltipByCategory?.[payload.name] ?? [];
+        const breakdown = tooltipByCategory?.[payload.key ?? ''] ?? [];
         if (!breakdown.length) return [];
         const formatter = new Intl.NumberFormat(undefined, {
           style: 'currency',

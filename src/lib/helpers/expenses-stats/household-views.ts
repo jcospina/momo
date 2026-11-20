@@ -32,7 +32,9 @@ export async function fetchMonthlyByCategoryUser({
 
   const query = supabase
     .from('monthly_by_category_user')
-    .select('household_id, month, category, user_label, total_cents')
+    .select(
+      'household_id, month, category, user_label, total_cents, user_id, color_slot',
+    )
     .in('month', months);
 
   if (householdId) {
@@ -57,7 +59,9 @@ export async function fetchAllMonthlyByCategoryUser({
 }: AllFetchParams): Promise<MonthlyByCategoryUserRow[]> {
   const query = supabase
     .from('monthly_by_category_user')
-    .select('household_id, month, category, user_label, total_cents')
+    .select(
+      'household_id, month, category, user_label, total_cents, user_id, color_slot',
+    )
     .order('month', { ascending: true });
 
   if (householdId) {

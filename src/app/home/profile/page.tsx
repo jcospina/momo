@@ -12,6 +12,7 @@ import {
 } from '@/lib/data/households/server';
 import { getUserPreferences } from '@/lib/data/prefs/server';
 import { getProfile } from '@/lib/data/profile/server';
+import { memberColorVar, memberInkVar } from '@/lib/theme/color-vars';
 import { Avatar } from '@/ui/avatar/avatar';
 import { Button } from '@/ui/button/button';
 import { Divider } from '@/ui/divider/divider';
@@ -58,6 +59,10 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const members = household ? await getMembers(household.id) : [];
   const isOwner = household ? household.owner === user.id : false;
   const isFull = members.length >= 5;
+  // Your own fixed colour, so you look the same here as in chat and charts.
+  // Without a household you'd be its first member, so slot 1.
+  const ownSlot =
+    members.find(member => member.user_id === user.id)?.color_slot ?? 1;
 
   return (
     <Flex direction="column" padding={3} gap={5}>
@@ -74,7 +79,12 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           </Typography>
           <Flex alignItems="center" gap={2}>
             <FlexItem shrink={0}>
-              <Avatar displayName={displayName || '?'} size="small" />
+              <Avatar
+                displayName={displayName || '?'}
+                size="small"
+                fill={memberColorVar(ownSlot)}
+                ink={memberInkVar(ownSlot)}
+              />
             </FlexItem>
             <Typography as="h3" size="lg">
               {firstName(displayName, profile.email || null)}

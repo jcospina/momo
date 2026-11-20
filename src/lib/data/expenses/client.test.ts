@@ -1,12 +1,18 @@
 import {
   getExpensesByMessageId as getExpensesByMessageIdAction,
+  getExpensesByMessageIds as getExpensesByMessageIdsAction,
   updateExpenses as updateExpensesAction,
 } from '@actions/expenses';
 
-import { getExpensesByMessageId, updateExpenses } from './client';
+import {
+  getExpensesByMessageId,
+  getExpensesByMessageIds,
+  updateExpenses,
+} from './client';
 
 jest.mock('@actions/expenses', () => ({
   getExpensesByMessageId: jest.fn(),
+  getExpensesByMessageIds: jest.fn(),
   updateExpenses: jest.fn(),
 }));
 
@@ -26,6 +32,20 @@ describe('data/expenses/client facade', () => {
     const actual = await getExpensesByMessageId(payload);
 
     expect(getExpensesByMessageIdMock).toHaveBeenCalledWith(payload);
+    expect(actual).toEqual(result);
+  });
+
+  it('delegates batched expense reads', async () => {
+    const getManyMock = jest.mocked(getExpensesByMessageIdsAction);
+    const payload = { messageIds: ['message-1', 'message-2'] };
+    const result = {
+      expensesByMessageId: { 'message-1': [], 'message-2': [] },
+    };
+    getManyMock.mockResolvedValue(result);
+
+    const actual = await getExpensesByMessageIds(payload);
+
+    expect(getManyMock).toHaveBeenCalledWith(payload);
     expect(actual).toEqual(result);
   });
 

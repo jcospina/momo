@@ -1,6 +1,7 @@
 'use client';
 
-import { formatCategoryLabel } from '@helpers/expenses-stats/aggregations';
+import { OTHERS_CATEGORY_KEY } from '@constants/expenses/categories';
+import { useCategoryLabel } from '@hooks/use-category-label';
 import { AxisBottom, AxisLeft } from '@visx/axis';
 import { GridRows } from '@visx/grid';
 import { Group } from '@visx/group';
@@ -8,13 +9,9 @@ import { scaleBand, scaleLinear } from '@visx/scale';
 import { BarStack } from '@visx/shape';
 import type { TouchEvent as ReactTouchEvent } from 'react';
 import { useCallback, useMemo, useState } from 'react';
+import { categoryColorVar, OTHERS_COLOR_VAR } from '@/lib/theme/color-vars';
 import styles from './monthly-totals-bar-chart.module.css';
-import {
-  CHART_AXIS,
-  CHART_GRID,
-  CHART_STROKE,
-  paletteColor,
-} from './shared/chart-colors';
+import { CHART_AXIS, CHART_GRID, CHART_STROKE } from './shared/chart-colors';
 import { ChartShell } from './shared/chart-shell';
 import {
   formatCompactCurrency,
@@ -40,7 +37,12 @@ const BAR_MAX_WIDTH = 32;
 const STROKE_WIDTH = 2;
 const MARGIN = { top: 24, right: 16, bottom: 64, left: 56 } as const;
 const LABEL_THRESHOLD = 36;
-const OTHERS_LABEL = 'Others';
+const OTHERS_LABEL = OTHERS_CATEGORY_KEY;
+
+/** Each category keeps its fixed colour, whatever its rank this period. */
+function seriesColor(name: string): string {
+  return name === OTHERS_LABEL ? OTHERS_COLOR_VAR : categoryColorVar(name);
+}
 
 export type MonthEntry = {
   month: string;
@@ -187,14 +189,6 @@ function MonthlyTotalsCanvas({
   const innerWidth = Math.max(0, width - MARGIN.left - MARGIN.right);
   const innerHeight = Math.max(0, height - MARGIN.top - MARGIN.bottom);
 
-  const seriesIndexByName = useMemo(() => {
-    const map = new Map<string, number>();
-    series.forEach((s, index) => {
-      map.set(s.name, index);
-    });
-    return map;
-  }, [series]);
-
   // Visible series only — hidden ones don't contribute to bars or to the
   // outline total per month.
   const visibleSeries = useMemo(
@@ -250,10 +244,8 @@ function MonthlyTotalsCanvas({
     [yMax, innerHeight],
   );
 
-  const colorFor = useCallback(
-    (key: string) => paletteColor(seriesIndexByName.get(key) ?? 0),
-    [seriesIndexByName],
-  );
+  const colorFor = useCallback((key: string) => seriesColor(key), []);
+  const labelFor = useCategoryLabel();
 
   const bandwidth = xScale.bandwidth();
   const actualBarWidth = Math.min(bandwidth, BAR_MAX_WIDTH);
@@ -518,8 +510,7 @@ function MonthlyTotalsCanvas({
           className={tooltipStyles.tooltip}
         >
           <div>
-            {formatCategoryLabel(tooltipData.seriesName)}{' '}
-            {tooltipData.formatted}
+            {labelFor(tooltipData.seriesName)} {tooltipData.formatted}
           </div>
         </TooltipInPortal>
       ) : null}
@@ -531,20 +522,14 @@ type LegendProps = {
   series: Array<{ name: string }>;
   hidden: Set<string>;
   toggle: (name: string) => void;
-  seriesIndexByName: Map<string, number>;
 };
 
-function MonthlyTotalsLegend({
-  series,
-  hidden,
-  toggle,
-  seriesIndexByName,
-}: LegendProps) {
+function MonthlyTotalsLegend({ series, hidden, toggle }: LegendProps) {
+  const labelFor = useCategoryLabel();
   return (
     <ul className={legendStyles.legend} data-testid="monthly-totals-legend">
       {series.map(item => {
         const isHidden = hidden.has(item.name);
-        const index = seriesIndexByName.get(item.name) ?? 0;
         return (
           <li key={item.name}>
             <button
@@ -558,11 +543,11 @@ function MonthlyTotalsLegend({
               <span
                 className={legendStyles.legendDot}
                 style={{
-                  background: isHidden ? 'transparent' : paletteColor(index),
+                  background: isHidden ? 'transparent' : seriesColor(item.name),
                 }}
               />
               <span className={legendStyles.legendLabel}>
-                {formatCategoryLabel(item.name)}
+                {labelFor(item.name)}
               </span>
             </button>
           </li>
@@ -581,14 +566,6 @@ export function MonthlyTotalsBarChart({
     () => buildMonthSeries(months),
     [months],
   );
-
-  const seriesIndexByName = useMemo(() => {
-    const map = new Map<string, number>();
-    series.forEach((s, index) => {
-      map.set(s.name, index);
-    });
-    return map;
-  }, [series]);
 
   const [hidden, setHidden] = useState<Set<string>>(() => new Set());
 
@@ -628,12 +605,7 @@ export function MonthlyTotalsBarChart({
           )}
         </ChartShell>
       </div>
-      <MonthlyTotalsLegend
-        series={series}
-        hidden={hidden}
-        toggle={toggle}
-        seriesIndexByName={seriesIndexByName}
-      />
+      <MonthlyTotalsLegend series={series} hidden={hidden} toggle={toggle} />
     </div>
   );
 }
